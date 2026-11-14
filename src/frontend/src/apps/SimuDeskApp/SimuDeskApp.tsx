@@ -78,9 +78,22 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
           <span className={`badge ${elevado ? 'badge-warn' : ''}`}>
             Contexto: {elevado ? 'Prompt Elevado (Admin)' : 'Usuario Padrao'}
           </span>{' '}
-          <span className={`badge ${sessao.estacao.compartilhamentoAcessivel ? 'badge-ok' : 'badge-err'}`}>
-            Pasta Financeiro: {sessao.estacao.compartilhamentoAcessivel ? 'Acessivel' : 'Inacessivel'}
-          </span>
+          {sessao.meta.cenarioId === 'incidente-massivo' ? (
+            <span
+              className={`badge ${
+                sessao.estacao.servicos.some((s) => s.nome === 'AuroraGateway' && s.status === 'Running')
+                  ? 'badge-ok'
+                  : 'badge-err'
+              }`}
+            >
+              AuroraGateway:{' '}
+              {sessao.estacao.servicos.find((s) => s.nome === 'AuroraGateway')?.status ?? 'Stopped'}
+            </span>
+          ) : sessao.meta.cenarioId !== 'triagem-engenharia-social' ? (
+            <span className={`badge ${sessao.estacao.compartilhamentoAcessivel ? 'badge-ok' : 'badge-err'}`}>
+              Pasta Financeiro: {sessao.estacao.compartilhamentoAcessivel ? 'Acessivel' : 'Inacessivel'}
+            </span>
+          ) : null}
         </div>
         <div className="actions-bar">
           <button

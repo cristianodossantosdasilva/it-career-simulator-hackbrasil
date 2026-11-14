@@ -54,6 +54,9 @@ async function extrairErro(resp: Response): Promise<never> {
   if (resp.status === 409 && typeof ultimoSeq === 'number') {
     throw new ConflitoSeqError(ultimoSeq)
   }
+  if (resp.status === 410) {
+    throw new Error('Sessao expirada (TTL de 30 dias atingido). Inicie uma nova sessao.')
+  }
   const msg = (data.detail as string) || (data.mensagem as string) || `Erro HTTP ${resp.status}`
   throw new Error(msg)
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { CarreiraResumoResponse } from '../api/types'
+import { verificarCurriculoVivoJson, type ResultadoVerificacaoCurriculo } from '../utils/jcs'
 
 interface Props {
   onIniciar: (cenarioId: string, semente?: number, causaForcada?: string) => Promise<void>
@@ -46,6 +47,19 @@ export function TelaInicial({
 }: Props) {
   const [cenario, setCenario] = useState('pasta-rede-inacessivel')
   const [semente, setSemente] = useState('')
+  const [mostrarVerificador, setMostrarVerificador] = useState(false)
+  const [jsonVerificar, setJsonVerificar] = useState('')
+  const [resultadoVerif, setResultadoVerif] = useState<ResultadoVerificacaoCurriculo | null>(null)
+
+  async function executarVerificacao(conteudo: string) {
+    setJsonVerificar(conteudo)
+    if (!conteudo.trim()) {
+      setResultadoVerif(null)
+      return
+    }
+    const res = await verificarCurriculoVivoJson(conteudo)
+    setResultadoVerif(res)
+  }
 
   function exportarCurriculoVivo() {
     if (!resumoCarreira) return
@@ -190,6 +204,71 @@ export function TelaInicial({
             </p>
           </section>
         )}
+
+        <section className="panel" aria-label="Verificador local de Curriculo Vivo" style={{ marginTop: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <span>
+              <strong>Verificador de Integridade (Offline):</strong> valide um arquivo <code>curriculo-vivo-itfs.json</code> localmente no navegador.
+            </span>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => setMostrarVerificador((v) => !v)}
+            >
+              {mostrarVerificador ? 'Ocultar Verificador' : 'Verificar Curriculo Vivo'}
+            </button>
+          </div>
+
+          {mostrarVerificador && (
+            <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+              <label>
+                Cole o JSON do Curriculo Vivo ou selecione o arquivo .json
+                <textarea
+                  rows={4}
+                  placeholder='{"cargoAtual": "...", "xpTotal": 0, ...}'
+                  value={jsonVerificar}
+                  onChange={(e) => void executarVerificacao(e.target.value)}
+                  style={{ width: '100%', fontFamily: 'monospace', fontSize: '0.8rem', padding: '0.5rem', borderRadius: '8px', background: 'var(--bg-elevated)', color: '#f1f5f9', border: '1px solid var(--border-bright)' }}
+                />
+              </label>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <input
+                  type="file"
+                  accept=".json,application/json"
+                  aria-label="Selecionar arquivo JSON do Curriculo Vivo"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (!file) return
+                    void file.text().then((txt) => executarVerificacao(txt))
+                  }}
+                />
+              </div>
+              {resultadoVerif && (
+                <div
+                  role="status"
+                  className={
+                    resultadoVerif.status === 'integro'
+                      ? 'badge badge-ok'
+                      : resultadoVerif.status === 'divergente'
+                        ? 'alert-danger'
+                        : 'banner-notice'
+                  }
+                  style={{ padding: '0.6rem 0.8rem', borderRadius: '8px' }}
+                >
+                  <strong>
+                    {resultadoVerif.status === 'integro'
+                      ? 'INTEGRO'
+                      : resultadoVerif.status === 'divergente'
+                        ? 'DIVERGENTE'
+                        : 'NAO VERIFICAVEL'}
+                    :
+                  </strong>{' '}
+                  {resultadoVerif.motivo}
+                </div>
+              )}
+            </div>
+          )}
+        </section>
       </div>
     </main>
   )

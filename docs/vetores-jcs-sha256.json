@@ -1,0 +1,50 @@
+[
+  {
+    "nome": "simples_chaves_desordenadas",
+    "entrada": {
+      "z": 1,
+      "a": {
+        "b": true,
+        "a": "ok"
+      }
+    },
+    "jcs": "{\"a\":{\"a\":\"ok\",\"b\":true},\"z\":1}",
+    "sha256": "cac70e3203aec80b1b9826e67c5365504923c30c237599607fea7f3854aadd3c"
+  },
+  {
+    "nome": "curriculo_nucleo_v1",
+    "entrada": {
+      "xpTotal": 150,
+      "cargoAtual": "Analista Jr (N1)",
+      "competencias": [
+        "Defesa contra Engenharia Social"
+      ],
+      "sessoesConfirmadas": [
+        {
+          "xp": 60,
+          "nivel": "Estagiario",
+          "concluida": true,
+          "cenarioId": "triagem-engenharia-social",
+          "sessaoId": "00000000-0000-0000-0000-000000000001",
+          "hashSessao": "abc"
+        }
+      ]
+    },
+    "jcs": "{\"cargoAtual\":\"Analista Jr (N1)\",\"competencias\":[\"Defesa contra Engenharia Social\"],\"sessoesConfirmadas\":[{\"cenarioId\":\"triagem-engenharia-social\",\"concluida\":true,\"hashSessao\":\"abc\",\"nivel\":\"Estagiario\",\"sessaoId\":\"00000000-0000-0000-0000-000000000001\",\"xp\":60}],\"xpTotal\":150}",
+    "sha256": "8ba6c2b8df136a192c6684b5508b93a985b6ce995ce1bb4d5d3e6fc299e067a3"
+  },
+  {
+    "nome": "array_e_nulos",
+    "entrada": {
+      "lista": [
+        3,
+        1,
+        2
+      ],
+      "nulo": null,
+      "ativo": false
+    },
+    "jcs": "{\"ativo\":false,\"lista\":[3,1,2],\"nulo\":null}",
+    "sha256": "c805b90d83e33f2525293e1beb9441708516b54022db51ce86ffeb3a7178f7d4"
+  }
+]

@@ -199,4 +199,41 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Equal("{\"a\":{\"a\":\"ok\",\"b\":true},\"z\":1}", jsonA);
         Assert.Equal(jsonA, jsonB);
     }
+
+    [Fact]
+    public void VetoresCompartilhados_JcsSha256_BatemComFonteUnica()
+    {
+        var caminhoVetores = Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "..", "docs", "vetores-jcs-sha256.json"));
+        Assert.True(File.Exists(caminhoVetores), $"Arquivo de vetores nao encontrado em {caminhoVetores}");
+
+        var vetores = JsonDocument.Parse(File.ReadAllText(caminhoVetores)).RootElement;
+        foreach (var v in vetores.EnumerateArray())
+        {
+            var entrada = v.GetProperty("entrada");
+            var jcsEsperado = v.GetProperty("jcs").GetString()!;
+            var shaEsperado = v.GetProperty("sha256").GetString()!;
+
+            var jcsReal = Simulador.Avaliacao.JcsCanonico.Serializar(entrada);
+            Assert.Equal(jcsEsperado, jcsReal);
+
+            var shaReal = Convert.ToHexStringLower(
+                System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(jcsReal)));
+            Assert.Equal(shaEsperado, shaReal);
+        }
+    }
+
+    [Fact]
+    public async Task Replay_OcultaCausaEnquantoEmAndamento_ERevelaAoConcluir()
+    {
+        var rCriar = await _client.PostAsJsonAsync("/api/sessoes", new { cenarioId = "pasta-rede-inacessivel", causaForcada = "C1", semente = 42 });
+        rCriar.EnsureSuccessStatusCode();
+        var criar = await rCriar.Content.ReadFromJsonAsync<JsonElement>();
+        var sessaoId = criar.GetProperty("sessaoId").GetString()!;
+
+        var rReplayAntes = await _client.GetFromJsonAsync<JsonElement>($"/api/sessoes/{sessaoId}/replay");
+        Assert.Equal(JsonValueKind.Null, rReplayAntes.GetProperty("meta").GetProperty("causa").ValueKind);
+        var ev0Payload = rReplayAntes.GetProperty("eventos")[0].GetProperty("payload");
+        Assert.False(ev0Payload.TryGetProperty("causa", out _));
+    }
 }
