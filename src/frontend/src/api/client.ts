@@ -22,19 +22,23 @@ export class ConflitoSeqError extends Error {
   }
 }
 
-async function getComRetry(url: string, tentativas = 3): Promise<Response> {
+async function fetchComRetry(url: string, init?: RequestInit, tentativas = 3): Promise<Response> {
   let ultimoErro: unknown
   for (let i = 0; i < tentativas; i++) {
     try {
-      const resp = await fetch(url)
-      if (resp.status !== 503) return resp
-      ultimoErro = new Error(`Upstream 503 na tentativa ${i + 1}`)
+      const resp = await fetch(url, init)
+      if (resp.status !== 502 && resp.status !== 503 && resp.status !== 504) return resp
+      ultimoErro = new Error(`Servidor acordando (HTTP ${resp.status}, tentativa ${i + 1})`)
     } catch (err) {
       ultimoErro = err
     }
-    await new Promise((r) => setTimeout(r, 200 * 2 ** i))
+    await new Promise((r) => setTimeout(r, 400 * 2 ** i))
   }
   throw ultimoErro
+}
+
+async function getComRetry(url: string, tentativas = 3): Promise<Response> {
+  return fetchComRetry(url, undefined, tentativas)
 }
 
 async function extrairErro(resp: Response): Promise<never> {
@@ -62,8 +66,17 @@ async function extrairErro(resp: Response): Promise<never> {
 }
 
 export const apiClient = {
+  async verificarSaude(): Promise<boolean> {
+    try {
+      const resp = await fetchComRetry(apiUrl('/health/live'), undefined, 2)
+      return resp.ok
+    } catch {
+      return false
+    }
+  },
+
   async criarSessao(body: CriarSessaoRequest = {}): Promise<CriarSessaoResponse> {
-    const resp = await fetch(apiUrl('/api/sessoes'), {
+    const resp = await fetchComRetry(apiUrl('/api/sessoes'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

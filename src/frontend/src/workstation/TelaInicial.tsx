@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { CarreiraResumoResponse } from '../api/types'
 import { verificarCurriculoVivoJson, type ResultadoVerificacaoCurriculo } from '../utils/jcs'
 
@@ -50,6 +50,16 @@ export function TelaInicial({
   const [mostrarVerificador, setMostrarVerificador] = useState(false)
   const [jsonVerificar, setJsonVerificar] = useState('')
   const [resultadoVerif, setResultadoVerif] = useState<ResultadoVerificacaoCurriculo | null>(null)
+  const [avisoColdStart, setAvisoColdStart] = useState(false)
+
+  useEffect(() => {
+    if (!ocupado) {
+      setAvisoColdStart(false)
+      return
+    }
+    const timer = window.setTimeout(() => setAvisoColdStart(true), 2000)
+    return () => window.clearTimeout(timer)
+  }, [ocupado])
 
   async function executarVerificacao(conteudo: string) {
     setJsonVerificar(conteudo)
@@ -91,6 +101,12 @@ export function TelaInicial({
             <strong>Curriculo Vivo</strong> auditavel por SHA-256.
           </p>
         </div>
+
+        {avisoColdStart && (
+          <div className="banner-notice" role="status">
+            Acordando servidor na nuvem (Render Free) — a primeira chamada apos inatividade pode levar ate 40 segundos.
+          </div>
+        )}
 
         {erro && (
           <div className="alert-danger" role="alert">
