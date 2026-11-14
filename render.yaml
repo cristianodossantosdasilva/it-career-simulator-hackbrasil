@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: it-flight-simulator-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./src/backend/Dockerfile
+    dockerContext: ./src/backend
+    healthCheckPath: /health/live
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: EventStore__Provedor
+        value: Postgres
+      - key: Sessao__TtlDias
+        value: "30"
+      - key: Dialogo__HabilitarLlm
+        value: "false"
+      - key: ConnectionStrings__Postgres
+        sync: false
+      - key: Cors__AllowedOrigins
+        sync: false

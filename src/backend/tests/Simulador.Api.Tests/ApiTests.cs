@@ -169,4 +169,15 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
 
         Assert.Equal(hash1, hash2);
     }
+
+    [Fact]
+    public void NormalizarConnectionString_ConverteUriNeonParaNpgsql()
+    {
+        var npgsql = Simulador.Infra.PostgresEventStore.NormalizarConnectionString(
+            "postgresql://neondb_owner:segredo@ep-test-123.us-east-2.aws.neon.tech/neondb?sslmode=require");
+        Assert.Contains("Host=ep-test-123.us-east-2.aws.neon.tech", npgsql);
+        Assert.Contains("Database=neondb", npgsql);
+        Assert.Contains("Username=neondb_owner", npgsql);
+        Assert.Contains("SSL Mode=Require", npgsql);
+    }
 }

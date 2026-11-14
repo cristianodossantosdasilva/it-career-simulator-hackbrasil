@@ -8,16 +8,33 @@ using Simulador.Infra;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var portEnv = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(portEnv) && string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ASPNETCORE_URLS")))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{portEnv}");
+}
+
 builder.Services.ConfigureHttpJsonOptions(opt =>
 {
     opt.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
+var origensConfig = builder.Configuration["Cors:AllowedOrigins"];
+var origensPermitidas = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+{
+    "http://localhost:5173",
+    "http://127.0.0.1:5173"
+};
+if (!string.IsNullOrWhiteSpace(origensConfig))
+{
+    foreach (var origem in origensConfig.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        origensPermitidas.Add(origem.TrimEnd('/'));
+}
 builder.Services.AddCors(opt =>
 {
     opt.AddDefaultPolicy(p => p
-        .WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
+        .WithOrigins([.. origensPermitidas])
         .AllowAnyHeader()
         .AllowAnyMethod());
 });

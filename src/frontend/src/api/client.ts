@@ -8,6 +8,12 @@ import type {
   SessaoProjecao,
 } from './types'
 
+const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
+
+function apiUrl(path: string): string {
+  return `${API_BASE}${path}`
+}
+
 export class ConflitoSeqError extends Error {
   readonly ultimoSeq: number
   constructor(ultimoSeq: number) {
@@ -48,7 +54,7 @@ async function extrairErro(resp: Response): Promise<never> {
 
 export const apiClient = {
   async criarSessao(body: CriarSessaoRequest = {}): Promise<CriarSessaoResponse> {
-    const resp = await fetch('/api/sessoes', {
+    const resp = await fetch(apiUrl('/api/sessoes'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -58,7 +64,7 @@ export const apiClient = {
   },
 
   async obterSessao(id: string): Promise<SessaoProjecao> {
-    const resp = await getComRetry(`/api/sessoes/${id}`)
+    const resp = await getComRetry(apiUrl(`/api/sessoes/${id}`))
     if (!resp.ok) await extrairErro(resp)
     return resp.json()
   },
@@ -69,7 +75,7 @@ export const apiClient = {
     seqEsperado: number,
     dados?: Record<string, unknown>,
   ): Promise<{ eventos: EventoDto[]; projecao: SessaoProjecao }> {
-    const resp = await fetch(`/api/sessoes/${id}/acoes`, {
+    const resp = await fetch(apiUrl(`/api/sessoes/${id}/acoes`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tipo, dados, seqEsperado }),
@@ -84,7 +90,7 @@ export const apiClient = {
     mensagem: string,
     seqEsperado: number,
   ): Promise<{ eventos: EventoDto[]; projecao: SessaoProjecao }> {
-    const resp = await fetch(`/api/sessoes/${id}/chat`, {
+    const resp = await fetch(apiUrl(`/api/sessoes/${id}/chat`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ persona, mensagem, seqEsperado }),
@@ -94,19 +100,19 @@ export const apiClient = {
   },
 
   async obterAvaliacao(id: string): Promise<AvaliacaoResponse> {
-    const resp = await getComRetry(`/api/sessoes/${id}/avaliacao`)
+    const resp = await getComRetry(apiUrl(`/api/sessoes/${id}/avaliacao`))
     if (!resp.ok) await extrairErro(resp)
     return resp.json()
   },
 
   async obterReplay(id: string): Promise<ReplayResponse> {
-    const resp = await getComRetry(`/api/sessoes/${id}/replay`)
+    const resp = await getComRetry(apiUrl(`/api/sessoes/${id}/replay`))
     if (!resp.ok) await extrairErro(resp)
     return resp.json()
   },
 
   async obterResumoCarreira(sessaoIds: string[], apelido?: string): Promise<CarreiraResumoResponse> {
-    const resp = await fetch('/api/carreira/resumo', {
+    const resp = await fetch(apiUrl('/api/carreira/resumo'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sessaoIds, apelido }),

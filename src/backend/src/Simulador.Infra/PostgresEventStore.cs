@@ -14,7 +14,50 @@ public sealed class PostgresEventStore : IEventStore
     {
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new InvalidOperationException("Connection string do Postgres nao configurada.");
-        _connectionString = connectionString;
+        _connectionString = NormalizarConnectionString(connectionString);
+    }
+
+    public static string NormalizarConnectionString(string raw)
+    {
+        var trimmed = raw.Trim();
+        if (!trimmed.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) &&
+            !trimmed.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+        {
+            return trimmed;
+        }
+
+        var uri = new Uri(trimmed);
+        var userInfo = uri.UserInfo.Split(':', 2);
+        var username = userInfo.Length > 0 ? Uri.UnescapeDataString(userInfo[0]) : string.Empty;
+        var password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : string.Empty;
+        var database = uri.AbsolutePath.TrimStart('/');
+        var port = uri.Port > 0 ? uri.Port : 5432;
+
+        var builder = new NpgsqlConnectionStringBuilder
+        {
+            Host = uri.Host,
+            Port = port,
+            Database = database,
+            Username = username,
+            Password = password,
+            SslMode = SslMode.Require
+        };
+
+        var query = uri.Query.TrimStart('?');
+        if (!string.IsNullOrWhiteSpace(query))
+        {
+            foreach (var pair in query.Split('&', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var kv = pair.Split('=', 2);
+                if (kv.Length == 2 && string.Equals(kv[0], "sslmode", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (Enum.TryParse<SslMode>(kv[1], ignoreCase: true, out var mode))
+                        builder.SslMode = mode;
+                }
+            }
+        }
+
+        return builder.ConnectionString;
     }
 
     public async Task InicializarSchemaAsync(CancellationToken ct = default)
