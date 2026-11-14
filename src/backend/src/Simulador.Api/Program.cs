@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Simulador.Avaliacao;
 using Simulador.Cenarios;
 using Simulador.Dialogo;
@@ -7,6 +8,10 @@ using Simulador.Infra;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.ConfigureHttpJsonOptions(opt =>
+{
+    opt.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
 builder.Services.AddCors(opt =>

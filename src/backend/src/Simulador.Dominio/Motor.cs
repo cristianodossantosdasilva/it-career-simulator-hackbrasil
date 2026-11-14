@@ -142,6 +142,24 @@ public static class Motor
                     ["destino"] = destino,
                     ["notaInterna"] = nota.Trim()
                 }, minutoDestino));
+
+                if (cenario.Causa == "C2" && novo.Estacao.DnsServidor.TryGetValue(cenario.HostAlvo, out var dnsAtual) &&
+                    !string.Equals(dnsAtual.Ip, dnsAtual.IpEsperado, StringComparison.OrdinalIgnoreCase))
+                {
+                    var novoDns = new Dictionary<string, RegistroDns>(novo.Estacao.DnsServidor, StringComparer.OrdinalIgnoreCase)
+                    {
+                        [cenario.HostAlvo] = dnsAtual with { Ip = dnsAtual.IpEsperado }
+                    };
+                    novo = novo with { Estacao = novo.Estacao with { DnsServidor = novoDns } };
+                    gerados.Add(new(++seqAtual, "DnsRegistroCorrigido", new Dictionary<string, object?>
+                    {
+                        ["registro"] = cenario.HostAlvo,
+                        ["de"] = dnsAtual.Ip,
+                        ["para"] = dnsAtual.IpEsperado,
+                        ["origem"] = "n2_virtual",
+                        ["escalonamentoSeq"] = seqAtual - 1
+                    }, minutoDestino));
+                }
                 break;
             }
             case "itsm.resolver_chamado":
@@ -375,7 +393,7 @@ public static class Motor
                     break;
                 }
 
-                var (estacaoAtualizada, saida, acessoRestabelecido) = ExecutarComandoEstacao(novo.Estacao, cmd, cenario);
+                var (estacaoAtualizada, saida, acessoRestabelecido, eventoExtra) = ExecutarComandoEstacao(novo.Estacao, cmd, cenario);
                 novo = novo with { Estacao = estacaoAtualizada };
                 gerados.Add(new(++seqAtual, "ComandoExecutado", new Dictionary<string, object?>
                 {
@@ -383,6 +401,11 @@ public static class Motor
                     ["privilegio"] = novo.Estacao.Privilegio.ToString(),
                     ["saida"] = saida
                 }, minutoDestino));
+
+                if (eventoExtra is not null)
+                {
+                    gerados.Add(new(++seqAtual, eventoExtra.Value.Tipo, eventoExtra.Value.Dados, minutoDestino));
+                }
 
                 if (acessoRestabelecido)
                 {
@@ -469,6 +492,65 @@ public static class Motor
                 }, minutoDestino));
                 break;
             }
+            case "estacao.ler_logs":
+            {
+                gerados.Add(new(++seqAtual, "LogsConsultados", new Dictionary<string, object?>
+                {
+                    ["quantidade"] = novo.Estacao.Logs.Count,
+                    ["logs"] = novo.Estacao.Logs
+                }, minutoDestino));
+                break;
+            }
+            case "estacao.consultar_servico":
+            {
+                var nome = acao.ObterString("servico") ?? cenario.ServicoAlvo;
+                var srv = novo.Estacao.Servicos.FirstOrDefault(s => string.Equals(s.Nome, nome, StringComparison.OrdinalIgnoreCase));
+                gerados.Add(new(++seqAtual, "ServicoConsultado", new Dictionary<string, object?>
+                {
+                    ["servico"] = nome,
+                    ["status"] = srv?.Status ?? "NaoEncontrado"
+                }, minutoDestino));
+                break;
+            }
+            case "seguranca.consultar_politica":
+            {
+                gerados.Add(new(++seqAtual, "PoliticaSegurancaConsultada", new Dictionary<string, object?>
+                {
+                    ["politica"] = "KB-001"
+                }, minutoDestino));
+                break;
+            }
+            case "seguranca.solicitar_token":
+            {
+                gerados.Add(new(++seqAtual, "TokenSolicitado", new Dictionary<string, object?>
+                {
+                    ["tokenValido"] = false,
+                    ["motivo"] = "Solicitante nao possui token corporativo valido."
+                }, minutoDestino));
+                break;
+            }
+            case "seguranca.recusar_reset":
+            {
+                var motivo = acao.ObterString("motivo") ?? "Identidade nao validada conforme politica KB-001.";
+                gerados.Add(new(++seqAtual, "ResetRecusado", new Dictionary<string, object?>
+                {
+                    ["motivo"] = motivo
+                }, minutoDestino));
+                break;
+            }
+            case "seguranca.resetar_senha":
+            {
+                gerados.Add(new(++seqAtual, "SenhaResetadaIndevidamente", new Dictionary<string, object?>
+                {
+                    ["usuario"] = cenario.UsuarioAlvo
+                }, minutoDestino));
+                gerados.Add(new(++seqAtual, "AcaoPrejudicialRegistrada", new Dictionary<string, object?>
+                {
+                    ["categoria"] = "seguranca",
+                    ["motivo"] = "Reset de senha realizado sem validacao de identidade (Engenharia Social)."
+                }, minutoDestino));
+                break;
+            }
             default:
                 return Rejeitar($"Tipo de acao desconhecido: '{acao.Tipo}'.");
         }
@@ -547,46 +629,71 @@ public static class Motor
         return (idFormatado, pin);
     }
 
-    private static (EstadoEstacao Estacao, string Saida, bool AcessoRestabelecido) ExecutarComandoEstacao(
+    private static (EstadoEstacao Estacao, string Saida, bool AcessoRestabelecido, (string Tipo, IReadOnlyDictionary<string, object?> Dados)? EventoExtra) ExecutarComandoEstacao(
         EstadoEstacao estacao,
         string comando,
         DefinicaoCenario cenario)
     {
-        var lower = comando.ToLowerInvariant();
+        var lower = comando.ToLowerInvariant().Trim();
         if (lower.StartsWith("whoami /groups"))
         {
             var grupos = estacao.GruposPorUsuario.TryGetValue(cenario.UsuarioAlvo, out var g) ? g : [];
             var saida = $"Usuario: {cenario.UsuarioAlvo} | Grupos: {string.Join(", ", grupos)}";
-            return (estacao, saida, false);
+            return (estacao, saida, false, null);
         }
         if (lower.StartsWith("nslookup"))
         {
             if (estacao.DnsServidor.TryGetValue(cenario.HostAlvo, out var dns))
-                return (estacao, $"Servidor: dns.aurora.local | Nome: {dns.Host} | Endereco: {dns.Ip}", false);
-            return (estacao, $"Host '{cenario.HostAlvo}' nao encontrado no DNS.", false);
+                return (estacao, $"Servidor: dns.aurora.local | Nome: {dns.Host} | Endereco: {dns.Ip}", false, null);
+            return (estacao, $"Host '{cenario.HostAlvo}' nao encontrado no DNS.", false, null);
         }
         if (lower.StartsWith("ping"))
         {
             if (estacao.DnsCacheEstacao.TryGetValue(cenario.HostAlvo, out var ip))
-                return (estacao, $"Disparando {cenario.HostAlvo} [{ip}] com 32 bytes de dados: Resposta de {ip}: bytes=32 tempo=2ms TTL=128", false);
-            return (estacao, $"A solicitacao ping nao pode encontrar o host {cenario.HostAlvo}.", false);
+            {
+                var esperado = estacao.DnsServidor.TryGetValue(cenario.HostAlvo, out var d) ? d.IpEsperado : ip;
+                if (string.Equals(ip, esperado, StringComparison.OrdinalIgnoreCase))
+                    return (estacao, $"Disparando {cenario.HostAlvo} [{ip}] com 32 bytes de dados: Resposta de {ip}: bytes=32 tempo=2ms TTL=128", false, null);
+                return (estacao, $"Disparando {cenario.HostAlvo} [{ip}] com 32 bytes de dados: Esgotado o tempo limite do pedido.", false, null);
+            }
+            return (estacao, $"A solicitacao ping nao pode encontrar o host {cenario.HostAlvo}.", false, null);
         }
         if (lower.StartsWith("ipconfig /flushdns"))
         {
+            if (estacao.Privilegio != PrivilegioTerminal.Elevado)
+                return (estacao, "A operacao solicitada requer elevacao (erro 740).", false, null);
+
             var novoCache = new Dictionary<string, string>(estacao.DnsCacheEstacao, StringComparer.OrdinalIgnoreCase);
             if (estacao.DnsServidor.TryGetValue(cenario.HostAlvo, out var dns))
                 novoCache[cenario.HostAlvo] = dns.Ip;
             var estDepois = estacao with { DnsCacheEstacao = novoCache };
             var rest = !estacao.CompartilhamentoAcessivel && VerificarCompartilhamentoOk(estDepois, cenario);
             if (rest) estDepois = estDepois with { CompartilhamentoAcessivel = true };
-            return (estDepois, "Cache de resolucao de DNS liberado com exito.", rest);
+            return (estDepois, "Cache de resolucao de DNS liberado com exito.", rest,
+                ("CacheDnsLimpo", new Dictionary<string, object?> { ["host"] = cenario.HostAlvo }));
+        }
+        if (lower.StartsWith("net start ") && lower.Length > "net start ".Length)
+        {
+            if (estacao.Privilegio != PrivilegioTerminal.Elevado)
+                return (estacao, "Erro de sistema 5. Acesso negado.", false, null);
+            var srvAlvo = comando.Trim()["net start ".Length..].Trim();
+            var existe = estacao.Servicos.Any(s => string.Equals(s.Nome, srvAlvo, StringComparison.OrdinalIgnoreCase));
+            if (!existe)
+                return (estacao, $"O nome do servico e invalido (erro 2185): {srvAlvo}", false, null);
+            var atualizados = estacao.Servicos.Select(s =>
+                string.Equals(s.Nome, srvAlvo, StringComparison.OrdinalIgnoreCase) ? s with { Status = "Running" } : s).ToArray();
+            var estDepois = estacao with { Servicos = atualizados };
+            var rest = !estacao.CompartilhamentoAcessivel && VerificarCompartilhamentoOk(estDepois, cenario);
+            if (rest) estDepois = estDepois with { CompartilhamentoAcessivel = true };
+            return (estDepois, $"O servico {srvAlvo} foi iniciado com exito.", rest,
+                ("ServicoIniciado", new Dictionary<string, object?> { ["servico"] = srvAlvo }));
         }
         if (lower.StartsWith("net start") || lower.StartsWith("sc query"))
         {
             var linhas = estacao.Servicos.Select(s => $"{s.Nome}: {s.Status}");
-            return (estacao, string.Join(" | ", linhas), false);
+            return (estacao, string.Join(" | ", linhas), false, null);
         }
-        return (estacao, "Comando executado.", false);
+        return (estacao, "Comando executado.", false, null);
     }
 
     private static bool VerificarCompartilhamentoOk(EstadoEstacao estacao, DefinicaoCenario cenario)

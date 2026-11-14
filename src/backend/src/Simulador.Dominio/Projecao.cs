@@ -230,10 +230,25 @@ public static class Projecao
                     estacao = estacao with { GruposPorUsuario = grupos };
                     break;
                 }
+                case "DnsRegistroCorrigido":
+                {
+                    var reg = ev.Dados["registro"]!.ToString()!;
+                    var para = ev.Dados["para"]!.ToString()!;
+                    if (estacao.DnsServidor.TryGetValue(reg, out var dns))
+                    {
+                        var novoDns = new Dictionary<string, RegistroDns>(estacao.DnsServidor, StringComparer.OrdinalIgnoreCase)
+                        {
+                            [reg] = dns with { Ip = para }
+                        };
+                        estacao = estacao with { DnsServidor = novoDns };
+                    }
+                    break;
+                }
+                case "ServicoIniciado":
                 case "ServicoReiniciado":
                 {
                     var sNome = ev.Dados["servico"]!.ToString()!;
-                    estacao = estacao with { Servicos = estacao.Servicos.Select(s => s.Nome == sNome ? s with { Status = "Running" } : s).ToArray() };
+                    estacao = estacao with { Servicos = estacao.Servicos.Select(s => string.Equals(s.Nome, sNome, StringComparison.OrdinalIgnoreCase) ? s with { Status = "Running" } : s).ToArray() };
                     break;
                 }
                 case "FirewallDesativado":

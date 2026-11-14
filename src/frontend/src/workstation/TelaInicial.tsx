@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 interface Props {
-  onIniciar: (cenarioId: string, semente?: number) => Promise<void>
+  onIniciar: (cenarioId: string, semente?: number, causaForcada?: string) => Promise<void>
   ocupado: boolean
   erro: string | null
 }
@@ -9,21 +9,24 @@ interface Props {
 const NIVEIS = [
   {
     id: 'triagem-engenharia-social',
-    cargo: 'Nivel 1 — Estagiario',
-    titulo: 'Triagem, Atendimento & Engenharia Social',
-    desc: 'Atendimento inicial, politica de verificacao de identidade e defesa contra tentativa de fraude VIP.',
+    cargo: 'Nivel 1 · Estagiario',
+    titulo: 'Triagem & Defesa contra Engenharia Social',
+    desc: 'Atenda um pedido urgente da "Diretoria" sem token. Consulte a politica, documente no ITSM e proteja a empresa.',
+    competencias: 'Seguranca · Politica KB · Triagem',
   },
   {
     id: 'pasta-rede-inacessivel',
-    cargo: 'Nivel 2 — Analista Jr (N1)',
+    cargo: 'Nivel 2 · Analista Jr (N1)',
     titulo: 'Pasta de Rede Inacessivel (Chaos Injector)',
-    desc: '3 causas raiz sorteadas por semente (Grupo AD, DNS ou Servico parado) com terminal e ITSM.',
+    desc: '3 causas raiz sorteadas por semente (Grupo AD, DNS ou Servico parado). Valide identidade, conecte no SimuDesk e resolva.',
+    competencias: 'AD · DNS · Servicos · SimuDesk',
   },
   {
     id: 'incidente-massivo',
-    cargo: 'Nivel 3 — Analista Pleno (N2)',
+    cargo: 'Nivel 3 · Analista Pleno (N2)',
     titulo: 'Incidente Massivo & Problema ITIL',
-    desc: 'Correlacao de multiplos chamados apos patch, leitura de logs e registro de causa raiz.',
+    desc: '3 chamados simultaneos apos atualizacao. Crie um Problema, investigue logs, restaure o AuroraGateway e resolva em lote.',
+    competencias: 'ITIL Problem · RCA · Logs',
   },
 ]
 
@@ -34,13 +37,17 @@ export function TelaInicial({ onIniciar, ocupado, erro }: Props) {
   return (
     <main className="start-screen">
       <div className="start-card">
-        <span className="badge badge-ok">Hack Brasil 2026 · Acesso a Educacao · Time CVE-K</span>
-        <h1>IT Flight Simulator</h1>
-        <p className="lead">
-          Simulador pratico de carreira em TI: assuma o turno na <strong>Aurora Logistica</strong>,
-          investigue falhas reais no SimuDesk, atenda clientes simulados e gere seu{' '}
-          <strong>Curriculo Vivo</strong> auditavel. Sem login obrigatorio.
-        </p>
+        <div className="hero-header">
+          <div>
+            <span className="badge badge-info">Hack Brasil 2026 · Acesso a Educacao · Time CVE-K</span>
+          </div>
+          <h1 className="hero-title">IT Flight Simulator</h1>
+          <p className="lead">
+            Simulador de voo para carreiras em TI. Assuma seu turno na <strong>Aurora Logistica</strong>,
+            opere o ITSM, atenda clientes simulados, investigue falhas reais no SimuDesk e gere seu{' '}
+            <strong>Curriculo Vivo</strong> auditavel por SHA-256.
+          </p>
+        </div>
 
         {erro && (
           <div className="alert-danger" role="alert">
@@ -56,9 +63,12 @@ export function TelaInicial({ onIniciar, ocupado, erro }: Props) {
               className={`level-card ${cenario === n.id ? 'selected' : ''}`}
               onClick={() => setCenario(n.id)}
             >
-              <span className="badge">{n.cargo}</span>
+              <span className="badge badge-ok">{n.cargo}</span>
               <h3>{n.titulo}</h3>
               <p>{n.desc}</p>
+              <span className="muted" style={{ marginTop: 'auto', paddingTop: '0.5rem' }}>
+                {n.competencias}
+              </span>
             </button>
           ))}
         </div>
@@ -73,14 +83,24 @@ export function TelaInicial({ onIniciar, ocupado, erro }: Props) {
               onChange={(e) => setSemente(e.target.value)}
             />
           </label>
-          <button
-            type="button"
-            className="btn-primary btn-lg"
-            disabled={ocupado}
-            onClick={() => onIniciar(cenario, semente ? Number(semente) : undefined)}
-          >
-            {ocupado ? 'Iniciando turno...' : 'Iniciar Simulacao'}
-          </button>
+          <div className="actions-bar">
+            <button
+              type="button"
+              className="btn-secondary"
+              disabled={ocupado}
+              onClick={() => onIniciar('pasta-rede-inacessivel', 42, 'C1')}
+            >
+              Demo Rapida (N1 · C1)
+            </button>
+            <button
+              type="button"
+              className="btn-primary btn-lg"
+              disabled={ocupado}
+              onClick={() => onIniciar(cenario, semente ? Number(semente) : undefined)}
+            >
+              {ocupado ? 'Preparando Workstation...' : 'Decolar no Simulador →'}
+            </button>
+          </div>
         </div>
       </div>
     </main>

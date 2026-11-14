@@ -15,9 +15,13 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
   const [notaTexto, setNotaTexto] = useState('')
   const [notaTipo, setNotaTipo] = useState<'Interna' | 'Publica'>('Interna')
   const [notaResolucao, setNotaResolucao] = useState('')
+  const [tituloProblema, setTituloProblema] = useState('Queda ERP apos atualizacao')
+  const [causaRaiz, setCausaRaiz] = useState('')
 
   const chamado: ChamadoDto | undefined =
     sessao.chamados.find((c) => c.id === selecionadoId) ?? sessao.chamados[0]
+  const ehNivel1 = sessao.meta.cenarioId === 'triagem-engenharia-social'
+  const ehNivel3 = sessao.meta.cenarioId === 'incidente-massivo'
 
   return (
     <div className="app-split" aria-label="Sistema ITSM">
@@ -221,6 +225,90 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
                 </ul>
               )}
             </div>
+
+            {ehNivel1 && (
+              <div className="card-section">
+                <h3>Acoes de Seguranca (Engenharia Social)</h3>
+                <div className="actions-bar">
+                  <button type="button" disabled={ocupado} onClick={() => onAcao('seguranca.consultar_politica')}>
+                    Consultar Politica KB-001
+                  </button>
+                  <button type="button" disabled={ocupado} onClick={() => onAcao('seguranca.solicitar_token')}>
+                    Solicitar Token Corporativo
+                  </button>
+                  <button type="button" className="btn-success" disabled={ocupado} onClick={() => onAcao('seguranca.recusar_reset')}>
+                    Recusar Reset sem Validacao
+                  </button>
+                  <button type="button" className="btn-danger" disabled={ocupado} onClick={() => onAcao('seguranca.resetar_senha')}>
+                    Resetar Senha Agora (Risco)
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {ehNivel3 && (
+              <div className="card-section">
+                <h3>Gestao de Problema ITIL ({sessao.problemas.length})</h3>
+                {sessao.problemas.length === 0 ? (
+                  <div className="form-row">
+                    <input value={tituloProblema} onChange={(e) => setTituloProblema(e.target.value)} />
+                    <button type="button" className="btn-primary" disabled={ocupado} onClick={() => onAcao('itsm.criar_problema', { titulo: tituloProblema })}>
+                      Criar Problema ITIL
+                    </button>
+                  </div>
+                ) : (
+                  sessao.problemas.map((p) => (
+                    <div key={p.id} className="form-stack">
+                      <p>
+                        <strong>{p.id}</strong> — {p.titulo} | Vinculados: <strong>{p.chamadosVinculados.length}/3</strong>
+                      </p>
+                      <div className="actions-bar">
+                        {sessao.chamados.map((ch) => (
+                          <button
+                            key={ch.id}
+                            type="button"
+                            className="chip"
+                            disabled={ocupado || p.chamadosVinculados.includes(ch.id)}
+                            onClick={() => onAcao('itsm.vincular_problema', { problemaId: p.id, chamadoId: ch.id })}
+                          >
+                            {p.chamadosVinculados.includes(ch.id) ? `${ch.id} vinculado` : `Vincular ${ch.id}`}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="form-row">
+                        <input
+                          placeholder="Causa raiz (ex: AuroraGateway parou apos atualizacao)"
+                          value={causaRaiz}
+                          onChange={(e) => setCausaRaiz(e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          disabled={ocupado || !causaRaiz.trim()}
+                          onClick={() => onAcao('itsm.registrar_causa_raiz', { problemaId: p.id, causaRaiz })}
+                        >
+                          Registrar Causa Raiz
+                        </button>
+                      </div>
+                      {!p.resolvido && (
+                        <button
+                          type="button"
+                          className="btn-success"
+                          disabled={ocupado}
+                          onClick={() =>
+                            onAcao('itsm.resolver_problema', {
+                              problemaId: p.id,
+                              notaPublica: 'Servico AuroraGateway restaurado e ERP normalizado.',
+                            })
+                          }
+                        >
+                          Resolver Todos em Lote
+                        </button>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
           </>
         )}
       </section>

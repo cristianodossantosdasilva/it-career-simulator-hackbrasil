@@ -61,6 +61,12 @@ public static class TabelaCustoMinutos
         "estacao.desativar_firewall" => 2,
         "estacao.aplicar_correcao_dns_n2" => 5,
         "estacao.novo_logon_usuario" => 2,
+        "estacao.ler_logs" => 2,
+        "estacao.consultar_servico" => 1,
+        "seguranca.consultar_politica" => 1,
+        "seguranca.solicitar_token" => 2,
+        "seguranca.recusar_reset" => 2,
+        "seguranca.resetar_senha" => 1,
         _ => 1
     };
 }

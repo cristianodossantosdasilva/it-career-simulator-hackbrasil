@@ -100,8 +100,14 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
       </div>
 
       {subAba === 'terminal' ? (
-        <div className="terminal-box">
-          <div className="chips-row" aria-label="Comandos sugeridos">
+        <div className="terminal-shell">
+          <div className="terminal-header">
+            <span>simudesk@EST-FIN-042 ({elevado ? 'ADMIN ELEVADO' : 'usuario'})</span>
+            <button type="button" className="chip" disabled={ocupado} onClick={() => onAcao('estacao.ler_logs')}>
+              Ler Logs da Estacao
+            </button>
+          </div>
+          <div className="chips-row" style={{ padding: '0 0.85rem' }} aria-label="Comandos sugeridos">
             {sessao.estacao.comandosSuportados.map((cmd) => (
               <button
                 key={cmd}
@@ -131,6 +137,7 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
 
           <form
             className="form-row"
+            style={{ padding: '0 0.85rem 0.85rem' }}
             onSubmit={async (e) => {
               e.preventDefault()
               if (!comando.trim()) return
