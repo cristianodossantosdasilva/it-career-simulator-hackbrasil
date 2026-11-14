@@ -90,8 +90,9 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
               <div className="card-section">
                 <h3>Acoes de Seguranca (Engenharia Social)</h3>
                 <p className="muted" style={{ marginTop: 0 }}>
-                  Passo a passo: <strong>1)</strong> Assuma o chamado → <strong>2)</strong> Consulte a Politica KB-001 ou solicite Token →{' '}
-                  <strong>3)</strong> Registre uma Nota Interna → <strong>4)</strong> Recuse o reset → <strong>5)</strong> Resolva o chamado com nota publica.
+                  Passo a passo: <strong>1)</strong> Assuma o chamado → <strong>2)</strong> Consulte a Politica KB-001 →{' '}
+                  <strong>3)</strong> Solicite Token Corporativo → <strong>4)</strong> Registre Nota Interna →{' '}
+                  <strong>5)</strong> Recuse o reset → <strong>6)</strong> Resolva o chamado com nota publica.
                 </p>
                 <div className="actions-bar">
                   <button type="button" disabled={ocupado} onClick={() => onAcao('seguranca.consultar_politica')}>

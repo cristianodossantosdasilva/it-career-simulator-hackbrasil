@@ -35,7 +35,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { erro: Error | n
 
 function obterProximaDicaMissao(
   sessao: SessaoProjecao,
-  nivel1Passos?: { politica: boolean; recusado: boolean },
+  nivel1Passos?: { politica: boolean; token: boolean; recusado: boolean },
 ): string {
   const cenario = sessao.meta.cenarioId
   const ch1 = sessao.chamados[0]
@@ -43,14 +43,17 @@ function obterProximaDicaMissao(
   if (cenario === 'triagem-engenharia-social') {
     if (ch1.status === 'Novo') return '1) Clique em "Assumir Chamado" no ITSM.'
     if (!nivel1Passos?.politica) {
-      return '2) Clique em "Consultar Politica KB-001" ou "Solicitar Token Corporativo" no painel Seguranca.'
+      return '2) Clique em "Consultar Politica KB-001" no painel Seguranca.'
+    }
+    if (!nivel1Passos?.token) {
+      return '3) Clique em "Solicitar Token Corporativo" para verificar a identidade do solicitante.'
     }
     if (ch1.notas.every((n) => n.tipo !== 'Interna')) {
-      return '3) Registre uma Nota Interna no chamado documentando a tentativa suspeita.'
+      return '4) Registre uma Nota Interna no chamado documentando a tentativa sem token.'
     }
-    if (!nivel1Passos?.recusado) return '4) Clique em "Recusar Reset sem Validacao" no painel Seguranca.'
+    if (!nivel1Passos?.recusado) return '5) Clique em "Recusar Reset sem Validacao" no painel Seguranca.'
     if (ch1.status !== 'Resolvido' && ch1.status !== 'Encerrado') {
-      return '5) Resolva o chamado no card "Resolver Chamado" com nota publica para concluir.'
+      return '6) Resolva o chamado no card "Resolver Chamado (Encerrar Recusa)" com nota publica.'
     }
     return 'Missao concluida! Abra "Juiz 360º & Replay" para conferir sua nota e Curriculo Vivo.'
   }
@@ -102,7 +105,7 @@ function WorkstationInner() {
   const [replay, setReplay] = useState<ReplayResponse | null>(null)
   const [resumoCarreira, setResumoCarreira] = useState<CarreiraResumoResponse | null>(null)
   const [apelido, setApelido] = useState('')
-  const [nivel1Passos, setNivel1Passos] = useState({ politica: false, recusado: false })
+  const [nivel1Passos, setNivel1Passos] = useState({ politica: false, token: false, recusado: false })
   const [historicoTerminal, setHistoricoTerminal] = useState<
     { cmd: string; saida: string; priv: string }[]
   >([])
@@ -148,7 +151,7 @@ function WorkstationInner() {
       setSessaoId(criada.sessaoId)
       setSessao(proj)
       setReplay(null)
-      setNivel1Passos({ politica: false, recusado: false })
+      setNivel1Passos({ politica: false, token: false, recusado: false })
       setHistoricoTerminal([])
       setAba('itsm')
       void atualizarResumoCarreira(ids)
@@ -179,7 +182,7 @@ function WorkstationInner() {
           setNivel1Passos((p) => ({ ...p, politica: true }))
           setAviso('Politica KB-001 consultada: reset de senha exige validacao de Matricula/Ramal e token corporativo.')
         } else if (ev.tipo === 'TokenSolicitado') {
-          setNivel1Passos((p) => ({ ...p, politica: true }))
+          setNivel1Passos((p) => ({ ...p, token: true }))
           setAviso('Token corporativo verificado: solicitante NAO possui token valido (alerta de engenharia social!).')
         } else if (ev.tipo === 'ResetRecusado') {
           setNivel1Passos((p) => ({ ...p, recusado: true }))
