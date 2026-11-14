@@ -91,7 +91,7 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
                 <h3>Acoes de Seguranca (Engenharia Social)</h3>
                 <p className="muted" style={{ marginTop: 0 }}>
                   Passo a passo: <strong>1)</strong> Assuma o chamado → <strong>2)</strong> Consulte a Politica KB-001 ou solicite Token →{' '}
-                  <strong>3)</strong> Registre uma Nota Interna abaixo → <strong>4)</strong> Recuse o reset sem validacao.
+                  <strong>3)</strong> Registre uma Nota Interna → <strong>4)</strong> Recuse o reset → <strong>5)</strong> Resolva o chamado com nota publica.
                 </p>
                 <div className="actions-bar">
                   <button type="button" disabled={ocupado} onClick={() => onAcao('seguranca.consultar_politica')}>
@@ -207,13 +207,17 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
               </div>
             )}
 
-            {!ehNivel1 && (chamado.status === 'EmAtendimento' || chamado.status === 'Escalonado') && (
+            {(chamado.status === 'EmAtendimento' || chamado.status === 'Escalonado') && (
               <div className="card-section">
-                <h3>Resolver Chamado</h3>
+                <h3>{ehNivel1 ? 'Resolver Chamado (Encerrar Recusa)' : 'Resolver Chamado'}</h3>
                 <div className="form-row">
                   <input
                     aria-label="Nota publica de resolucao"
-                    placeholder="Descreva a solucao aplicada (nota publica obrigatoria)..."
+                    placeholder={
+                      ehNivel1
+                        ? 'Ex.: Solicitacao recusada conforme politica KB-001 (sem validacao).'
+                        : 'Descreva a solucao aplicada (nota publica obrigatoria)...'
+                    }
                     value={notaResolucao}
                     onChange={(e) => setNotaResolucao(e.target.value)}
                   />

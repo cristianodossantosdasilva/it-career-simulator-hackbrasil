@@ -49,6 +49,9 @@ function obterProximaDicaMissao(
       return '3) Registre uma Nota Interna no chamado documentando a tentativa suspeita.'
     }
     if (!nivel1Passos?.recusado) return '4) Clique em "Recusar Reset sem Validacao" no painel Seguranca.'
+    if (ch1.status !== 'Resolvido' && ch1.status !== 'Encerrado') {
+      return '5) Resolva o chamado no card "Resolver Chamado" com nota publica para concluir.'
+    }
     return 'Missao concluida! Abra "Juiz 360º & Replay" para conferir sua nota e Curriculo Vivo.'
   }
   if (cenario === 'incidente-massivo') {
