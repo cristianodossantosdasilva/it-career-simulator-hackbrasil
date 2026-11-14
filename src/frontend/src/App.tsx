@@ -33,16 +33,22 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { erro: Error | n
   }
 }
 
-function obterProximaDicaMissao(sessao: SessaoProjecao): string {
+function obterProximaDicaMissao(
+  sessao: SessaoProjecao,
+  nivel1Passos?: { politica: boolean; recusado: boolean },
+): string {
   const cenario = sessao.meta.cenarioId
   const ch1 = sessao.chamados[0]
   if (!ch1) return 'Explore a Workstation.'
   if (cenario === 'triagem-engenharia-social') {
     if (ch1.status === 'Novo') return '1) Clique em "Assumir Chamado" no ITSM.'
-    if (ch1.notas.every((n) => n.tipo !== 'Interna')) {
-      return '2) Clique em "Consultar Politica KB-001" (no painel Seguranca) e registre uma Nota Interna.'
+    if (!nivel1Passos?.politica) {
+      return '2) Clique em "Consultar Politica KB-001" ou "Solicitar Token Corporativo" no painel Seguranca.'
     }
-    if (ch1.status === 'EmAtendimento') return '3) Clique em "Recusar Reset sem Validacao" no painel Seguranca.'
+    if (ch1.notas.every((n) => n.tipo !== 'Interna')) {
+      return '3) Registre uma Nota Interna no chamado documentando a tentativa suspeita.'
+    }
+    if (!nivel1Passos?.recusado) return '4) Clique em "Recusar Reset sem Validacao" no painel Seguranca.'
     return 'Missao concluida! Abra "Juiz 360º & Replay" para conferir sua nota e Curriculo Vivo.'
   }
   if (cenario === 'incidente-massivo') {
@@ -93,6 +99,7 @@ function WorkstationInner() {
   const [replay, setReplay] = useState<ReplayResponse | null>(null)
   const [resumoCarreira, setResumoCarreira] = useState<CarreiraResumoResponse | null>(null)
   const [apelido, setApelido] = useState('')
+  const [nivel1Passos, setNivel1Passos] = useState({ politica: false, recusado: false })
   const [historicoTerminal, setHistoricoTerminal] = useState<
     { cmd: string; saida: string; priv: string }[]
   >([])
@@ -138,6 +145,7 @@ function WorkstationInner() {
       setSessaoId(criada.sessaoId)
       setSessao(proj)
       setReplay(null)
+      setNivel1Passos({ politica: false, recusado: false })
       setHistoricoTerminal([])
       setAba('itsm')
       void atualizarResumoCarreira(ids)
@@ -164,6 +172,17 @@ function WorkstationInner() {
           setAviso('N2 Virtual corrigiu o DNS! Eleve o privilegio e execute ipconfig /flushdns no SimuDesk.')
         } else if (ev.tipo === 'AcessoPastaRestabelecido') {
           setAviso('Pasta Financeiro restabelecida! Agora resolva o chamado no ITSM com nota publica.')
+        } else if (ev.tipo === 'PoliticaSegurancaConsultada') {
+          setNivel1Passos((p) => ({ ...p, politica: true }))
+          setAviso('Politica KB-001 consultada: reset de senha exige validacao de Matricula/Ramal e token corporativo.')
+        } else if (ev.tipo === 'TokenSolicitado') {
+          setNivel1Passos((p) => ({ ...p, politica: true }))
+          setAviso('Token corporativo verificado: solicitante NAO possui token valido (alerta de engenharia social!).')
+        } else if (ev.tipo === 'ResetRecusado') {
+          setNivel1Passos((p) => ({ ...p, recusado: true }))
+          setAviso('Reset fraudulento recusado com seguranca! Abra "Juiz 360º & Replay" para conferir sua avaliacao.')
+        } else if (ev.tipo === 'SenhaResetadaIndevidamente') {
+          setAviso('ALERTA: Senha resetada sem verificacao! Incidente de seguranca registrado.')
         } else if (ev.tipo === 'ComandoExecutado' || ev.tipo === 'ComandoNaoSuportado') {
           setHistoricoTerminal((prev) => [
             ...prev,
@@ -262,7 +281,7 @@ function WorkstationInner() {
 
       <div className="mission-strip" role="status">
         <span>
-          <strong>Missao Atual:</strong> {obterProximaDicaMissao(sessao)}
+          <strong>Missao Atual:</strong> {obterProximaDicaMissao(sessao, nivel1Passos)}
         </span>
         <span className="muted">Aurora Logistica · Semente {sessao.meta.semente}</span>
       </div>
