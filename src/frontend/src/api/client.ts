@@ -2,14 +2,24 @@ import type {
   AvaliacaoResponse,
   CriarSessaoRequest,
   CriarSessaoResponse,
-  ExecutarAcaoRequest,
+  EventoDto,
+  ReplayResponse,
+  SessaoProjecao,
 } from './types'
 
-async function fetchComRetry(url: string, init?: RequestInit, tentativas = 3): Promise<Response> {
+export class ConflitoSeqError extends Error {
+  readonly ultimoSeq: number
+  constructor(ultimoSeq: number) {
+    super('Sessao atualizada em outra requisicao; estado sincronizado.')
+    this.ultimoSeq = ultimoSeq
+  }
+}
+
+async function getComRetry(url: string, tentativas = 3): Promise<Response> {
   let ultimoErro: unknown
   for (let i = 0; i < tentativas; i++) {
     try {
-      const resp = await fetch(url, init)
+      const resp = await fetch(url)
       if (resp.status !== 503) return resp
       ultimoErro = new Error(`Upstream 503 na tentativa ${i + 1}`)
     } catch (err) {
@@ -20,36 +30,77 @@ async function fetchComRetry(url: string, init?: RequestInit, tentativas = 3): P
   throw ultimoErro
 }
 
+async function extrairErro(resp: Response): Promise<never> {
+  const texto = await resp.text()
+  let data: Record<string, unknown> = {}
+  try {
+    data = JSON.parse(texto)
+  } catch {
+    // ignore non-json
+  }
+  if (resp.status === 409 && typeof data.ultimoSeq === 'number') {
+    throw new ConflitoSeqError(data.ultimoSeq)
+  }
+  const msg = (data.detail as string) || (data.mensagem as string) || `Erro HTTP ${resp.status}`
+  throw new Error(msg)
+}
+
 export const apiClient = {
   async criarSessao(body: CriarSessaoRequest = {}): Promise<CriarSessaoResponse> {
-    const resp = await fetchComRetry('/api/sessoes', {
+    const resp = await fetch('/api/sessoes', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     })
-    if (!resp.ok) throw new Error(`Falha ao criar sessao: ${resp.status}`)
+    if (!resp.ok) await extrairErro(resp)
     return resp.json()
   },
 
-  async obterSessao(id: string): Promise<Record<string, unknown>> {
-    const resp = await fetchComRetry(`/api/sessoes/${id}`)
-    if (!resp.ok) throw new Error(`Falha ao obter sessao: ${resp.status}`)
+  async obterSessao(id: string): Promise<SessaoProjecao> {
+    const resp = await getComRetry(`/api/sessoes/${id}`)
+    if (!resp.ok) await extrairErro(resp)
     return resp.json()
   },
 
-  async executarAcao(id: string, body: ExecutarAcaoRequest): Promise<Record<string, unknown>> {
-    const resp = await fetchComRetry(`/api/sessoes/${id}/acoes`, {
+  async executarAcao(
+    id: string,
+    tipo: string,
+    seqEsperado: number,
+    dados?: Record<string, unknown>,
+  ): Promise<{ eventos: EventoDto[]; projecao: SessaoProjecao }> {
+    const resp = await fetch(`/api/sessoes/${id}/acoes`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ tipo, dados, seqEsperado }),
     })
-    if (!resp.ok) throw new Error(`Falha ao executar acao: ${resp.status}`)
+    if (!resp.ok) await extrairErro(resp)
+    return resp.json()
+  },
+
+  async enviarChat(
+    id: string,
+    persona: 'cliente' | 'techlead',
+    mensagem: string,
+    seqEsperado: number,
+  ): Promise<{ eventos: EventoDto[]; projecao: SessaoProjecao }> {
+    const resp = await fetch(`/api/sessoes/${id}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ persona, mensagem, seqEsperado }),
+    })
+    if (!resp.ok) await extrairErro(resp)
     return resp.json()
   },
 
   async obterAvaliacao(id: string): Promise<AvaliacaoResponse> {
-    const resp = await fetchComRetry(`/api/sessoes/${id}/avaliacao`)
-    if (!resp.ok) throw new Error(`Falha ao obter avaliacao: ${resp.status}`)
+    const resp = await getComRetry(`/api/sessoes/${id}/avaliacao`)
+    if (!resp.ok) await extrairErro(resp)
+    return resp.json()
+  },
+
+  async obterReplay(id: string): Promise<ReplayResponse> {
+    const resp = await getComRetry(`/api/sessoes/${id}/replay`)
+    if (!resp.ok) await extrairErro(resp)
     return resp.json()
   },
 }

@@ -243,27 +243,89 @@ public static class Motor
             }
             case "dialogo.pedir_pista":
             {
-                novo = novo with { Dialogo = novo.Dialogo with { PistasSolicitadas = novo.Dialogo.PistasSolicitadas + 1 } };
+                string[] pistas =
+                [
+                    "Pista 1: Antes de alterar qualquer configuracao, verifique no terminal os sinais da estacao (whoami /groups, nslookup, ping, net start).",
+                    "Pista 2: Compare o resultado do diagnostico com a Base de Conhecimento: grupo ausente (C1), DNS errado (C2) ou servico parado (C3).",
+                    "Pista 3: Para corrigir com seguranca, eleve o privilegio no terminal/painel e depois confirme o acesso antes de resolver o chamado."
+                ];
+                if (novo.Dialogo.PistasSolicitadas >= pistas.Length)
+                    return Rejeitar("pistas_esgotadas");
+
+                var indice = novo.Dialogo.PistasSolicitadas + 1;
+                var textoPista = pistas[novo.Dialogo.PistasSolicitadas];
+                novo = novo with { Dialogo = novo.Dialogo with { PistasSolicitadas = indice } };
                 gerados.Add(new(++seqAtual, "PistaSolicitada", new Dictionary<string, object?>
                 {
-                    ["totalPistas"] = novo.Dialogo.PistasSolicitadas
+                    ["indice"] = indice,
+                    ["texto"] = textoPista,
+                    ["origem"] = "roteiro"
                 }, minutoDestino));
+                break;
+            }
+            case "dialogo.verificar_identidade":
+            {
+                var principal = novo.Itsm.Chamados.FirstOrDefault();
+                if (principal is null || principal.Status != StatusChamado.EmAtendimento)
+                    return Rejeitar("O chamado principal precisa estar EmAtendimento pelo aluno para verificar identidade.");
+                if (novo.Dialogo.AcessoRemotoLiberado)
+                    return Rejeitar("O acesso remoto ja foi liberado nesta sessao.");
+
+                var matricula = acao.ObterString("matricula")?.Trim();
+                var ramal = acao.ObterString("ramal")?.Trim();
+                if (string.IsNullOrWhiteSpace(matricula) || string.IsNullOrWhiteSpace(ramal))
+                    return Rejeitar("matricula e ramal sao obrigatorios.");
+
+                if (string.Equals(matricula, "AUR-1042", StringComparison.OrdinalIgnoreCase) && ramal == "2042")
+                {
+                    var (idRemoto, pinRemoto) = GerarCredenciaisSimuDesk(novo.Meta.Semente);
+                    novo = novo with
+                    {
+                        Dialogo = novo.Dialogo with
+                        {
+                            IdentidadeValidada = true,
+                            AcessoRemotoLiberado = true,
+                            IdAcessoRemoto = idRemoto,
+                            PinAcessoRemoto = pinRemoto
+                        }
+                    };
+                    gerados.Add(new(++seqAtual, "IdentidadeVerificada", new Dictionary<string, object?>
+                    {
+                        ["usuario"] = cenario.UsuarioAlvo,
+                        ["matricula"] = matricula
+                    }, minutoDestino));
+                    gerados.Add(new(++seqAtual, "AcessoRemotoLiberado", new Dictionary<string, object?>
+                    {
+                        ["id"] = idRemoto,
+                        ["pin"] = pinRemoto
+                    }, minutoDestino));
+                }
+                else
+                {
+                    gerados.Add(new(++seqAtual, "IdentidadeNaoConfere", new Dictionary<string, object?>
+                    {
+                        ["tentativaMatricula"] = matricula,
+                        ["tentativaRamal"] = ramal
+                    }, minutoDestino));
+                }
                 break;
             }
             case "dialogo.liberar_acesso_remoto":
             {
+                var (idRemoto, pinRemoto) = GerarCredenciaisSimuDesk(novo.Meta.Semente);
                 novo = novo with
                 {
                     Dialogo = novo.Dialogo with
                     {
                         AcessoRemotoLiberado = true,
-                        IdAcessoRemoto = "SD-402-918",
-                        PinAcessoRemoto = "7391"
+                        IdAcessoRemoto = idRemoto,
+                        PinAcessoRemoto = pinRemoto
                     }
                 };
                 gerados.Add(new(++seqAtual, "AcessoRemotoLiberado", new Dictionary<string, object?>
                 {
-                    ["id"] = "SD-402-918"
+                    ["id"] = idRemoto,
+                    ["pin"] = pinRemoto
                 }, minutoDestino));
                 break;
             }
@@ -434,6 +496,55 @@ public static class Motor
         };
 
         return new ResultadoAplicacao(novo, gerados);
+    }
+
+    public static ResultadoAplicacao RegistrarChat(
+        EstadoSessao estado,
+        string persona,
+        string mensagemUsuario,
+        string respostaPersona,
+        string origem)
+    {
+        var seqAtual = estado.Meta.UltimoSeq;
+        var minutoDestino = estado.Meta.MinutoSimulado + TabelaCustoMinutos.ObterCusto("dialogo.chat");
+
+        var evUser = new EnvelopeEvento(++seqAtual, "MensagemUsuarioEnviada", new Dictionary<string, object?>
+        {
+            ["persona"] = persona,
+            ["texto"] = mensagemUsuario
+        }, minutoDestino);
+
+        var evPersona = new EnvelopeEvento(++seqAtual, "MensagemPersonaRecebida", new Dictionary<string, object?>
+        {
+            ["persona"] = persona,
+            ["texto"] = respostaPersona,
+            ["origem"] = origem
+        }, minutoDestino);
+
+        var mensagens = new List<MensagemDialogo>(estado.Dialogo.Mensagens)
+        {
+            new(evUser.Seq, "analista", mensagemUsuario, minutoDestino),
+            new(evPersona.Seq, persona, respostaPersona, minutoDestino)
+        };
+
+        var novo = estado with
+        {
+            Dialogo = estado.Dialogo with { Mensagens = mensagens },
+            Meta = estado.Meta with { MinutoSimulado = minutoDestino, UltimoSeq = seqAtual }
+        };
+        return new ResultadoAplicacao(novo, [evUser, evPersona]);
+    }
+
+    public static (string Id, string Pin) GerarCredenciaisSimuDesk(long semente)
+    {
+        var rng = new SplitMix64(unchecked((long)((ulong)semente ^ 0x53494D554445534BUL)));
+        var x1 = rng.NextUInt64();
+        var x2 = rng.NextUInt64();
+        var idNum = 100000000UL + (x1 % 900000000UL);
+        var idStr = idNum.ToString("D9");
+        var idFormatado = $"{idStr[..3]} {idStr[3..6]} {idStr[6..9]}";
+        var pin = (x2 % 10000UL).ToString("D4");
+        return (idFormatado, pin);
     }
 
     private static (EstadoEstacao Estacao, string Saida, bool AcessoRestabelecido) ExecutarComandoEstacao(

@@ -1,6 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <EmbeddedResource Include="schema.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Simulador.Dominio\Simulador.Dominio.csproj" />
   </ItemGroup>
 

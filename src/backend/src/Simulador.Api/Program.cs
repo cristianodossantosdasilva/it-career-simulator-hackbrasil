@@ -17,11 +17,51 @@ builder.Services.AddCors(opt =>
         .AllowAnyMethod());
 });
 
+var provedor = builder.Configuration["EventStore:Provedor"];
+if (string.IsNullOrWhiteSpace(provedor))
+{
+    if (!builder.Environment.IsDevelopment())
+        throw new InvalidOperationException("EventStore:Provedor e obrigatorio fora de Development.");
+    provedor = "InMemory";
+}
+
+PostgresEventStore? pgStore = null;
+if (string.Equals(provedor, "Postgres", StringComparison.OrdinalIgnoreCase))
+{
+    var cs = builder.Configuration.GetConnectionString("Postgres");
+    if (string.IsNullOrWhiteSpace(cs))
+        throw new InvalidOperationException("ConnectionStrings:Postgres obrigatoria quando EventStore:Provedor=Postgres.");
+    pgStore = new PostgresEventStore(cs);
+    builder.Services.AddSingleton<IEventStore>(pgStore);
+}
+else if (string.Equals(provedor, "InMemory", StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddSingleton<IEventStore, InMemoryEventStore>();
+}
+else
+{
+    throw new InvalidOperationException($"EventStore:Provedor '{provedor}' invalido. Use 'InMemory' ou 'Postgres'.");
+}
+
 builder.Services.AddSingleton<ICatalogoCenarios, CatalogoCenarios>();
-builder.Services.AddSingleton<IEventStore, InMemoryEventStore>();
-builder.Services.AddSingleton<IClienteDialogo, FallbackRoteirizadoDialogo>();
+builder.Services.AddSingleton<IClienteDialogo>(sp =>
+{
+    var cfg = sp.GetRequiredService<IConfiguration>();
+    var apiKey = cfg["LLM_API_KEY"];
+    var habilitarLlm = bool.TryParse(cfg["Dialogo:HabilitarLlm"], out var h) && h;
+    return new DialogoComFallback(apiKey, habilitarLlm);
+});
 
 var app = builder.Build();
+
+if (pgStore is not null)
+{
+    await pgStore.InicializarSchemaAsync();
+}
+else
+{
+    app.Logger.LogWarning("EventStore operando em modo InMemory (Development).");
+}
 
 app.UseExceptionHandler();
 app.UseCors();
@@ -32,8 +72,27 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(opt => opt.SwaggerEndpoint("/openapi/v1.json", "IT Flight Simulator API v1"));
 }
 
+static IResult ErroProblema(int status, string type, string detail, object? extras = null)
+{
+    var ext = new Dictionary<string, object?> { ["type"] = type };
+    if (extras is not null)
+    {
+        foreach (var prop in extras.GetType().GetProperties())
+            ext[prop.Name] = prop.GetValue(extras);
+    }
+    return Results.Problem(detail: detail, statusCode: status, type: type, extensions: ext);
+}
+
 app.MapGet("/health/live", () => Results.Ok(new { status = "live" }));
-app.MapGet("/health/ready", () => Results.Ok(new { status = "ready", store = "InMemory" }));
+app.MapGet("/health/ready", async (CancellationToken ct) =>
+{
+    if (pgStore is not null)
+    {
+        await pgStore.VerificarSaudeAsync(ct);
+        return Results.Ok(new { status = "ready", store = "Postgres" });
+    }
+    return Results.Ok(new { status = "ready", store = "InMemory" });
+});
 
 app.MapPost("/api/sessoes", async (
     CriarSessaoDto? body,
@@ -47,7 +106,7 @@ app.MapPost("/api/sessoes", async (
         : body.VersaoManifesto.Trim();
 
     if (!catalogo.SuportaVersao(cenarioId, versao))
-        return Results.BadRequest(new { erro = "cenario_ou_versao_invalida", cenarioId, versao });
+        return ErroProblema(400, "nivel_indisponivel", $"Cenario '{cenarioId}' versao '{versao}' nao suportado.");
 
     var semente = body?.Semente ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     var cenario = catalogo.Obter(cenarioId, versao, body?.CausaForcada, semente);
@@ -74,19 +133,10 @@ app.MapGet("/api/sessoes/{id:guid}", async (
     CancellationToken ct) =>
 {
     var (meta, eventos) = await store.ObterSessaoAsync(id, ct);
-    if (meta is null) return Results.NotFound(new { erro = "sessao_nao_encontrada" });
+    if (meta is null) return ErroProblema(404, "sessao_nao_encontrada", "Sessao nao encontrada.");
 
     var estado = Projecao.Reconstruir(eventos, catalogo);
-    return Results.Ok(new
-    {
-        carreira = estado.Carreira,
-        chamados = estado.Itsm.Chamados,
-        problemas = estado.Itsm.Problemas,
-        estacao = estado.Estacao,
-        dialogo = estado.Dialogo,
-        meta = estado.Meta,
-        ultimoSeq = estado.Meta.UltimoSeq
-    });
+    return Results.Ok(ProjetarSessaoPublica(estado));
 });
 
 app.MapPost("/api/sessoes/{id:guid}/acoes", async (
@@ -97,13 +147,13 @@ app.MapPost("/api/sessoes/{id:guid}/acoes", async (
     CancellationToken ct) =>
 {
     if (body is null || string.IsNullOrWhiteSpace(body.Tipo) || body.SeqEsperado <= 0)
-        return Results.BadRequest(new { erro = "requisicao_invalida", mensagem = "tipo e seqEsperado (> 0) sao obrigatorios." });
+        return ErroProblema(400, "validacao", "tipo e seqEsperado (> 0) sao obrigatorios.");
 
     var (meta, eventos) = await store.ObterSessaoAsync(id, ct);
-    if (meta is null) return Results.NotFound(new { erro = "sessao_nao_encontrada" });
+    if (meta is null) return ErroProblema(404, "sessao_nao_encontrada", "Sessao nao encontrada.");
 
     if (eventos[^1].Seq != body.SeqEsperado)
-        return Results.Conflict(new { ultimoSeq = eventos[^1].Seq });
+        return ErroProblema(409, "conflito_seq", "Sequencia desatualizada.", new { ultimoSeq = eventos[^1].Seq });
 
     var cenario = catalogo.Obter(meta.CenarioId, meta.VersaoManifesto, meta.Causa, meta.Semente);
     var estadoAtual = Projecao.Reconstruir(eventos, catalogo);
@@ -112,21 +162,48 @@ app.MapPost("/api/sessoes/{id:guid}/acoes", async (
 
     var anexar = await store.AnexarAsync(id, body.SeqEsperado, resultado.Eventos, ct);
     if (anexar.Conflito)
-        return Results.Conflict(new { ultimoSeq = anexar.UltimoSeq });
+        return ErroProblema(409, "conflito_seq", "Conflito de concorrencia.", new { ultimoSeq = anexar.UltimoSeq });
 
     return Results.Ok(new
     {
         eventos = resultado.Eventos,
-        projecao = new
-        {
-            carreira = resultado.NovoEstado.Carreira,
-            chamados = resultado.NovoEstado.Itsm.Chamados,
-            problemas = resultado.NovoEstado.Itsm.Problemas,
-            estacao = resultado.NovoEstado.Estacao,
-            dialogo = resultado.NovoEstado.Dialogo,
-            meta = resultado.NovoEstado.Meta,
-            ultimoSeq = resultado.NovoEstado.Meta.UltimoSeq
-        }
+        projecao = ProjetarSessaoPublica(resultado.NovoEstado)
+    });
+});
+
+app.MapPost("/api/sessoes/{id:guid}/chat", async (
+    Guid id,
+    ChatDto? body,
+    ICatalogoCenarios catalogo,
+    IEventStore store,
+    IClienteDialogo dialogo,
+    CancellationToken ct) =>
+{
+    if (body is null || body.SeqEsperado <= 0 || string.IsNullOrWhiteSpace(body.Mensagem) || body.Mensagem.Length > 500)
+        return ErroProblema(400, "validacao", "mensagem (1..500 chars) e seqEsperado (> 0) sao obrigatorios.");
+
+    var persona = body.Persona?.Trim().ToLowerInvariant();
+    if (persona is not ("cliente" or "techlead"))
+        return ErroProblema(400, "validacao", "persona deve ser 'cliente' ou 'techlead'.");
+
+    var (meta, eventos) = await store.ObterSessaoAsync(id, ct);
+    if (meta is null) return ErroProblema(404, "sessao_nao_encontrada", "Sessao nao encontrada.");
+
+    if (eventos[^1].Seq != body.SeqEsperado)
+        return ErroProblema(409, "conflito_seq", "Sequencia desatualizada.", new { ultimoSeq = eventos[^1].Seq });
+
+    var estadoAtual = Projecao.Reconstruir(eventos, catalogo);
+    var resp = await dialogo.ResponderAsync(estadoAtual, persona, body.Mensagem.Trim(), ct);
+    var resultado = Motor.RegistrarChat(estadoAtual, persona, body.Mensagem.Trim(), resp.Mensagem, resp.Origem);
+
+    var anexar = await store.AnexarAsync(id, body.SeqEsperado, resultado.Eventos, ct);
+    if (anexar.Conflito)
+        return ErroProblema(409, "conflito_seq", "Conflito de concorrencia.", new { ultimoSeq = anexar.UltimoSeq });
+
+    return Results.Ok(new
+    {
+        eventos = resultado.Eventos,
+        projecao = ProjetarSessaoPublica(resultado.NovoEstado)
     });
 });
 
@@ -137,16 +214,85 @@ app.MapGet("/api/sessoes/{id:guid}/avaliacao", async (
     CancellationToken ct) =>
 {
     var (meta, eventos) = await store.ObterSessaoAsync(id, ct);
-    if (meta is null) return Results.NotFound(new { erro = "sessao_nao_encontrada" });
+    if (meta is null) return ErroProblema(404, "sessao_nao_encontrada", "Sessao nao encontrada.");
 
     var estado = Projecao.Reconstruir(eventos, catalogo);
     var relatorio = Juiz360.Avaliar(estado, eventos);
     return Results.Ok(relatorio);
 });
 
+app.MapGet("/api/sessoes/{id:guid}/replay", async (
+    Guid id,
+    ICatalogoCenarios catalogo,
+    IEventStore store,
+    CancellationToken ct) =>
+{
+    var (meta, eventos) = await store.ObterSessaoAsync(id, ct);
+    if (meta is null) return ErroProblema(404, "sessao_nao_encontrada", "Sessao nao encontrada.");
+
+    var estado = Projecao.Reconstruir(eventos, catalogo);
+    var relatorio = Juiz360.Avaliar(estado, eventos);
+    var criteriosPorSeq = relatorio.Criterios
+        .Where(c => c.EventoSeq.HasValue)
+        .GroupBy(c => c.EventoSeq!.Value)
+        .ToDictionary(g => g.Key, g => g.Select(c => c.Id).ToArray());
+
+    return Results.Ok(new
+    {
+        sessaoId = id,
+        meta = new
+        {
+            cenarioId = estado.Meta.CenarioId,
+            causa = relatorio.Concluida ? estado.Meta.Causa : null,
+            nivel = estado.Meta.Nivel,
+            semente = estado.Meta.Semente,
+            versaoManifesto = estado.Meta.VersaoManifesto
+        },
+        ultimoSeq = estado.Meta.UltimoSeq,
+        eventos = eventos.Select(e => new
+        {
+            seq = e.Seq,
+            tipo = e.Tipo,
+            minutoSimulado = e.MinutoSimulado,
+            payload = e.Dados,
+            criterios = criteriosPorSeq.TryGetValue(e.Seq, out var cs) ? cs : []
+        }),
+        avaliacao = relatorio,
+        curriculo = relatorio.Concluida
+            ? new
+            {
+                competencias = relatorio.CurriculoVivo.CompetenciasComprovadas,
+                hash = relatorio.CurriculoVivo.HashAuditoriaSha256,
+                algoritmo = "SHA-256/JCS-RFC8785",
+                versaoManifesto = estado.Meta.VersaoManifesto
+            }
+            : null
+    });
+});
+
 app.Run();
+
+static object ProjetarSessaoPublica(EstadoSessao estado) => new
+{
+    carreira = estado.Carreira,
+    chamados = estado.Itsm.Chamados,
+    problemas = estado.Itsm.Problemas,
+    estacao = estado.Estacao,
+    dialogo = estado.Dialogo,
+    meta = new
+    {
+        cenarioId = estado.Meta.CenarioId,
+        semente = estado.Meta.Semente,
+        nivel = estado.Meta.Nivel,
+        versaoManifesto = estado.Meta.VersaoManifesto,
+        minutoSimulado = estado.Meta.MinutoSimulado,
+        ultimoSeq = estado.Meta.UltimoSeq
+    },
+    ultimoSeq = estado.Meta.UltimoSeq
+};
 
 public sealed record CriarSessaoDto(string? CenarioId, string? VersaoManifesto, string? CausaForcada, long? Semente);
 public sealed record ExecutarAcaoDto(string Tipo, IReadOnlyDictionary<string, JsonElement>? Dados, int SeqEsperado);
+public sealed record ChatDto(string Persona, string Mensagem, int SeqEsperado);
 
 public partial class Program;

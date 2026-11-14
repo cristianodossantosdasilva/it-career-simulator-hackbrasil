@@ -175,11 +175,44 @@ public static class Projecao
                     break;
                 }
                 case "PistaSolicitada":
-                    dialogo = dialogo with { PistasSolicitadas = Convert.ToInt32(ev.Dados["totalPistas"]) };
+                    dialogo = dialogo with { PistasSolicitadas = ev.Dados.TryGetValue("indice", out var idxP) ? Convert.ToInt32(idxP) : dialogo.PistasSolicitadas + 1 };
+                    break;
+                case "IdentidadeVerificada":
+                    dialogo = dialogo with { IdentidadeValidada = true };
                     break;
                 case "AcessoRemotoLiberado":
-                    dialogo = dialogo with { AcessoRemotoLiberado = true, IdAcessoRemoto = ev.Dados["id"]?.ToString(), PinAcessoRemoto = "7391" };
+                    dialogo = dialogo with
+                    {
+                        AcessoRemotoLiberado = true,
+                        IdAcessoRemoto = ev.Dados["id"]?.ToString(),
+                        PinAcessoRemoto = ev.Dados.TryGetValue("pin", out var pinEl) ? pinEl?.ToString() : dialogo.PinAcessoRemoto
+                    };
                     break;
+                case "MensagemUsuarioEnviada":
+                    dialogo = dialogo with
+                    {
+                        Mensagens = [.. dialogo.Mensagens, new MensagemDialogo(ev.Seq, "analista", ev.Dados["texto"]?.ToString() ?? "", ev.MinutoSimulado)]
+                    };
+                    break;
+                case "MensagemPersonaRecebida":
+                    dialogo = dialogo with
+                    {
+                        Mensagens = [.. dialogo.Mensagens, new MensagemDialogo(ev.Seq, ev.Dados["persona"]?.ToString() ?? "cliente", ev.Dados["texto"]?.ToString() ?? "", ev.MinutoSimulado)]
+                    };
+                    break;
+                case "ComandoExecutado":
+                {
+                    var cmdTxt = ev.Dados["comando"]?.ToString()?.ToLowerInvariant() ?? "";
+                    if (cmdTxt.StartsWith("ipconfig /flushdns") && estacao.DnsServidor.TryGetValue(cenario.HostAlvo, out var dns))
+                    {
+                        var novoCache = new Dictionary<string, string>(estacao.DnsCacheEstacao, StringComparer.OrdinalIgnoreCase)
+                        {
+                            [cenario.HostAlvo] = dns.Ip
+                        };
+                        estacao = estacao with { DnsCacheEstacao = novoCache };
+                    }
+                    break;
+                }
                 case "UsuarioConfirmouFuncionamento":
                     dialogo = dialogo with { UsuarioConfirmouFuncionamento = true };
                     break;
