@@ -151,7 +151,12 @@ app.MapPost("/api/sessoes", async (
 {
     var cenarioId = string.IsNullOrWhiteSpace(body?.CenarioId) ? "pasta-rede-inacessivel" : body.CenarioId.Trim();
     var versao = string.IsNullOrWhiteSpace(body?.VersaoManifesto)
-        ? (cenarioId == "pasta-rede-inacessivel" ? "v1.1" : "v0.1-hackathon")
+        ? cenarioId switch
+        {
+            "pasta-rede-inacessivel" => "v1.1",
+            "sre-cloud-latencia" or "diagnostico-sql-readonly" => "v2.0",
+            _ => "v0.1-hackathon"
+        }
         : body.VersaoManifesto.Trim();
 
     if (!catalogo.SuportaVersao(cenarioId, versao))

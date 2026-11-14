@@ -71,6 +71,19 @@ function obterProximaDicaMissao(
     if (!sessao.problemas.some((p) => p.resolvido)) return '5) Registre a causa raiz (servico + atualizacao) no Problema e resolva em lote.'
     return 'Incidente massivo resolvido! Confira Juiz 360º & Replay.'
   }
+  if (cenario === 'sre-cloud-latencia') {
+    if (ch1.status === 'Novo') return '1) Assuma e classifique o incidente SRE CH-0001 no ITSM.'
+    if (!sessao.dialogo.acessoRemotoLiberado) return '2) Valide a identidade da Maria no Comunicador IA (AUR-1042 / 2042) para liberar o SimuDesk.'
+    if (!sessao.estacao.compartilhamentoAcessivel) return '3) No SimuDesk, diagnostique pods/logs/curl, eleve privilegio e aplique a mitigacao.'
+    if (ch1.status !== 'Resolvido' && ch1.status !== 'Encerrado') return '4) Resolva o chamado CH-0001 com nota de post-mortem.'
+    return 'Incidente SRE mitigado! Confira Juiz 360º & Replay.'
+  }
+  if (cenario === 'diagnostico-sql-readonly') {
+    if (ch1.status === 'Novo') return '1) Assuma e classifique o chamado de auditoria SQL CH-0001 no ITSM.'
+    if (!sessao.dialogo.acessoRemotoLiberado) return '2) Valide a identidade da Maria no Comunicador IA (AUR-1042 / 2042) para liberar o console SQL.'
+    if (ch1.status !== 'Resolvido' && ch1.status !== 'Encerrado') return '3) Execute SELECT somente leitura no SimuDesk (sem escrita) e resolva o chamado com o diagnostico.'
+    return 'Auditoria SQL concluida! Confira Juiz 360º & Replay.'
+  }
   if (ch1.status === 'Novo') return '1) Assuma e classifique o chamado CH-0001 no ITSM.'
   if (!sessao.dialogo.acessoRemotoLiberado) return '2) Valide a identidade da Maria no Comunicador (AUR-1042 / 2042) para liberar o SimuDesk.'
   if (!sessao.estacao.compartilhamentoAcessivel) return '3) No SimuDesk, execute diagnostico antes de alterar e corrija a causa raiz.'

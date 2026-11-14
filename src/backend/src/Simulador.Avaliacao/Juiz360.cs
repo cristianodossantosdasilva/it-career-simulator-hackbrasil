@@ -37,6 +37,8 @@ public static class Juiz360
         {
             "triagem-engenharia-social" => AvaliarNivel1(estado, eventos),
             "incidente-massivo" => AvaliarNivel3(estado, eventos),
+            "sre-cloud-latencia" => AvaliarNivel4Sre(estado, eventos),
+            "diagnostico-sql-readonly" => AvaliarNivel4bSql(estado, eventos),
             _ => AvaliarNivel2(estado, eventos)
         };
     }
@@ -182,6 +184,94 @@ public static class Juiz360
             concluida,
             criterios,
             !m4,
+            xp,
+            new CurriculoVivo(estado.Meta.Nivel, xp, competencias, CalcularHashTrilha(eventos)),
+            $"{atendidos}/{criterios.Count} criterios atendidos | XP: {xp}");
+    }
+
+    private static RelatorioAvaliacao AvaliarNivel4Sre(EstadoSessao estado, IReadOnlyList<EnvelopeEvento> eventos)
+    {
+        var criterios = new List<CriterioAvaliacao>();
+        var principal = estado.Itsm.Chamados.FirstOrDefault();
+
+        var classificado = eventos.FirstOrDefault(e =>
+            e.Tipo == "ChamadoClassificado" &&
+            principal is not null &&
+            string.Equals(e.Dados["chamadoId"]?.ToString(), principal.Id, StringComparison.OrdinalIgnoreCase));
+        criterios.Add(new("R1", "Classificou o incidente SRE antes de encerrar", classificado is not null, classificado?.Seq));
+
+        var diag = eventos.FirstOrDefault(e => e.Tipo == "ComandoExecutado");
+        var mitigacao = eventos.FirstOrDefault(e => e.Tipo == "ServicoIniciado");
+        var r2 = diag is not null && (mitigacao is null || diag.Seq < mitigacao.Seq);
+        criterios.Add(new("R2", "Executou diagnostico SRE (pods/logs/curl/pg) antes de mitigar", r2, diag?.Seq));
+
+        var r3 = mitigacao is not null && FoiComPrivilegioElevado(eventos, mitigacao);
+        criterios.Add(new("R3", "Aplicou mitigacao no cluster com privilegio elevado", r3, mitigacao?.Seq));
+
+        var preju = eventos.FirstOrDefault(e => e.Tipo == "AcaoPrejudicialRegistrada");
+        var r4 = preju is null;
+        criterios.Add(new("R4", "Nenhuma acao destrutiva durante a mitigacao SRE", r4, preju?.Seq));
+
+        var resolvido = eventos.FirstOrDefault(e =>
+            e.Tipo == "ChamadoResolvido" &&
+            principal is not null &&
+            string.Equals(e.Dados["chamadoId"]?.ToString(), principal.Id, StringComparison.OrdinalIgnoreCase));
+        var r5 = resolvido is not null && estado.Estacao.CompartilhamentoAcessivel && !(principal?.SlaVencido ?? true);
+        criterios.Add(new("R5", "Disponibilidade restaurada e chamado resolvido dentro do SLA", r5, resolvido?.Seq));
+
+        var atendidos = criterios.Count(c => c.Atendido);
+        var xp = Math.Max(0, atendidos * 20 - (preju is not null ? 25 : 0));
+        var competencias = new List<string>();
+        if (r2) competencias.Add("Observabilidade & Logs Cloud");
+        if (r3 && r5) competencias.Add("SRE & Mitigacao Kubernetes");
+        if (r4) competencias.Add("Seguranca Operacional");
+
+        var concluida = principal?.Status is StatusChamado.Resolvido or StatusChamado.Encerrado && estado.Estacao.CompartilhamentoAcessivel;
+        return new RelatorioAvaliacao(
+            concluida,
+            criterios,
+            !r4,
+            xp,
+            new CurriculoVivo(estado.Meta.Nivel, xp, competencias, CalcularHashTrilha(eventos)),
+            $"{atendidos}/{criterios.Count} criterios atendidos | XP: {xp}");
+    }
+
+    private static RelatorioAvaliacao AvaliarNivel4bSql(EstadoSessao estado, IReadOnlyList<EnvelopeEvento> eventos)
+    {
+        var criterios = new List<CriterioAvaliacao>();
+        var principal = estado.Itsm.Chamados.FirstOrDefault();
+
+        var classificado = eventos.FirstOrDefault(e =>
+            e.Tipo == "ChamadoClassificado" &&
+            principal is not null &&
+            string.Equals(e.Dados["chamadoId"]?.ToString(), principal.Id, StringComparison.OrdinalIgnoreCase));
+        criterios.Add(new("D1", "Assumiu e classificou o chamado de auditoria SQL", classificado is not null, classificado?.Seq));
+
+        var consultaSql = eventos.FirstOrDefault(e => e.Tipo == "ComandoExecutado");
+        criterios.Add(new("D2", "Executou consultas SELECT somente leitura no dataset sintetico", consultaSql is not null, consultaSql?.Seq));
+
+        var preju = eventos.FirstOrDefault(e => e.Tipo == "AcaoPrejudicialRegistrada");
+        var d3 = preju is null;
+        criterios.Add(new("D3", "Nenhuma tentativa de escrita ou injecao SQL", d3, preju?.Seq));
+
+        var resolvido = eventos.FirstOrDefault(e =>
+            e.Tipo == "ChamadoResolvido" &&
+            principal is not null &&
+            string.Equals(e.Dados["chamadoId"]?.ToString(), principal.Id, StringComparison.OrdinalIgnoreCase));
+        criterios.Add(new("D4", "Diagnostico registrado e chamado resolvido", resolvido is not null, resolvido?.Seq));
+
+        var atendidos = criterios.Count(c => c.Atendido);
+        var xp = Math.Max(0, atendidos * 20 - (preju is not null ? 25 : 0));
+        var competencias = new List<string>();
+        if (consultaSql is not null) competencias.Add("SQL Analitico Read-Only");
+        if (d3) competencias.Add("Seguranca de Banco de Dados");
+        if (resolvido is not null) competencias.Add("Auditoria de Dados");
+
+        var concluida = principal?.Status is StatusChamado.Resolvido or StatusChamado.Encerrado;
+        return new RelatorioAvaliacao(
+            concluida,
+            criterios,
+            !d3,
             xp,
             new CurriculoVivo(estado.Meta.Nivel, xp, competencias, CalcularHashTrilha(eventos)),
             $"{atendidos}/{criterios.Count} criterios atendidos | XP: {xp}");

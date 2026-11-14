@@ -34,6 +34,20 @@ const NIVEIS = [
     desc: '3 chamados simultaneos apos atualizacao. Crie um Problema, investigue logs, restaure o AuroraGateway e resolva em lote.',
     competencias: 'ITIL Problem · RCA · Logs',
   },
+  {
+    id: 'sre-cloud-latencia',
+    cargo: 'Nivel 4 (V2) · SRE / Cloud',
+    titulo: 'Incidente Cloud & Kubernetes (Chaos)',
+    desc: '3 causas raiz simuladas (OOMKilled, Pool Postgres ou TLS expirado). Investigue pods/logs no SimuDesk e mitigue sem acao destrutiva.',
+    competencias: 'Kubernetes · Observabilidade · SRE',
+  },
+  {
+    id: 'diagnostico-sql-readonly',
+    cargo: 'Nivel 4b (V2) · SQL Read-Only',
+    titulo: 'Auditoria SQL Somente Leitura',
+    desc: 'Investigue divergencia de faturamento no dataset sintetico via SELECT/EXPLAIN. Escrita e SQL injection sao bloqueados.',
+    competencias: 'SQL Analitico · Auditoria · Seguranca',
+  },
 ]
 
 export function TelaInicial({
@@ -53,12 +67,12 @@ export function TelaInicial({
   const [avisoColdStart, setAvisoColdStart] = useState(false)
 
   useEffect(() => {
-    if (!ocupado) {
-      setAvisoColdStart(false)
-      return
-    }
+    if (!ocupado) return
     const timer = window.setTimeout(() => setAvisoColdStart(true), 2000)
-    return () => window.clearTimeout(timer)
+    return () => {
+      window.clearTimeout(timer)
+      setAvisoColdStart(false)
+    }
   }, [ocupado])
 
   async function executarVerificacao(conteudo: string) {
@@ -102,7 +116,7 @@ export function TelaInicial({
           </p>
         </div>
 
-        {avisoColdStart && (
+        {ocupado && avisoColdStart && (
           <div className="banner-notice" role="status">
             Acordando servidor na nuvem (Render Free) — a primeira chamada apos inatividade pode levar ate 40 segundos.
           </div>

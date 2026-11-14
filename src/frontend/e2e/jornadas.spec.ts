@@ -161,4 +161,76 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     )
     await expect(page.getByRole('status')).toContainText('DIVERGENTE:')
   })
+
+  test('V1 (E6): Nivel 4 SRE/Cloud mitiga OOMKilled e conclui com 100 XP', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: /Nivel 4 \(V2\) · SRE \/ Cloud/i }).click()
+    await page.getByLabel(/Semente/i).fill('0')
+    await page.getByRole('button', { name: /Decolar no Simulador/i }).click()
+
+    await page.getByRole('button', { name: 'Assumir Chamado' }).click()
+    await page.getByRole('button', { name: 'Salvar Classificacao' }).click()
+
+    await page.getByRole('button', { name: /Comunicador IA/i }).click()
+    await page.getByLabel('Matricula').fill('AUR-1042')
+    await page.getByLabel('Ramal').fill('2042')
+    await page.getByRole('button', { name: /Validar Identidade/i }).click()
+    await expect(page.getByText('Identidade Verificada!')).toBeVisible()
+
+    await page.getByRole('button', { name: /SimuDesk Remoto/i }).click()
+    await page.getByRole('button', { name: 'Preencher e Conectar' }).click()
+    await page.getByLabel('Comando do terminal').fill('kubectl get pods')
+    await page.getByRole('button', { name: 'Executar' }).click()
+    await expect(page.getByText('api-pedidos-7f9b', { exact: false })).toBeVisible()
+
+    await page.getByLabel('Comando do terminal').fill('kubectl logs api-pedidos-7f9b')
+    await page.getByRole('button', { name: 'Executar' }).click()
+    await expect(page.getByText(/OOMKilled|pgbouncer|ingress-aurora/i).last()).toBeVisible()
+
+    const logsText = await page.locator('.terminal-output').innerText()
+    const mitigacao = logsText.includes('OOMKilled')
+      ? 'kubectl set resources deployment/api-pedidos --limits=memory=512Mi'
+      : logsText.includes('pgbouncer')
+        ? 'kubectl rollout restart deployment/pgbouncer'
+        : 'kubectl rollout restart deployment/cert-manager'
+
+    await page.getByRole('button', { name: 'Elevar Privilegio' }).click()
+    await page.getByLabel('Comando do terminal').fill(mitigacao)
+    await page.getByRole('button', { name: 'Executar' }).click()
+    await expect(page.getByText('Cluster Cloud: Healthy')).toBeVisible()
+
+    await page.getByRole('button', { name: /ITSM \/ Chamados/i }).click()
+    await page.getByLabel('Nota publica de resolucao').fill('Limite de memoria ajustado e pod estabilizado.')
+    await page.getByRole('button', { name: 'Resolver Chamado' }).click()
+
+    await page.getByRole('button', { name: /Juiz 360º & Replay/i }).click()
+    await expect(page.getByText('Concluida', { exact: false })).toBeVisible()
+    await expect(page.getByText('XP: 100')).toBeVisible()
+  })
+
+  test('V2: Nivel 4b SQL Read-Only bloqueia escrita/injecao e aprova SELECT limpo', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: /Nivel 4b \(V2\) · SQL Read-Only/i }).click()
+    await page.getByRole('button', { name: /Decolar no Simulador/i }).click()
+
+    await page.getByRole('button', { name: 'Assumir Chamado' }).click()
+    await page.getByRole('button', { name: 'Salvar Classificacao' }).click()
+
+    await page.getByRole('button', { name: /Comunicador IA/i }).click()
+    await page.getByLabel('Matricula').fill('AUR-1042')
+    await page.getByLabel('Ramal').fill('2042')
+    await page.getByRole('button', { name: /Validar Identidade/i }).click()
+    await expect(page.getByText('Identidade Verificada!')).toBeVisible()
+
+    await page.getByRole('button', { name: /SimuDesk Remoto/i }).click()
+    await page.getByRole('button', { name: 'Preencher e Conectar' }).click()
+    await page.getByLabel('Comando do terminal').fill('SELECT * FROM pagamentos')
+    await page.getByRole('button', { name: 'Executar' }).click()
+    await expect(page.getByText('PAG-3', { exact: false })).toBeVisible()
+
+    // Tentativa de SQL injection bloqueada
+    await page.getByLabel('Comando do terminal').fill('SELECT * FROM pedidos; DROP TABLE pagamentos;')
+    await page.getByRole('button', { name: 'Executar' }).click()
+    await expect(page.getByText('BLOQUEADO: Console SQL opera estritamente', { exact: false })).toBeVisible()
+  })
 })

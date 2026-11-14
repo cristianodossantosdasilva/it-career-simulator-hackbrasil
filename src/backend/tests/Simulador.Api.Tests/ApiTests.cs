@@ -236,4 +236,14 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
         var ev0Payload = rReplayAntes.GetProperty("eventos")[0].GetProperty("payload");
         Assert.False(ev0Payload.TryGetProperty("causa", out _));
     }
+
+    [Fact]
+    public async Task Nivel4Sre_ENivel4bSql_CriamSessaoViaApi()
+    {
+        var rSre = await _client.PostAsJsonAsync("/api/sessoes", new { cenarioId = "sre-cloud-latencia", semente = 42 });
+        Assert.Equal(HttpStatusCode.Created, rSre.StatusCode);
+
+        var rSql = await _client.PostAsJsonAsync("/api/sessoes", new { cenarioId = "diagnostico-sql-readonly", semente = 7 });
+        Assert.Equal(HttpStatusCode.Created, rSql.StatusCode);
+    }
 }

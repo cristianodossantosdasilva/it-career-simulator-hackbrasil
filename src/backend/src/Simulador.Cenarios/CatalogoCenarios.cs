@@ -5,6 +5,7 @@ namespace Simulador.Cenarios;
 public sealed class CatalogoCenarios : ICatalogoCenarios
 {
     private static readonly string[] CausasPastaRede = ["C1", "C2", "C3"];
+    private static readonly string[] CausasSreCloud = ["OOM_KILLED", "POOL_EXHAUSTED", "CERT_EXPIRED"];
 
     public bool SuportaVersao(string cenarioId, string versaoManifesto) =>
         (cenarioId, versaoManifesto) switch
@@ -12,6 +13,8 @@ public sealed class CatalogoCenarios : ICatalogoCenarios
             ("pasta-rede-inacessivel", "v1.1") => true,
             ("triagem-engenharia-social", "v0.1-hackathon") => true,
             ("incidente-massivo", "v0.1-hackathon") => true,
+            ("sre-cloud-latencia", "v2.0") => true,
+            ("diagnostico-sql-readonly", "v2.0") => true,
             _ => false
         };
 
@@ -25,6 +28,8 @@ public sealed class CatalogoCenarios : ICatalogoCenarios
             "pasta-rede-inacessivel" => CriarPastaRede(versaoManifesto, causaForcada, semente),
             "triagem-engenharia-social" => CriarTriagemSeguranca(versaoManifesto),
             "incidente-massivo" => CriarIncidenteMassivo(versaoManifesto),
+            "sre-cloud-latencia" => CriarSreCloud(versaoManifesto, causaForcada, semente),
+            "diagnostico-sql-readonly" => CriarSqlReadOnly(versaoManifesto),
             _ => throw new ArgumentException($"Cenario desconhecido: {cenarioId}")
         };
     }
@@ -165,5 +170,101 @@ public sealed class CatalogoCenarios : ICatalogoCenarios
             "maria.souza",
             "api-interna.aurora.local",
             "AuroraGateway");
+    }
+
+    private static DefinicaoCenario CriarSreCloud(string versao, string? causaForcada, long semente)
+    {
+        var causa = causaForcada is "OOM_KILLED" or "POOL_EXHAUSTED" or "CERT_EXPIRED"
+            ? causaForcada
+            : CausasSreCloud[new SplitMix64(semente).NextInt(CausasSreCloud.Length)];
+
+        var estacao = new EstadoEstacao(
+            PrivilegioTerminal.UsuarioPadrao,
+            new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["sre.oncall"] = ["ClusterAdmins", "Aurora-SRE"]
+            },
+            new Dictionary<string, RegistroDns>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["api.aurora.local"] = new("api.aurora.local", "10.20.40.10", "10.20.40.10")
+            },
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["api.aurora.local"] = "10.20.40.10"
+            },
+            [
+                new("ApiPedidos", causa == "OOM_KILLED" ? "CrashLoopBackOff" : "Running", true),
+                new("PgBouncer", causa == "POOL_EXHAUSTED" ? "Degraded" : "Running", true),
+                new("IngressTLS", causa == "CERT_EXPIRED" ? "Expired" : "Running", true)
+            ],
+            false,
+            true,
+            [
+                "[ALERT] SLO de latencia/disponibilidade violado em api.aurora.local (p99 > 4s / 5xx).",
+                causa switch
+                {
+                    "OOM_KILLED" => "[K8S] Pod api-pedidos-7f9b reiniciado 6x (Reason: OOMKilled, ExitCode 137).",
+                    "POOL_EXHAUSTED" => "[DB] FATAL: remaining connection slots are reserved for non-replication superuser connections.",
+                    _ => "[TLS] x509: certificate has expired or is not yet valid em ingress-aurora."
+                }
+            ],
+            [
+                "kubectl get pods",
+                "kubectl logs",
+                "kubectl describe ingress",
+                "kubectl set resources",
+                "kubectl rollout restart",
+                "curl -I",
+                "pg_stat_activity"
+            ]);
+
+        return new DefinicaoCenario(
+            "sre-cloud-latencia",
+            versao,
+            "Engenheiro SRE / Cloud (N3)",
+            causa,
+            estacao,
+            [
+                new("API de Pedidos retornando 502/504 em producao", "Monitoramento sintetico detectou queda de disponibilidade no cluster simulado Aurora Cloud.", "Monitoramento SRE", 0, true),
+                new("Latencia elevada no checkout B2B", "Clientes reportam timeout intermitente ao confirmar pedidos.", "Operacoes Logistica", 0, false)
+            ],
+            "Aurora-SRE",
+            "maria.souza",
+            "api.aurora.local",
+            "ApiPedidos");
+    }
+
+    private static DefinicaoCenario CriarSqlReadOnly(string versao)
+    {
+        var estacao = new EstadoEstacao(
+            PrivilegioTerminal.UsuarioPadrao,
+            new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["auditor.sql"] = ["ReadOnlyAnalysts"]
+            },
+            new Dictionary<string, RegistroDns>(StringComparer.OrdinalIgnoreCase),
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+            [new("PostgresReadReplica", "Running", true)],
+            false,
+            true,
+            [
+                "[AUDIT] Divergencia detectada no fechamento sintetico: soma(pagamentos) != soma(pedidos).",
+                "[POLICY] Console SQL opera em modo estritamente SOMENTE LEITURA (SELECT/EXPLAIN)."
+            ],
+            ["SELECT", "EXPLAIN"]);
+
+        return new DefinicaoCenario(
+            "diagnostico-sql-readonly",
+            versao,
+            "Analista de Dados / DBA Jr (N3b)",
+            "DIVERGENCIA_PAGAMENTOS",
+            estacao,
+            [
+                new("Divergencia de faturamento entre pedidos e pagamentos", "Auditoria financeira apontou diferenca no dataset sintetico. Investigue via SELECT somente leitura sem alterar registros.", "Controladoria Aurora", 0, true)
+            ],
+            "ReadOnlyAnalysts",
+            "maria.souza",
+            "db-replica.aurora.local",
+            "PostgresReadReplica");
     }
 }

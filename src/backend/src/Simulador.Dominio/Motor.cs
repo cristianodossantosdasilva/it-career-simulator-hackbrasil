@@ -400,6 +400,21 @@ public static class Motor
                 var cmd = acao.ObterString("comando")?.Trim();
                 if (string.IsNullOrWhiteSpace(cmd)) return Rejeitar("comando obrigatorio.");
                 var cmdNormalizado = cmd.ToLowerInvariant();
+                if (cenario.CenarioId == "diagnostico-sql-readonly" && EhSqlPerigosoOuEscrita(cmdNormalizado))
+                {
+                    gerados.Add(new(++seqAtual, "AcaoPrejudicialRegistrada", new Dictionary<string, object?>
+                    {
+                        ["categoria"] = "sql_seguranca",
+                        ["comando"] = cmd,
+                        ["motivo"] = "Tentativa de escrita ou SQL injection bloqueada pelo console somente leitura."
+                    }, minutoDestino));
+                    gerados.Add(new(++seqAtual, "ComandoNaoSuportado", new Dictionary<string, object?>
+                    {
+                        ["comando"] = cmd,
+                        ["saida"] = "BLOQUEADO: Console SQL opera estritamente em modo SOMENTE LEITURA (SELECT/EXPLAIN). Escrita, DDL ou multi-statement (;) nao sao permitidos."
+                    }, minutoDestino));
+                    break;
+                }
                 var suportado = novo.Estacao.ComandosSuportados.Any(c =>
                     cmdNormalizado.StartsWith(c.ToLowerInvariant(), StringComparison.Ordinal));
                 if (!suportado)
@@ -717,7 +732,124 @@ public static class Motor
             var linhas = estacao.Servicos.Select(s => $"{s.Nome}: {s.Status}");
             return (estacao, string.Join(" | ", linhas), false, null);
         }
+        if (cenario.CenarioId == "sre-cloud-latencia")
+        {
+            return ExecutarComandoSre(estacao, lower, cenario);
+        }
+        if (cenario.CenarioId == "diagnostico-sql-readonly")
+        {
+            return ExecutarComandoSqlReadOnly(estacao, lower);
+        }
         return (estacao, "Comando executado.", false, null);
+    }
+
+    private static bool EhSqlPerigosoOuEscrita(string lower)
+    {
+        if (lower.Contains(';') || lower.Contains("--") || lower.Contains("/*"))
+            return true;
+        string[] proibidos =
+        [
+            "insert ", "update ", "delete ", "drop ", "alter ", "truncate ",
+            "create ", "grant ", "revoke ", "exec ", "execute ", "copy ", "call "
+        ];
+        return proibidos.Any(p => lower.Contains(p, StringComparison.Ordinal));
+    }
+
+    private static (EstadoEstacao Estacao, string Saida, bool AcessoRestabelecido, (string Tipo, IReadOnlyDictionary<string, object?> Dados)? EventoExtra) ExecutarComandoSre(
+        EstadoEstacao estacao,
+        string lower,
+        DefinicaoCenario cenario)
+    {
+        if (lower.StartsWith("kubectl get pods"))
+        {
+            var apiStatus = estacao.Servicos.FirstOrDefault(s => s.Nome == "ApiPedidos")?.Status ?? "Running";
+            var pgStatus = estacao.Servicos.FirstOrDefault(s => s.Nome == "PgBouncer")?.Status ?? "Running";
+            return (estacao,
+                $"NAME                         READY   STATUS             RESTARTS\napi-pedidos-7f9b             0/1     {apiStatus,-18} 6\npgbouncer-6c4d               1/1     {pgStatus,-18} 0",
+                false, null);
+        }
+        if (lower.StartsWith("kubectl logs"))
+        {
+            var msg = cenario.Causa switch
+            {
+                "OOM_KILLED" => "Last State: Terminated | Reason: OOMKilled | Exit Code: 137 | Memory Limit: 128Mi",
+                "POOL_EXHAUSTED" => "ERROR: FATAL: remaining connection slots are reserved for non-replication superuser connections (pgbouncer saturated)",
+                _ => "INFO: App healthy internally; upstream TLS handshake failing at ingress-aurora."
+            };
+            return (estacao, msg, false, null);
+        }
+        if (lower.StartsWith("kubectl describe ingress"))
+        {
+            var tlsStatus = estacao.Servicos.FirstOrDefault(s => s.Nome == "IngressTLS")?.Status ?? "Running";
+            var msg = tlsStatus == "Expired"
+                ? "Host: api.aurora.local | TLS Secret: aurora-tls | Status: EXPIRED (2026-11-10)"
+                : "Host: api.aurora.local | TLS Secret: aurora-tls | Status: Valid";
+            return (estacao, msg, false, null);
+        }
+        if (lower.StartsWith("curl -i"))
+        {
+            var msg = estacao.CompartilhamentoAcessivel
+                ? "HTTP/2 200 OK | x-aurora-edge: healthy"
+                : cenario.Causa == "CERT_EXPIRED"
+                    ? "curl: (60) SSL certificate problem: certificate has expired"
+                    : "HTTP/1.1 502 Bad Gateway | upstream api-pedidos unavailable";
+            return (estacao, msg, false, null);
+        }
+        if (lower.StartsWith("pg_stat_activity"))
+        {
+            var pgStatus = estacao.Servicos.FirstOrDefault(s => s.Nome == "PgBouncer")?.Status ?? "Running";
+            var msg = pgStatus == "Degraded"
+                ? "active_connections: 100/100 (MAX_CONN REACHED) | waiting_queries: 42"
+                : "active_connections: 14/100 | waiting_queries: 0";
+            return (estacao, msg, false, null);
+        }
+        if (lower.StartsWith("kubectl set resources") || lower.StartsWith("kubectl rollout restart"))
+        {
+            if (estacao.Privilegio != PrivilegioTerminal.Elevado)
+                return (estacao, "Error from server (Forbidden): operacao de cluster exige privilegio Elevado.", false, null);
+
+            var servicoAlvo = cenario.Causa switch
+            {
+                "OOM_KILLED" when lower.Contains("set resources") || lower.Contains("api-pedidos") => "ApiPedidos",
+                "POOL_EXHAUSTED" when lower.Contains("pgbouncer") => "PgBouncer",
+                "CERT_EXPIRED" when lower.Contains("cert-manager") || lower.Contains("ingress") => "IngressTLS",
+                _ => null
+            };
+            if (servicoAlvo is null)
+                return (estacao, "Rollout executado, porem o componente afetado pela causa raiz permanece degradado.", false, null);
+
+            var atualizados = estacao.Servicos.Select(s => s.Nome == servicoAlvo ? s with { Status = "Running" } : s).ToArray();
+            var estDepois = estacao with { Servicos = atualizados, CompartilhamentoAcessivel = true };
+            return (estDepois, $"Mitigacao aplicada com sucesso: {servicoAlvo} restaurado para Running (SLO normalizado).", true,
+                ("ServicoIniciado", new Dictionary<string, object?>
+                {
+                    ["servico"] = servicoAlvo,
+                    ["privilegio"] = estacao.Privilegio.ToString()
+                }));
+        }
+        return (estacao, "Comando SRE executado.", false, null);
+    }
+
+    private static (EstadoEstacao Estacao, string Saida, bool AcessoRestabelecido, (string Tipo, IReadOnlyDictionary<string, object?> Dados)? EventoExtra) ExecutarComandoSqlReadOnly(
+        EstadoEstacao estacao,
+        string lower)
+    {
+        if (lower.StartsWith("explain"))
+        {
+            return (estacao, "Index Scan using idx_pagamentos_pedido_id on pagamentos (cost=0.14..8.32 rows=5)", false, null);
+        }
+        if (lower.Contains("pagamentos"))
+        {
+            var saida = lower.Contains("group by")
+                ? "status=CONFIRMADO: 3 | status=DUPLICADO: 1 (PED-1002, +R$ 450,00)"
+                : "id=PAG-1 pedido=PED-1001 valor=1200.00 status=CONFIRMADO | id=PAG-2 pedido=PED-1002 valor=450.00 status=CONFIRMADO | id=PAG-3 pedido=PED-1002 valor=450.00 status=DUPLICADO";
+            return (estacao, saida, false, null);
+        }
+        if (lower.Contains("pedidos"))
+        {
+            return (estacao, "id=PED-1001 total=1200.00 | id=PED-1002 total=450.00 | id=PED-1003 total=800.00 (soma=2450.00)", false, null);
+        }
+        return (estacao, "Consulta SELECT somente leitura executada no dataset sintetico (0 linhas alteradas).", false, null);
     }
 
     private static bool VerificarCompartilhamentoOk(EstadoEstacao estacao, DefinicaoCenario cenario)

@@ -221,4 +221,66 @@ public class DominioTests
         Assert.True(av.Concluida);
         Assert.All(av.Criterios, c => Assert.True(c.Atendido, $"Criterio {c.Id} falhou"));
     }
+
+    [Fact]
+    public void Nivel4_SreCloud_OomKilled_DiagnosticoEMitigacaoElevada_AprovaJuiz360()
+    {
+        var cenario = _catalogo.Obter("sre-cloud-latencia", "v2.0", "OOM_KILLED", 42);
+        var inicio = Motor.Iniciar(cenario, 42);
+        var eventos = inicio.Eventos.ToList();
+        var estado = inicio.NovoEstado;
+
+        void Aplicar(string tipo, object? payload = null)
+        {
+            var res = Motor.Aplicar(estado, new Acao(tipo, payload is null ? null : Dados(payload)), cenario);
+            estado = res.NovoEstado;
+            eventos.AddRange(res.Eventos);
+        }
+
+        Aplicar("itsm.assumir_chamado", new { chamadoId = "CH-0001" });
+        Aplicar("itsm.classificar_chamado", new { chamadoId = "CH-0001", categoria = "Cloud/SRE", urgencia = "Critica", impacto = "Alto" });
+        Aplicar("estacao.executar_comando", new { comando = "kubectl get pods" });
+        Aplicar("estacao.executar_comando", new { comando = "kubectl logs api-pedidos-7f9b" });
+        Aplicar("estacao.elevar_privilegio");
+        Aplicar("estacao.executar_comando", new { comando = "kubectl set resources deployment/api-pedidos --limits=memory=512Mi" });
+        Assert.True(estado.Estacao.CompartilhamentoAcessivel);
+
+        Aplicar("itsm.resolver_chamado", new { chamadoId = "CH-0001", notaPublica = "Limite de memoria ajustado e pod estabilizado." });
+        var av = Juiz360.Avaliar(estado, eventos);
+        Assert.True(av.Concluida);
+        Assert.False(av.IncidenteSeguranca);
+        Assert.Equal(100, av.XpTotal);
+        Assert.All(av.Criterios, c => Assert.True(c.Atendido, $"Criterio {c.Id} falhou"));
+    }
+
+    [Fact]
+    public void Nivel4b_SqlReadOnly_BloqueiaEscritaEInjecao_EAprovaSelectLimpo()
+    {
+        var cenario = _catalogo.Obter("diagnostico-sql-readonly", "v2.0", null, 1);
+        var inicio = Motor.Iniciar(cenario, 1);
+        var eventos = inicio.Eventos.ToList();
+        var estado = inicio.NovoEstado;
+
+        void Aplicar(string tipo, object? payload = null)
+        {
+            var res = Motor.Aplicar(estado, new Acao(tipo, payload is null ? null : Dados(payload)), cenario);
+            estado = res.NovoEstado;
+            eventos.AddRange(res.Eventos);
+        }
+
+        Aplicar("itsm.assumir_chamado", new { chamadoId = "CH-0001" });
+        Aplicar("itsm.classificar_chamado", new { chamadoId = "CH-0001", categoria = "Banco de Dados", urgencia = "Alta", impacto = "Medio" });
+        Aplicar("estacao.executar_comando", new { comando = "SELECT * FROM pagamentos" });
+        Aplicar("itsm.resolver_chamado", new { chamadoId = "CH-0001", notaPublica = "Pagamento duplicado PAG-3 identificado via SELECT." });
+
+        var avLimpa = Juiz360.Avaliar(estado, eventos);
+        Assert.True(avLimpa.Concluida);
+        Assert.False(avLimpa.IncidenteSeguranca);
+        Assert.Equal(80, avLimpa.XpTotal);
+
+        // Tentativa de escrita/injecao deve ser bloqueada e sinalizar incidente
+        var resInjecao = Motor.Aplicar(estado, new Acao("estacao.executar_comando", Dados(new { comando = "SELECT * FROM pedidos; DROP TABLE pagamentos; --" })), cenario);
+        Assert.Contains(resInjecao.Eventos, e => e.Tipo == "AcaoPrejudicialRegistrada");
+        Assert.Contains(resInjecao.Eventos, e => e.Tipo == "ComandoNaoSuportado");
+    }
 }

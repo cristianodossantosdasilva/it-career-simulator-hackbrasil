@@ -89,6 +89,12 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
               AuroraGateway:{' '}
               {sessao.estacao.servicos.find((s) => s.nome === 'AuroraGateway')?.status ?? 'Stopped'}
             </span>
+          ) : sessao.meta.cenarioId === 'sre-cloud-latencia' ? (
+            <span className={`badge ${sessao.estacao.compartilhamentoAcessivel ? 'badge-ok' : 'badge-err'}`}>
+              Cluster Cloud: {sessao.estacao.compartilhamentoAcessivel ? 'Healthy' : 'Degraded'}
+            </span>
+          ) : sessao.meta.cenarioId === 'diagnostico-sql-readonly' ? (
+            <span className="badge badge-info">SQL Console: Somente Leitura (SELECT)</span>
           ) : sessao.meta.cenarioId !== 'triagem-engenharia-social' ? (
             <span className={`badge ${sessao.estacao.compartilhamentoAcessivel ? 'badge-ok' : 'badge-err'}`}>
               Pasta Financeiro: {sessao.estacao.compartilhamentoAcessivel ? 'Acessivel' : 'Inacessivel'}
