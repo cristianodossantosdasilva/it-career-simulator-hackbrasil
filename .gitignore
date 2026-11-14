@@ -1,0 +1,23 @@
+# Segredos e ambiente
+.env
+.env.*
+*.pfx
+*.p12
+
+# Build e dependências
+bin/
+obj/
+node_modules/
+dist/
+
+# Ferramentas locais
+.vs/
+.vscode/
+.idea/
+graphify-out/
+*.log
+__pycache__/
+
+# Playwright
+test-results/
+playwright-report/
