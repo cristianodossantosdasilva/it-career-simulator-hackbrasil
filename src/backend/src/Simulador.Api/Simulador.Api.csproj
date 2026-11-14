@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.15" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="11.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Simulador.Itsm\Simulador.Itsm.csproj" />
+    <ProjectReference Include="..\Simulador.Dominio\Simulador.Dominio.csproj" />
+    <ProjectReference Include="..\Simulador.Cenarios\Simulador.Cenarios.csproj" />
+    <ProjectReference Include="..\Simulador.Avaliacao\Simulador.Avaliacao.csproj" />
+    <ProjectReference Include="..\Simulador.Dialogo\Simulador.Dialogo.csproj" />
+    <ProjectReference Include="..\Simulador.Infra\Simulador.Infra.csproj" />
+  </ItemGroup>
+
+</Project>

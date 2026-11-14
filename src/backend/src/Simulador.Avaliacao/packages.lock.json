@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0": {
+      "simulador.dominio": {
+        "type": "Project",
+        "dependencies": {
+          "Simulador.Itsm": "[1.0.0, )"
+        }
+      },
+      "simulador.itsm": {
+        "type": "Project"
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0": {
+      "simulador.itsm": {
+        "type": "Project"
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Simulador.Api/Simulador.Api.csproj" />
+    <Project Path="src/Simulador.Avaliacao/Simulador.Avaliacao.csproj" />
+    <Project Path="src/Simulador.Cenarios/Simulador.Cenarios.csproj" />
+    <Project Path="src/Simulador.Dialogo/Simulador.Dialogo.csproj" />
+    <Project Path="src/Simulador.Dominio/Simulador.Dominio.csproj" />
+    <Project Path="src/Simulador.Infra/Simulador.Infra.csproj" />
+    <Project Path="src/Simulador.Itsm/Simulador.Itsm.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Simulador.Api.Tests/Simulador.Api.Tests.csproj" />
+    <Project Path="tests/Simulador.Dominio.Tests/Simulador.Dominio.Tests.csproj" />
+  </Folder>
+</Solution>
