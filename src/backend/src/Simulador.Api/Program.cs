@@ -1,5 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 using Simulador.Avaliacao;
 using Simulador.Cenarios;
 using Simulador.Dialogo;
@@ -74,6 +76,23 @@ builder.Services.AddSingleton<IClienteDialogo>(sp =>
     return new DialogoComFallback(apiKey, habilitarLlm);
 });
 
+builder.Services.AddRateLimiter(opt =>
+{
+    opt.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    opt.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(ctx =>
+    {
+        if (ctx.Request.Path.StartsWithSegments("/health"))
+            return RateLimitPartition.GetNoLimiter("health");
+        var ip = ctx.Connection.RemoteIpAddress?.ToString() ?? "local";
+        return RateLimitPartition.GetFixedWindowLimiter(ip, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 120,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        });
+    });
+});
+
 var app = builder.Build();
 
 if (pgStore is not null)
@@ -87,6 +106,7 @@ else
 
 app.UseExceptionHandler();
 app.UseCors();
+app.UseRateLimiter();
 
 if (app.Environment.IsDevelopment())
 {
@@ -110,8 +130,15 @@ app.MapGet("/health/ready", async (CancellationToken ct) =>
 {
     if (pgStore is not null)
     {
-        await pgStore.VerificarSaudeAsync(ct);
-        return Results.Ok(new { status = "ready", store = "Postgres" });
+        try
+        {
+            await pgStore.VerificarSaudeAsync(ct);
+            return Results.Ok(new { status = "ready", store = "Postgres" });
+        }
+        catch
+        {
+            return Results.Json(new { status = "degraded", store = "Postgres" }, statusCode: StatusCodes.Status503ServiceUnavailable);
+        }
     }
     return Results.Ok(new { status = "ready", store = "InMemory" });
 });
@@ -157,6 +184,7 @@ app.MapGet("/api/sessoes/{id:guid}", async (
 {
     var (meta, eventos) = await store.ObterSessaoAsync(id, ct);
     if (meta is null) return ErroProblema(404, "sessao_nao_encontrada", "Sessao nao encontrada.");
+    if (meta.ExpiraEm < DateTimeOffset.UtcNow) return ErroProblema(410, "sessao_expirada", "Sessao expirada.");
 
     var estado = Projecao.Reconstruir(eventos, catalogo);
     return Results.Ok(ProjetarSessaoPublica(estado));
@@ -174,6 +202,7 @@ app.MapPost("/api/sessoes/{id:guid}/acoes", async (
 
     var (meta, eventos) = await store.ObterSessaoAsync(id, ct);
     if (meta is null) return ErroProblema(404, "sessao_nao_encontrada", "Sessao nao encontrada.");
+    if (meta.ExpiraEm < DateTimeOffset.UtcNow) return ErroProblema(410, "sessao_expirada", "Sessao expirada.");
 
     if (eventos[^1].Seq != body.SeqEsperado)
         return ErroProblema(409, "conflito_seq", "Sequencia desatualizada.", new { ultimoSeq = eventos[^1].Seq });
@@ -211,6 +240,7 @@ app.MapPost("/api/sessoes/{id:guid}/chat", async (
 
     var (meta, eventos) = await store.ObterSessaoAsync(id, ct);
     if (meta is null) return ErroProblema(404, "sessao_nao_encontrada", "Sessao nao encontrada.");
+    if (meta.ExpiraEm < DateTimeOffset.UtcNow) return ErroProblema(410, "sessao_expirada", "Sessao expirada.");
 
     if (eventos[^1].Seq != body.SeqEsperado)
         return ErroProblema(409, "conflito_seq", "Sequencia desatualizada.", new { ultimoSeq = eventos[^1].Seq });
@@ -238,6 +268,7 @@ app.MapGet("/api/sessoes/{id:guid}/avaliacao", async (
 {
     var (meta, eventos) = await store.ObterSessaoAsync(id, ct);
     if (meta is null) return ErroProblema(404, "sessao_nao_encontrada", "Sessao nao encontrada.");
+    if (meta.ExpiraEm < DateTimeOffset.UtcNow) return ErroProblema(410, "sessao_expirada", "Sessao expirada.");
 
     var estado = Projecao.Reconstruir(eventos, catalogo);
     var relatorio = Juiz360.Avaliar(estado, eventos);
@@ -252,6 +283,7 @@ app.MapGet("/api/sessoes/{id:guid}/replay", async (
 {
     var (meta, eventos) = await store.ObterSessaoAsync(id, ct);
     if (meta is null) return ErroProblema(404, "sessao_nao_encontrada", "Sessao nao encontrada.");
+    if (meta.ExpiraEm < DateTimeOffset.UtcNow) return ErroProblema(410, "sessao_expirada", "Sessao expirada.");
 
     var estado = Projecao.Reconstruir(eventos, catalogo);
     var relatorio = Juiz360.Avaliar(estado, eventos);
@@ -352,7 +384,7 @@ app.MapPost("/api/carreira/resumo", async (
         competencias = competencias.OrderBy(c => c, StringComparer.Ordinal).ToArray(),
         sessoesConfirmadas
     };
-    var jsonNucleo = JsonSerializer.Serialize(nucleo);
+    var jsonNucleo = JcsCanonico.Serializar(nucleo);
     var hash = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(jsonNucleo)));
 
     return Results.Ok(new
@@ -367,8 +399,8 @@ app.MapPost("/api/carreira/resumo", async (
         integridade = new
         {
             hash,
-            algoritmo = "SHA-256",
-            regraHash = "SHA-256 sobre UTF-8 do JSON canonico {cargoAtual, xpTotal, competencias[], sessoesConfirmadas[]} sem apelido e sem hash."
+            algoritmo = "SHA-256/JCS-RFC8785",
+            regraHash = "SHA-256 sobre UTF-8 do JSON canonico JCS (RFC 8785) {cargoAtual, xpTotal, competencias[], sessoesConfirmadas[]} sem apelido e sem hash."
         }
     });
 });

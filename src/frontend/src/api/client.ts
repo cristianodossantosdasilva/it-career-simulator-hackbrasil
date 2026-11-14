@@ -45,8 +45,14 @@ async function extrairErro(resp: Response): Promise<never> {
   } catch {
     // ignore non-json
   }
-  if (resp.status === 409 && typeof data.ultimoSeq === 'number') {
-    throw new ConflitoSeqError(data.ultimoSeq)
+  const ext = data.extensions as Record<string, unknown> | undefined
+  const ultimoSeq = typeof data.ultimoSeq === 'number'
+    ? data.ultimoSeq
+    : typeof ext?.ultimoSeq === 'number'
+      ? ext.ultimoSeq
+      : undefined
+  if (resp.status === 409 && typeof ultimoSeq === 'number') {
+    throw new ConflitoSeqError(ultimoSeq)
   }
   const msg = (data.detail as string) || (data.mensagem as string) || `Erro HTTP ${resp.status}`
   throw new Error(msg)

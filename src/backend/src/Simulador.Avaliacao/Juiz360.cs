@@ -154,7 +154,7 @@ public static class Juiz360
         var m4 = prejudicial is null;
         criterios.Add(new("M4", "Sem acao destrutiva durante a contencao", m4, prejudicial?.Seq));
 
-        var m5 = corr is not null;
+        var m5 = corr is not null && FoiComPrivilegioElevado(eventos, corr);
         criterios.Add(new("M5", "Servico AuroraGateway iniciado com privilegio elevado", m5, corr?.Seq));
 
         var crEv = eventos.LastOrDefault(e => e.Tipo == "CausaRaizRegistrada");
@@ -199,6 +199,21 @@ public static class Juiz360
         return sb.ToString();
     }
 
+    private static bool FoiComPrivilegioElevado(IReadOnlyList<EnvelopeEvento> eventos, EnvelopeEvento alvo)
+    {
+        if (alvo.Dados.TryGetValue("privilegio", out var p) &&
+            string.Equals(p?.ToString(), "Elevado", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        var ultimoPriv = eventos
+            .Where(e => e.Tipo == "PrivilegioAlterado" && e.Seq < alvo.Seq)
+            .OrderByDescending(e => e.Seq)
+            .FirstOrDefault();
+        return ultimoPriv is not null &&
+               ultimoPriv.Dados.TryGetValue("privilegio", out var pv) &&
+               string.Equals(pv?.ToString(), "Elevado", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static string CalcularHashTrilha(IReadOnlyList<EnvelopeEvento> eventos)
     {
         var canonico = eventos.Select(e => new
@@ -206,10 +221,49 @@ public static class Juiz360
             seq = e.Seq,
             tipo = e.Tipo,
             minutoSimulado = e.MinutoSimulado,
-            dados = e.Dados.OrderBy(kv => kv.Key, StringComparer.Ordinal).ToDictionary(kv => kv.Key, kv => kv.Value)
+            dados = e.Dados
         });
-        var json = JsonSerializer.Serialize(canonico);
+        var json = JcsCanonico.Serializar(canonico);
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(json));
         return Convert.ToHexStringLower(bytes);
+    }
+}
+
+public static class JcsCanonico
+{
+    public static string Serializar(object valor)
+    {
+        var elemento = JsonSerializer.SerializeToElement(valor);
+        using var ms = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(ms, new JsonWriterOptions { Indented = false }))
+        {
+            EscreverElemento(writer, elemento);
+        }
+        return Encoding.UTF8.GetString(ms.ToArray());
+    }
+
+    private static void EscreverElemento(Utf8JsonWriter writer, JsonElement el)
+    {
+        switch (el.ValueKind)
+        {
+            case JsonValueKind.Object:
+                writer.WriteStartObject();
+                foreach (var prop in el.EnumerateObject().OrderBy(p => p.Name, StringComparer.Ordinal))
+                {
+                    writer.WritePropertyName(prop.Name);
+                    EscreverElemento(writer, prop.Value);
+                }
+                writer.WriteEndObject();
+                break;
+            case JsonValueKind.Array:
+                writer.WriteStartArray();
+                foreach (var item in el.EnumerateArray())
+                    EscreverElemento(writer, item);
+                writer.WriteEndArray();
+                break;
+            default:
+                el.WriteTo(writer);
+                break;
+        }
     }
 }

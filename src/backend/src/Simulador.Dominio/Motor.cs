@@ -467,7 +467,8 @@ public static class Motor
                 novo = novo with { Estacao = estacaoDepois };
                 gerados.Add(new(++seqAtual, "ServicoReiniciado", new Dictionary<string, object?>
                 {
-                    ["servico"] = servicoNome
+                    ["servico"] = servicoNome,
+                    ["privilegio"] = novo.Estacao.Privilegio.ToString()
                 }, minutoDestino));
                 if (restabelecido)
                 {
@@ -686,7 +687,11 @@ public static class Motor
             var rest = !estacao.CompartilhamentoAcessivel && VerificarCompartilhamentoOk(estDepois, cenario);
             if (rest) estDepois = estDepois with { CompartilhamentoAcessivel = true };
             return (estDepois, $"O servico {srvAlvo} foi iniciado com exito.", rest,
-                ("ServicoIniciado", new Dictionary<string, object?> { ["servico"] = srvAlvo }));
+                ("ServicoIniciado", new Dictionary<string, object?>
+                {
+                    ["servico"] = srvAlvo,
+                    ["privilegio"] = estacao.Privilegio.ToString()
+                }));
         }
         if (lower.StartsWith("net start") || lower.StartsWith("sc query"))
         {

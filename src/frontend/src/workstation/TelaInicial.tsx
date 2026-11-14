@@ -186,7 +186,7 @@ export function TelaInicial({
 
             <p className="muted" style={{ marginTop: '0.5rem', fontSize: '0.8rem', wordBreak: 'break-all' }}>
               Integridade ({resumoCarreira.integridade.algoritmo}): <code>{resumoCarreira.integridade.hash}</code> —{' '}
-              {resumoCarreira.integridade.regraHash}
+              {resumoCarreira.integridade.regraHash} (Nota: valida a integridade do conteudo exportado; nao constitui certificado oficial nem prova autoria.)
             </p>
           </section>
         )}

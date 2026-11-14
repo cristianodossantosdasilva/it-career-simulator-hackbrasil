@@ -154,7 +154,7 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Equal(1, resumo1.GetProperty("sessoesConfirmadas").GetArrayLength());
         Assert.Equal(1, resumo1.GetProperty("sessoesNaoConfirmadas").GetArrayLength());
         Assert.Equal(inexistenteId, resumo1.GetProperty("sessoesNaoConfirmadas")[0].GetString());
-        Assert.Equal("SHA-256", resumo1.GetProperty("integridade").GetProperty("algoritmo").GetString());
+        Assert.Equal("SHA-256/JCS-RFC8785", resumo1.GetProperty("integridade").GetProperty("algoritmo").GetString());
         var hash1 = resumo1.GetProperty("integridade").GetProperty("hash").GetString();
         Assert.False(string.IsNullOrWhiteSpace(hash1));
 
@@ -179,5 +179,24 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Contains("Database=neondb", npgsql);
         Assert.Contains("Username=neondb_owner", npgsql);
         Assert.Contains("SSL Mode=Require", npgsql);
+    }
+
+    [Fact]
+    public void JcsCanonico_OrdenaChavesRecursivamenteSemEspacos()
+    {
+        var a = new Dictionary<string, object?>
+        {
+            ["z"] = 1,
+            ["a"] = new Dictionary<string, object?> { ["b"] = true, ["a"] = "ok" }
+        };
+        var b = new Dictionary<string, object?>
+        {
+            ["a"] = new Dictionary<string, object?> { ["a"] = "ok", ["b"] = true },
+            ["z"] = 1
+        };
+        var jsonA = Simulador.Avaliacao.JcsCanonico.Serializar(a);
+        var jsonB = Simulador.Avaliacao.JcsCanonico.Serializar(b);
+        Assert.Equal("{\"a\":{\"a\":\"ok\",\"b\":true},\"z\":1}", jsonA);
+        Assert.Equal(jsonA, jsonB);
     }
 }
