@@ -1,9 +1,14 @@
 import { useState } from 'react'
+import type { CarreiraResumoResponse } from '../api/types'
 
 interface Props {
   onIniciar: (cenarioId: string, semente?: number, causaForcada?: string) => Promise<void>
   ocupado: boolean
   erro: string | null
+  resumoCarreira?: CarreiraResumoResponse | null
+  apelido?: string
+  onApelidoChange?: (valor: string) => void
+  onAtualizarCarreira?: (apelido?: string) => void
 }
 
 const NIVEIS = [
@@ -30,9 +35,33 @@ const NIVEIS = [
   },
 ]
 
-export function TelaInicial({ onIniciar, ocupado, erro }: Props) {
+export function TelaInicial({
+  onIniciar,
+  ocupado,
+  erro,
+  resumoCarreira,
+  apelido = '',
+  onApelidoChange,
+  onAtualizarCarreira,
+}: Props) {
   const [cenario, setCenario] = useState('pasta-rede-inacessivel')
   const [semente, setSemente] = useState('')
+
+  function exportarCurriculoVivo() {
+    if (!resumoCarreira) return
+    const payload = {
+      ...resumoCarreira,
+      apelido: apelido.trim() || resumoCarreira.apelido || null,
+      exportadoEm: new Date().toISOString(),
+    }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'curriculo-vivo-itfs.json'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <main className="start-screen">
@@ -64,7 +93,7 @@ export function TelaInicial({ onIniciar, ocupado, erro }: Props) {
               onClick={() => setCenario(n.id)}
             >
               <span className="badge badge-ok">{n.cargo}</span>
-              <h3>{n.titulo}</h3>
+              <h2>{n.titulo}</h2>
               <p>{n.desc}</p>
               <span className="muted" style={{ marginTop: 'auto', paddingTop: '0.5rem' }}>
                 {n.competencias}
@@ -102,6 +131,65 @@ export function TelaInicial({ onIniciar, ocupado, erro }: Props) {
             </button>
           </div>
         </div>
+
+        {resumoCarreira && (
+          <section className="panel" aria-label="Progressao de Carreira e Curriculo Vivo" style={{ marginTop: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <div>
+                <strong>Sua Jornada:</strong> {resumoCarreira.cargoAtual} ·{' '}
+                <span className="badge badge-info">{resumoCarreira.xpTotal} XP</span>
+              </div>
+              <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                <span className={`badge ${resumoCarreira.promocoes.nivel1Concluido ? 'badge-ok' : ''}`}>
+                  N1 {resumoCarreira.promocoes.nivel1Concluido ? 'OK' : 'Pendente'}
+                </span>
+                <span className={`badge ${resumoCarreira.promocoes.nivel2Concluido ? 'badge-ok' : ''}`}>
+                  N2 {resumoCarreira.promocoes.nivel2Concluido ? 'OK' : 'Pendente'}
+                </span>
+                <span className={`badge ${resumoCarreira.promocoes.nivel3Concluido ? 'badge-ok' : ''}`}>
+                  N3 {resumoCarreira.promocoes.nivel3Concluido ? 'OK' : 'Pendente'}
+                </span>
+              </div>
+            </div>
+
+            {resumoCarreira.sessoesNaoConfirmadas.length > 0 && (
+              <p className="muted" style={{ marginTop: '0.5rem' }}>
+                {resumoCarreira.sessoesNaoConfirmadas.length} sessao(oes) marcada(s) como nao confirmada (expirada ou ausente; sem XP).
+              </p>
+            )}
+
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap', marginTop: '0.75rem' }}>
+              <label style={{ flex: '1 1 200px' }}>
+                Apelido no Curriculo Vivo (opcional)
+                <input
+                  type="text"
+                  placeholder="Ex.: Maria Silva"
+                  value={apelido}
+                  onChange={(e) => onApelidoChange?.(e.target.value)}
+                />
+              </label>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => onAtualizarCarreira?.(apelido)}
+              >
+                Atualizar Resumo
+              </button>
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={exportarCurriculoVivo}
+              >
+                Exportar Curriculo Vivo (JSON)
+              </button>
+            </div>
+
+            <p className="muted" style={{ marginTop: '0.5rem', fontSize: '0.8rem', wordBreak: 'break-all' }}>
+              Integridade ({resumoCarreira.integridade.algoritmo}): <code>{resumoCarreira.integridade.hash}</code> —{' '}
+              {resumoCarreira.integridade.regraHash}
+            </p>
+          </section>
+        )}
       </div>
     </main>
   )

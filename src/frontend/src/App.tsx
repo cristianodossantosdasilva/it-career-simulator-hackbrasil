@@ -1,6 +1,6 @@
-import { Component, type ReactNode, useState } from 'react'
+import { Component, type ReactNode, useEffect, useState } from 'react'
 import { apiClient, ConflitoSeqError } from './api/client'
-import type { ReplayResponse, SessaoProjecao } from './api/types'
+import type { CarreiraResumoResponse, ReplayResponse, SessaoProjecao } from './api/types'
 import { ChatApp } from './apps/ChatApp/ChatApp'
 import { IntranetApp } from './apps/IntranetApp/IntranetApp'
 import { ItsmApp } from './apps/ItsmApp/ItsmApp'
@@ -57,6 +57,30 @@ function obterProximaDicaMissao(sessao: SessaoProjecao): string {
   return 'Atendimento concluido! Confira o Relatorio do Juiz 360º e seu Curriculo Vivo.'
 }
 
+const STORAGE_SESSOES_KEY = 'itfs_jornada_sessoes'
+
+function carregarSessaoIdsSalvas(): string[] {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_SESSOES_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed.filter((x): x is string => typeof x === 'string') : []
+  } catch {
+    return []
+  }
+}
+
+function salvarSessaoId(id: string): string[] {
+  const atuais = carregarSessaoIdsSalvas()
+  const atualizados = atuais.includes(id) ? atuais : [...atuais, id]
+  try {
+    window.localStorage.setItem(STORAGE_SESSOES_KEY, JSON.stringify(atualizados))
+  } catch {
+    // ignore storage errors
+  }
+  return atualizados
+}
+
 function WorkstationInner() {
   const [sessaoId, setSessaoId] = useState<string | null>(null)
   const [sessao, setSessao] = useState<SessaoProjecao | null>(null)
@@ -64,9 +88,42 @@ function WorkstationInner() {
   const [ocupado, setOcupado] = useState(false)
   const [aviso, setAviso] = useState<string | null>(null)
   const [replay, setReplay] = useState<ReplayResponse | null>(null)
+  const [resumoCarreira, setResumoCarreira] = useState<CarreiraResumoResponse | null>(null)
+  const [apelido, setApelido] = useState('')
   const [historicoTerminal, setHistoricoTerminal] = useState<
     { cmd: string; saida: string; priv: string }[]
   >([])
+
+  async function atualizarResumoCarreira(ids?: string[], nome?: string) {
+    const lista = ids ?? carregarSessaoIdsSalvas()
+    if (lista.length === 0) {
+      setResumoCarreira(null)
+      return
+    }
+    try {
+      const resumo = await apiClient.obterResumoCarreira(lista, (nome ?? apelido).trim() || undefined)
+      setResumoCarreira(resumo)
+    } catch {
+      // backend pode estar reiniciando; nao bloqueia tela inicial
+    }
+  }
+
+  useEffect(() => {
+    let ativo = true
+    const lista = carregarSessaoIdsSalvas()
+    if (lista.length === 0) return
+    apiClient
+      .obterResumoCarreira(lista)
+      .then((resumo) => {
+        if (ativo) setResumoCarreira(resumo)
+      })
+      .catch(() => {
+        // backend pode estar reiniciando; nao bloqueia tela inicial
+      })
+    return () => {
+      ativo = false
+    }
+  }, [])
 
   async function iniciarSessao(cenarioId: string, semente?: number, causaForcada?: string) {
     setOcupado(true)
@@ -74,11 +131,13 @@ function WorkstationInner() {
     try {
       const criada = await apiClient.criarSessao({ cenarioId, semente, causaForcada })
       const proj = await apiClient.obterSessao(criada.sessaoId)
+      const ids = salvarSessaoId(criada.sessaoId)
       setSessaoId(criada.sessaoId)
       setSessao(proj)
       setReplay(null)
       setHistoricoTerminal([])
       setAba('itsm')
+      void atualizarResumoCarreira(ids)
     } catch (err) {
       setAviso(err instanceof Error ? err.message : 'Erro ao iniciar sessao')
     } finally {
@@ -160,7 +219,17 @@ function WorkstationInner() {
   }
 
   if (!sessaoId || !sessao) {
-    return <TelaInicial onIniciar={iniciarSessao} ocupado={ocupado} erro={aviso} />
+    return (
+      <TelaInicial
+        onIniciar={iniciarSessao}
+        ocupado={ocupado}
+        erro={aviso}
+        resumoCarreira={resumoCarreira}
+        apelido={apelido}
+        onApelidoChange={setApelido}
+        onAtualizarCarreira={(nome) => void atualizarResumoCarreira(undefined, nome)}
+      />
+    )
   }
 
   return (
@@ -180,6 +249,7 @@ function WorkstationInner() {
             onClick={() => {
               setSessaoId(null)
               setSessao(null)
+              void atualizarResumoCarreira()
             }}
           >
             Trocar Nivel

@@ -134,3 +134,29 @@ export interface ReplayResponse {
     versaoManifesto: string
   } | null
 }
+
+export interface CarreiraResumoResponse {
+  apelido: string | null
+  cargoAtual: string
+  xpTotal: number
+  promocoes: {
+    nivel1Concluido: boolean
+    nivel2Concluido: boolean
+    nivel3Concluido: boolean
+  }
+  competencias: string[]
+  sessoesConfirmadas: {
+    sessaoId: string
+    cenarioId: string
+    nivel: string
+    concluida: boolean
+    xp: number
+    hashSessao: string
+  }[]
+  sessoesNaoConfirmadas: string[]
+  integridade: {
+    hash: string
+    algoritmo: string
+    regraHash: string
+  }
+}

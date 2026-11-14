@@ -119,8 +119,9 @@ app.MapPost("/api/sessoes", async (
 
     var sessaoId = Guid.NewGuid();
     var agora = DateTimeOffset.UtcNow;
+    var ttlDias = int.TryParse(app.Configuration["Sessao:TtlDias"], out var d) && d > 0 ? d : 30;
     var registro = new RegistroSessao(
-        sessaoId, semente, cenario.CenarioId, cenario.Causa, cenario.Nivel, cenario.VersaoManifesto, agora, agora.AddHours(24));
+        sessaoId, semente, cenario.CenarioId, cenario.Causa, cenario.Nivel, cenario.VersaoManifesto, agora, agora.AddDays(ttlDias));
 
     await store.CriarSessaoAsync(registro, inicio.Eventos, ct);
     return Results.Created($"/api/sessoes/{sessaoId}", new
@@ -275,6 +276,86 @@ app.MapGet("/api/sessoes/{id:guid}/replay", async (
     });
 });
 
+app.MapPost("/api/carreira/resumo", async (
+    CarreiraResumoDto? body,
+    ICatalogoCenarios catalogo,
+    IEventStore store,
+    CancellationToken ct) =>
+{
+    var ids = body?.SessaoIds?.Distinct().Take(20).ToArray() ?? [];
+    var sessoesConfirmadas = new List<object>();
+    var sessoesNaoConfirmadas = new List<Guid>();
+    var xpTotal = 0;
+    var competencias = new HashSet<string>(StringComparer.Ordinal);
+    var concluiuN1 = false;
+    var concluiuN2 = false;
+    var concluiuN3 = false;
+
+    foreach (var id in ids)
+    {
+        var (meta, eventos) = await store.ObterSessaoAsync(id, ct);
+        if (meta is null || meta.ExpiraEm < DateTimeOffset.UtcNow)
+        {
+            sessoesNaoConfirmadas.Add(id);
+            continue;
+        }
+        var estado = Projecao.Reconstruir(eventos, catalogo);
+        var av = Juiz360.Avaliar(estado, eventos);
+        xpTotal += av.XpTotal;
+        foreach (var comp in av.CurriculoVivo.CompetenciasComprovadas)
+            competencias.Add(comp);
+
+        if (meta.CenarioId == "triagem-engenharia-social" && av.Concluida && !av.IncidenteSeguranca)
+            concluiuN1 = true;
+        if (meta.CenarioId == "pasta-rede-inacessivel" && av.Concluida && av.Criterios.FirstOrDefault(c => c.Id == "J2")?.Atendido == true)
+            concluiuN2 = true;
+        if (meta.CenarioId == "incidente-massivo" && av.Concluida)
+            concluiuN3 = true;
+
+        sessoesConfirmadas.Add(new
+        {
+            sessaoId = id,
+            cenarioId = meta.CenarioId,
+            nivel = meta.Nivel,
+            concluida = av.Concluida,
+            xp = av.XpTotal,
+            hashSessao = av.CurriculoVivo.HashAuditoriaSha256
+        });
+    }
+
+    var cargoAtual = concluiuN3 ? "Analista Pleno (N2) - Jornada Concluida"
+        : concluiuN2 ? "Analista Pleno (N2)"
+        : concluiuN1 ? "Analista Jr (N1)"
+        : "Estagiario";
+
+    var nucleo = new
+    {
+        cargoAtual,
+        xpTotal,
+        competencias = competencias.OrderBy(c => c, StringComparer.Ordinal).ToArray(),
+        sessoesConfirmadas
+    };
+    var jsonNucleo = JsonSerializer.Serialize(nucleo);
+    var hash = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(jsonNucleo)));
+
+    return Results.Ok(new
+    {
+        apelido = string.IsNullOrWhiteSpace(body?.Apelido) ? null : body.Apelido.Trim(),
+        cargoAtual,
+        xpTotal,
+        promocoes = new { nivel1Concluido = concluiuN1, nivel2Concluido = concluiuN2, nivel3Concluido = concluiuN3 },
+        competencias = nucleo.competencias,
+        sessoesConfirmadas,
+        sessoesNaoConfirmadas,
+        integridade = new
+        {
+            hash,
+            algoritmo = "SHA-256",
+            regraHash = "SHA-256 sobre UTF-8 do JSON canonico {cargoAtual, xpTotal, competencias[], sessoesConfirmadas[]} sem apelido e sem hash."
+        }
+    });
+});
+
 app.Run();
 
 static object ProjetarSessaoPublica(EstadoSessao estado) => new
@@ -299,5 +380,6 @@ static object ProjetarSessaoPublica(EstadoSessao estado) => new
 public sealed record CriarSessaoDto(string? CenarioId, string? VersaoManifesto, string? CausaForcada, long? Semente);
 public sealed record ExecutarAcaoDto(string Tipo, IReadOnlyDictionary<string, JsonElement>? Dados, int SeqEsperado);
 public sealed record ChatDto(string Persona, string Mensagem, int SeqEsperado);
+public sealed record CarreiraResumoDto(IReadOnlyList<Guid>? SessaoIds, string? Apelido);
 
 public partial class Program;

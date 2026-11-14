@@ -1,5 +1,6 @@
 import type {
   AvaliacaoResponse,
+  CarreiraResumoResponse,
   CriarSessaoRequest,
   CriarSessaoResponse,
   EventoDto,
@@ -100,6 +101,16 @@ export const apiClient = {
 
   async obterReplay(id: string): Promise<ReplayResponse> {
     const resp = await getComRetry(`/api/sessoes/${id}/replay`)
+    if (!resp.ok) await extrairErro(resp)
+    return resp.json()
+  },
+
+  async obterResumoCarreira(sessaoIds: string[], apelido?: string): Promise<CarreiraResumoResponse> {
+    const resp = await fetch('/api/carreira/resumo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessaoIds, apelido }),
+    })
     if (!resp.ok) await extrairErro(resp)
     return resp.json()
   },

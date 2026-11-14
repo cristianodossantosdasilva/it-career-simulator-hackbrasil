@@ -131,4 +131,42 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
             seq = pistaBody.GetProperty("projecao").GetProperty("ultimoSeq").GetInt32();
         }
     }
+
+    [Fact]
+    public async Task CarreiraResumo_CalculaPromocaoHashEstavelEIgnoraApelido()
+    {
+        var rCriar = await _client.PostAsJsonAsync("/api/sessoes", new { cenarioId = "pasta-rede-inacessivel" });
+        rCriar.EnsureSuccessStatusCode();
+        var criarBody = await rCriar.Content.ReadFromJsonAsync<JsonElement>();
+        var sessaoId = criarBody.GetProperty("sessaoId").GetString()!;
+
+        var inexistenteId = Guid.NewGuid().ToString();
+        var r1 = await _client.PostAsJsonAsync("/api/carreira/resumo", new
+        {
+            sessaoIds = new[] { sessaoId, inexistenteId },
+            apelido = "Ana"
+        });
+        var raw1 = await r1.Content.ReadAsStringAsync();
+        Assert.True(r1.IsSuccessStatusCode, $"Status {(int)r1.StatusCode}: {raw1}");
+        var resumo1 = JsonDocument.Parse(raw1).RootElement;
+
+        Assert.Equal("Ana", resumo1.GetProperty("apelido").GetString());
+        Assert.Equal(1, resumo1.GetProperty("sessoesConfirmadas").GetArrayLength());
+        Assert.Equal(1, resumo1.GetProperty("sessoesNaoConfirmadas").GetArrayLength());
+        Assert.Equal(inexistenteId, resumo1.GetProperty("sessoesNaoConfirmadas")[0].GetString());
+        Assert.Equal("SHA-256", resumo1.GetProperty("integridade").GetProperty("algoritmo").GetString());
+        var hash1 = resumo1.GetProperty("integridade").GetProperty("hash").GetString();
+        Assert.False(string.IsNullOrWhiteSpace(hash1));
+
+        var r2 = await _client.PostAsJsonAsync("/api/carreira/resumo", new
+        {
+            sessaoIds = new[] { sessaoId, inexistenteId },
+            apelido = "OutroApelido"
+        });
+        r2.EnsureSuccessStatusCode();
+        var resumo2 = await r2.Content.ReadFromJsonAsync<JsonElement>();
+        var hash2 = resumo2.GetProperty("integridade").GetProperty("hash").GetString();
+
+        Assert.Equal(hash1, hash2);
+    }
 }
