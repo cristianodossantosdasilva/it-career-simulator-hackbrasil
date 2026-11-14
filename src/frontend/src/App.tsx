@@ -38,9 +38,12 @@ function obterProximaDicaMissao(sessao: SessaoProjecao): string {
   const ch1 = sessao.chamados[0]
   if (!ch1) return 'Explore a Workstation.'
   if (cenario === 'triagem-engenharia-social') {
-    if (ch1.status === 'Novo') return '1) Assuma o chamado no ITSM e consulte a politica de seguranca.'
-    if (ch1.status === 'EmAtendimento') return '2) Consulte a politica KB-001, registre nota interna e recuse o reset fraudulento.'
-    return 'Missao concluida! Abra Avaliacao & Replay para conferir seu Curriculo Vivo.'
+    if (ch1.status === 'Novo') return '1) Clique em "Assumir Chamado" no ITSM.'
+    if (ch1.notas.every((n) => n.tipo !== 'Interna')) {
+      return '2) Clique em "Consultar Politica KB-001" (no painel Seguranca) e registre uma Nota Interna.'
+    }
+    if (ch1.status === 'EmAtendimento') return '3) Clique em "Recusar Reset sem Validacao" no painel Seguranca.'
+    return 'Missao concluida! Abra "Juiz 360º & Replay" para conferir sua nota e Curriculo Vivo.'
   }
   if (cenario === 'incidente-massivo') {
     if (sessao.problemas.length === 0) return '1) Crie um Problema ITIL no ITSM e vincule os 3 chamados.'

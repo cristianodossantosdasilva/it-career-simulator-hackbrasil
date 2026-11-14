@@ -86,7 +86,31 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
               </div>
             )}
 
-            {chamado.status !== 'Resolvido' && chamado.status !== 'Encerrado' && (
+            {ehNivel1 && (
+              <div className="card-section">
+                <h3>Acoes de Seguranca (Engenharia Social)</h3>
+                <p className="muted" style={{ marginTop: 0 }}>
+                  Passo a passo: <strong>1)</strong> Assuma o chamado → <strong>2)</strong> Consulte a Politica KB-001 ou solicite Token →{' '}
+                  <strong>3)</strong> Registre uma Nota Interna abaixo → <strong>4)</strong> Recuse o reset sem validacao.
+                </p>
+                <div className="actions-bar">
+                  <button type="button" disabled={ocupado} onClick={() => onAcao('seguranca.consultar_politica')}>
+                    Consultar Politica KB-001
+                  </button>
+                  <button type="button" disabled={ocupado} onClick={() => onAcao('seguranca.solicitar_token')}>
+                    Solicitar Token Corporativo
+                  </button>
+                  <button type="button" className="btn-success" disabled={ocupado} onClick={() => onAcao('seguranca.recusar_reset')}>
+                    Recusar Reset sem Validacao
+                  </button>
+                  <button type="button" className="btn-danger" disabled={ocupado} onClick={() => onAcao('seguranca.resetar_senha')}>
+                    Resetar Senha Agora (Risco)
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {!ehNivel1 && chamado.status !== 'Resolvido' && chamado.status !== 'Encerrado' && (
               <div className="card-section">
                 <h3>Classificacao &amp; SLA</h3>
                 <div className="form-grid">
@@ -183,7 +207,7 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
               </div>
             )}
 
-            {(chamado.status === 'EmAtendimento' || chamado.status === 'Escalonado') && (
+            {!ehNivel1 && (chamado.status === 'EmAtendimento' || chamado.status === 'Escalonado') && (
               <div className="card-section">
                 <h3>Resolver Chamado</h3>
                 <div className="form-row">
@@ -225,26 +249,6 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
                 </ul>
               )}
             </div>
-
-            {ehNivel1 && (
-              <div className="card-section">
-                <h3>Acoes de Seguranca (Engenharia Social)</h3>
-                <div className="actions-bar">
-                  <button type="button" disabled={ocupado} onClick={() => onAcao('seguranca.consultar_politica')}>
-                    Consultar Politica KB-001
-                  </button>
-                  <button type="button" disabled={ocupado} onClick={() => onAcao('seguranca.solicitar_token')}>
-                    Solicitar Token Corporativo
-                  </button>
-                  <button type="button" className="btn-success" disabled={ocupado} onClick={() => onAcao('seguranca.recusar_reset')}>
-                    Recusar Reset sem Validacao
-                  </button>
-                  <button type="button" className="btn-danger" disabled={ocupado} onClick={() => onAcao('seguranca.resetar_senha')}>
-                    Resetar Senha Agora (Risco)
-                  </button>
-                </div>
-              </div>
-            )}
 
             {ehNivel3 && (
               <div className="card-section">
