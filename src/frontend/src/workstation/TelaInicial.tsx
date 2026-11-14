@@ -119,7 +119,7 @@ export function TelaInicial({
               disabled={ocupado}
               onClick={() => onIniciar('pasta-rede-inacessivel', 42, 'C1')}
             >
-              Demo Rapida (N1 · C1)
+              Demo Rapida (Nivel 2 · C1)
             </button>
             <button
               type="button"

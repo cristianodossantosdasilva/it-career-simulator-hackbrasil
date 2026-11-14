@@ -309,7 +309,10 @@ app.MapGet("/api/sessoes/{id:guid}/replay", async (
             seq = e.Seq,
             tipo = e.Tipo,
             minutoSimulado = e.MinutoSimulado,
-            payload = e.Dados,
+            payload = !relatorio.Concluida && e.Tipo == "SessaoIniciada"
+                ? e.Dados.Where(kv => !string.Equals(kv.Key, "causa", StringComparison.OrdinalIgnoreCase))
+                    .ToDictionary(kv => kv.Key, kv => kv.Value)
+                : e.Dados,
             criterios = criteriosPorSeq.TryGetValue(e.Seq, out var cs) ? cs : []
         }),
         avaliacao = relatorio,
@@ -334,7 +337,7 @@ app.MapPost("/api/carreira/resumo", async (
     var ids = body?.SessaoIds?.Distinct().Take(20).ToArray() ?? [];
     var sessoesConfirmadas = new List<object>();
     var sessoesNaoConfirmadas = new List<Guid>();
-    var xpTotal = 0;
+    var xpPorCenario = new Dictionary<string, int>(StringComparer.Ordinal);
     var competencias = new HashSet<string>(StringComparer.Ordinal);
     var concluiuN1 = false;
     var concluiuN2 = false;
@@ -350,9 +353,14 @@ app.MapPost("/api/carreira/resumo", async (
         }
         var estado = Projecao.Reconstruir(eventos, catalogo);
         var av = Juiz360.Avaliar(estado, eventos);
-        xpTotal += av.XpTotal;
-        foreach (var comp in av.CurriculoVivo.CompetenciasComprovadas)
-            competencias.Add(comp);
+        if (av.Concluida)
+        {
+            xpPorCenario[meta.CenarioId] = Math.Max(
+                xpPorCenario.GetValueOrDefault(meta.CenarioId),
+                av.XpTotal);
+            foreach (var comp in av.CurriculoVivo.CompetenciasComprovadas)
+                competencias.Add(comp);
+        }
 
         if (meta.CenarioId == "triagem-engenharia-social" && av.Concluida && !av.IncidenteSeguranca)
             concluiuN1 = true;
@@ -372,7 +380,9 @@ app.MapPost("/api/carreira/resumo", async (
         });
     }
 
-    var cargoAtual = concluiuN3 ? "Analista Pleno (N2) - Jornada Concluida"
+    var xpTotal = xpPorCenario.Values.Sum();
+    var cargoAtual = (concluiuN1 && concluiuN2 && concluiuN3) ? "Analista Pleno (N2) - Jornada Concluida"
+        : concluiuN3 ? "Analista Pleno (N2)"
         : concluiuN2 ? "Analista Pleno (N2)"
         : concluiuN1 ? "Analista Jr (N1)"
         : "Estagiario";

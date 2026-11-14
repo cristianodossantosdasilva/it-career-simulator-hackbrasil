@@ -168,6 +168,25 @@ public static class Motor
                 var nota = acao.ObterString("notaPublica");
                 if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(nota))
                     return Rejeitar("chamadoId e notaPublica obrigatorios.");
+                var chAtual = novo.Itsm.ObterChamado(id);
+                if (chAtual is not null && string.IsNullOrWhiteSpace(chAtual.Categoria) && cenario.CenarioId == "triagem-engenharia-social")
+                {
+                    var classRes = ItsmRegras.Classificar(novo.Itsm, id, "Seguranca", NivelUrgencia.Alta, NivelImpacto.Medio);
+                    if (classRes.Sucesso)
+                    {
+                        novo = novo with { Itsm = classRes.NovoEstado };
+                        var chClass = novo.Itsm.ObterChamado(id)!;
+                        gerados.Add(new(++seqAtual, "ChamadoClassificado", new Dictionary<string, object?>
+                        {
+                            ["chamadoId"] = chClass.Id,
+                            ["categoria"] = chClass.Categoria,
+                            ["urgencia"] = "Alta",
+                            ["impacto"] = "Medio",
+                            ["prioridade"] = chClass.Prioridade.ToString(),
+                            ["slaAlvoMinuto"] = chClass.SlaAlvoMinuto
+                        }, minutoDestino));
+                    }
+                }
                 var nextSeq = seqAtual + 1;
                 var res = ItsmRegras.Resolver(novo.Itsm, id, nextSeq, "analista", nota, minutoDestino);
                 if (!res.Sucesso) return Rejeitar(res.MotivoRejeicao!);

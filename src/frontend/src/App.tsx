@@ -58,12 +58,18 @@ function obterProximaDicaMissao(
     return 'Missao concluida! Abra "Juiz 360º & Replay" para conferir sua nota e Curriculo Vivo.'
   }
   if (cenario === 'incidente-massivo') {
-    if (sessao.problemas.length === 0) return '1) Crie um Problema ITIL no ITSM e vincule os 3 chamados.'
-    if (!sessao.estacao.servicos.some((s) => s.nome === 'AuroraGateway' && s.status === 'Running')) {
-      return '2) Investigue logs/servicos no SimuDesk, eleve privilegio e inicie o AuroraGateway.'
+    if (sessao.chamados.every((c) => c.status === 'Novo')) {
+      return '1) Assuma um chamado no ITSM (classifique se precisar resolver individualmente) e crie um Problema ITIL.'
     }
-    if (!sessao.problemas.some((p) => p.resolvido)) return '3) Registre a causa raiz no Problema e resolva em lote.'
-    return 'Incidente massivo resolvido! Confira Avaliacao & Replay.'
+    if (sessao.problemas.length === 0) return '2) Crie um Problema ITIL no ITSM e vincule os 3 chamados.'
+    if (!sessao.dialogo.acessoRemotoLiberado) {
+      return '3) Valide a identidade da Maria no Comunicador IA (AUR-1042 / 2042) para liberar o SimuDesk.'
+    }
+    if (!sessao.estacao.servicos.some((s) => s.nome === 'AuroraGateway' && s.status === 'Running')) {
+      return '4) Investigue logs/servicos no SimuDesk, eleve privilegio e inicie o AuroraGateway.'
+    }
+    if (!sessao.problemas.some((p) => p.resolvido)) return '5) Registre a causa raiz (servico + atualizacao) no Problema e resolva em lote.'
+    return 'Incidente massivo resolvido! Confira Juiz 360º & Replay.'
   }
   if (ch1.status === 'Novo') return '1) Assuma e classifique o chamado CH-0001 no ITSM.'
   if (!sessao.dialogo.acessoRemotoLiberado) return '2) Valide a identidade da Maria no Comunicador (AUR-1042 / 2042) para liberar o SimuDesk.'
