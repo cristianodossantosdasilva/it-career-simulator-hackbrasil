@@ -284,6 +284,55 @@ button, input, select, textarea { max-width: 100%; min-width: 0; }
 .dock-btn { min-width: 0; }
 .kb-list, .kb-article, .crit-header, .pool-stats { min-width: 0; overflow-wrap: anywhere; }
 .terminal-output, .query-suggestions li { max-width: 100%; }
+
+/* W22 — refinamento visual dos apps ITSM, Chat e Intranet. */
+.ticket-item {
+  gap: 0.35rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.ticket-item:hover:not(:disabled) { box-shadow: 0 0 0 1px var(--accent), 0 8px 24px rgba(14, 165, 233, 0.16); }
+.ticket-item.active {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, rgba(14, 165, 233, 0.14), rgba(13, 19, 34, 0.95));
+  box-shadow: 0 0 0 1px var(--accent), 0 8px 24px rgba(14, 165, 233, 0.16);
+}
+.ticket-meta { flex-wrap: wrap; }
+.status-novo { background: rgba(56, 189, 248, 0.15); border-color: #38bdf8; color: #7dd3fc; }
+.status-ematendimento { background: rgba(245, 158, 11, 0.15); border-color: #f59e0b; color: #fcd34d; }
+.status-escalonado { background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #fca5a5; }
+.status-resolvido, .status-encerrado { background: rgba(16, 185, 129, 0.15); border-color: #10b981; color: #6ee7b7; }
+.ticket-desc { margin: 0.65rem 0 0; padding-top: 0.65rem; border-top: 1px solid rgba(100, 116, 139, 0.35); line-height: 1.55; color: #e2e8f0; }
+.card-section > .muted:first-of-type { margin-top: 0; }
+.card-section .form-row + .btn-secondary { margin-top: 0.65rem; }
+.notes-list li { padding: 0.55rem 0.75rem; background: var(--bg-surface); border: 1px solid rgba(100, 116, 139, 0.45); border-radius: 8px; font-size: 0.88rem; }
+
+.chat-log { height: clamp(240px, 42vh, 360px); background: var(--bg-canvas); }
+.chat-msg { align-self: flex-start; }
+.chat-msg.msg-cliente { border-left: 3px solid var(--border-bright); }
+.chat-msg.msg-techlead { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.4); }
+.chat-msg.msg-analista { align-self: flex-end; }
+.card-section[aria-label="Perguntas rápidas"] .actions-bar button { font-size: 0.84rem; padding: 0.4rem 0.75rem; border-radius: 999px; text-align: left; }
+#chat-dica-teclado { margin: 0.45rem 0 0; font-size: 0.8rem; }
+.panel > .card-section:first-child { margin-top: 0; }
+
+.kb-list { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.75rem; }
+.kb-article { margin-top: 0; transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+.kb-article:hover { border-color: var(--accent); }
+.kb-article.kb-expanded {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, rgba(14, 165, 233, 0.12), rgba(19, 28, 49, 0.96));
+  box-shadow: 0 0 0 1px var(--accent), 0 8px 24px rgba(14, 165, 233, 0.14);
+}
+h3 > .kb-titulo-btn {
+  width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; justify-content: flex-start;
+  text-align: left; background: transparent; border: none; padding: 0.15rem 0; border-radius: 6px;
+}
+h3 > .kb-titulo-btn:hover:not(:disabled) { background: transparent; }
+.kb-id { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; font-weight: 700; color: var(--accent); }
+.kb-titulo-text { flex: 1 1 220px; font-weight: 600; color: #f8fafc; }
+.kb-conteudo { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(100, 116, 139, 0.35); }
+.kb-conteudo p { margin: 0 0 0.75rem; line-height: 1.6; color: #e2e8f0; }
+input[aria-label="Buscar na Base de Conhecimento"] { min-width: 260px; }
 @media (max-width: 640px) {
   .topbar, .mission-strip { padding-inline: 0.75rem; }
   .brand { flex-wrap: wrap; }
@@ -298,4 +347,9 @@ button, input, select, textarea { max-width: 100%; min-width: 0; }
   .start-screen { padding: 0.5rem; }
   .start-card { padding: 1rem; }
   .chat-msg { max-width: 100%; }
+  input[aria-label="Buscar na Base de Conhecimento"] { min-width: 0; }
+  .app-split[aria-label="Sistema ITSM"] .form-row,
+  .app-split[aria-label="Comunicador Corporativo"] > .panel[aria-label="Conversa"] > .form-row { flex-direction: column; align-items: stretch; }
+  .app-split[aria-label="Sistema ITSM"] .form-row > *,
+  .app-split[aria-label="Comunicador Corporativo"] > .panel[aria-label="Conversa"] > .form-row > * { width: 100%; }
 }

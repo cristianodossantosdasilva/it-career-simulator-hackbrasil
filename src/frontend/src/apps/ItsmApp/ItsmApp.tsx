@@ -89,7 +89,7 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
             {ehNivel1 && (
               <div className="card-section">
                 <h3>Acoes de Seguranca (Engenharia Social)</h3>
-                <p className="muted" style={{ marginTop: 0 }}>
+                <p className="muted">
                   Passo a passo: <strong>1)</strong> Assuma o chamado → <strong>2)</strong> Consulte a Politica KB-001 →{' '}
                   <strong>3)</strong> Solicite Token Corporativo → <strong>4)</strong> Registre Nota Interna →{' '}
                   <strong>5)</strong> Recuse o reset → <strong>6)</strong> Resolva o chamado com nota publica.

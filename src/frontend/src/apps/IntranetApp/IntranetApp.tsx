@@ -47,7 +47,7 @@ export function IntranetApp({ artigoSelecionadoId, onArtigoFechado }: Props) {
     requestAnimationFrame(() => {
       const el = tituloRefs.current[artigo.id]
       if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        el.scrollIntoView?.({ behavior: 'smooth', block: 'center' })
         el.focus()
       }
     })
@@ -70,11 +70,8 @@ export function IntranetApp({ artigoSelecionadoId, onArtigoFechado }: Props) {
         {filtrados.map((a) => {
           const expandido = artigoExpandido === a.id
           return (
-            <article
-              key={a.id}
-              role="listitem"
-              className={`card-section kb-article ${expandido ? 'kb-expanded' : ''}`}
-            >
+            <div key={a.id} role="listitem">
+              <article className={`card-section kb-article ${expandido ? 'kb-expanded' : ''}`}>
               <h3
                 ref={(el) => {
                   tituloRefs.current[a.id] = el
@@ -110,7 +107,8 @@ export function IntranetApp({ artigoSelecionadoId, onArtigoFechado }: Props) {
                   </button>
                 </div>
               )}
-            </article>
+              </article>
+            </div>
           )
         })}
       </div>
