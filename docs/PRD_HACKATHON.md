@@ -1,7 +1,7 @@
 # PRD — IT Flight Simulator (Edição Hack Brasil 2026)
 
 **Produto:** IT Flight Simulator — Simulador Prático de Carreira em TI  
-**Time:** CVE-K (Cristiano Silva, Enzo Santos, Kauan Dantas, Victória Silva)  
+**Time:** CVE-K (Cristiano Silva, Enzo Santos, Kauan Dantas · Victória Silva — *formação original; participação encerrada em 14/11/2026 por inviabilidade logística para a etapa presencial*)  
 **Trilha:** Acesso à educação (Hack Brasil 2026)  
 **Prazo de entrega:** 30/nov/2026 às 23h59 (BRT)  
 

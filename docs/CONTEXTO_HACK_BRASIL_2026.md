@@ -2,11 +2,11 @@
 
 Este é o repositório oficial do **IT Flight Simulator — Simulador Prático de Carreira em TI**, desenvolvido pelo time **CVE-K** para competir no **Hack Brasil 2026** (https://hackbrasil.com/).
 
-## 1. Time CVE-K (4 Integrantes)
+## 1. Time CVE-K (3 Integrantes Ativos · Formação Original C·V·E·K)
 - **Cristiano dos Santos da Silva** (`LIDERANÇA`) — Cibersegurança, Cloud, Eng. Software (.NET, Python, React/TS, PostgreSQL) e IA.
 - **Enzo Modesto Nascimento dos Santos**
 - **Kauan Soares Dantas**
-- **Victória Santos Suares da Silva**
+- **Victória Santos Suares da Silva** (`PARTICIPAÇÃO ENCERRADA EM 14/11/2026` — *integrante da formação original que compõe a sigla CVE-K; desligamento voluntário por inviabilidade logística de deslocamento do Piauí para a etapa presencial em São Paulo*)
 
 ## 2. Trilha Escolhida
 - **Acesso à educação** (Trilha 3 — até 5 finalistas por trilha).
