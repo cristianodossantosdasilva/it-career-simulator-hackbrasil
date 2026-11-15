@@ -1,3 +1,4 @@
+using System.Globalization;
 using Simulador.Itsm;
 
 namespace Simulador.Dominio;
@@ -8,6 +9,21 @@ public sealed record ResultadoAplicacao(
 
 public static class Motor
 {
+    private sealed record LinhaPedido(string Id, decimal Total);
+    private sealed record LinhaPagamento(string Id, string PedidoId, decimal Valor, string Status);
+
+    private static readonly IReadOnlyList<LinhaPedido> DatasetPedidos = Array.AsReadOnly(new[]
+    {
+        new LinhaPedido("PED-1001", 1200m), new LinhaPedido("PED-1002", 450m), new LinhaPedido("PED-1003", 800m)
+    });
+    private static readonly IReadOnlyList<LinhaPagamento> DatasetPagamentos = Array.AsReadOnly(new[]
+    {
+        new LinhaPagamento("PAG-1", "PED-1001", 1200m, "CONFIRMADO"),
+        new LinhaPagamento("PAG-2", "PED-1002", 450m, "CONFIRMADO"),
+        new LinhaPagamento("PAG-3", "PED-1002", 450m, "DUPLICADO")
+    });
+    private static string FormatarMoeda(decimal valor) => valor.ToString("N2", CultureInfo.GetCultureInfo("pt-BR"));
+
     public static ResultadoAplicacao Iniciar(DefinicaoCenario cenario, long semente = 0)
     {
         var eventos = new List<EnvelopeEvento>
@@ -400,7 +416,7 @@ public static class Motor
                 var cmd = acao.ObterString("comando")?.Trim();
                 if (string.IsNullOrWhiteSpace(cmd)) return Rejeitar("comando obrigatorio.");
                 var cmdNormalizado = cmd.ToLowerInvariant();
-                if (cenario.CenarioId == "diagnostico-sql-readonly" && EhSqlPerigosoOuEscrita(cmdNormalizado))
+                if (cenario.CenarioId == "diagnostico-sql-readonly" && !EhConsultaSqlPermitida(cmd))
                 {
                     gerados.Add(new(++seqAtual, "AcaoPrejudicialRegistrada", new Dictionary<string, object?>
                     {
@@ -743,17 +759,91 @@ public static class Motor
         return (estacao, "Comando executado.", false, null);
     }
 
-    private static bool EhSqlPerigosoOuEscrita(string lower)
+    // Grammar intencionalmente pequena: SELECT/EXPLAIN, colunas do dataset, uma tabela,
+    // predicados simples e GROUP BY/ORDER BY/LIMIT. Qualquer token fora da gramática falha fechado.
+    private static bool EhConsultaSqlPermitida(string sql) => TentarAnalisarSql(sql, out _);
+
+    private static bool TentarAnalisarSql(string sql, out string tabela)
     {
-        if (lower.Contains(';') || lower.Contains("--") || lower.Contains("/*"))
-            return true;
-        string[] proibidos =
-        [
-            "insert ", "update ", "delete ", "drop ", "alter ", "truncate ",
-            "create ", "grant ", "revoke ", "exec ", "execute ", "copy ", "call "
-        ];
-        return proibidos.Any(p => lower.Contains(p, StringComparison.Ordinal));
+        tabela = "";
+        if (string.IsNullOrWhiteSpace(sql) || sql.Length > 512) return false;
+        var tokens = new List<string>();
+        for (var i = 0; i < sql.Length;)
+        {
+            var c = sql[i];
+            if (char.IsWhiteSpace(c)) { i++; continue; }
+            if (char.IsLetterOrDigit(c) || c == '_')
+            {
+                var inicio = i++;
+                while (i < sql.Length && (char.IsLetterOrDigit(sql[i]) || sql[i] is '_' or '.')) i++;
+                tokens.Add(sql[inicio..i].ToLowerInvariant());
+            }
+            else if (c is '*' or ',' or '(' or ')' or '=' or '<' or '>')
+            {
+                tokens.Add(c.ToString()); i++;
+                if (i < sql.Length && (c is '<' or '>') && sql[i] == '=') tokens[^1] += sql[i++];
+            }
+            else if (c == '\'')
+            {
+                var inicio = ++i;
+                while (i < sql.Length && sql[i] != '\'') i++;
+                if (i == sql.Length || i - inicio > 64) return false;
+                tokens.Add("'" + sql[inicio..i].ToLowerInvariant() + "'"); i++;
+            }
+            else return false; // inclui ;, comentários, parâmetros e operadores não previstos
+            if (tokens.Count > 100) return false;
+        }
+
+        var identificadoresPermitidos = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "select", "explain", "distinct", "count", "sum", "from", "where", "and", "group", "by", "order", "limit", "as", "asc", "desc",
+            "pagamentos", "pedidos", "id", "pedido_id", "valor", "status", "total"
+        };
+        var operadoresPermitidos = new HashSet<string>(StringComparer.Ordinal) { "*", ",", "(", ")", "=", "<", ">", "<=", ">=" };
+        if (tokens.Any(t => !identificadoresPermitidos.Contains(t) && !operadoresPermitidos.Contains(t) && !t.StartsWith("'") && !t.All(char.IsDigit))) return false;
+
+        var p = 0;
+        bool Eat(string s) { if (p < tokens.Count && tokens[p] == s) { p++; return true; } return false; }
+        bool Ident() => p < tokens.Count && (tokens[p].All(ch => char.IsLetterOrDigit(ch) || ch == '_' || ch == '.')) && !Palavras.Contains(tokens[p]);
+        var explain = Eat("explain");
+        if (explain && Eat("analyze")) return false;
+        if (!Eat("select")) return false;
+        if (Eat("distinct")) { /* permitido */ }
+        var selecao = 0;
+        while (true)
+        {
+            if (Eat("count")) { if (!Eat("(") || !Eat("*") || !Eat(")")) return false; }
+            else if (Eat("sum")) { if (!Eat("(") || !Ident()) return false; p++; if (!Eat(")")) return false; }
+            else if (Eat("*")) { }
+            else if (Ident()) p++;
+            else return false;
+            selecao++;
+            if (!Eat(",")) break;
+        }
+        if (selecao > 12 || !Eat("from") || !Ident()) return false;
+        tabela = tokens[p++];
+        if (tabela is not ("pagamentos" or "pedidos")) return false;
+        if (Eat("as")) { if (!Ident()) return false; p++; }
+        if (Eat("where"))
+        {
+            var termos = 0;
+            do
+            {
+                if (!Ident()) return false; p++;
+                if (!(Eat("=") || Eat("<") || Eat(">") || Eat("<=") || Eat(">="))) return false;
+                if (p >= tokens.Count || !(Ident() || tokens[p].StartsWith("'") || tokens[p].All(char.IsDigit))) return false;
+                p++; if (++termos > 8) return false;
+            } while (Eat("and"));
+        }
+        if (Eat("group")) { if (!Eat("by")) return false; var n = 0; do { if (!Ident()) return false; p++; n++; } while (Eat(",")); if (n > 4) return false; }
+        if (Eat("order")) { if (!Eat("by") || !Ident()) return false; p++; if (Eat("asc") || Eat("desc")) { } }
+        if (Eat("limit")) { if (p >= tokens.Count || !int.TryParse(tokens[p++], out var limit) || limit is < 1 or > 100) return false; }
+        if (tabela == "pagamentos" && tokens.Contains("total") || tabela == "pedidos" && (tokens.Contains("pedido_id") || tokens.Contains("valor") || tokens.Contains("status"))) return false;
+        return p == tokens.Count;
     }
+
+    private static readonly HashSet<string> Palavras = new(StringComparer.Ordinal)
+    { "select", "from", "where", "and", "or", "group", "by", "order", "limit", "as", "distinct", "count", "sum", "insert", "update", "delete", "drop", "union", "join", "into", "having" };
 
     private static (EstadoEstacao Estacao, string Saida, bool AcessoRestabelecido, (string Tipo, IReadOnlyDictionary<string, object?> Dados)? EventoExtra) ExecutarComandoSre(
         EstadoEstacao estacao,
@@ -834,22 +924,27 @@ public static class Motor
         EstadoEstacao estacao,
         string lower)
     {
-        if (lower.StartsWith("explain"))
+        if (!TentarAnalisarSql(lower, out var tabela))
+            return (estacao, "BLOQUEADO: consulta fora da gramática SQL somente leitura do cenário.", false, null);
+        if (lower.StartsWith("explain", StringComparison.Ordinal))
         {
-            return (estacao, "Index Scan using idx_pagamentos_pedido_id on pagamentos (cost=0.14..8.32 rows=5)", false, null);
+            return (estacao, $"Plano simulado (dataset imutável): Seq Scan on {tabela} (cost=0.00..1.04 rows=3); buffers=memória; writes=0", false, null);
         }
-        if (lower.Contains("pagamentos"))
+        if (tabela == "pagamentos" && lower.Contains("group by status", StringComparison.Ordinal))
         {
-            var saida = lower.Contains("group by")
-                ? "status=CONFIRMADO: 3 | status=DUPLICADO: 1 (PED-1002, +R$ 450,00)"
-                : "id=PAG-1 pedido=PED-1001 valor=1200.00 status=CONFIRMADO | id=PAG-2 pedido=PED-1002 valor=450.00 status=CONFIRMADO | id=PAG-3 pedido=PED-1002 valor=450.00 status=DUPLICADO";
-            return (estacao, saida, false, null);
+            var confirmados = DatasetPagamentos.Where(p => p.Status == "CONFIRMADO").ToArray();
+            var duplicados = DatasetPagamentos.Where(p => p.Status == "DUPLICADO").ToArray();
+            return (estacao, $"Investigacao 1/3 — pagamentos por status: CONFIRMADO={confirmados.Length} (R$ {FormatarMoeda(confirmados.Sum(p => p.Valor))}); DUPLICADO={duplicados.Length} ({string.Join(", ", duplicados.Select(p => $"{p.Id}, {p.PedidoId}, R$ {FormatarMoeda(p.Valor)}"))}). Evidencia: duplicidade detectada.", false, null);
         }
-        if (lower.Contains("pedidos"))
+        if (tabela == "pagamentos")
         {
-            return (estacao, "id=PED-1001 total=1200.00 | id=PED-1002 total=450.00 | id=PED-1003 total=800.00 (soma=2450.00)", false, null);
+            var linhas = string.Join("; ", DatasetPagamentos.Select(p => $"{p.Id}/{p.PedidoId} R$ {FormatarMoeda(p.Valor)} {p.Status}"));
+            return (estacao, $"Investigacao 2/3 — pagamentos: {linhas}. Dataset sintetico, somente leitura.", false, null);
         }
-        return (estacao, "Consulta SELECT somente leitura executada no dataset sintetico (0 linhas alteradas).", false, null);
+        var somaPedidos = DatasetPedidos.Sum(p => p.Total);
+        var somaConfirmada = DatasetPagamentos.Where(p => p.Status == "CONFIRMADO").Sum(p => p.Valor);
+        var detalhes = string.Join("; ", DatasetPedidos.Select(p => $"{p.Id} R$ {FormatarMoeda(p.Total)}"));
+        return (estacao, $"Investigacao 3/3 — pedidos: {detalhes}; total R$ {FormatarMoeda(somaPedidos)}. Soma confirmada R$ {FormatarMoeda(somaConfirmada)}; diferenca bruta R$ {FormatarMoeda(somaPedidos - somaConfirmada)}.", false, null);
     }
 
     private static bool VerificarCompartilhamentoOk(EstadoEstacao estacao, DefinicaoCenario cenario)

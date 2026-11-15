@@ -111,6 +111,12 @@
           "Simulador.Dominio": "[1.0.0, )"
         }
       },
+      "simulador.dialogo": {
+        "type": "Project",
+        "dependencies": {
+          "Simulador.Dominio": "[1.0.0, )"
+        }
+      },
       "simulador.dominio": {
         "type": "Project",
         "dependencies": {

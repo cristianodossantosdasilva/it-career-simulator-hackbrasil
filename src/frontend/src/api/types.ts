@@ -105,6 +105,9 @@ export interface CriterioAvaliacaoDto {
   descricao: string
   atendido: boolean
   eventoSeq: number | null
+  motivo: string | null
+  praticaEsperada: string | null
+  linkKb: string | null
 }
 
 export interface AvaliacaoResponse {

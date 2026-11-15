@@ -49,22 +49,50 @@ export function ReplayView({ replay, onAtualizar, ocupado }: Props) {
           </div>
         )}
 
-        <ul className="criteria-list">
+        <ul className="criteria-list" role="list" aria-label="Criterios de avaliacao">
           {replay.avaliacao.criterios.map((c) => (
-            <li key={c.id} className={c.atendido ? 'crit-ok' : 'crit-fail'}>
-              <strong>{c.id}</strong> — {c.descricao}{' '}
-              <span className="badge">{c.atendido ? 'Atendido' : 'Pendente'}</span>
-              {c.eventoSeq && (
-                <button
-                  type="button"
-                  className="chip"
-                  onClick={() => {
-                    const idx = replay.eventos.findIndex((e) => e.seq === c.eventoSeq)
-                    if (idx >= 0) setIndiceSelecionado(idx)
-                  }}
+            <li
+              key={c.id}
+              className={c.atendido ? 'crit-ok' : 'crit-fail'}
+              aria-label={`${c.id}: ${c.atendido ? 'Atendido' : 'Pendente'}`}
+            >
+              <div className="crit-header">
+                <strong>{c.id}</strong> — {c.descricao}{' '}
+                <span className="badge" role="status" aria-live="polite">
+                  {c.atendido ? 'Atendido' : 'Pendente'}
+                </span>
+                {c.eventoSeq && (
+                  <button
+                    type="button"
+                    className="chip"
+                    aria-label={`Ver evento sequencia ${c.eventoSeq}`}
+                    onClick={() => {
+                      const idx = replay.eventos.findIndex((e) => e.seq === c.eventoSeq)
+                      if (idx >= 0) setIndiceSelecionado(idx)
+                    }}
+                  >
+                    Ver seq #{c.eventoSeq}
+                  </button>
+                )}
+              </div>
+              {c.motivo && (
+                <p className="crit-motivo" aria-label="Motivo">
+                  <em>{c.motivo}</em>
+                </p>
+              )}
+              {c.praticaEsperada && (
+                <p className="crit-pratica">
+                  <span className="crit-label">Pratica esperada:</span> {c.praticaEsperada}
+                </p>
+              )}
+              {c.linkKb && (
+                <a
+                  href={c.linkKb.replace('kb://', '/kb/')}
+                  className="crit-kb-link"
+                  aria-label={`Link para base de conhecimento: ${c.linkKb}`}
                 >
-                  Ver seq #{c.eventoSeq}
-                </button>
+                  Consultar KB
+                </a>
               )}
             </li>
           ))}

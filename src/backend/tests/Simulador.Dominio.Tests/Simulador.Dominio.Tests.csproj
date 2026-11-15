@@ -23,6 +23,7 @@
     <ProjectReference Include="..\..\src\Simulador.Cenarios\Simulador.Cenarios.csproj" />
     <ProjectReference Include="..\..\src\Simulador.Avaliacao\Simulador.Avaliacao.csproj" />
     <ProjectReference Include="..\..\src\Simulador.Itsm\Simulador.Itsm.csproj" />
+    <ProjectReference Include="..\..\src\Simulador.Dialogo\Simulador.Dialogo.csproj" />
   </ItemGroup>
 
 </Project>

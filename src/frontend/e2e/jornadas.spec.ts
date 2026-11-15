@@ -33,8 +33,8 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByRole('button', { name: 'Salvar Classificacao' }).click()
 
     await page.getByRole('button', { name: /Comunicador IA/i }).click()
-    await page.getByLabel('Matricula').fill('AUR-1042')
-    await page.getByLabel('Ramal').fill('2042')
+    await page.getByLabel(/Matr[ií]cula/i).fill('AUR-1042')
+    await page.getByLabel(/Ramal/i).fill('2042')
     await page.getByRole('button', { name: /Validar Identidade/i }).click()
     await expect(page.getByText('Identidade Verificada!')).toBeVisible()
 
@@ -47,7 +47,8 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
 
     await page.getByRole('button', { name: 'Elevar Privilegio' }).click()
     await page.getByRole('button', { name: 'Paineis Admin' }).click()
-    await page.getByRole('button', { name: 'Adicionar maria.souza em GRP_FINANCEIRO_PASTA' }).click()
+    await expect(page.getByRole('region', { name: 'Diretorio e Grupos' })).toBeVisible()
+    await page.getByRole('button', { name: /Adicionar maria\.souza/i }).click()
     await expect(page.getByText('Pasta Financeiro: Acessivel')).toBeVisible()
 
     await page.getByRole('button', { name: /ITSM \/ Chamados/i }).click()
@@ -93,8 +94,8 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByRole('button', { name: 'Vincular CH-0003' }).click()
 
     await page.getByRole('button', { name: /Comunicador IA/i }).click()
-    await page.getByLabel('Matricula').fill('AUR-1042')
-    await page.getByLabel('Ramal').fill('2042')
+    await page.getByLabel(/Matr[ií]cula/i).fill('AUR-1042')
+    await page.getByLabel(/Ramal/i).fill('2042')
     await page.getByRole('button', { name: /Validar Identidade/i }).click()
     await expect(page.getByText('Identidade Verificada!')).toBeVisible()
 
@@ -172,13 +173,19 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByRole('button', { name: 'Salvar Classificacao' }).click()
 
     await page.getByRole('button', { name: /Comunicador IA/i }).click()
-    await page.getByLabel('Matricula').fill('AUR-1042')
-    await page.getByLabel('Ramal').fill('2042')
+    await page.getByLabel(/Matr[ií]cula/i).fill('AUR-1042')
+    await page.getByLabel(/Ramal/i).fill('2042')
     await page.getByRole('button', { name: /Validar Identidade/i }).click()
     await expect(page.getByText('Identidade Verificada!')).toBeVisible()
 
     await page.getByRole('button', { name: /SimuDesk Remoto/i }).click()
     await page.getByRole('button', { name: 'Preencher e Conectar' }).click()
+    await page.getByRole('button', { name: 'Paineis Admin' }).click()
+    await expect(page.getByRole('region', { name: 'Painel de Cluster Kubernetes' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Cluster / Pods' })).toBeVisible()
+    await expect(page.getByText('api-pedidos-7f8b6')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Reiniciar pod com OOM' })).toBeDisabled()
+    await page.getByRole('button', { name: 'Terminal' }).click()
     await page.getByLabel('Comando do terminal').fill('kubectl get pods')
     await page.getByRole('button', { name: 'Executar' }).click()
     await expect(page.getByText('api-pedidos-7f9b', { exact: false })).toBeVisible()
@@ -194,6 +201,11 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
         ? 'kubectl rollout restart deployment/pgbouncer'
         : 'kubectl rollout restart deployment/cert-manager'
 
+    await page.getByLabel('Comando do terminal').fill(mitigacao)
+    await page.getByRole('button', { name: 'Executar' }).click()
+    await expect(page.getByText(/Error from server \(Forbidden\): operacao de cluster exige privilegio Elevado\./)).toBeVisible()
+    await expect(page.getByText('Cluster Cloud: Degraded')).toBeVisible()
+
     await page.getByRole('button', { name: 'Elevar Privilegio' }).click()
     await page.getByLabel('Comando do terminal').fill(mitigacao)
     await page.getByRole('button', { name: 'Executar' }).click()
@@ -206,6 +218,10 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByRole('button', { name: /Juiz 360º & Replay/i }).click()
     await expect(page.getByText('Concluida', { exact: false })).toBeVisible()
     await expect(page.getByText('XP: 100')).toBeVisible()
+    const criterioSre = page.getByRole('listitem', { name: /R3:/ })
+    await expect(criterioSre.getByLabel('Motivo')).toBeVisible()
+    await expect(criterioSre.getByText(/Pratica esperada:/)).toBeVisible()
+    await expect(criterioSre.getByRole('link', { name: /base de conhecimento/i })).toBeVisible()
   })
 
   test('V2: Nivel 4b SQL Read-Only bloqueia escrita/injecao e aprova SELECT limpo', async ({ page }) => {
@@ -217,20 +233,77 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByRole('button', { name: 'Salvar Classificacao' }).click()
 
     await page.getByRole('button', { name: /Comunicador IA/i }).click()
-    await page.getByLabel('Matricula').fill('AUR-1042')
-    await page.getByLabel('Ramal').fill('2042')
+    await page.getByLabel(/Matr[ií]cula/i).fill('AUR-1042')
+    await page.getByLabel(/Ramal/i).fill('2042')
     await page.getByRole('button', { name: /Validar Identidade/i }).click()
     await expect(page.getByText('Identidade Verificada!')).toBeVisible()
 
     await page.getByRole('button', { name: /SimuDesk Remoto/i }).click()
     await page.getByRole('button', { name: 'Preencher e Conectar' }).click()
+    await page.getByRole('button', { name: 'Paineis Admin' }).click()
+    await expect(page.getByRole('region', { name: 'Schema do Dataset Sintetico' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Schema & Dataset Sintetico' })).toBeVisible()
+    await expect(page.getByRole('region', { name: 'Modo somente leitura' })).toContainText('SELECT')
+    await page.getByRole('button', { name: 'Terminal' }).click()
+
+    await page.getByLabel('Comando do terminal').fill('SELECT id, valor FROM pagamentos GROUP BY status')
+    await page.getByRole('button', { name: 'Executar' }).click()
+    await expect(page.locator('.terminal-output')).toContainText('Investigacao 1/3')
+    await page.getByLabel('Comando do terminal').fill('SELECT id, valor FROM pagamentos')
+    await page.getByRole('button', { name: 'Executar' }).click()
+    await expect(page.locator('.terminal-output')).toContainText('Investigacao 2/3')
+    await page.getByLabel('Comando do terminal').fill('SELECT id, total FROM pedidos')
+    await page.getByRole('button', { name: 'Executar' }).click()
+    await expect(page.locator('.terminal-output')).toContainText('Investigacao 3/3')
+
     await page.getByLabel('Comando do terminal').fill('SELECT * FROM pagamentos')
     await page.getByRole('button', { name: 'Executar' }).click()
-    await expect(page.getByText('PAG-3', { exact: false })).toBeVisible()
+    await expect(page.locator('.terminal-output').last()).toContainText('PAG-3')
 
-    // Tentativa de SQL injection bloqueada
-    await page.getByLabel('Comando do terminal').fill('SELECT * FROM pedidos; DROP TABLE pagamentos;')
-    await page.getByRole('button', { name: 'Executar' }).click()
-    await expect(page.getByText('BLOQUEADO: Console SQL opera estritamente', { exact: false })).toBeVisible()
+    await page.getByRole('button', { name: /ITSM \/ Chamados/i }).click()
+    await page.getByLabel('Nota publica de resolucao').fill('Investigações somente leitura concluídas; divergência identificada no dataset sintético.')
+    await page.getByRole('button', { name: 'Resolver Chamado' }).click()
+    await page.getByRole('button', { name: /Juiz 360º & Replay/i }).click()
+    await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
+    await expect(page.getByText('XP: 80')).toBeVisible()
+  })
+
+  test('Negativa N4b: bloqueia DROP TABLE e UNION com tentativa de injecao', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: /Nivel 4b \(V2\) · SQL Read-Only/i }).click()
+    await page.getByRole('button', { name: /Decolar no Simulador/i }).click()
+    await page.getByRole('button', { name: 'Assumir Chamado' }).click()
+    await page.getByRole('button', { name: 'Salvar Classificacao' }).click()
+    await page.getByRole('button', { name: /Comunicador IA/i }).click()
+    await page.getByLabel(/Matr[ií]cula/i).fill('AUR-1042')
+    await page.getByLabel(/Ramal/i).fill('2042')
+    await page.getByRole('button', { name: /Validar Identidade/i }).click()
+    await expect(page.getByText('Identidade Verificada!')).toBeVisible()
+    await page.getByRole('button', { name: /SimuDesk Remoto/i }).click()
+    await page.getByRole('button', { name: 'Preencher e Conectar' }).click()
+    for (const comando of ['DROP TABLE pagamentos', 'SELECT * FROM pedidos UNION SELECT * FROM usuarios; --']) {
+      await page.getByLabel('Comando do terminal').fill(comando)
+      await page.getByRole('button', { name: 'Executar' }).click()
+      await expect(page.getByText('BLOQUEADO: Console SQL opera estritamente', { exact: false }).last()).toBeVisible()
+    }
+  })
+
+  test('Teclado: Tab alcança controles do Comunicador e Enter envia mensagem', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: /Demo Rapida \(Nivel 2 · C1\)/i }).click()
+    await page.getByRole('button', { name: 'Assumir Chamado' }).click()
+    await page.getByRole('button', { name: /Comunicador IA/i }).click()
+
+    const cliente = page.getByRole('button', { name: 'Cliente (Maria)' })
+    await cliente.focus()
+    await expect(cliente).toBeFocused()
+    await page.keyboard.press('Tab')
+    await expect(page.getByRole('button', { name: 'Tech Lead IA' })).toBeFocused()
+
+    const mensagem = page.getByLabel('Mensagem do chat')
+    await mensagem.focus()
+    await mensagem.fill('Quando começou a lentidão?')
+    await page.keyboard.press('Enter')
+    await expect(page.getByRole('log', { name: 'Mensagens da conversa' })).toContainText('Quando começou a lentidão?')
   })
 })

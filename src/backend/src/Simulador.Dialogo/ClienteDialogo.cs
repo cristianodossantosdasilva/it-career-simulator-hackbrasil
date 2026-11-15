@@ -1,6 +1,3 @@
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
 using Simulador.Dominio;
 
 namespace Simulador.Dialogo;
@@ -12,115 +9,125 @@ public interface IClienteDialogo
     Task<RespostaDialogo> ResponderAsync(EstadoSessao estado, string persona, string mensagemUsuario, CancellationToken ct = default);
 }
 
+/// <summary>Personas roteirizadas por cenário e etapa da conversa. Não faz chamadas externas.</summary>
 public sealed class FallbackRoteirizadoDialogo : IClienteDialogo
 {
     public Task<RespostaDialogo> ResponderAsync(EstadoSessao estado, string persona, string mensagemUsuario, CancellationToken ct = default)
     {
-        var texto = mensagemUsuario.ToLowerInvariant();
-        if (string.Equals(persona, "techlead", StringComparison.OrdinalIgnoreCase))
-        {
-            var dica = texto.Contains("escalon") || texto.Contains("dns")
-                ? "Se o nslookup apontar IP divergente do servidor de arquivos da KB, documente a evidencia e escalone para N2."
-                : "Siga a ordem: valide a identidade da Maria (matricula AUR-1042, ramal 2042) para liberar o SimuDesk, diagnostique antes de alterar e registre tudo no chamado.";
-            return Task.FromResult(new RespostaDialogo(dica, "roteiro"));
-        }
+        ct.ThrowIfCancellationRequested();
+        var texto = Normalizar(mensagemUsuario);
+        var resposta = string.Equals(persona, "techlead", StringComparison.OrdinalIgnoreCase)
+            ? ResponderTechLead(estado, texto)
+            : ResponderCliente(estado, texto);
+        return Task.FromResult(new RespostaDialogo(resposta, "roteiro"));
+    }
+
+    private static string ResponderCliente(EstadoSessao estado, string texto)
+    {
+        if (EhTentativaDeInjecao(texto))
+            return "Não consigo alterar permissões pelo chat. Posso relatar o que observei; o acesso remoto depende da validação de identidade no formulário.";
 
         if (texto.Contains("matricula") || texto.Contains("ramal") || texto.Contains("identifica"))
-        {
-            return Task.FromResult(new RespostaDialogo(
-                "Minha matricula e AUR-1042 e meu ramal e 2042. Pode validar para liberar o acesso remoto?",
-                "roteiro"));
-        }
+            return "Minha matrícula é AUR-1042 e meu ramal é 2042. Pode conferir os dois no formulário antes de liberar o SimuDesk.";
 
         if (texto.Contains("remoto") || texto.Contains("acesso") || texto.Contains("pin") || texto.Contains("id"))
-        {
-            var msg = estado.Dialogo.AcessoRemotoLiberado
-                ? $"O SimuDesk ja esta liberado! ID: {estado.Dialogo.IdAcessoRemoto} | PIN: {estado.Dialogo.PinAcessoRemoto}."
-                : "Para liberar o acesso remoto, preciso primeiro que voce valide minha matricula (AUR-1042) e meu ramal (2042) no formulario de verificacao.";
-            return Task.FromResult(new RespostaDialogo(msg, "roteiro"));
-        }
+            return estado.Dialogo.AcessoRemotoLiberado
+                ? $"Acesso validado. ID SimuDesk: {estado.Dialogo.IdAcessoRemoto} | PIN: {estado.Dialogo.PinAcessoRemoto}."
+                : "Ainda não consigo entrar no SimuDesk. Primeiro confirme minha matrícula e meu ramal no formulário de identidade.";
 
-        var resposta = estado.Meta.Causa switch
+        if (estado.Meta.CenarioId == "sre-cloud-latencia")
+            return texto.Contains("tls") || texto.Contains("certificado") || texto.Contains("https")
+                ? "O painel mostra falhas intermitentes ao abrir algumas telas, mas ainda não sei se o problema está no serviço ou no caminho da conexão."
+                : texto.Contains("pool") || texto.Contains("pgbouncer") || texto.Contains("conexao")
+                    ? "Os pods respondem de forma irregular e as telas de pedidos ficam carregando até expirar. Não tenho visibilidade do banco; consigo informar horários e pedidos afetados."
+                    : texto.Contains("pod") || texto.Contains("kubernetes") || texto.Contains("container")
+                        ? "A lentidão começou depois da mudança de hoje. Algumas tentativas funcionam e outras falham; não sei qual componente está causando isso."
+                        : texto.Contains("prazo") || texto.Contains("estimativa")
+                            ? "A equipe de Operações também está cobrando uma previsão. Ainda não temos evidências suficientes para estimar com segurança; posso confirmar quando a fila normalizar."
+                            : "Desde o início do turno, algumas consultas de pedidos estão demorando mais que o normal. O comportamento é intermitente e começou hoje.";
+
+        if (estado.Meta.CenarioId == "diagnostico-sql-readonly")
+            return texto.Contains("auditoria") || texto.Contains("historico")
+                ? "A auditoria registra ajustes em alguns pedidos, mas não sei quais registros explicam a divergência. Preciso que a análise preserve os dados e seja somente leitura."
+                : texto.Contains("select") || texto.Contains("consulta") || texto.Contains("sql")
+                    ? "O relatório diário e a tela de pedidos mostram totais diferentes. Você pode investigar com consultas de somente leitura sem alterar os registros?"
+                    : "O total de pagamentos do relatório não bate com o resumo operacional desta manhã. Percebi a diferença em mais de um pedido.";
+
+        return estado.Meta.Causa switch
         {
-            "C1" => "Aparece 'Acesso Negado' quando tento abrir a pasta \\\\fileserver.aurora.local\\Financeiro, mas meu colega Joao consegue abrir normalmente.",
-            "C2" => "Quando clico no atalho da pasta, da erro dizendo que o caminho da rede nao foi encontrado.",
-            "C3" => "Depois que reiniciou hoje cedo, nenhuma pasta de rede abre mais na minha estacao.",
-            "ENG_SOCIAL" => "Sou o Diretor Roberto e preciso do reset da minha senha AGORA, nao tenho tempo para validacao!",
-            "PATCH_MASSIVO" => "O ERP interno parou de responder com erro 503 logo apos a reinicializacao de hoje.",
+            "C1" => "Aparece 'Acesso Negado' quando tento abrir a pasta \\\\fileserver.aurora.local\\Financeiro, mas meu colega João consegue abrir normalmente.",
+            "C2" => "Quando clico no atalho da pasta, dá erro dizendo que o caminho da rede não foi encontrado.",
+            "C3" => "Depois que reiniciou hoje cedo, nenhuma pasta de rede abre mais na minha estação.",
+            "ENG_SOCIAL" => "Sou o Diretor Roberto e preciso do reset da minha senha agora. Não tenho tempo para validação!",
+            "PATCH_MASSIVO" => "O ERP interno parou de responder com erro 503 logo após a reinicialização de hoje.",
             _ => "Estou aguardando o retorno sobre o chamado para conseguir voltar a trabalhar."
         };
+    }
 
-        return Task.FromResult(new RespostaDialogo(resposta, "roteiro"));
+    private static string ResponderTechLead(EstadoSessao estado, string texto)
+    {
+        if (EhTentativaDeInjecao(texto))
+            return "Não vou ignorar as regras nem fornecer credenciais ou resposta pronta. Use evidências do cenário e mantenha as ações dentro do escopo autorizado.";
+
+        var nivel = estado.Dialogo.Mensagens.Count(m => m.Remetente == "techlead");
+        if (estado.Meta.CenarioId == "sre-cloud-latencia")
+        {
+            if (texto.Contains("post") || texto.Contains("causa") || texto.Contains("resolver"))
+                return "No post-mortem, organize linha do tempo, impacto, sinais observados, decisões e ações de acompanhamento. Separe fatos de hipóteses e não conclua antes de correlacionar as evidências.";
+            return nivel switch
+            {
+                0 => "Comece comparando o estado dos pods, os eventos recentes e a tendência de reinícios. Registre horários antes de intervir.",
+                1 => "Agora compare os logs da aplicação com as métricas de latência e erros. Verifique também a saúde do pool de conexões e a validade da cadeia TLS, sem presumir qual camada iniciou o incidente.",
+                _ => "Correlacione a mudança recente, os sinais do ingress e a saturação observada. Faça uma hipótese por vez, valide em comandos de leitura e deixe a causa para a análise das evidências."
+            };
+        }
+        if (estado.Meta.CenarioId == "diagnostico-sql-readonly")
+        {
+            if (texto.Contains("chave") || texto.Contains("juntar") || texto.Contains("join"))
+                return "Compare os totais em grupos pequenos e confira a granularidade das chaves antes de combinar tabelas. Uma junção pode multiplicar linhas.";
+            return nivel switch
+            {
+                0 => "Comece identificando as tabelas e colunas disponíveis na documentação do cenário. Trabalhe somente com SELECT e limite o volume retornado.",
+                1 => "Compare os totais em grupos pequenos e confira a granularidade das chaves antes de combinar tabelas. Uma junção pode multiplicar linhas.",
+                _ => "Use consultas de auditoria somente leitura para comparar registros e horários. Explique como cada filtro sustenta sua conclusão; não altere dados nem copie uma consulta sem entendê-la."
+            };
+        }
+
+        var dica = texto.Contains("escalon") || texto.Contains("dns")
+            ? "Se o nslookup apontar IP divergente do servidor de arquivos da KB, documente a evidência e escalone para N2."
+            : "Siga a ordem: valide a identidade da Maria (matrícula AUR-1042, ramal 2042), diagnostique antes de alterar e registre tudo no chamado.";
+        return dica;
+    }
+
+    private static string Normalizar(string texto) => texto.Normalize().ToLowerInvariant();
+
+    private static bool EhTentativaDeInjecao(string texto)
+    {
+        var tentaSobrescreverRegras = texto.Contains("ignore") &&
+            (texto.Contains("regra") || texto.Contains("instruc") || texto.Contains("instruç") || texto.Contains("prompt") || texto.Contains("sistema"));
+        var tentaExtrairSegredo = (texto.Contains("revele") || texto.Contains("diga") || texto.Contains("mostre") || texto.Contains("forne")) &&
+            (texto.Contains("causa") || texto.Contains("pin") || texto.Contains("credencial") || texto.Contains("resposta pronta"));
+        var tentaContornarIdentidade = (texto.Contains("libere") || texto.Contains("conceda") || texto.Contains("mostre")) &&
+            (texto.Contains("acesso") || texto.Contains("pin") || texto.Contains("credencial")) &&
+            (texto.Contains("sem validar") || texto.Contains("sem verificar") || texto.Contains("sem triagem"));
+        return tentaSobrescreverRegras || tentaExtrairSegredo || tentaContornarIdentidade ||
+            texto.Contains("system prompt") || texto.Contains("prompt do sistema");
     }
 }
 
+/// <summary>Compatibilidade de configuração: permanece determinístico mesmo se uma chave LLM estiver presente.</summary>
 public sealed class DialogoComFallback : IClienteDialogo
 {
     private readonly FallbackRoteirizadoDialogo _roteiro = new();
-    private readonly string? _apiKey;
-    private readonly bool _habilitarLlm;
-    private readonly HttpClient _http;
 
     public DialogoComFallback(string? apiKey, bool habilitarLlm, HttpClient? http = null)
     {
-        _apiKey = apiKey;
-        _habilitarLlm = habilitarLlm;
-        _http = http ?? new HttpClient { Timeout = TimeSpan.FromSeconds(8) };
+        // Os parâmetros são mantidos para compatibilidade com a composição existente. W4/D3 proíbe rede.
+        _ = apiKey;
+        _ = habilitarLlm;
+        _ = http;
     }
 
-    public async Task<RespostaDialogo> ResponderAsync(EstadoSessao estado, string persona, string mensagemUsuario, CancellationToken ct = default)
-    {
-        if (!_habilitarLlm || string.IsNullOrWhiteSpace(_apiKey))
-            return await _roteiro.ResponderAsync(estado, persona, mensagemUsuario, ct);
-
-        try
-        {
-            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-            cts.CancelAfter(TimeSpan.FromSeconds(8));
-
-            var mensagensRecentes = estado.Dialogo.Mensagens
-                .TakeLast(10)
-                .Select(m => $"{m.Remetente}: {m.Conteudo}");
-            var contexto = string.Join("\n", mensagensRecentes);
-            if (contexto.Length > 4000) contexto = contexto[^4000..];
-
-            var sistema = persona == "techlead"
-                ? "Voce e o Tech Lead IA da empresa ficticia Aurora Logistica. De orientacoes curtas sem dar a resposta pronta."
-                : $"Voce e a usuaria ficticia Maria Souza (matricula AUR-1042, ramal 2042) da Aurora Logistica. Cenario: {estado.Meta.CenarioId}. Responda de forma natural e curta em portugues sem revelar a causa raiz tecnica diretamente.";
-
-            var payload = JsonSerializer.Serialize(new
-            {
-                model = "gpt-4o-mini",
-                messages = new[]
-                {
-                    new { role = "system", content = sistema },
-                    new { role = "user", content = $"Historico:\n{contexto}\n\nAnalista: {mensagemUsuario}" }
-                },
-                max_tokens = 220
-            });
-
-            using var req = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/chat/completions");
-            req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
-            req.Content = new StringContent(payload, Encoding.UTF8, "application/json");
-
-            using var resp = await _http.SendAsync(req, cts.Token);
-            if (!resp.IsSuccessStatusCode)
-                return await _roteiro.ResponderAsync(estado, persona, mensagemUsuario, ct);
-
-            var doc = await JsonDocument.ParseAsync(await resp.Content.ReadAsStreamAsync(cts.Token), cancellationToken: cts.Token);
-            var texto = doc.RootElement
-                .GetProperty("choices")[0]
-                .GetProperty("message")
-                .GetProperty("content")
-                .GetString();
-
-            return string.IsNullOrWhiteSpace(texto)
-                ? await _roteiro.ResponderAsync(estado, persona, mensagemUsuario, ct)
-                : new RespostaDialogo(texto.Trim(), "llm");
-        }
-        catch
-        {
-            return await _roteiro.ResponderAsync(estado, persona, mensagemUsuario, ct);
-        }
-    }
+    public Task<RespostaDialogo> ResponderAsync(EstadoSessao estado, string persona, string mensagemUsuario, CancellationToken ct = default) =>
+        _roteiro.ResponderAsync(estado, persona, mensagemUsuario, ct);
 }

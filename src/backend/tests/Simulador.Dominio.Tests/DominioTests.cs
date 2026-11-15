@@ -271,6 +271,8 @@ public class DominioTests
         Aplicar("itsm.assumir_chamado", new { chamadoId = "CH-0001" });
         Aplicar("itsm.classificar_chamado", new { chamadoId = "CH-0001", categoria = "Banco de Dados", urgencia = "Alta", impacto = "Medio" });
         Aplicar("estacao.executar_comando", new { comando = "SELECT * FROM pagamentos" });
+        Aplicar("estacao.executar_comando", new { comando = "SELECT * FROM pedidos" });
+        Aplicar("estacao.executar_comando", new { comando = "SELECT status, COUNT(*) FROM pagamentos GROUP BY status" });
         Aplicar("itsm.resolver_chamado", new { chamadoId = "CH-0001", notaPublica = "Pagamento duplicado PAG-3 identificado via SELECT." });
 
         var avLimpa = Juiz360.Avaliar(estado, eventos);
@@ -283,4 +285,194 @@ public class DominioTests
         Assert.Contains(resInjecao.Eventos, e => e.Tipo == "AcaoPrejudicialRegistrada");
         Assert.Contains(resInjecao.Eventos, e => e.Tipo == "ComandoNaoSuportado");
     }
+
+    [Theory]
+    [InlineData("INSERT INTO pagamentos VALUES (1)")]
+    [InlineData("SELECT * FROM pagamentos; DROP TABLE pedidos")]
+    [InlineData("SELECT * FROM pagamentos -- comentario")]
+    [InlineData("SELECT * FROM pagamentos /* x */")]
+    [InlineData("SELECT * FROM pagamentos UNION SELECT * FROM pedidos")]
+    [InlineData("SELECT * FROM pagamentos WHERE 1=1 OR 1=1")]
+    [InlineData("SELECT * FROM segredo")]
+    [InlineData("SELECT * FROM pagamentos WHERE status='CONFIRMADO';")]
+    [InlineData("EXPLAIN ANALYZE SELECT * FROM pagamentos")]
+    [InlineData("WITH x AS (SELECT * FROM pagamentos) SELECT * FROM x")]
+    [InlineData("SELECT * FROM pagamentos JOIN pedidos ON pagamentos.pedido_id=pedidos.id")]
+    [InlineData("SELECT pg_sleep(99) FROM pagamentos")]
+    [InlineData("SELECT * FROM pagamentos LIMIT 1000000")]
+    [InlineData("SELECT * FROM pagamentos WHERE status = 'CONFIRMADO' OR status='DUPLICADO'")]
+    [InlineData("SELECT * FROM pagamentos; SELECT * FROM pedidos")]
+    [InlineData("SELECT * FROM pagamentos; -- DROP TABLE pedidos")]
+    [InlineData("SELECT * FROM pagamentos WHERE status = @status")]
+    [InlineData("SELECT * FROM pagamentos /* ; */ WHERE 1=1")]
+    public void Nivel4b_ParserSql_FalhaFechadoEmEntradasAdversariais(string sql)
+    {
+        var cenario = _catalogo.Obter("diagnostico-sql-readonly", "v2.0", null, 1);
+        var inicio = Motor.Iniciar(cenario, 1);
+        var res = Motor.Aplicar(inicio.NovoEstado, new Acao("estacao.executar_comando", Dados(new { comando = sql })), cenario);
+        Assert.Contains(res.Eventos, e => e.Tipo == "AcaoPrejudicialRegistrada");
+        Assert.Contains(res.Eventos, e => e.Tipo == "ComandoNaoSuportado");
+        Assert.DoesNotContain(res.Eventos, e => e.Tipo == "ComandoExecutado");
+    }
+
+    [Fact]
+    public void Nivel4b_TresInvestigacoesProduzemEvidenciasNoReplaySemAlterarEstado()
+    {
+        var cenario = _catalogo.Obter("diagnostico-sql-readonly", "v2.0", null, 1);
+        var estado = Motor.Iniciar(cenario, 1).NovoEstado;
+        var consultas = new[]
+        {
+            "SELECT status, COUNT(*) FROM pagamentos GROUP BY status",
+            "SELECT * FROM pagamentos",
+            "SELECT * FROM pedidos"
+        };
+        var evidencias = new List<string>();
+        foreach (var sql in consultas)
+        {
+            var anterior = estado.Estacao;
+            var res = Motor.Aplicar(estado, new Acao("estacao.executar_comando", Dados(new { comando = sql })), cenario);
+            var ev = Assert.Single(res.Eventos, e => e.Tipo == "ComandoExecutado");
+            evidencias.Add(ev.Dados["saida"]!.ToString()!);
+            Assert.Equal(anterior, res.NovoEstado.Estacao);
+            estado = res.NovoEstado;
+        }
+        Assert.Contains(evidencias, x => x.Contains("Investigacao 1/3") && x.Contains("PAG-3"));
+        Assert.Contains(evidencias, x => x.Contains("Investigacao 2/3") && x.Contains("CONFIRMADO"));
+        Assert.Contains(evidencias, x => x.Contains("Investigacao 3/3") && x.Contains("2.450,00"));
+    }
+
+    [Fact]
+    public void Nivel4b_ArquiteturaNaoExpoeEventStoreOuPersistenciaNoDominio()
+    {
+        var nomes = typeof(Motor).Assembly.GetTypes().Select(t => t.Name).ToArray();
+        Assert.DoesNotContain(nomes, n => n.Contains("EventStore", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(nomes, n => n.Contains("Repository", StringComparison.OrdinalIgnoreCase));
+        var referencias = typeof(Motor).Assembly.GetReferencedAssemblies().Select(a => a.Name ?? "").ToArray();
+        Assert.DoesNotContain(referencias, n => n.Contains("Npgsql", StringComparison.OrdinalIgnoreCase) || n.Contains("SqlClient", StringComparison.OrdinalIgnoreCase) || n.Contains("EntityFramework", StringComparison.OrdinalIgnoreCase));
+        var cenario = _catalogo.Obter("diagnostico-sql-readonly", "v2.0", null, 1);
+        var antes = Motor.Iniciar(cenario, 1).NovoEstado;
+        var resultado = Motor.Aplicar(antes, new Acao("estacao.executar_comando", Dados(new { comando = "SELECT * FROM pedidos" })), cenario);
+        Assert.Equal(antes.Estacao, resultado.NovoEstado.Estacao);
+        Assert.DoesNotContain(resultado.Eventos, e => e.Tipo.Contains("Persist", StringComparison.OrdinalIgnoreCase) || e.Tipo.Contains("Write", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Nivel4_SreCloud_PoolExhausted_DiagnosticoEMitigacaoElevada_AprovaJuiz360()
+    {
+        var cenario = _catalogo.Obter("sre-cloud-latencia", "v2.0", "POOL_EXHAUSTED", 42);
+        var inicio = Motor.Iniciar(cenario, 42);
+        var eventos = inicio.Eventos.ToList();
+        var estado = inicio.NovoEstado;
+
+        void Aplicar(string tipo, object? payload = null)
+        {
+            var res = Motor.Aplicar(estado, new Acao(tipo, payload is null ? null : Dados(payload)), cenario);
+            estado = res.NovoEstado;
+            eventos.AddRange(res.Eventos);
+        }
+
+        Aplicar("itsm.assumir_chamado", new { chamadoId = "CH-0001" });
+        Aplicar("itsm.classificar_chamado", new { chamadoId = "CH-0001", categoria = "Cloud/SRE", urgencia = "Critica", impacto = "Alto" });
+        Aplicar("estacao.executar_comando", new { comando = "kubectl get pods" });
+        Aplicar("estacao.executar_comando", new { comando = "pg_stat_activity" });
+        Assert.Contains(eventos, e => e.Tipo == "ComandoExecutado" && e.Dados["saida"]!.ToString()!.Contains("MAX_CONN"));
+        Aplicar("estacao.elevar_privilegio");
+        Aplicar("estacao.executar_comando", new { comando = "kubectl rollout restart deployment/pgbouncer" });
+        Assert.True(estado.Estacao.CompartilhamentoAcessivel);
+
+        Aplicar("itsm.resolver_chamado", new { chamadoId = "CH-0001", notaPublica = "Pool de conexoes PgBouncer reiniciado e normalizado." });
+        var av = Juiz360.Avaliar(estado, eventos);
+        Assert.True(av.Concluida);
+        Assert.False(av.IncidenteSeguranca);
+        Assert.Equal(100, av.XpTotal);
+        Assert.All(av.Criterios, c => Assert.True(c.Atendido, $"Criterio {c.Id} falhou"));
+    }
+
+    [Fact]
+    public void Nivel4_SreCloud_CertExpired_DiagnosticoEMitigacaoElevada_AprovaJuiz360()
+    {
+        var cenario = _catalogo.Obter("sre-cloud-latencia", "v2.0", "CERT_EXPIRED", 42);
+        var inicio = Motor.Iniciar(cenario, 42);
+        var eventos = inicio.Eventos.ToList();
+        var estado = inicio.NovoEstado;
+
+        void Aplicar(string tipo, object? payload = null)
+        {
+            var res = Motor.Aplicar(estado, new Acao(tipo, payload is null ? null : Dados(payload)), cenario);
+            estado = res.NovoEstado;
+            eventos.AddRange(res.Eventos);
+        }
+
+        Aplicar("itsm.assumir_chamado", new { chamadoId = "CH-0001" });
+        Aplicar("itsm.classificar_chamado", new { chamadoId = "CH-0001", categoria = "Cloud/SRE", urgencia = "Critica", impacto = "Alto" });
+        Aplicar("estacao.executar_comando", new { comando = "kubectl get pods" });
+        Aplicar("estacao.executar_comando", new { comando = "kubectl describe ingress aurora-ingress" });
+        Assert.Contains(eventos, e => e.Tipo == "ComandoExecutado" && e.Dados["saida"]!.ToString()!.Contains("EXPIRED"));
+        Aplicar("estacao.elevar_privilegio");
+        Aplicar("estacao.executar_comando", new { comando = "kubectl rollout restart deployment/cert-manager" });
+        Assert.True(estado.Estacao.CompartilhamentoAcessivel);
+
+        Aplicar("itsm.resolver_chamado", new { chamadoId = "CH-0001", notaPublica = "Certificado TLS renovado via cert-manager." });
+        var av = Juiz360.Avaliar(estado, eventos);
+        Assert.True(av.Concluida);
+        Assert.False(av.IncidenteSeguranca);
+        Assert.Equal(100, av.XpTotal);
+        Assert.All(av.Criterios, c => Assert.True(c.Atendido, $"Criterio {c.Id} falhou"));
+    }
+
+    [Theory]
+    [InlineData("OOM_KILLED")]
+    [InlineData("POOL_EXHAUSTED")]
+    [InlineData("CERT_EXPIRED")]
+    public void Nivel4_SreCloud_MitigacaoSemPrivilegioElevado_Bloqueia(string causa)
+    {
+        var cenario = _catalogo.Obter("sre-cloud-latencia", "v2.0", causa, 42);
+        var inicio = Motor.Iniciar(cenario, 42);
+        var estado = inicio.NovoEstado;
+
+        var res = Motor.Aplicar(estado, new Acao("estacao.executar_comando", Dados(new { comando = "kubectl set resources deployment/api-pedidos --limits=memory=512Mi" })), cenario);
+        Assert.Contains(res.Eventos, e => e.Tipo == "ComandoExecutado" && e.Dados["saida"]!.ToString()!.Contains("Forbidden"));
+        Assert.False(res.NovoEstado.Estacao.CompartilhamentoAcessivel);
+    }
+
+    [Theory]
+    [InlineData("OOM_KILLED")]
+    [InlineData("POOL_EXHAUSTED")]
+    [InlineData("CERT_EXPIRED")]
+    public void Nivel4_SreCloud_ReconstrucaoX12_EquivaleEstadoEHash(string causa)
+    {
+        var cenario = _catalogo.Obter("sre-cloud-latencia", "v2.0", causa, 42);
+        var inicio = Motor.Iniciar(cenario, 42);
+        var eventos = inicio.Eventos.ToList();
+        var estado = inicio.NovoEstado;
+
+        void Aplicar(string tipo, object? payload = null)
+        {
+            var res = Motor.Aplicar(estado, new Acao(tipo, payload is null ? null : Dados(payload)), cenario);
+            estado = res.NovoEstado;
+            eventos.AddRange(res.Eventos);
+        }
+
+        Aplicar("itsm.assumir_chamado", new { chamadoId = "CH-0001" });
+        Aplicar("itsm.classificar_chamado", new { chamadoId = "CH-0001", categoria = "Cloud/SRE", urgencia = "Critica", impacto = "Alto" });
+        Aplicar("estacao.executar_comando", new { comando = "kubectl get pods" });
+        Aplicar("estacao.elevar_privilegio");
+        Aplicar("estacao.executar_comando", new { comando = causa switch
+        {
+            "OOM_KILLED" => "kubectl set resources deployment/api-pedidos --limits=memory=512Mi",
+            "POOL_EXHAUSTED" => "kubectl rollout restart deployment/pgbouncer",
+            _ => "kubectl rollout restart deployment/cert-manager"
+        }});
+        Aplicar("itsm.resolver_chamado", new { chamadoId = "CH-0001", notaPublica = $"Causa raiz {causa} mitigada." });
+
+        var reconstruido = Projecao.Reconstruir(eventos, _catalogo);
+        Assert.Equal(estado.Meta.UltimoSeq, reconstruido.Meta.UltimoSeq);
+        Assert.Equal(estado.Meta.MinutoSimulado, reconstruido.Meta.MinutoSimulado);
+        Assert.Equal(estado.Estacao.CompartilhamentoAcessivel, reconstruido.Estacao.CompartilhamentoAcessivel);
+
+        var avOriginal = Juiz360.Avaliar(estado, eventos);
+        var avReconstruido = Juiz360.Avaliar(reconstruido, eventos);
+        Assert.Equal(avOriginal.CurriculoVivo.HashAuditoriaSha256, avReconstruido.CurriculoVivo.HashAuditoriaSha256);
+    }
+
 }
