@@ -133,6 +133,8 @@ export function TelaInicial({
             <button
               key={n.id}
               type="button"
+              role="radio"
+              aria-checked={cenario === n.id}
               className={`level-card ${cenario === n.id ? 'selected' : ''}`}
               onClick={() => setCenario(n.id)}
             >

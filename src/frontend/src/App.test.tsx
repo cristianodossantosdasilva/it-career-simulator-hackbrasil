@@ -36,9 +36,10 @@ describe('IT Flight Simulator UI', () => {
     expect(screen.getByText(/Pasta de Rede Inacessivel/i)).toBeInTheDocument()
     expect(screen.getByText(/Incidente Massivo & Problema ITIL/i)).toBeInTheDocument()
 
-    const nivel1 = screen.getByRole('button', { name: /Triagem & Defesa contra Engenharia Social/i })
+    const nivel1 = screen.getByRole('radio', { name: /Triagem & Defesa contra Engenharia Social/i })
     fireEvent.click(nivel1)
     expect(nivel1.className).toContain('selected')
+    expect(nivel1).toHaveAttribute('aria-checked', 'true')
   })
 
   it('carrega resumo de carreira a partir do localStorage e exibe integridade SHA-256', async () => {

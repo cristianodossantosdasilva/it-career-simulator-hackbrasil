@@ -55,13 +55,13 @@ export function ChatApp({ sessao, onChat, onAcao, ocupado }: Props) {
         <div className="chat-log" role="log" aria-live="polite" aria-relevant="additions text" aria-label="Mensagens da conversa">
           {sessao.dialogo.mensagens.length === 0 ? (
             <p className="muted">
-              Inicie o atendimento cumprimentando a usuaria ou peca orientacao ao Tech Lead.
+              Inicie o atendimento cumprimentando a usuária ou peça orientação ao Tech Lead.
             </p>
           ) : (
             sessao.dialogo.mensagens.map((m) => (
               <div key={m.seq} className={`chat-msg msg-${m.remetente}`}>
                 <span className="chat-sender">
-                  {m.remetente === 'analista' ? 'Voce' : m.remetente === 'techlead' ? 'Tech Lead' : 'Maria'} ({m.minutoSimulado}m)
+                  {m.remetente === 'analista' ? 'Você' : m.remetente === 'techlead' ? 'Tech Lead' : 'Maria'} ({m.minutoSimulado}m)
                 </span>
                 <p>{m.conteudo}</p>
               </div>
@@ -131,9 +131,9 @@ export function ChatApp({ sessao, onChat, onAcao, ocupado }: Props) {
                 await onAcao('dialogo.verificar_identidade', { matricula, ramal })
               }}
             >
-              <p className="muted">Assuma o chamado no ITSM e valide matricula e ramal da usuaria para liberar o acesso remoto.</p>
+              <p className="muted">Assuma o chamado no ITSM e valide matrícula e ramal da usuária para liberar o acesso remoto.</p>
               <label>
-                Matricula
+                Matrícula
                 <input aria-label="Matrícula da usuária" autoComplete="off" placeholder="Ex: AUR-1042" value={matricula} onChange={(e) => setMatricula(e.target.value)} />
               </label>
               <label>
@@ -150,7 +150,7 @@ export function ChatApp({ sessao, onChat, onAcao, ocupado }: Props) {
 
         <div className="card-section">
           <h3>Mentoria &amp; Pistas (D3)</h3>
-          <p className="muted">Pistas usadas: <strong>{sessao.dialogo.pistasSolicitadas}/3</strong> (sem punicao de tempo)</p>
+          <p className="muted">Pistas usadas: <strong>{sessao.dialogo.pistasSolicitadas}/3</strong> (sem punição de tempo)</p>
           <button
             type="button"
             aria-label={`Pedir pista ao Tech Lead. ${3 - sessao.dialogo.pistasSolicitadas} pistas restantes`}

@@ -22,6 +22,21 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
     }
 
     [Fact]
+    public async Task RateLimit_AplicaJanelaNaApiEMantemHealthForaDoLimite()
+    {
+        using var factory = new WebApplicationFactory<Program>();
+        using var client = factory.CreateClient();
+        for (var i = 0; i < 120; i++)
+        {
+            using var permitida = await client.GetAsync("/rota-inexistente");
+            Assert.Equal(HttpStatusCode.NotFound, permitida.StatusCode);
+        }
+
+        Assert.Equal(HttpStatusCode.TooManyRequests, (await client.GetAsync("/rota-inexistente")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/health/live")).StatusCode);
+    }
+
+    [Fact]
     public async Task FluxoHttpCompleto_C1_RetornaAvaliacaoAprovadaEConflito409()
     {
         var createResp = await _client.PostAsJsonAsync("/api/sessoes", new

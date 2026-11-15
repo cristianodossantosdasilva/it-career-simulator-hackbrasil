@@ -343,35 +343,38 @@ function WorkstationInner() {
 
       <div className="cockpit-body">
         <aside className="app-dock" aria-label="Aplicativos da Workstation">
-          <button type="button" className={`dock-btn ${aba === 'itsm' ? 'active' : ''}`} onClick={() => setAba('itsm')}>
-            <span>ITSM / Chamados</span>
-            <span className="badge">{sessao.chamados.length}</span>
-          </button>
-          <button type="button" className={`dock-btn ${aba === 'chat' ? 'active' : ''}`} onClick={() => setAba('chat')}>
-            <span>Comunicador IA</span>
-            <span className="badge">{sessao.dialogo.mensagens.length}</span>
-          </button>
-          <button type="button" className={`dock-btn ${aba === 'simudesk' ? 'active' : ''}`} onClick={() => setAba('simudesk')}>
-            <span>SimuDesk Remoto</span>
-            <span className={`badge ${sessao.dialogo.acessoRemotoLiberado ? 'badge-ok' : ''}`}>
-              {sessao.dialogo.acessoRemotoLiberado ? 'ON' : 'LOCK'}
-            </span>
-          </button>
-          <button type="button" className={`dock-btn ${aba === 'kb' ? 'active' : ''}`} onClick={() => setAba('kb')}>
-            <span>Intranet / KB</span>
-            <span className="badge">KB</span>
-          </button>
-          <button
-            type="button"
-            className={`dock-btn ${aba === 'replay' ? 'active' : ''}`}
-            onClick={() => {
-              setAba('replay')
-              void carregarReplay()
-            }}
-          >
-            <span>Juiz 360º &amp; Replay</span>
-            <span className="badge badge-info">XP</span>
-          </button>
+          <nav aria-label="Aplicativos da Workstation">
+            <button type="button" aria-current={aba === 'itsm' ? 'page' : undefined} className={`dock-btn ${aba === 'itsm' ? 'active' : ''}`} onClick={() => setAba('itsm')}>
+              <span>ITSM / Chamados</span>
+              <span className="badge">{sessao.chamados.length}</span>
+            </button>
+            <button type="button" aria-current={aba === 'chat' ? 'page' : undefined} className={`dock-btn ${aba === 'chat' ? 'active' : ''}`} onClick={() => setAba('chat')}>
+              <span>Comunicador IA</span>
+              <span className="badge">{sessao.dialogo.mensagens.length}</span>
+            </button>
+            <button type="button" aria-current={aba === 'simudesk' ? 'page' : undefined} className={`dock-btn ${aba === 'simudesk' ? 'active' : ''}`} onClick={() => setAba('simudesk')}>
+              <span>SimuDesk Remoto</span>
+              <span className={`badge ${sessao.dialogo.acessoRemotoLiberado ? 'badge-ok' : ''}`}>
+                {sessao.dialogo.acessoRemotoLiberado ? 'ON' : 'LOCK'}
+              </span>
+            </button>
+            <button type="button" aria-current={aba === 'kb' ? 'page' : undefined} className={`dock-btn ${aba === 'kb' ? 'active' : ''}`} onClick={() => setAba('kb')}>
+              <span>Intranet / KB</span>
+              <span className="badge">KB</span>
+            </button>
+            <button
+              type="button"
+              aria-current={aba === 'replay' ? 'page' : undefined}
+              className={`dock-btn ${aba === 'replay' ? 'active' : ''}`}
+              onClick={() => {
+                setAba('replay')
+                void carregarReplay()
+              }}
+            >
+              <span>Juiz 360º &amp; Replay</span>
+              <span className="badge badge-info">XP</span>
+            </button>
+          </nav>
         </aside>
 
         <main className="workspace-main">

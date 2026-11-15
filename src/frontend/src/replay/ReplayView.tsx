@@ -20,7 +20,7 @@ export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetorno
 
   if (!replay) {
     return (
-      <section className="panel">
+      <section className="panel" aria-label="Relatorio do Juiz 360">
         <h2>Avaliacao 360º, Replay &amp; Curriculo Vivo</h2>
         <button type="button" className="btn-primary" disabled={ocupado} onClick={onAtualizar}>
           Carregar Replay e Avaliacao
@@ -33,7 +33,7 @@ export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetorno
 
   return (
     <div className="app-split" aria-label="Replay e Avaliacao 360">
-      <section className="panel">
+      <section className="panel" aria-label="Relatorio do Juiz 360">
         <div className="row-between">
           <h2>Relatorio do Juiz 360º</h2>
           <button type="button" disabled={ocupado} onClick={onAtualizar}>

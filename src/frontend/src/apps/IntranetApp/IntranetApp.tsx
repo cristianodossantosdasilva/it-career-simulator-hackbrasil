@@ -72,8 +72,8 @@ export function IntranetApp({ artigoSelecionadoId, onArtigoFechado }: Props) {
           return (
             <article
               key={a.id}
+              role="listitem"
               className={`card-section kb-article ${expandido ? 'kb-expanded' : ''}`}
-              aria-expanded={expandido}
             >
               <h3
                 ref={(el) => {

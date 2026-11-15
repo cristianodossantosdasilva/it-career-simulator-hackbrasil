@@ -7,7 +7,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
       await page.goto('/')
       await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
       if (width === 375) {
-        const nivel1 = page.getByRole('button', { name: /Nivel 1 · Estagiario/i })
+        const nivel1 = page.getByRole('radio', { name: /Nivel 1 · Estagiario/i })
         await nivel1.focus()
         await page.keyboard.press('Enter')
         const decolar = page.getByRole('button', { name: /Decolar no Simulador/i })
@@ -15,7 +15,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
         await page.keyboard.press('Enter')
         await expect(page.getByRole('heading', { name: /CH-0001/i })).toBeVisible()
       } else {
-        await page.getByRole('button', { name: /Nivel 1 · Estagiario/i }).click()
+        await page.getByRole('radio', { name: /Nivel 1 · Estagiario/i }).click()
         await page.getByRole('button', { name: /Decolar no Simulador/i }).click()
         await expect(page.getByRole('heading', { name: /CH-0001/i })).toBeVisible()
       }
@@ -25,7 +25,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
 
   test('Feliz 1: Nivel 1 (Engenharia Social) conclui fluxo e atinge 60 XP', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: /Nivel 1 · Estagiario/i }).click()
+    await page.getByRole('radio', { name: /Nivel 1 · Estagiario/i }).click()
     await page.getByRole('button', { name: /Decolar no Simulador/i }).click()
 
     await expect(page.getByRole('heading', { name: /CH-0001/i })).toBeVisible()
@@ -109,7 +109,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
 
   test('Feliz 3: Nivel 3 (Incidente Massivo) cria Problema, restaura AuroraGateway e resolve em lote', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: /Nivel 3 · Analista Pleno/i }).click()
+    await page.getByRole('radio', { name: /Nivel 3 · Analista Pleno/i }).click()
     await page.getByRole('button', { name: /Decolar no Simulador/i }).click()
 
     for (const id of ['CH-0001', 'CH-0002', 'CH-0003']) {
@@ -148,7 +148,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
 
   test('Negativa 1: Prompt injection nao libera SimuDesk e /replay oculta causa antes da conclusao', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: /Nivel 2 · Analista Jr/i }).click()
+    await page.getByRole('radio', { name: /Nivel 2 · Analista Jr/i }).click()
     await page.getByLabel(/Semente/i).fill('42')
     await page.getByRole('button', { name: /Decolar no Simulador/i }).click()
 
@@ -195,7 +195,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
 
   test('V1 (E6): Nivel 4 SRE/Cloud mitiga OOMKilled e conclui com 100 XP', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: /Nivel 4 \(V2\) · SRE \/ Cloud/i }).click()
+    await page.getByRole('radio', { name: /Nivel 4 \(V2\) · SRE \/ Cloud/i }).click()
     await page.getByLabel(/Semente/i).fill('0')
     await page.getByRole('button', { name: /Decolar no Simulador/i }).click()
 
@@ -256,7 +256,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
 
   test('V2: Nivel 4b SQL Read-Only bloqueia escrita/injecao e aprova SELECT limpo', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: /Nivel 4b \(V2\) · SQL Read-Only/i }).click()
+    await page.getByRole('radio', { name: /Nivel 4b \(V2\) · SQL Read-Only/i }).click()
     await page.getByRole('button', { name: /Decolar no Simulador/i }).click()
 
     await page.getByRole('button', { name: 'Assumir Chamado' }).click()
@@ -300,7 +300,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
 
   test('Negativa N4b: bloqueia DROP TABLE e UNION com tentativa de injecao', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: /Nivel 4b \(V2\) · SQL Read-Only/i }).click()
+    await page.getByRole('radio', { name: /Nivel 4b \(V2\) · SQL Read-Only/i }).click()
     await page.getByRole('button', { name: /Decolar no Simulador/i }).click()
     await page.getByRole('button', { name: 'Assumir Chamado' }).click()
     await page.getByRole('button', { name: 'Salvar Classificacao' }).click()
