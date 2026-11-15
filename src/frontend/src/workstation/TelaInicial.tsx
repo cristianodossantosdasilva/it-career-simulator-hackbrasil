@@ -138,10 +138,10 @@ export function TelaInicial({
               className={`level-card ${cenario === n.id ? 'selected' : ''}`}
               onClick={() => setCenario(n.id)}
             >
-              <span className="badge badge-ok">{n.cargo}</span>
+              <span className={`badge ${cenario === n.id ? 'badge-info' : ''}`}>{n.cargo}</span>
               <h2>{n.titulo}</h2>
               <p>{n.desc}</p>
-              <span className="muted" style={{ marginTop: 'auto', paddingTop: '0.5rem' }}>
+              <span className="level-competencias">
                 {n.competencias}
               </span>
             </button>
@@ -149,7 +149,7 @@ export function TelaInicial({
         </div>
 
         <div className="start-footer">
-          <label>
+          <label className="field-stack">
             Semente (opcional, para reproduzir causa)
             <input
               type="number"
@@ -179,13 +179,13 @@ export function TelaInicial({
         </div>
 
         {resumoCarreira && (
-          <section className="panel" aria-label="Progressao de Carreira e Curriculo Vivo" style={{ marginTop: '1rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <section className="panel" aria-label="Progressao de Carreira e Curriculo Vivo">
+            <div className="career-header">
               <div>
                 <strong>Sua Jornada:</strong> {resumoCarreira.cargoAtual} ·{' '}
                 <span className="badge badge-info">{resumoCarreira.xpTotal} XP</span>
               </div>
-              <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+              <div className="career-badges">
                 <span className={`badge ${resumoCarreira.promocoes.nivel1Concluido ? 'badge-ok' : ''}`}>
                   N1 {resumoCarreira.promocoes.nivel1Concluido ? 'OK' : 'Pendente'}
                 </span>
@@ -210,8 +210,8 @@ export function TelaInicial({
               </p>
             )}
 
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap', marginTop: '0.75rem' }}>
-              <label style={{ flex: '1 1 200px' }}>
+            <div className="career-form">
+              <label className="field-stack">
                 Apelido no Curriculo Vivo (opcional)
                 <input
                   type="text"
@@ -236,15 +236,15 @@ export function TelaInicial({
               </button>
             </div>
 
-            <p className="muted" style={{ marginTop: '0.5rem', fontSize: '0.8rem', wordBreak: 'break-all' }}>
+            <p className="integrity-note">
               Integridade ({resumoCarreira.integridade.algoritmo}): <code>{resumoCarreira.integridade.hash}</code> —{' '}
               {resumoCarreira.integridade.regraHash} (Nota: valida a integridade do conteudo exportado; nao prova autoria nem qualificacao profissional.)
             </p>
           </section>
         )}
 
-        <section className="panel" aria-label="Verificador local de Curriculo Vivo" style={{ marginTop: '1rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <section className="panel" aria-label="Verificador local de Curriculo Vivo">
+          <div className="verifier-header">
             <span>
               <strong>Verificador de Integridade (Offline):</strong> valide um arquivo <code>curriculo-vivo-itfs.json</code> localmente no navegador.
             </span>
@@ -258,18 +258,18 @@ export function TelaInicial({
           </div>
 
           {mostrarVerificador && (
-            <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-              <label>
+            <div className="verifier-body">
+              <label className="field-stack">
                 Cole o JSON do Curriculo Vivo ou selecione o arquivo .json
                 <textarea
                   rows={4}
                   placeholder='{"cargoAtual": "...", "xpTotal": 0, ...}'
                   value={jsonVerificar}
                   onChange={(e) => void executarVerificacao(e.target.value)}
-                  style={{ width: '100%', fontFamily: 'monospace', fontSize: '0.8rem', padding: '0.5rem', borderRadius: '8px', background: 'var(--bg-elevated)', color: '#f1f5f9', border: '1px solid var(--border-bright)' }}
+                  className="verifier-textarea"
                 />
               </label>
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div className="verifier-file">
                 <input
                   type="file"
                   accept=".json,application/json"
@@ -284,14 +284,7 @@ export function TelaInicial({
               {resultadoVerif && (
                 <div
                   role="status"
-                  className={
-                    resultadoVerif.status === 'integro'
-                      ? 'badge badge-ok'
-                      : resultadoVerif.status === 'divergente'
-                        ? 'alert-danger'
-                        : 'banner-notice'
-                  }
-                  style={{ padding: '0.6rem 0.8rem', borderRadius: '8px' }}
+                  className={`verifier-result ${resultadoVerif.status === 'integro' ? 'badge badge-ok' : resultadoVerif.status === 'divergente' ? 'alert-danger' : 'banner-notice'}`}
                 >
                   <strong>
                     {resultadoVerif.status === 'integro'

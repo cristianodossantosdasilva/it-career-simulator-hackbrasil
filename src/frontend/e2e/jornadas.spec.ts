@@ -93,7 +93,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
 
     // Volta para Tela Inicial e valida Curriculo Vivo gerado
-    await page.getByRole('button', { name: 'Trocar Nivel' }).click()
+    await page.getByRole('button', { name: /Tela Inicial/i }).click()
     await expect(page.getByText('N2 OK')).toBeVisible()
 
     const downloadPromise = page.waitForEvent('download')

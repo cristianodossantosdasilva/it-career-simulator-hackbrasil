@@ -314,13 +314,15 @@ function WorkstationInner() {
           <span className="badge">Seq #{sessao.ultimoSeq}</span>
           <button
             type="button"
+            className="btn-secondary"
+            aria-label="Voltar para a Tela Inicial"
             onClick={() => {
               setSessaoId(null)
               setSessao(null)
               void atualizarResumoCarreira()
             }}
           >
-            Trocar Nivel
+            ← Tela Inicial
           </button>
         </div>
       </header>
