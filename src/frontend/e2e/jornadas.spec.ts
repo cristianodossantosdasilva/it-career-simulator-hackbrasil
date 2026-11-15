@@ -69,6 +69,10 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await expect(page.getByText('Identidade Verificada!')).toBeVisible()
 
     await page.getByRole('button', { name: /SimuDesk Remoto/i }).click()
+    await page.getByPlaceholder('NNN NNN NNN').fill('000000000')
+    await page.getByPlaceholder('4 digitos').fill('0000')
+    await page.getByRole('button', { name: 'Conectar na Estacao' }).click()
+    await expect(page.getByRole('alert')).toHaveText('ID ou PIN invalido.')
     await page.getByRole('button', { name: 'Preencher e Conectar' }).click()
 
     await page.getByLabel('Comando do terminal').fill('whoami /groups')
@@ -248,7 +252,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByRole('button', { name: /Juiz 360º & Replay/i }).click()
     await expect(page.getByText('Concluida', { exact: false })).toBeVisible()
     await expect(page.getByText('XP: 100')).toBeVisible()
-    const criterioSre = page.getByRole('listitem', { name: /R3:/ })
+    const criterioSre = page.getByRole('listitem').filter({ hasText: /R3\s*—/ })
     await expect(criterioSre.getByLabel('Motivo')).toBeVisible()
     await expect(criterioSre.getByText(/Pratica esperada:/)).toBeVisible()
     await expect(criterioSre.getByRole('button', { name: /base de conhecimento/i })).toBeVisible()

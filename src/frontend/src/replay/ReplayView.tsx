@@ -13,6 +13,7 @@ interface Props {
 export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetornoLinkUri }: Props) {
   const [indiceSelecionado, setIndiceSelecionado] = useState(0)
   const kbLinksRef = useRef<Record<string, HTMLButtonElement | null>>({})
+  const eventoCardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (kbRetornoLinkUri) requestAnimationFrame(() => kbLinksRef.current[kbRetornoLinkUri!]?.focus())
@@ -20,19 +21,21 @@ export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetorno
 
   if (!replay) {
     return (
-      <section className="panel" aria-label="Relatorio do Juiz 360">
+      <section className="panel" aria-label="Relatorio do Juiz 360" aria-busy={ocupado}>
         <h2>Avaliacao 360º, Replay &amp; Curriculo Vivo</h2>
         <button type="button" className="btn-primary" disabled={ocupado} onClick={onAtualizar}>
           Carregar Replay e Avaliacao
         </button>
+        <p className="muted">Nenhum replay carregado. Carregue para ver criterios e linha do tempo.</p>
       </section>
     )
   }
 
-  const eventoAtual = replay.eventos[indiceSelecionado] ?? replay.eventos[0]
+  const indiceValido = replay ? Math.min(Math.max(0, indiceSelecionado), Math.max(0, replay.eventos.length - 1)) : 0
+  const eventoAtual = replay.eventos[indiceValido]
 
   return (
-    <div className="app-split" aria-label="Replay e Avaliacao 360">
+    <div className="app-split" role="group" aria-label="Replay e Avaliacao 360">
       <section className="panel" aria-label="Relatorio do Juiz 360">
         <div className="row-between">
           <h2>Relatorio do Juiz 360º</h2>
@@ -62,11 +65,10 @@ export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetorno
             <li
               key={c.id}
               className={c.atendido ? 'crit-ok' : 'crit-fail'}
-              aria-label={`${c.id}: ${c.atendido ? 'Atendido' : 'Pendente'}`}
             >
               <div className="crit-header">
                 <strong>{c.id}</strong> — {c.descricao}{' '}
-                <span className="badge" role="status" aria-live="polite">
+                <span className="badge">
                   {c.atendido ? 'Atendido' : 'Pendente'}
                 </span>
                 {c.eventoSeq && (
@@ -76,7 +78,10 @@ export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetorno
                     aria-label={`Ver evento sequencia ${c.eventoSeq}`}
                     onClick={() => {
                       const idx = replay.eventos.findIndex((e) => e.seq === c.eventoSeq)
-                      if (idx >= 0) setIndiceSelecionado(idx)
+                      if (idx >= 0) {
+                        setIndiceSelecionado(idx)
+                        requestAnimationFrame(() => eventoCardRef.current?.focus())
+                      }
                     }}
                   >
                     Ver seq #{c.eventoSeq}
@@ -94,6 +99,7 @@ export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetorno
                 </p>
               )}
               {c.linkKb && (
+                resolverUriParaId(c.linkKb) &&
                 <button
                   type="button"
                   className="crit-kb-link"
@@ -130,6 +136,7 @@ export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetorno
 
       <section className="panel" aria-label="Linha do tempo do Replay">
         <h2>Replay em Linha do Tempo ({replay.eventos.length} eventos)</h2>
+        {replay.eventos.length === 0 ? <p className="muted">Nenhum evento registrado nesta sessao.</p> : <>
         <div className="timeline-controls">
           <label htmlFor="replay-range">Passo: #{eventoAtual?.seq ?? 1}</label>
           <input
@@ -137,13 +144,14 @@ export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetorno
             type="range"
             min={0}
             max={Math.max(0, replay.eventos.length - 1)}
-            value={indiceSelecionado}
+            value={indiceValido}
+            aria-valuetext={eventoAtual ? `Evento #${eventoAtual.seq} — ${eventoAtual.tipo}` : undefined}
             onChange={(e) => setIndiceSelecionado(Number(e.target.value))}
           />
         </div>
 
         {eventoAtual && (
-          <div className="card-section">
+          <div className="card-section" ref={eventoCardRef} tabIndex={-1}>
             <div className="row-between">
               <strong>
                 Seq #{eventoAtual.seq} — {eventoAtual.tipo}
@@ -159,7 +167,8 @@ export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetorno
             <li key={e.seq}>
               <button
                 type="button"
-                className={`timeline-btn ${idx === indiceSelecionado ? 'active' : ''}`}
+                className={`timeline-btn ${idx === indiceValido ? 'active' : ''}`}
+                aria-current={idx === indiceValido ? 'step' : undefined}
                 onClick={() => setIndiceSelecionado(idx)}
               >
                 <span>
@@ -170,6 +179,7 @@ export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetorno
             </li>
           ))}
         </ul>
+        </>}
       </section>
     </div>
   )

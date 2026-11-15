@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { SessaoProjecao } from '../../api/types'
 
 interface Props {
@@ -123,13 +123,13 @@ function SrePainelCluster({ cluster, elevado, ocupado, onAcao }: { cluster: Clus
       <div className="card-section sre-actions" role="region" aria-label="Acoes de mitigacao SRE">
         <h3>Acoes de Mitigacao {!elevado && <span className="badge badge-warn">Requer Admin</span>}</h3>
         <div className="actions-bar">
-          <button type="button" disabled={ocupado || !elevado} aria-label="Reiniciar pod com OOM" onClick={() => onAcao('sre.restart_pod', { pod: 'api-pedidos-7f8b6' })}>
+          <button type="button" disabled={ocupado || !elevado} aria-describedby={!elevado ? 'simudesk-requer-admin' : undefined} aria-label="Reiniciar pod com OOM" onClick={() => onAcao('sre.restart_pod', { pod: 'api-pedidos-7f8b6' })}>
             Reiniciar Pod OOM
           </button>
-          <button type="button" disabled={ocupado || !elevado} aria-label="Escalar pool PgBouncer" onClick={() => onAcao('sre.scale_pool', { novoLimite: 150 })}>
+          <button type="button" disabled={ocupado || !elevado} aria-describedby={!elevado ? 'simudesk-requer-admin' : undefined} aria-label="Escalar pool PgBouncer" onClick={() => onAcao('sre.scale_pool', { novoLimite: 150 })}>
             Escalar Pool (+50)
           </button>
-          <button type="button" disabled={ocupado || !elevado} aria-label="Renovar certificado TLS" onClick={() => onAcao('sre.renew_cert', {})}>
+          <button type="button" disabled={ocupado || !elevado} aria-describedby={!elevado ? 'simudesk-requer-admin' : undefined} aria-label="Renovar certificado TLS" onClick={() => onAcao('sre.renew_cert', {})}>
             Renovar Cert TLS
           </button>
         </div>
@@ -189,6 +189,12 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
   const [pinInput, setPinInput] = useState('')
   const [comando, setComando] = useState('')
   const [subAba, setSubAba] = useState<'terminal' | 'paineis'>('terminal')
+  const [erroCredenciais, setErroCredenciais] = useState(false)
+  const comandoInputRef = useRef<HTMLInputElement>(null)
+  const sugerirComando = (valor: string) => {
+    setComando(valor)
+    comandoInputRef.current?.focus()
+  }
 
   const elevado = sessao.estacao.privilegio === 'Elevado'
   const isSreCenario = sessao.meta.cenarioId === 'sre-cloud-latencia'
@@ -213,17 +219,21 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
               pinInput.trim() === sessao.dialogo.pinAcessoRemoto
             ) {
               setConectado(true)
+              setErroCredenciais(false)
+            } else {
+              setErroCredenciais(true)
             }
           }}
         >
           <label>
             ID da Estacao
-            <input placeholder="NNN NNN NNN" value={idInput} onChange={(e) => setIdInput(e.target.value)} />
+            <input autoComplete="off" placeholder="NNN NNN NNN" value={idInput} onChange={(e) => { setIdInput(e.target.value); setErroCredenciais(false) }} />
           </label>
           <label>
             PIN
-            <input placeholder="4 digitos" value={pinInput} onChange={(e) => setPinInput(e.target.value)} />
+            <input autoComplete="off" inputMode="numeric" placeholder="4 digitos" value={pinInput} onChange={(e) => { setPinInput(e.target.value); setErroCredenciais(false) }} />
           </label>
+          {erroCredenciais && <p role="alert">ID ou PIN invalido.</p>}
           <div className="actions-bar">
             <button type="submit" className="btn-primary" disabled={!sessao.dialogo.acessoRemotoLiberado}>
               Conectar na Estacao
@@ -251,7 +261,7 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
       <div className="row-between">
         <div>
           <h2>Estacao Remota — EST-FIN-042</h2>
-          <span className={`badge ${elevado ? 'badge-warn' : ''}`}>
+          <div role="status"><span className={`badge ${elevado ? 'badge-warn' : ''}`}>
             Contexto: {elevado ? 'Prompt Elevado (Admin)' : 'Usuario Padrao'}
           </span>{' '}
           {sessao.meta.cenarioId === 'incidente-massivo' ? (
@@ -275,7 +285,8 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
             <span className={`badge ${sessao.estacao.compartilhamentoAcessivel ? 'badge-ok' : 'badge-err'}`}>
               Pasta Financeiro: {sessao.estacao.compartilhamentoAcessivel ? 'Acessivel' : 'Inacessivel'}
             </span>
-          ) : null}
+          ) : null}</div>
+          {!elevado && <span id="simudesk-requer-admin">Requer Prompt Elevado</span>}
         </div>
         <div className="actions-bar">
           <button
@@ -285,10 +296,10 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
           >
             {elevado ? 'Voltar p/ Usuario Padrao' : 'Elevar Privilegio'}
           </button>
-          <button type="button" className={subAba === 'terminal' ? 'btn-primary' : ''} onClick={() => setSubAba('terminal')}>
+          <button type="button" aria-pressed={subAba === 'terminal'} className={subAba === 'terminal' ? 'btn-primary' : ''} onClick={() => setSubAba('terminal')}>
             Terminal
           </button>
-          <button type="button" className={subAba === 'paineis' ? 'btn-primary' : ''} onClick={() => setSubAba('paineis')}>
+          <button type="button" aria-pressed={subAba === 'paineis'} className={subAba === 'paineis' ? 'btn-primary' : ''} onClick={() => setSubAba('paineis')}>
             Paineis Admin
           </button>
         </div>
@@ -304,29 +315,29 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
           </div>
           {isSreCenario && (
             <div className="chips-row sre-commands" style={{ padding: '0.5rem 0.85rem', borderBottom: '1px solid var(--border)' }} role="toolbar" aria-label="Comandos de diagnostico SRE">
-              <button type="button" className="chip chip-sre" onClick={() => setComando('kubectl get pods -n pedidos')}>kubectl get pods</button>
-              <button type="button" className="chip chip-sre" onClick={() => setComando('kubectl logs api-pedidos-7f8b6 --tail=50')}>kubectl logs</button>
-              <button type="button" className="chip chip-sre" onClick={() => setComando('kubectl describe ingress pedidos-ingress')}>kubectl describe ingress</button>
-              <button type="button" className="chip chip-sre" onClick={() => setComando('curl -I https://api.pedidos.aurora.local/health')}>curl -I (health)</button>
-              <button type="button" className="chip chip-sre" onClick={() => setComando('psql -c "SELECT * FROM pg_stat_activity WHERE state != \'idle\'"')}>pg_stat_activity</button>
+              <button type="button" className="chip chip-sre" onClick={() => sugerirComando('kubectl get pods -n pedidos')}>kubectl get pods</button>
+              <button type="button" className="chip chip-sre" onClick={() => sugerirComando('kubectl logs api-pedidos-7f8b6 --tail=50')}>kubectl logs</button>
+              <button type="button" className="chip chip-sre" onClick={() => sugerirComando('kubectl describe ingress pedidos-ingress')}>kubectl describe ingress</button>
+              <button type="button" className="chip chip-sre" onClick={() => sugerirComando('curl -I https://api.pedidos.aurora.local/health')}>curl -I (health)</button>
+              <button type="button" className="chip chip-sre" onClick={() => sugerirComando('psql -c "SELECT * FROM pg_stat_activity WHERE state != \'idle\'"')}>pg_stat_activity</button>
             </div>
           )}
           {isSqlCenario && (
             <div className="chips-row sql-commands" style={{ padding: '0.5rem 0.85rem', borderBottom: '1px solid var(--border)' }} role="toolbar" aria-label="Consultas SQL somente leitura">
               <span className="badge badge-info" style={{ marginRight: '0.5rem' }}>Somente Leitura</span>
-              <button type="button" className="chip chip-sql" onClick={() => setComando('SELECT COUNT(*) FROM pedidos')}>SELECT COUNT pedidos</button>
-              <button type="button" className="chip chip-sql" onClick={() => setComando('SELECT SUM(valor) FROM pagamentos')}>SUM pagamentos</button>
-              <button type="button" className="chip chip-sql" onClick={() => setComando('EXPLAIN SELECT p.id, pg.valor FROM pedidos p JOIN pagamentos pg ON p.id = pg.pedido_id')}>EXPLAIN JOIN</button>
-              <button type="button" className="chip chip-sql" onClick={() => setComando('SELECT id, total FROM pedidos WHERE status = \'processado\' LIMIT 10')}>pedidos processados</button>
+              <button type="button" className="chip chip-sql" onClick={() => sugerirComando('SELECT COUNT(*) FROM pedidos')}>SELECT COUNT pedidos</button>
+              <button type="button" className="chip chip-sql" onClick={() => sugerirComando('SELECT SUM(valor) FROM pagamentos')}>SUM pagamentos</button>
+              <button type="button" className="chip chip-sql" onClick={() => sugerirComando('EXPLAIN SELECT p.id, pg.valor FROM pedidos p JOIN pagamentos pg ON p.id = pg.pedido_id')}>EXPLAIN JOIN</button>
+              <button type="button" className="chip chip-sql" onClick={() => sugerirComando('SELECT id, total FROM pedidos WHERE status = \'processado\' LIMIT 10')}>pedidos processados</button>
             </div>
           )}
-          <div className="chips-row" style={{ padding: '0 0.85rem' }} aria-label="Comandos sugeridos">
+          <div className="chips-row" style={{ padding: '0 0.85rem' }} role="toolbar" aria-label="Comandos sugeridos">
             {sessao.estacao.comandosSuportados.map((cmd) => (
               <button
                 key={cmd}
                 type="button"
                 className="chip"
-                onClick={() => setComando(cmd === 'nslookup' || cmd === 'ping' ? `${cmd} fileserver.aurora.local` : cmd)}
+                onClick={() => sugerirComando(cmd === 'nslookup' || cmd === 'ping' ? `${cmd} fileserver.aurora.local` : cmd)}
               >
                 {cmd}
               </button>
@@ -360,6 +371,7 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
             }}
           >
             <input
+              ref={comandoInputRef}
               aria-label="Comando do terminal"
               placeholder={isSreCenario ? 'Ex: kubectl get pods, kubectl logs...' : isSqlCenario ? 'Ex: SELECT * FROM pedidos LIMIT 10' : 'Ex: whoami /groups, nslookup...'}
               value={comando}
@@ -385,6 +397,7 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
             <button
               type="button"
               disabled={ocupado || !elevado}
+              aria-describedby={!elevado ? 'simudesk-requer-admin' : undefined}
               aria-label="Adicionar maria.souza ao grupo GRP_FINANCEIRO_PASTA"
               onClick={() =>
                 onAcao('estacao.adicionar_usuario_grupo', {
@@ -395,6 +408,7 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
             >
               Adicionar maria.souza em GRP_FINANCEIRO_PASTA
             </button>
+            {Object.values(sessao.estacao.gruposPorUsuario).every((grupos) => grupos.length === 0) && <p className="muted">Nenhum grupo carregado.</p>}
           </div>
 
           <div className="card-section" role="region" aria-label="Servicos da Estacao">
@@ -408,6 +422,7 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
                   <button
                     type="button"
                     disabled={ocupado || !elevado}
+                    aria-describedby={!elevado ? 'simudesk-requer-admin' : undefined}
                     aria-label={`Iniciar servico ${s.nome}`}
                     onClick={() => onAcao('estacao.reiniciar_servico', { servico: s.nome })}
                   >
@@ -416,6 +431,7 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
                 )}
               </div>
             ))}
+            {sessao.estacao.servicos.length === 0 && <p className="muted">Nenhum servico carregado.</p>}
           </div>
 
           <div className="card-section" role="region" aria-label="DNS somente leitura">
@@ -425,6 +441,7 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
                 <code>{d.host}</code> → <strong>{d.ip}</strong>
               </div>
             ))}
+            {Object.keys(sessao.estacao.dnsServidor).length === 0 && <p className="muted">Nenhum registro DNS carregado.</p>}
           </div>
 
           <div className="card-section" role="region" aria-label="Logs da estacao">
@@ -436,6 +453,7 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
                 </li>
               ))}
             </ul>
+            {sessao.estacao.logs.length === 0 && <p className="muted">Nenhum log carregado. Use 'Ler Logs da Estacao' no Terminal.</p>}
           </div>
         </div>
       )}
