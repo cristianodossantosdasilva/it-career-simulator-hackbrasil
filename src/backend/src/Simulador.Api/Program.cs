@@ -347,6 +347,8 @@ app.MapPost("/api/carreira/resumo", async (
     var concluiuN1 = false;
     var concluiuN2 = false;
     var concluiuN3 = false;
+    var concluiuN4 = false;
+    var concluiuN4b = false;
 
     foreach (var id in ids)
     {
@@ -373,6 +375,10 @@ app.MapPost("/api/carreira/resumo", async (
             concluiuN2 = true;
         if (meta.CenarioId == "incidente-massivo" && av.Concluida)
             concluiuN3 = true;
+        if (meta.CenarioId == "sre-cloud-latencia" && av.Concluida && !av.IncidenteSeguranca && av.Criterios.All(c => c.Atendido))
+            concluiuN4 = true;
+        if (meta.CenarioId == "diagnostico-sql-readonly" && av.Concluida && !av.IncidenteSeguranca && av.Criterios.All(c => c.Atendido))
+            concluiuN4b = true;
 
         sessoesConfirmadas.Add(new
         {
@@ -407,7 +413,7 @@ app.MapPost("/api/carreira/resumo", async (
         apelido = string.IsNullOrWhiteSpace(body?.Apelido) ? null : body.Apelido.Trim(),
         cargoAtual,
         xpTotal,
-        promocoes = new { nivel1Concluido = concluiuN1, nivel2Concluido = concluiuN2, nivel3Concluido = concluiuN3 },
+        promocoes = new { nivel1Concluido = concluiuN1, nivel2Concluido = concluiuN2, nivel3Concluido = concluiuN3, nivel4Concluido = concluiuN4, nivel4bConcluido = concluiuN4b },
         competencias = nucleo.competencias,
         sessoesConfirmadas,
         sessoesNaoConfirmadas,
@@ -415,7 +421,7 @@ app.MapPost("/api/carreira/resumo", async (
         {
             hash,
             algoritmo = "SHA-256/JCS-RFC8785",
-            regraHash = "SHA-256 sobre UTF-8 do JSON canonico JCS (RFC 8785) {cargoAtual, xpTotal, competencias[], sessoesConfirmadas[]} sem apelido e sem hash."
+            regraHash = "SHA-256 sobre UTF-8 do JSON canonico JCS (RFC 8785) {cargoAtual, xpTotal, competencias[], sessoesConfirmadas[]} sem apelido, promocoes/badges e sem hash."
         }
     });
 });

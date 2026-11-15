@@ -1,14 +1,22 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ReplayResponse } from '../api/types'
+import { resolverUriParaId } from '../data/kbCatalogo'
 
 interface Props {
   replay: ReplayResponse | null
   onAtualizar: () => Promise<void>
   ocupado: boolean
+  onNavegaKb?: (artigoId: string, origem: HTMLElement) => void
+  kbRetornoLinkUri?: string | null
 }
 
-export function ReplayView({ replay, onAtualizar, ocupado }: Props) {
+export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetornoLinkUri }: Props) {
   const [indiceSelecionado, setIndiceSelecionado] = useState(0)
+  const kbLinksRef = useRef<Record<string, HTMLButtonElement | null>>({})
+
+  useEffect(() => {
+    if (kbRetornoLinkUri) requestAnimationFrame(() => kbLinksRef.current[kbRetornoLinkUri!]?.focus())
+  }, [kbRetornoLinkUri, replay])
 
   if (!replay) {
     return (
@@ -86,13 +94,18 @@ export function ReplayView({ replay, onAtualizar, ocupado }: Props) {
                 </p>
               )}
               {c.linkKb && (
-                <a
-                  href={c.linkKb.replace('kb://', '/kb/')}
+                <button
+                  type="button"
                   className="crit-kb-link"
                   aria-label={`Link para base de conhecimento: ${c.linkKb}`}
+                  ref={(el) => { kbLinksRef.current[c.linkKb!] = el }}
+                  onClick={(e) => {
+                    const artigoId = resolverUriParaId(c.linkKb!)
+                    if (artigoId) onNavegaKb?.(artigoId, e.currentTarget)
+                  }}
                 >
                   Consultar KB
-                </a>
+                </button>
               )}
             </li>
           ))}

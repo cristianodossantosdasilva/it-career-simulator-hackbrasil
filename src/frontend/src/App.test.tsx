@@ -4,7 +4,9 @@ import axe from 'axe-core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import vetoresJcs from '../../../docs/vetores-jcs-sha256.json'
 import { App } from './App'
+import { IntranetApp } from './apps/IntranetApp/IntranetApp'
 import { canonicalizarJcs, sha256Hex, verificarCurriculoVivoJson } from './utils/jcs'
+import { razaoContraste } from './utils/contraste'
 
 afterEach(() => {
   cleanup()
@@ -13,6 +15,20 @@ afterEach(() => {
 })
 
 describe('IT Flight Simulator UI', () => {
+  it('calcula contraste WCAG e verifica os pares principais da interface', () => {
+    expect(razaoContraste('#000000', '#ffffff')).toBeCloseTo(21, 4)
+    expect(razaoContraste('#94a3b8', '#0d1322')).toBeGreaterThanOrEqual(4.5)
+    expect(razaoContraste('#38bdf8', '#0d1322')).toBeGreaterThanOrEqual(4.5)
+    expect(razaoContraste('#64748b', '#0d1322')).toBeGreaterThanOrEqual(3)
+    expect(razaoContraste('#64748b', '#131c31')).toBeGreaterThanOrEqual(3)
+  })
+  it('Intranet troca o artigo selecionado e move o foco para o novo titulo', async () => {
+    const { rerender } = render(<IntranetApp key="KB-001" artigoSelecionadoId="KB-001" />)
+    await waitFor(() => expect(screen.getByRole('heading', { name: /KB-001.*Politica de Verificacao/i })).toHaveFocus())
+    rerender(<IntranetApp key="KB-002" artigoSelecionadoId="KB-002" />)
+    await waitFor(() => expect(screen.getByRole('heading', { name: /KB-002.*Verificacao de Identidade/i })).toHaveFocus())
+  })
+
   it('renderiza tela inicial com 3 niveis e permite selecionar nivel', () => {
     render(<App />)
     expect(screen.getByRole('heading', { name: /IT Flight Simulator/i })).toBeInTheDocument()
@@ -33,7 +49,7 @@ describe('IT Flight Simulator UI', () => {
           apelido: null,
           cargoAtual: 'Analista Jr (N1)',
           xpTotal: 150,
-          promocoes: { nivel1Concluido: true, nivel2Concluido: false, nivel3Concluido: false },
+          promocoes: { nivel1Concluido: true, nivel2Concluido: false, nivel3Concluido: false, nivel4Concluido: true, nivel4bConcluido: false },
           competencias: ['Triagem & Seguranca'],
           sessoesConfirmadas: [
             {
@@ -61,6 +77,8 @@ describe('IT Flight Simulator UI', () => {
       expect(screen.getByText(/Analista Jr \(N1\)/i)).toBeInTheDocument()
     })
     expect(screen.getByText(/150 XP/i)).toBeInTheDocument()
+    expect(screen.getByText('N4 OK')).toBeInTheDocument()
+    expect(screen.getByText('N4b Pendente')).toBeInTheDocument()
     expect(screen.getByText(/1 sessao\(oes\) marcada\(s\) como nao confirmada/i)).toBeInTheDocument()
     expect(screen.getByText(/deadbeef1234/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Exportar Curriculo Vivo \(JSON\)/i })).toBeInTheDocument()
@@ -98,5 +116,21 @@ describe('IT Flight Simulator UI', () => {
 
     const r3 = await verificarCurriculoVivoJson('{json-invalido')
     expect(r3.status).toBe('nao_verificavel')
+  })
+
+  it('badges e apelido podem mudar sem alterar a verificacao JCS/SHA-256', async () => {
+    const vetor = vetoresJcs.find((v) => v.nome === 'curriculo_nucleo_v1')!
+    const exportado = {
+      ...vetor.entrada,
+      promocoes: { nivel4Concluido: true, nivel4bConcluido: false },
+      apelido: 'Codex',
+      integridade: { hash: vetor.sha256, algoritmo: 'SHA-256/JCS-RFC8785' },
+    }
+    expect((await verificarCurriculoVivoJson(JSON.stringify(exportado))).status).toBe('integro')
+    exportado.promocoes.nivel4Concluido = false
+    exportado.apelido = 'Outra pessoa'
+    expect((await verificarCurriculoVivoJson(JSON.stringify(exportado))).status).toBe('integro')
+    expect(canonicalizarJcs(vetor.entrada)).toBe(vetor.jcs)
+    expect(await sha256Hex(vetor.jcs)).toBe(vetor.sha256)
   })
 })

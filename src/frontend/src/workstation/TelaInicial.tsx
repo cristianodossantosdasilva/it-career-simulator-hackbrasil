@@ -193,6 +193,12 @@ export function TelaInicial({
                 <span className={`badge ${resumoCarreira.promocoes.nivel3Concluido ? 'badge-ok' : ''}`}>
                   N3 {resumoCarreira.promocoes.nivel3Concluido ? 'OK' : 'Pendente'}
                 </span>
+                <span className={`badge ${resumoCarreira.promocoes.nivel4Concluido ? 'badge-ok' : ''}`}>
+                  N4 {resumoCarreira.promocoes.nivel4Concluido ? 'OK' : 'Pendente'}
+                </span>
+                <span className={`badge ${resumoCarreira.promocoes.nivel4bConcluido ? 'badge-ok' : ''}`}>
+                  N4b {resumoCarreira.promocoes.nivel4bConcluido ? 'OK' : 'Pendente'}
+                </span>
               </div>
             </div>
 
@@ -230,7 +236,7 @@ export function TelaInicial({
 
             <p className="muted" style={{ marginTop: '0.5rem', fontSize: '0.8rem', wordBreak: 'break-all' }}>
               Integridade ({resumoCarreira.integridade.algoritmo}): <code>{resumoCarreira.integridade.hash}</code> —{' '}
-              {resumoCarreira.integridade.regraHash} (Nota: valida a integridade do conteudo exportado; nao constitui certificado oficial nem prova autoria.)
+              {resumoCarreira.integridade.regraHash} (Nota: valida a integridade do conteudo exportado; nao prova autoria nem qualificacao profissional.)
             </p>
           </section>
         )}

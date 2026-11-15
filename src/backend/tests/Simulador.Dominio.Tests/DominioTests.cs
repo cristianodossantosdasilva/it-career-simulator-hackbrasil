@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Simulador.Avaliacao;
 using Simulador.Cenarios;
 using Simulador.Dominio;
@@ -14,6 +15,26 @@ public class DominioTests
     {
         var json = JsonSerializer.Serialize(obj);
         return JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json)!;
+    }
+
+    [Fact]
+    public void LinksJuiz360_ResolvemNoCatalogoCompartilhadoComFrontend()
+    {
+        var raiz = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", ".."));
+        var idsBackend = KbCatalogo.UriParaId.Values.OrderBy(x => x).ToArray();
+        Assert.Equal(idsBackend.Length, idsBackend.Distinct().Count());
+        var fonteFrontend = File.ReadAllText(Path.Combine(raiz, "src", "frontend", "src", "data", "kbCatalogo.ts"));
+        var idsFrontend = Regex.Matches(fonteFrontend, @"id:\s*'(KB-\d{3})'").Select(m => m.Groups[1].Value).OrderBy(x => x).ToArray();
+        Assert.Equal(idsBackend, idsFrontend);
+        var catalogoFrontend = Regex.Matches(fonteFrontend, @"id:\s*'(KB-\d{3})',\s*uri:\s*'([^']+)'")
+            .ToDictionary(m => m.Groups[2].Value, m => m.Groups[1].Value);
+        Assert.Equal(KbCatalogo.UriParaId.Count, catalogoFrontend.Count);
+        foreach (var (uri, id) in KbCatalogo.UriParaId)
+            Assert.Equal(id, catalogoFrontend[uri]);
+        var fonteJuiz = File.ReadAllText(Path.Combine(raiz, "src", "backend", "src", "Simulador.Avaliacao", "Juiz360.cs"));
+        var urisEmitidas = Regex.Matches(fonteJuiz, "kb://[a-z0-9/-]+").Select(m => m.Value).Distinct();
+        Assert.NotEmpty(urisEmitidas);
+        Assert.All(urisEmitidas, uri => Assert.Contains(uri, KbCatalogo.UriParaId.Keys));
     }
 
     [Fact]

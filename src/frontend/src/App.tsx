@@ -1,4 +1,4 @@
-import { Component, type ReactNode, useEffect, useState } from 'react'
+import { Component, type ReactNode, useEffect, useRef, useState } from 'react'
 import { apiClient, ConflitoSeqError } from './api/client'
 import type { CarreiraResumoResponse, ReplayResponse, SessaoProjecao } from './api/types'
 import { ChatApp } from './apps/ChatApp/ChatApp'
@@ -128,6 +128,27 @@ function WorkstationInner() {
   const [historicoTerminal, setHistoricoTerminal] = useState<
     { cmd: string; saida: string; priv: string }[]
   >([])
+  const [artigoKbSelecionado, setArtigoKbSelecionado] = useState<string | null>(null)
+  const [kbRetornoLinkUri, setKbRetornoLinkUri] = useState<string | null>(null)
+  const linkKbOrigemRef = useRef<HTMLElement | null>(null)
+
+  function abrirArtigoKb(artigoId: string, origem: HTMLElement) {
+    setKbRetornoLinkUri(origem.getAttribute('aria-label')?.replace('Link para base de conhecimento: ', '') ?? null)
+    linkKbOrigemRef.current = origem
+    setArtigoKbSelecionado(artigoId)
+    setAba('kb')
+  }
+
+  function fecharArtigoKb() {
+    const origem = linkKbOrigemRef.current
+    if (!origem) return
+    setAba('replay')
+    setArtigoKbSelecionado(null)
+    requestAnimationFrame(() => {
+      // ReplayView é remontada ao voltar para a aba e restaura o foco pelo URI estável.
+      linkKbOrigemRef.current = null
+    })
+  }
 
   async function atualizarResumoCarreira(ids?: string[], nome?: string) {
     const lista = ids ?? carregarSessaoIdsSalvas()
@@ -365,8 +386,8 @@ function WorkstationInner() {
               ocupado={ocupado}
             />
           )}
-          {aba === 'kb' && <IntranetApp />}
-          {aba === 'replay' && <ReplayView replay={replay} onAtualizar={carregarReplay} ocupado={ocupado} />}
+          {aba === 'kb' && <IntranetApp key={artigoKbSelecionado ?? 'intranet'} artigoSelecionadoId={artigoKbSelecionado} onArtigoFechado={fecharArtigoKb} />}
+          {aba === 'replay' && <ReplayView replay={replay} onAtualizar={carregarReplay} ocupado={ocupado} onNavegaKb={abrirArtigoKb} kbRetornoLinkUri={kbRetornoLinkUri} />}
         </main>
       </div>
     </div>

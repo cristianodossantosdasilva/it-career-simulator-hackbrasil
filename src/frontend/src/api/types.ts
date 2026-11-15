@@ -146,6 +146,8 @@ export interface CarreiraResumoResponse {
     nivel1Concluido: boolean
     nivel2Concluido: boolean
     nivel3Concluido: boolean
+    nivel4Concluido: boolean
+    nivel4bConcluido: boolean
   }
   competencias: string[]
   sessoesConfirmadas: {

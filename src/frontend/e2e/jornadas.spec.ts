@@ -1,6 +1,28 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
+  test('W10: sem overflow horizontal em 375, 768 e 1280px e início N1 por teclado', async ({ page }) => {
+    for (const width of [375, 768, 1280]) {
+      await page.setViewportSize({ width, height: 900 })
+      await page.goto('/')
+      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+      if (width === 375) {
+        const nivel1 = page.getByRole('button', { name: /Nivel 1 · Estagiario/i })
+        await nivel1.focus()
+        await page.keyboard.press('Enter')
+        const decolar = page.getByRole('button', { name: /Decolar no Simulador/i })
+        await decolar.focus()
+        await page.keyboard.press('Enter')
+        await expect(page.getByRole('heading', { name: /CH-0001/i })).toBeVisible()
+      } else {
+        await page.getByRole('button', { name: /Nivel 1 · Estagiario/i }).click()
+        await page.getByRole('button', { name: /Decolar no Simulador/i }).click()
+        await expect(page.getByRole('heading', { name: /CH-0001/i })).toBeVisible()
+      }
+      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    }
+  })
+
   test('Feliz 1: Nivel 1 (Engenharia Social) conclui fluxo e atinge 60 XP', async ({ page }) => {
     await page.goto('/')
     await page.getByRole('button', { name: /Nivel 1 · Estagiario/i }).click()
@@ -23,6 +45,14 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByRole('button', { name: /Juiz 360º & Replay/i }).click()
     await expect(page.getByText('Concluida', { exact: false })).toBeVisible()
     await expect(page.getByText('XP: 60')).toBeVisible()
+
+    const linkKb = page.getByRole('button', { name: 'Link para base de conhecimento: kb://seguranca/politica-reset-senha' })
+    await linkKb.click()
+    const tituloKb = page.getByRole('heading', { name: /KB-001.*Politica de Verificacao/i })
+    await expect(tituloKb).toBeFocused()
+    await expect(page.getByRole('region', { name: 'Intranet e Base de Conhecimento' })).toBeVisible()
+    await page.getByRole('button', { name: 'Fechar artigo' }).click()
+    await expect(linkKb).toBeFocused()
   })
 
   test('Feliz 2: Nivel 2 (Demo Rapida C1) conclui atendimento e passa no Verificador Offline', async ({ page }) => {
@@ -221,7 +251,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     const criterioSre = page.getByRole('listitem', { name: /R3:/ })
     await expect(criterioSre.getByLabel('Motivo')).toBeVisible()
     await expect(criterioSre.getByText(/Pratica esperada:/)).toBeVisible()
-    await expect(criterioSre.getByRole('link', { name: /base de conhecimento/i })).toBeVisible()
+    await expect(criterioSre.getByRole('button', { name: /base de conhecimento/i })).toBeVisible()
   })
 
   test('V2: Nivel 4b SQL Read-Only bloqueia escrita/injecao e aprova SELECT limpo', async ({ page }) => {

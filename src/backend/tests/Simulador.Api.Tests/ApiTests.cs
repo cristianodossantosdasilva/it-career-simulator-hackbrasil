@@ -171,6 +171,29 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
     }
 
     [Fact]
+    public async Task CarreiraResumo_ExponeBadgesN4EN4bComoPendentesSemSessoes()
+    {
+        var response = await _client.PostAsJsonAsync("/api/carreira/resumo", new { sessaoIds = Array.Empty<string>(), apelido = "Nome fora do hash" });
+        response.EnsureSuccessStatusCode();
+        var resumo = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var promocoes = resumo.GetProperty("promocoes");
+        Assert.False(promocoes.GetProperty("nivel4Concluido").GetBoolean());
+        Assert.False(promocoes.GetProperty("nivel4bConcluido").GetBoolean());
+        Assert.Equal("Nome fora do hash", resumo.GetProperty("apelido").GetString());
+        var nucleo = new
+        {
+            cargoAtual = resumo.GetProperty("cargoAtual").GetString(),
+            xpTotal = resumo.GetProperty("xpTotal").GetInt32(),
+            competencias = resumo.GetProperty("competencias").EnumerateArray().Select(x => x.GetString()).ToArray(),
+            sessoesConfirmadas = resumo.GetProperty("sessoesConfirmadas").Clone()
+        };
+        var jcs = Simulador.Avaliacao.JcsCanonico.Serializar(nucleo);
+        var hashEsperado = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(jcs)));
+        Assert.Equal(hashEsperado, resumo.GetProperty("integridade").GetProperty("hash").GetString());
+        Assert.Contains("sem apelido, promocoes/badges", resumo.GetProperty("integridade").GetProperty("regraHash").GetString());
+    }
+
+    [Fact]
     public void NormalizarConnectionString_ConverteUriNeonParaNpgsql()
     {
         var npgsql = Simulador.Infra.PostgresEventStore.NormalizarConnectionString(

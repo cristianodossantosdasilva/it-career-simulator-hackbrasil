@@ -8,8 +8,8 @@
   --bg-surface: #0d1322;
   --bg-elevated: #131c31;
   --bg-hover: #1a2540;
-  --border: #1e293b;
-  --border-bright: #334155;
+  --border: #64748b;
+  --border-bright: #94a3b8;
   --accent: #38bdf8;
   --accent-strong: #0284c7;
   --success: #10b981;
@@ -252,3 +252,30 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 .query-suggestions code { white-space: pre-wrap; word-break: break-word; }
 
 .kv-row { display: flex; gap: 0.5rem; padding: 0.25rem 0; font-size: 0.88rem; }
+
+/* Layouts fluidos para a workstation em telas pequenas e médias. */
+html, body, #root { width: 100%; min-width: 0; }
+body { overflow-x: hidden; }
+button, input, select, textarea { max-width: 100%; min-width: 0; }
+.workstation, .cockpit-body, .workspace-main, .panel, .card-section { min-width: 0; }
+.workspace-main { overflow-x: hidden; }
+.topbar, .mission-strip { flex-wrap: wrap; }
+.app-dock { min-width: 0; }
+.dock-btn { min-width: 0; }
+.kb-list, .kb-article, .crit-header, .pool-stats { min-width: 0; overflow-wrap: anywhere; }
+.terminal-output, .query-suggestions li { max-width: 100%; }
+@media (max-width: 640px) {
+  .topbar, .mission-strip { padding-inline: 0.75rem; }
+  .brand { flex-wrap: wrap; }
+  .topbar-right { flex-wrap: wrap; }
+  .app-dock { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0.5rem; }
+  .dock-btn { padding: 0.55rem; font-size: 0.82rem; }
+  .workspace-main { padding: 0.65rem; }
+  .panel { padding: 0.75rem; }
+  .row-between { align-items: stretch; }
+  .row-between > input { width: 100%; }
+  .form-grid, .panels-grid, .levels-grid { grid-template-columns: minmax(0, 1fr); }
+  .start-screen { padding: 0.5rem; }
+  .start-card { padding: 1rem; }
+  .chat-msg { max-width: 100%; }
+}

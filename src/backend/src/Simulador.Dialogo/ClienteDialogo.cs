@@ -111,7 +111,10 @@ public sealed class FallbackRoteirizadoDialogo : IClienteDialogo
             (texto.Contains("acesso") || texto.Contains("pin") || texto.Contains("credencial")) &&
             (texto.Contains("sem validar") || texto.Contains("sem verificar") || texto.Contains("sem triagem"));
         return tentaSobrescreverRegras || tentaExtrairSegredo || tentaContornarIdentidade ||
-            texto.Contains("system prompt") || texto.Contains("prompt do sistema");
+            texto.Contains("system prompt") || texto.Contains("prompt do sistema") ||
+            texto.Contains("atue como administrador") || texto.Contains("esqueca o contexto") ||
+            texto.Contains("esqueça o contexto") || texto.Contains("system override") ||
+            texto.Contains("segredo_sintetico");
     }
 }
 

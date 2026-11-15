@@ -1,33 +1,57 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { KB_CATALOGO, type ArtigoKb } from '../../data/kbCatalogo'
 
-const ARTIGOS = [
-  {
-    id: 'KB-001',
-    titulo: 'Politica de Verificacao de Identidade e Acesso Remoto',
-    conteudo:
-      'Antes de liberar acesso remoto (SimuDesk) ou resetar senhas, confirme Matricula e Ramal do colaborador. Nunca atenda pedidos urgentes sem validacao, mesmo de supostos diretores.',
-  },
-  {
-    id: 'KB-002',
-    titulo: 'Topologia e Acesso a Pasta Financeiro (Aurora Logistica)',
-    conteudo:
-      'Servidor de arquivos: fileserver.aurora.local (IP esperado: 10.10.20.15). Grupo de acesso obrigatorio: GRP_FINANCEIRO_PASTA. Servico critico na estacao: Workstation.',
-  },
-  {
-    id: 'KB-003',
-    titulo: 'Runbook N1: Diagnostico de Pasta de Rede Inacessivel',
-    conteudo:
-      '1) Execute diagnostico antes de alterar a estacao (whoami /groups, nslookup, ping, net start). 2) Se grupo ausente, eleve privilegio e adicione ao grupo. 3) Se DNS apontar IP diferente de 10.10.20.15, escalone para N2. 4) Se servico Workstation parado, inicie o servico com privilegio elevado.',
-  },
-]
+interface Props {
+  artigoSelecionadoId?: string | null
+  onArtigoFechado?: () => void
+}
 
-export function IntranetApp() {
+export function IntranetApp({ artigoSelecionadoId, onArtigoFechado }: Props) {
   const [busca, setBusca] = useState('')
-  const filtrados = ARTIGOS.filter(
+  const [artigoExpandido, setArtigoExpandido] = useState<string | null>(artigoSelecionadoId ?? null)
+  const tituloRefs = useRef<Record<string, HTMLHeadingElement | null>>({})
+  const ultimoFocoRef = useRef<HTMLElement | null>(null)
+
+  const filtrados = KB_CATALOGO.filter(
     (a) =>
       a.titulo.toLowerCase().includes(busca.toLowerCase()) ||
-      a.conteudo.toLowerCase().includes(busca.toLowerCase()),
+      a.conteudo.toLowerCase().includes(busca.toLowerCase()) ||
+      a.categoria.toLowerCase().includes(busca.toLowerCase()) ||
+      a.id.toLowerCase().includes(busca.toLowerCase()),
   )
+
+  useEffect(() => {
+    if (artigoSelecionadoId) {
+      requestAnimationFrame(() => {
+        const el = tituloRefs.current[artigoSelecionadoId]
+        if (el) {
+          el.scrollIntoView?.({ behavior: 'smooth', block: 'center' })
+          el.focus()
+        }
+      })
+    }
+  }, [artigoSelecionadoId])
+
+  function handleFecharArtigo() {
+    setArtigoExpandido(null)
+    onArtigoFechado?.()
+    if (ultimoFocoRef.current) {
+      ultimoFocoRef.current.focus()
+      ultimoFocoRef.current = null
+    }
+  }
+
+  function handleExpandir(artigo: ArtigoKb, evento: React.MouseEvent | React.KeyboardEvent) {
+    ultimoFocoRef.current = evento.currentTarget as HTMLElement
+    setArtigoExpandido(artigo.id)
+    requestAnimationFrame(() => {
+      const el = tituloRefs.current[artigo.id]
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        el.focus()
+      }
+    })
+  }
 
   return (
     <section className="panel" aria-label="Intranet e Base de Conhecimento">
@@ -35,20 +59,60 @@ export function IntranetApp() {
         <h2>Intranet — Base de Conhecimento (Aurora Logistica)</h2>
         <input
           aria-label="Buscar na Base de Conhecimento"
-          placeholder="Buscar procedimento..."
+          placeholder="Buscar procedimento, categoria ou ID..."
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
         />
       </div>
-      <div className="kb-list">
-        {filtrados.map((a) => (
-          <article key={a.id} className="card-section">
-            <h3>
-              {a.id} — {a.titulo}
-            </h3>
-            <p>{a.conteudo}</p>
-          </article>
-        ))}
+      <p className="muted">{filtrados.length} artigo(s) encontrado(s)</p>
+
+      <div className="kb-list" role="list" aria-label="Artigos da Base de Conhecimento">
+        {filtrados.map((a) => {
+          const expandido = artigoExpandido === a.id
+          return (
+            <article
+              key={a.id}
+              className={`card-section kb-article ${expandido ? 'kb-expanded' : ''}`}
+              aria-expanded={expandido}
+            >
+              <h3
+                ref={(el) => {
+                  tituloRefs.current[a.id] = el
+                }}
+                tabIndex={-1}
+                id={`kb-titulo-${a.id}`}
+              >
+                <button
+                  type="button"
+                  className="kb-titulo-btn"
+                  aria-expanded={expandido}
+                  aria-controls={`kb-conteudo-${a.id}`}
+                  onClick={(e) => { if (expandido) handleFecharArtigo(); else handleExpandir(a, e) }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      if (expandido) handleFecharArtigo()
+                      else handleExpandir(a, e)
+                    }
+                  }}
+                >
+                  <span className="kb-id">{a.id}</span>
+                  <span className="kb-titulo-text">{a.titulo}</span>
+                  <span className="kb-categoria badge">{a.categoria}</span>
+                  <span className="kb-nivel badge badge-info">{a.nivel.join(', ')}</span>
+                </button>
+              </h3>
+              {expandido && (
+                <div id={`kb-conteudo-${a.id}`} className="kb-conteudo" role="region" aria-labelledby={`kb-titulo-${a.id}`}>
+                  <p>{a.conteudo}</p>
+                  <button type="button" className="chip" onClick={handleFecharArtigo}>
+                    Fechar artigo
+                  </button>
+                </div>
+              )}
+            </article>
+          )
+        })}
       </div>
     </section>
   )
