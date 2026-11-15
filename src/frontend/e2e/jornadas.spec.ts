@@ -43,7 +43,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByRole('button', { name: 'Resolver Chamado' }).click()
 
     await page.getByRole('button', { name: /Juiz 360º & Replay/i }).click()
-    await expect(page.getByText('Concluida', { exact: false })).toBeVisible()
+    await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
     await expect(page.getByText('XP: 60')).toBeVisible()
 
     const linkKb = page.getByRole('button', { name: 'Link para base de conhecimento: kb://seguranca/politica-reset-senha' })
@@ -90,7 +90,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByRole('button', { name: 'Resolver Chamado' }).click()
 
     await page.getByRole('button', { name: /Juiz 360º & Replay/i }).click()
-    await expect(page.getByText('Concluida', { exact: false })).toBeVisible()
+    await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
 
     // Volta para Tela Inicial e valida Curriculo Vivo gerado
     await page.getByRole('button', { name: 'Trocar Nivel' }).click()
@@ -109,6 +109,38 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByRole('button', { name: 'Verificar Curriculo Vivo' }).click()
     await page.getByLabel(/Cole o JSON do Curriculo Vivo/i).fill(jsonText)
     await expect(page.getByRole('status')).toContainText('INTEGRO:')
+  })
+
+  test('Feliz 2b: Nivel 2 (semente 48, C3 servico parado) conclui e recebe 60 XP', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('radio', { name: /Nivel 2 · Analista Jr/i }).click()
+    await page.getByLabel(/Semente/i).fill('48')
+    await page.getByRole('button', { name: /Decolar no Simulador/i }).click()
+
+    await page.getByRole('button', { name: 'Assumir Chamado' }).click()
+    await page.getByRole('button', { name: 'Salvar Classificacao' }).click()
+    await page.getByRole('button', { name: /Comunicador IA/i }).click()
+    await page.getByLabel(/Matr[ií]cula/i).fill('AUR-1042')
+    await page.getByLabel(/Ramal/i).fill('2042')
+    await page.getByRole('button', { name: /Validar Identidade/i }).click()
+    await expect(page.getByText('Identidade Verificada!')).toBeVisible()
+
+    await page.getByRole('button', { name: /SimuDesk Remoto/i }).click()
+    await page.getByRole('button', { name: 'Preencher e Conectar' }).click()
+    await page.getByLabel('Comando do terminal').fill('net start')
+    await page.getByRole('button', { name: 'Executar' }).click()
+    await expect(page.getByText(/Workstation.*Stopped/i)).toBeVisible()
+    await page.getByRole('button', { name: 'Elevar Privilegio' }).click()
+    await page.getByLabel('Comando do terminal').fill('net start Workstation')
+    await page.getByRole('button', { name: 'Executar' }).click()
+    await expect(page.getByText(/Workstation.*Running/i)).toBeVisible()
+
+    await page.getByRole('button', { name: /ITSM \/ Chamados/i }).click()
+    await page.getByLabel('Nota publica de resolucao').fill('Servico Workstation iniciado apos diagnostico.')
+    await page.getByRole('button', { name: 'Resolver Chamado' }).click()
+    await page.getByRole('button', { name: /Juiz 360º & Replay/i }).click()
+    await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
+    await expect(page.getByText('XP: 60')).toBeVisible()
   })
 
   test('Feliz 3: Nivel 3 (Incidente Massivo) cria Problema, restaura AuroraGateway e resolve em lote', async ({ page }) => {
@@ -147,7 +179,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByRole('button', { name: 'Resolver Todos em Lote' }).click()
 
     await page.getByRole('button', { name: /Juiz 360º & Replay/i }).click()
-    await expect(page.getByText('Concluida', { exact: false })).toBeVisible()
+    await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
   })
 
   test('Negativa 1: Prompt injection nao libera SimuDesk e /replay oculta causa antes da conclusao', async ({ page }) => {
@@ -250,7 +282,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByRole('button', { name: 'Resolver Chamado' }).click()
 
     await page.getByRole('button', { name: /Juiz 360º & Replay/i }).click()
-    await expect(page.getByText('Concluida', { exact: false })).toBeVisible()
+    await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
     await expect(page.getByText('XP: 100')).toBeVisible()
     const criterioSre = page.getByRole('listitem').filter({ hasText: /R3\s*—/ })
     await expect(criterioSre.getByLabel('Motivo')).toBeVisible()

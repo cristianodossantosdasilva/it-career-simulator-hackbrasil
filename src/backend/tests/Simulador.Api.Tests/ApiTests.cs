@@ -2,6 +2,12 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Simulador.Cenarios;
+using Simulador.Dominio;
+using Simulador.Infra;
 
 namespace Simulador.Api.Tests;
 
@@ -19,6 +25,69 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
     {
         var resp = await _client.GetAsync("/health/live");
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
+    }
+
+    [Fact]
+    public async Task SessaoExpirada_Retorna410SemPostgres()
+    {
+        var store = new InMemoryEventStore();
+        var id = Guid.NewGuid();
+        var catalogo = new CatalogoCenarios();
+        var cenario = catalogo.Obter("pasta-rede-inacessivel", "v1.1", "C1", 1);
+        var inicio = Motor.Iniciar(cenario, 1);
+        await store.CriarSessaoAsync(new RegistroSessao(id, 1, cenario.CenarioId, cenario.Causa,
+            cenario.Nivel, cenario.VersaoManifesto, DateTimeOffset.UtcNow.AddDays(-31), DateTimeOffset.UtcNow.AddDays(-1)), inicio.Eventos);
+
+        using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder.ConfigureServices(services =>
+        {
+            services.RemoveAll<IEventStore>();
+            services.AddSingleton<IEventStore>(store);
+        }));
+        using var client = factory.CreateClient();
+        using var response = await client.GetAsync($"/api/sessoes/{id}");
+
+        Assert.Equal(HttpStatusCode.Gone, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("sessao_expirada", problem.GetProperty("type").GetString());
+    }
+
+    [Fact]
+    public async Task CarreiraResumo_IgnoraXpIncompletoEDeduplicaCenarioConcluido()
+    {
+        async Task<(string Id, int Xp)> ConcluirC1()
+        {
+            var create = await _client.PostAsJsonAsync("/api/sessoes", new { cenarioId = "pasta-rede-inacessivel", versaoManifesto = "v1.1", causaForcada = "C1", semente = 42L });
+            var created = await create.Content.ReadFromJsonAsync<JsonElement>();
+            var id = created.GetProperty("sessaoId").GetString()!;
+            var seq = created.GetProperty("ultimoSeq").GetInt32();
+            async Task Acao(string tipo, object? dados = null)
+            {
+                var r = await _client.PostAsJsonAsync($"/api/sessoes/{id}/acoes", new { tipo, dados, seqEsperado = seq });
+                Assert.Equal(HttpStatusCode.OK, r.StatusCode);
+                seq = (await r.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("projecao").GetProperty("ultimoSeq").GetInt32();
+            }
+            await Acao("itsm.assumir_chamado", new { chamadoId = "CH-0001" });
+            await Acao("itsm.classificar_chamado", new { chamadoId = "CH-0001", categoria = "Acesso", urgencia = "Alta", impacto = "Medio" });
+            await Acao("estacao.executar_comando", new { comando = "whoami /groups" });
+            await Acao("estacao.elevar_privilegio");
+            await Acao("estacao.adicionar_usuario_grupo", new { usuario = "maria.souza", grupo = "GRP_FINANCEIRO_PASTA" });
+            await Acao("itsm.resolver_chamado", new { chamadoId = "CH-0001", notaPublica = "Acesso restabelecido." });
+            var replay = await _client.GetFromJsonAsync<JsonElement>($"/api/sessoes/{id}/replay");
+            return (id, replay.GetProperty("avaliacao").GetProperty("xpTotal").GetInt32());
+        }
+
+        var incompleta = await _client.PostAsJsonAsync("/api/sessoes", new { cenarioId = "pasta-rede-inacessivel", versaoManifesto = "v1.1", causaForcada = "C1", semente = 42L });
+        var incompletaId = (await incompleta.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("sessaoId").GetString()!;
+        var antes = await _client.PostAsJsonAsync("/api/carreira/resumo", new { sessaoIds = new[] { incompletaId } });
+        Assert.Equal(0, (await antes.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("xpTotal").GetInt32());
+
+        var primeira = await ConcluirC1();
+        var segunda = await ConcluirC1();
+        var resumo = await _client.PostAsJsonAsync("/api/carreira/resumo", new { sessaoIds = new[] { incompletaId, primeira.Id, segunda.Id } });
+        var body = await resumo.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(primeira.Xp, body.GetProperty("xpTotal").GetInt32());
+        Assert.False(body.GetProperty("sessoesConfirmadas")[0].GetProperty("concluida").GetBoolean());
+        Assert.Equal(3, body.GetProperty("sessoesConfirmadas").GetArrayLength());
     }
 
     [Fact]
