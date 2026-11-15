@@ -46,7 +46,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
     await expect(page.getByText('XP: 60')).toBeVisible()
 
-    const linkKb = page.getByRole('button', { name: 'Link para base de conhecimento: kb://seguranca/politica-reset-senha' })
+    const linkKb = page.getByRole('button', { name: /^Consultar KB.*politica-reset-senha/i })
     await linkKb.click()
     const tituloKb = page.getByRole('heading', { name: /KB-001.*Politica de Verificacao/i })
     await expect(tituloKb).toBeFocused()
@@ -287,7 +287,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     const criterioSre = page.getByRole('listitem').filter({ hasText: /R3\s*—/ })
     await expect(criterioSre.getByLabel('Motivo')).toBeVisible()
     await expect(criterioSre.getByText(/Pratica esperada:/)).toBeVisible()
-    await expect(criterioSre.getByRole('button', { name: /base de conhecimento/i })).toBeVisible()
+    await expect(criterioSre.getByRole('button', { name: /^Consultar KB/i })).toBeVisible()
   })
 
   test('V2: Nivel 4b SQL Read-Only bloqueia escrita/injecao e aprova SELECT limpo', async ({ page }) => {

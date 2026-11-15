@@ -52,6 +52,38 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
     }
 
     [Fact]
+    public async Task Semente48_SorteiaC3SemPostgres_EOcultaCausaNoReplayEmAndamento()
+    {
+        const long semente = 48;
+        var catalogo = new CatalogoCenarios();
+        var cenario = catalogo.Obter("pasta-rede-inacessivel", "v1.1", null, semente);
+        Assert.Equal("C3", cenario.Causa);
+
+        var store = new InMemoryEventStore();
+        using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder.ConfigureServices(services =>
+        {
+            services.RemoveAll<IEventStore>();
+            services.AddSingleton<IEventStore>(store);
+        }));
+        using var client = factory.CreateClient();
+
+        var criada = await client.PostAsJsonAsync("/api/sessoes", new
+        {
+            cenarioId = "pasta-rede-inacessivel",
+            versaoManifesto = "v1.1",
+            semente
+        });
+        Assert.Equal(HttpStatusCode.Created, criada.StatusCode);
+        var sessaoId = (await criada.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("sessaoId").GetString()!;
+
+        var replayResp = await client.GetAsync($"/api/sessoes/{sessaoId}/replay");
+        Assert.Equal(HttpStatusCode.OK, replayResp.StatusCode);
+        var replay = await replayResp.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(JsonValueKind.Null, replay.GetProperty("meta").GetProperty("causa").ValueKind);
+        Assert.False(replay.GetProperty("eventos")[0].GetProperty("payload").TryGetProperty("causa", out _));
+    }
+
+    [Fact]
     public async Task CarreiraResumo_IgnoraXpIncompletoEDeduplicaCenarioConcluido()
     {
         async Task<(string Id, int Xp)> ConcluirC1()

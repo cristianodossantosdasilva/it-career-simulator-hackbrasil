@@ -59,4 +59,18 @@ describe('SimuDeskApp W18', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Paineis Admin' }))
     expect((await axe.run(second.container)).violations).toEqual([])
   })
+
+  it.each([
+    ['N4', 'sre-cloud-latencia', ['Painel de Cluster Kubernetes', 'Pool PgBouncer', 'Ingress TLS', 'Acoes de mitigacao SRE'], 'Comandos de diagnostico SRE'],
+    ['N4b', 'diagnostico-sql-readonly', ['Modo somente leitura', 'Schema do Dataset Sintetico', 'Consultas sugeridas'], 'Consultas SQL somente leitura'],
+  ])('não tem violações axe-core no cenário %s (%s) com painéis montados', async (_nivel, cenarioId, regioes, toolbar) => {
+    const sessaoCenario = { ...sessao, meta: { ...sessao.meta, cenarioId } } as SessaoProjecao
+    const { container } = render(<SimuDeskApp {...baseProps} sessao={sessaoCenario} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Preencher e Conectar' }))
+    expect(screen.getByRole('toolbar', { name: toolbar })).toBeInTheDocument()
+    expect((await axe.run(container)).violations).toEqual([])
+    fireEvent.click(screen.getByRole('button', { name: 'Paineis Admin' }))
+    for (const nome of regioes) expect(screen.getByRole('region', { name: nome })).toBeInTheDocument()
+    expect((await axe.run(container)).violations).toEqual([])
+  })
 })

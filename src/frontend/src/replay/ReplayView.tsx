@@ -103,7 +103,8 @@ export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetorno
                 <button
                   type="button"
                   className="crit-kb-link"
-                  aria-label={`Link para base de conhecimento: ${c.linkKb}`}
+                  aria-label={`Consultar KB: ${c.linkKb}`}
+                  data-kb-uri={c.linkKb}
                   ref={(el) => { kbLinksRef.current[c.linkKb!] = el }}
                   onClick={(e) => {
                     const artigoId = resolverUriParaId(c.linkKb!)
@@ -162,7 +163,7 @@ export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetorno
           </div>
         )}
 
-        <ul className="timeline-list">
+        <ul className="timeline-list" aria-label="Eventos da linha do tempo">
           {replay.eventos.map((e, idx) => (
             <li key={e.seq}>
               <button

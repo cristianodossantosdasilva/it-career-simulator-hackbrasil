@@ -54,4 +54,39 @@ describe('ReplayView W18', () => {
     const { container } = render(<ReplayView replay={replayBase} onAtualizar={atualizar} ocupado={false} />)
     expect((await axe.run(container)).violations).toEqual([])
   })
+
+  it('expõe a lista da timeline nomeada e o botão KB com nome iniciando por "Consultar KB" (WCAG 2.5.3)', () => {
+    const comKb: ReplayResponse = {
+      ...replayBase,
+      avaliacao: { ...replayBase.avaliacao, criterios: [{ ...replayBase.avaliacao.criterios[0], linkKb: 'kb://seguranca/politica-reset-senha' }] },
+    }
+    const onNavegaKb = vi.fn()
+    render(<ReplayView replay={comKb} onAtualizar={atualizar} ocupado={false} onNavegaKb={onNavegaKb} />)
+    expect(screen.getByRole('list', { name: 'Eventos da linha do tempo' })).toBeInTheDocument()
+    const kb = screen.getByRole('button', { name: /^Consultar KB/ })
+    expect(kb).toHaveAttribute('data-kb-uri', 'kb://seguranca/politica-reset-senha')
+    fireEvent.click(kb)
+    expect(onNavegaKb).toHaveBeenCalledWith(expect.any(String), kb)
+  })
+
+  it('não tem violações axe nos estados null, incidente e currículo', async () => {
+    const vazio = render(<ReplayView replay={null} onAtualizar={atualizar} ocupado={false} />)
+    expect((await axe.run(vazio.container)).violations).toEqual([])
+    vazio.unmount()
+    const incidente = render(
+      <ReplayView replay={{ ...replayBase, avaliacao: { ...replayBase.avaliacao, incidenteSeguranca: true } }} onAtualizar={atualizar} ocupado={false} />,
+    )
+    expect(screen.getByRole('alert')).toHaveTextContent('Incidente de seguranca')
+    expect((await axe.run(incidente.container)).violations).toEqual([])
+    incidente.unmount()
+    const curriculo = render(
+      <ReplayView
+        replay={{ ...replayBase, curriculo: { competencias: ['Seguranca', 'ITSM'], algoritmo: 'SHA-256', hash: 'abc123', versaoManifesto: '1' } }}
+        onAtualizar={atualizar}
+        ocupado={false}
+      />,
+    )
+    expect(screen.getByRole('heading', { name: /Curriculo Vivo/ })).toBeInTheDocument()
+    expect((await axe.run(curriculo.container)).violations).toEqual([])
+  })
 })

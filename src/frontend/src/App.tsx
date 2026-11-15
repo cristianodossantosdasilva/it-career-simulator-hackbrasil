@@ -133,7 +133,9 @@ function WorkstationInner() {
   const linkKbOrigemRef = useRef<HTMLElement | null>(null)
 
   function abrirArtigoKb(artigoId: string, origem: HTMLElement) {
-    setKbRetornoLinkUri(origem.getAttribute('aria-label')?.replace('Link para base de conhecimento: ', '') ?? null)
+    setKbRetornoLinkUri(
+      origem.getAttribute('data-kb-uri') ?? origem.getAttribute('aria-label')?.replace(/^Consultar KB: /, '') ?? null,
+    )
     linkKbOrigemRef.current = origem
     setArtigoKbSelecionado(artigoId)
     setAba('kb')
