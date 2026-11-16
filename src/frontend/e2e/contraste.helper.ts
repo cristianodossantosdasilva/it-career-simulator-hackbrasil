@@ -478,7 +478,20 @@ async function instalarAuxiliares(page: Page) {
       let totalAlvos = 0
       for (const el of Array.from(document.querySelectorAll('button, a[href], input:not([type=hidden]), select, textarea, summary, [role=tab]'))) {
         if (!ct.visivel(el) || (el as any).disabled) continue
-        const r = el.getBoundingClientRect()
+        let r = el.getBoundingClientRect()
+        // Link Pular: fica fora da tela ate receber foco, entao o alvo real e o do estado focado.
+        if (el.matches('a.skip') && r.right < 0) {
+          const anterior = document.activeElement as HTMLElement | null
+          ;(el as HTMLElement).focus()
+          r = el.getBoundingClientRect()
+          ;(el as HTMLElement).blur()
+          if (anterior && anterior !== document.body) anterior.focus()
+        }
+        // input de arquivo oculto de forma acessivel: o alvo de toque e o rotulo visivel associado.
+        if (el instanceof HTMLInputElement && el.type === 'file') {
+          const rotulos = Array.from(el.labels || [])
+          if (rotulos.length > 0 && rotulos.some(l => ct.visivel(l) && l.getBoundingClientRect().width >= 44 && l.getBoundingClientRect().height >= 44)) continue
+        }
         if (r.width < 44 || r.height < 44) {
           totalAlvos += 1
           if (alvos.length < 12) alvos.push(ct.desc(el) + ' ' + Math.round(r.width) + 'x' + Math.round(r.height))

@@ -23,7 +23,8 @@ Observação sobre a decisão 1 a 5: o usuário respondeu "aprovado" ao plano fi
 | E4 | sim2-implementador | concluída (commit local, sem push) | ver Registro, E4 |
 | E5 | sim2-implementador | concluída (2 commits locais, sem push) | ver Registro, E5 |
 | E6 | sim2-implementador | concluída (2 commits locais, sem push) | ver Registro, E6 |
-| E7 | sim2-validador | pendente | |
+| E6b | sim2-implementador | concluída (1 commit local, sem push) | ver Registro, E6b |
+| E7 | sim2-validador | reprovada na primeira rodada (2 alvos de 44 px pré-existentes; sem regressão; correção em E6b) | ver Registro, E7 |
 | E8 | sim2-fechamento | pendente | |
 
 ## Registro
@@ -176,3 +177,35 @@ Aulas (desktop-1440__corporate__aulas.png e desktop-1440__tactical__aulas.png) e
 - Desvios: (1) index.css não tinha lista fechada e foi o arquivo de estilo único das correções. (2) O token --font-size-xs sobe para 12 px em vez de trocar cada regra por --font-size-sm: menor mudança e atende o mínimo; os textos xs ficam 1 px maiores em todas as telas. (3) .btn-sm sobe de 40 para 44 px em toda a aplicação (Missões, Aulas, Caderno, Credencial, Replay), mudança visível de densidade. (4) Uma falha pela mesma causa não ocorreu; erros de comando (cd relativo, ReadAllText sem caminho absoluto) foram do shell e não repetidos.
 - Pendências (E6b e registro): (a) inspeção visual dos PNG de depois; (b) Chat, KB, Replay tactical, Missões e SimuDesk tactical só tiveram medição de DOM e spec de contraste, sem PNG aberto; (c) textos sem acento vindos do backend (Nível Estagiario no topo do laboratório e critérios do Juiz 360), fora de escopo; (d) caixa nativa do checkbox do Caderno segue com 20 px (área de toque pelo rótulo); (e) 768 e 1280 px não rodados nesta etapa (E7); (f) botão desabilitado Conectar na estação fica claro por ser desabilitado, isento pela WCAG; (g) zoom em 200 por cento e leitor de tela reais, não bloqueantes, na E7.
 - Próxima ação: E7 (revalidação completa e comparação com a linha de base), partindo do segundo commit local da E6.
+
+### E7, revalidação (2026-11-16)
+
+- Arquivos: docs/auditoria-ui-ux/ciclo2/11_RELATORIO_VALIDACAO.md (novo) e esta linha. Nenhum arquivo de código alterado. Sem commit.
+- Verificações: branch ux-ciclo-2 em 7f1cba1; portas 8080 e 5173 livres antes da rodada. npm.cmd run lint: 0 avisos, 0 erros. npm.cmd test -- --run: 109 de 109 em 13 arquivos. npm.cmd run build: ok, verificação de segredos ok. dotnet build src/backend/src/Simulador.Api: 0 avisos, 0 erros. npx.cmd playwright test, uma rodada nos 5 projetos: 43 de 43 (chromium 11, mobile-375 8, tablet-768 8, desktop-1280 8, desktop-1440 8); contraste medido em 120 de 120 células; 0 entradas com limiar falho nos JSON. Varreduras no diff e em ciclo2: caractere E comercial fora de operador lógico 0, formas passadas de sair 0, emojis 0, style={{ 0.
+- Regressões frente à linha de base: nenhuma. Texto, container, divisor, controle, foco e hover caíram a zero nos 4 viewports (tablet-768 e desktop-1280 incluídos). Aprovações do axe: 6 a 7 nós a menos por viewport, sem violação; provável causa: mudança de conteúdo das telas nas E2 a E4 e E6.
+- Achados: (1) button.botao-contexto com 31 px de largura em 768 px (index.css:553, dentro do bloco de largura até 767,98 px; pré-existente, já na baseline); (2) a.skip com 20 px de altura ao receber foco (index.css:217; pré-existente). (3) Checkbox do Caderno 20 por 20 px dentro de rótulo de 44 px: exceção da E6, aguarda aceite do usuário. (4) input de arquivo 1 por 44 px: artefato de medição.
+- Veredito: reprovado pelo limiar de alvos de 44 px (itens 1 e 2). Sem regressão.
+- Pendências: zoom em 200 por cento e leitor de tela, não bloqueantes; inspeção visual dos PNG de depois da E6 (nenhum PNG aberto nesta etapa). Os 80 PNG estão em src/frontend/test-results/visual.
+- Próxima ação: E6b, com os itens 1 e 2 em src/frontend/src/index.css e a decisão sobre o item 3. Depois repetir a E7 inteira. Só então a E8.
+
+### E6b, correção dos achados da E7 (2026-11-16)
+
+- Arquivos: src/frontend/src/index.css; src/frontend/src/tokensContraste.test.ts (2 asserções novas); src/frontend/e2e/contraste.helper.ts (medição de alvos); este registro e docs/auditoria-ui-ux/ciclo2/11_RELATORIO_VALIDACAO.md (sem commit até aqui). Nenhum TSX tocado.
+- Mudanças em index.css: (1) `min-width: var(--touch-target)` de `.botao-contexto` passou do bloco de largura até 767,98 px para a regra base; no bloco ficou só o padding. (2) `.skip:focus` ganhou `display: inline-flex`, `align-items: center` e `min-height: var(--touch-target)`; cores e padding intactos, posição absoluta, sem deslocar o layout. (3) Efeito colateral encontrado e corrigido: a largura mínima de 44 px empurrou a barra de contexto do laboratório a 768 px para 798 px de rolagem (3 botões passaram de 31 para 44 px e a barra só cabia com folga de 9 px). Correção: `.dado-contexto` com padding `var(--space-1)` também até 1023,98 px (mesmo valor que já valia abaixo de 768 px) e `.barra-contexto-acoes` com `flex: 0 0 auto`, para a trilha (título, com overflow oculto) absorver qualquer sobra. A trilha do laboratório a 768 px passou de 72 para 66 px.
+- Medições dos 2 alvos (antes: linha de base e E7; depois: navegador, spec temporária apagada, Tab real para o link Pular):
+
+| Alvo | Antes | Depois |
+|---|---|---|
+| button.botao-contexto, 768 px, laboratório | 31 por 44 px (3 botões) | 44 por 44 px (3 botões); menu Perfil 68 por 44 |
+| button.botao-contexto, 375 px | 44 por 44 (já cumpria) | 44 por 44; Perfil 60 por 44 |
+| button.botao-contexto, 1280 px | 122 a 171 por 44 | 122 a 171 por 44, sem mudança |
+| a.skip com foco real (Tab), 375, 768 e 1280 px, dois temas | 20 de altura medido pela spec | 170 por 44 px, fundo branco e texto preto, left 12 e top 12 |
+| Rolagem horizontal, laboratório, 768 px | nenhuma | nenhuma (scrollWidth 768); 375 px: scrollWidth 375 |
+
+- Correção do diagnóstico da E7: a E7 atribuiu os 146 por 20 px do `a.skip` ao estado com foco. Na verdade a spec media o link fora da tela (left -9999), sem foco, onde o alvo não existe. O CSS com foco já mede 170 por 44 depois da correção, e o helper agora foca o link, mede e restaura o foco anterior (antes desta etapa o foco real nunca era medido).
+- Medição (e2e/contraste.helper.ts, sem afrouxar limiar): (a) `input[type=file]` é ignorado na contagem de alvos quando um rótulo visível associado mede 44 por 44 px ou mais (o input da Credencial é sr-only, 1 por 44, e o rótulo "Selecionar arquivo JSON" é o alvo de toque); sem rótulo ou com rótulo menor, continua contado. (b) O link Pular é medido com foco. Nenhum limiar de texto, container, divisor, controle, foco ou hover foi alterado.
+- Exceção aceita pelo usuário: o checkbox do Caderno (input#td-0 a td-4, 20 por 20 px) fica como está, porque o rótulo ao redor mede 44 px e é a área de toque. A spec continua listando esses 5 checkboxes em alvos_menores_44 (célula Caderno, nos 2 viewports e 2 temas), como informativo. Não é violação para a E7.
+- Verificações: npm.cmd run lint, 0 avisos e 0 erros; npm.cmd test -- --run src/tokensContraste.test.ts src/App.test.tsx src/workstation/EstadoInicial.test.tsx, 54 de 54 verdes; portas 8080 e 5173 livres antes de cada execução; npx.cmd playwright test e2e/contraste.spec.ts nos projetos tablet-768 e mobile-375, 8 de 8 verdes em 1,4 min, 60 células, 0 com rolagem horizontal, 0 com texto abaixo de 12 px, 1390 medições de contorno, foco e hover com 0 falhas e 0 violações do axe; alvos abaixo de 44 px restantes: só os 5 checkboxes do Caderno. A primeira rodada com a correção (1) isolada passou nos 8 testes, mas a spec só registra a rolagem como informativa, e o JSON mostrou 30 px de rolagem a 768 px; por isso a correção (3).  Nenhuma falha se repetiu pela mesma causa. Varredura do caractere E comercial e das formas passadas de sair nas linhas adicionadas: zero.
+- Não rodado, de propósito: suíte completa, Playwright completo, 1280 e 1440 na spec de contraste (a E7 repetida cobre). Medição manual de 1280 px (laboratório e link Pular) feita com a spec temporária: sem rolagem, botões de 122 a 171 por 44.
+- Pendências: aparência: o título do laboratório na barra de contexto a 768 px fica 6 px mais estreito (66 contra 72), com reticências se o texto crescer; revisar na inspeção visual da E7 (PNG de depois da E6 e da E6b ainda não abertos por esta sessão).
+- Próxima ação: repetir a E7 inteira por outro agente (lint, Vitest, build, dotnet build, Playwright nos 5 projetos, comparação com a linha de base), partindo do commit da E6b. Só então a E8.

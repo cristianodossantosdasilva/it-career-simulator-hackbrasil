@@ -175,6 +175,12 @@ describe('regras de index.css que dependem dos tokens', () => {
     expect(regra('.glossary-details summary {')).toMatch(/min-height:\s*var\(--touch-target\)/)
     expect(regra('.todo label {')).toMatch(/min-height:\s*var\(--touch-target\)/)
     expect(regra('code {')).toMatch(/max\(0\.88em,\s*var\(--font-size-xs\)\)/)
+    // Alvo de 44 px em todas as larguras: a largura minima do botao de contexto fica na regra base,
+    // fora de qualquer bloco @media, e o link Pular tem 44 px de altura quando recebe foco.
+    const inicio = css.indexOf('\n.botao-contexto {')
+    expect(inicio).toBeGreaterThan(-1)
+    expect(css.slice(inicio, css.indexOf('}', inicio))).toMatch(/min-width:\s*var\(--touch-target\)/)
+    expect(regra('.skip:focus {')).toMatch(/min-height:\s*var\(--touch-target\)/)
   })
 
   it('bordas de controle usam border-control', () => {
