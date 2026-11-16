@@ -86,6 +86,12 @@ builder.Services.Configure<ForwardedHeadersOptions>(opt =>
     opt.ForwardLimit = 2;
 });
 
+// Limite por IP e por minuto. Padrao 120; o E2E local eleva via RateLimit__PermitLimit,
+// pois toda a suite roda em 127.0.0.1 e compartilha uma unica janela.
+var limitePorMinuto = builder.Configuration.GetValue("RateLimit:PermitLimit", 120);
+if (limitePorMinuto <= 0)
+    limitePorMinuto = 120;
+
 builder.Services.AddRateLimiter(opt =>
 {
     opt.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -96,7 +102,7 @@ builder.Services.AddRateLimiter(opt =>
         var ip = ctx.Connection.RemoteIpAddress?.ToString() ?? "local";
         return RateLimitPartition.GetFixedWindowLimiter(ip, _ => new FixedWindowRateLimiterOptions
         {
-            PermitLimit = 120,
+            PermitLimit = limitePorMinuto,
             Window = TimeSpan.FromMinutes(1),
             QueueLimit = 0
         });

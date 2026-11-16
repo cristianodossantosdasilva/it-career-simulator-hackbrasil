@@ -48,6 +48,9 @@ export default defineConfig({
     {
       command: 'dotnet run --no-build --project ../backend/src/Simulador.Api --urls http://127.0.0.1:8080',
       url: 'http://127.0.0.1:8080/health/live',
+      // Toda a suite usa 127.0.0.1; o limite padrao de 120 req/min por IP gerava HTTP 429 (F5).
+      // Vale so para este servidor de teste. Um backend ja ativo na porta 8080 ignora esta variavel.
+      env: { RateLimit__PermitLimit: '5000' },
       reuseExistingServer: !process.env.CI,
       timeout: 60_000,
     },
