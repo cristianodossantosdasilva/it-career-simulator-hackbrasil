@@ -42,6 +42,7 @@ export function CredencialView({
   onPraticar,
 }: CredencialViewProps) {
   const [jsonVerificar, setJsonVerificar] = useState('')
+  const [nomeArquivo, setNomeArquivo] = useState('')
   const [resultado, setResultado] = useState<ResultadoVerificacaoCurriculo | null>(null)
 
   async function executarVerificacao(conteudo: string) {
@@ -246,16 +247,28 @@ export function CredencialView({
                 />
               </label>
               <div className="verifier-file">
+                {/* O input real continua no fluxo de foco (sr-only). O texto nativo do navegador é
+                    inglês, por isso o botão visível é um label ligado ao input. */}
                 <input
+                  id="verificador-arquivo"
+                  className="verifier-file-entrada sr-only"
                   type="file"
                   accept=".json,application/json"
                   aria-label="Selecionar arquivo JSON do Currículo Vivo"
+                  aria-describedby="verificador-arquivo-nome"
                   onChange={(e) => {
                     const file = e.target.files?.[0]
                     if (!file) return
+                    setNomeArquivo(file.name)
                     void file.text().then((txt) => executarVerificacao(txt))
                   }}
                 />
+                <label htmlFor="verificador-arquivo" className="btn btn-secondary verifier-file-botao">
+                  Selecionar arquivo JSON
+                </label>
+                <span id="verificador-arquivo-nome" className="verifier-file-nome">
+                  {nomeArquivo || 'Nenhum arquivo selecionado'}
+                </span>
               </div>
               {resultado && (
                 <div role="status" className={`verifier-result ${CLASSE_VERIFICACAO[resultado.status]}`}>
