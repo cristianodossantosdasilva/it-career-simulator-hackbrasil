@@ -21,14 +21,60 @@ async function preparar(page: Page, tema: Tema) {
   await expect(page.getByRole('heading', { name: 'IT Flight Simulator', level: 1 })).toBeVisible()
 }
 
+/**
+ * Higiene de captura (ciclo 2, E1): evita artefatos que não pertencem ao produto.
+ * - mouse fora da janela e foco removido, para não deixar hover, tooltip ou anel de foco na imagem;
+ * - reducedMotion já é aplicado em preparar();
+ * - na página longa, elementos fixos viram absolutos (sem repetição no meio da imagem), os sticky
+ *   voltam ao fluxo e os tooltips ficam ocultos. A folha de estilo existe só durante a captura.
+ */
+const CSS_CAPTURA = `
+  [data-captura-fixo] { position: absolute !important; }
+  [data-captura-sticky] { position: static !important; }
+  .nav-item-rotulo, .dica, [role="tooltip"] { display: none !important; }
+`
+
+async function higienizarEntrada(page: Page) {
+  await page.mouse.move(-10, -10)
+  await page.evaluate(() => {
+    const ativo = document.activeElement
+    if (ativo instanceof HTMLElement) ativo.blur()
+    window.scrollTo(0, 0)
+  })
+}
+
+async function neutralizarFixos(page: Page) {
+  await page.evaluate(() => {
+    for (const el of Array.from(document.querySelectorAll('body *'))) {
+      const posicao = getComputedStyle(el).position
+      if (posicao === 'fixed') el.setAttribute('data-captura-fixo', '')
+      else if (posicao === 'sticky') el.setAttribute('data-captura-sticky', '')
+    }
+  })
+  return page.addStyleTag({ content: CSS_CAPTURA })
+}
+
+async function restaurarFixos(page: Page, estilo: Awaited<ReturnType<typeof neutralizarFixos>>) {
+  await estilo.evaluate((no) => no.remove())
+  await page.evaluate(() => {
+    for (const el of Array.from(document.querySelectorAll('[data-captura-fixo], [data-captura-sticky]'))) {
+      el.removeAttribute('data-captura-fixo')
+      el.removeAttribute('data-captura-sticky')
+    }
+  })
+}
+
 async function capturar(page: Page, testInfo: TestInfo, tema: Tema, visao: string) {
   await page.evaluate(() => document.fonts.ready)
   await expect(page.locator('html')).toHaveAttribute('data-theme', tema)
+  await higienizarEntrada(page)
+  const estilo = await neutralizarFixos(page)
   await page.screenshot({
     path: `${PASTA}/${testInfo.project.name}__${tema}__${visao}.png`,
     fullPage: true,
     animations: 'disabled',
   })
+  await restaurarFixos(page, estilo)
   const semRolagemHorizontal = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
   expect.soft(semRolagemHorizontal, `rolagem horizontal em ${visao} (${testInfo.project.name}, ${tema})`).toBe(true)
 }

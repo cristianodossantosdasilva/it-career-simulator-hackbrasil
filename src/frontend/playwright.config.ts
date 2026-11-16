@@ -2,10 +2,11 @@ import { defineConfig, devices } from '@playwright/test'
 
 /**
  * Projetos visuais: percorrem as visões principais em quatro larguras e salvam screenshots em
- * test-results/visual/. Só executam e2e/visual.spec.ts. As jornadas de comportamento
+ * test-results/visual/. Só executam e2e/visual.spec.ts e e2e/contraste.spec.ts (medição, grava JSON em
+ * test-results/contraste/). As jornadas de comportamento
  * (e2e/jornadas.spec.ts) continuam no projeto `chromium`.
  */
-const SPEC_VISUAL = /visual\.spec\.ts$/
+const SPEC_VISUAL = /(visual|contraste)\.spec\.ts$/
 
 export default defineConfig({
   testDir: './e2e',
