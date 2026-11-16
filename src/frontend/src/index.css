@@ -246,8 +246,9 @@ a:focus-visible, [tabindex]:focus-visible {
 .btn-secondary:hover:not(:disabled) { background: var(--bg-hover); border-color: var(--accent-primary); color: var(--text-primary); }
 .btn-ghost { background: transparent; border-color: transparent; color: var(--theory); font-weight: 700; padding: 0 10px; }
 .btn-ghost:hover:not(:disabled) { background: var(--theory-bg); border-color: var(--theory-solid); }
-.btn-white { background: #ffffff; border-color: #ffffff; color: #0f1b2d; font-weight: 800; }
-.btn-white:hover:not(:disabled) { background: #e2e8f0; border-color: #e2e8f0; color: #0f1b2d; }
+/* Botao invertido: texto primario como fundo e canvas como texto, 17.06:1 no corporate e 18:1 no tactical. */
+.btn-white { background: var(--text-primary); border-color: var(--text-primary); color: var(--bg-canvas); font-weight: 800; }
+.btn-white:hover:not(:disabled) { background: var(--bg-hover); border-color: var(--bg-hover); color: var(--text-primary); }
 .btn-sm { min-height: 40px; padding: 0 12px; font-size: 0.88rem; }
 .btn-lg { min-height: 50px; padding: 0 22px; font-size: 1rem; border-radius: 10px; }
 .btn-block { width: 100%; }
@@ -734,8 +735,8 @@ label.f { display: flex; flex-direction: column; gap: 6px; font-weight: 700; fon
 .verifier-textarea { width: 100%; min-height: 92px; font-family: var(--mono); font-size: 0.8rem; padding: 0.6rem; border-radius: 8px; background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border-bright); }
 .verifier-file { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
 .verifier-result { padding: 0.75rem 0.9rem; border-radius: 8px; }
-input[type="file"]::file-selector-button { font: inherit; color: #ffffff; background: #334155; border: 1px solid #1e293b; border-radius: 8px; padding: 0.35rem 0.65rem; margin-right: 0.6rem; cursor: pointer; }
-input[type="file"]::file-selector-button:hover { background: #1e293b; border-color: var(--accent); }
+input[type="file"]::file-selector-button { font: inherit; color: var(--text-primary); background: var(--bg-elevated); border: 1px solid var(--border-control); border-radius: 8px; padding: 0.35rem 0.65rem; margin-right: 0.6rem; cursor: pointer; }
+input[type="file"]::file-selector-button:hover { background: var(--bg-hover); border-color: var(--accent-primary); }
 
 .glossary-details { background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 10px; padding: 0.85rem 1rem; box-shadow: var(--shadow-card); }
 .glossary-details summary { cursor: pointer; font-weight: 700; color: var(--text-primary); min-height: 28px; }
@@ -1062,12 +1063,9 @@ ol.steps-grid { margin-bottom: 0; padding: 0; list-style: none; }
 .json-box { margin: 0.2rem 0 0.7rem; white-space: pre-wrap; color: var(--text-primary); background: var(--bg-surface); padding: 0.6rem; border-radius: 6px; border: 1px solid var(--border); font-size: 0.82rem; }
 .panels-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.75rem; margin-top: 0.75rem; }
 
-.banner-notice { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; background: #e0f2fe; color: #0c4a6e; border: 1px solid #0284c7; border-radius: 8px; padding: 0.6rem 1rem; font-size: 0.9rem; }
-.alert-success { background: #dcfce7; border: 1px solid #15803d; color: #14532d; border-radius: 8px; padding: 0.8rem; }
-.alert-danger { background: #fee2e2; border: 1px solid #b91c1c; color: #7f1d1d; border-radius: 8px; padding: 0.8rem; margin-bottom: 0.75rem; }
-[data-theme='tactical'] .banner-notice { background: rgba(56, 189, 248, 0.16); color: #e0f2fe; border-color: #38bdf8; }
-[data-theme='tactical'] .alert-success { background: rgba(16, 185, 129, 0.16); color: #d1fae5; border-color: #10b981; }
-[data-theme='tactical'] .alert-danger { background: rgba(239, 68, 68, 0.16); color: #fecaca; border-color: #ef4444; }
+.banner-notice { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; background: var(--accent-surface); color: var(--text-primary); border: 1px solid var(--accent-primary); border-radius: 8px; padding: 0.6rem 1rem; font-size: 0.9rem; }
+.alert-success { background: var(--status-success-surface); border: 1px solid var(--status-success); color: var(--text-primary); border-radius: 8px; padding: 0.8rem; }
+.alert-danger { background: var(--status-danger-surface); border: 1px solid var(--status-danger); color: var(--text-primary); border-radius: 8px; padding: 0.8rem; margin-bottom: 0.75rem; }
 
 
 .card-section > .muted:first-of-type { margin-top: 0; }

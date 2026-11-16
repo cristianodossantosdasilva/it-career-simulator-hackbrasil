@@ -16,48 +16,9 @@ afterEach(() => {
 })
 
 describe('IT Flight Simulator UI', () => {
-  it('calcula contraste WCAG e verifica os pares principais da interface', () => {
+  it('calcula a razao de contraste WCAG; os pares dos tokens ficam em tokensContraste.test.ts', () => {
     expect(razaoContraste('#000000', '#ffffff')).toBeCloseTo(21, 4)
-    expect(razaoContraste('#94a3b8', '#0d1322')).toBeGreaterThanOrEqual(4.5)
-    expect(razaoContraste('#38bdf8', '#0d1322')).toBeGreaterThanOrEqual(4.5)
-    expect(razaoContraste('#64748b', '#0d1322')).toBeGreaterThanOrEqual(3)
-    expect(razaoContraste('#64748b', '#131c31')).toBeGreaterThanOrEqual(3)
-    // Tema Claro Educacional (WCAG AA)
-    expect(razaoContraste('#0f172a', '#ffffff')).toBeGreaterThanOrEqual(4.5)
-    expect(razaoContraste('#475569', '#f3f5f8')).toBeGreaterThanOrEqual(4.5)
-    expect(razaoContraste('#0369a1', '#ffffff')).toBeGreaterThanOrEqual(4.5)
-    expect(razaoContraste('#ffffff', '#0f1b2d')).toBeGreaterThanOrEqual(4.5)
-  })
-
-  it('tokens dos temas tactical e corporate atingem WCAG AA nos pares de texto e controle', () => {
-    const temas = {
-      corporate: {
-        superficies: ['#F8FAFC', '#FFFFFF', '#F1F5F9'],
-        textos: ['#0F172A', '#475569', '#5E6E84', '#0B6E8A', '#047857', '#B45309', '#B91C1C'],
-        controles: ['#64748B', '#0B6E8A'],
-      },
-      tactical: {
-        superficies: ['#0B1120', '#0F172A', '#1E293B'],
-        textos: ['#F8FAFC', '#94A3B8', '#8593A8', '#0EA5E9', '#7DD3FC', '#34D399', '#FBBF24', '#F87171'],
-        controles: ['#64748B', '#0EA5E9', '#38BDF8'],
-      },
-    }
-    for (const { superficies, textos, controles } of Object.values(temas)) {
-      for (const fundo of superficies) {
-        for (const texto of textos) expect(razaoContraste(texto, fundo)).toBeGreaterThanOrEqual(4.5)
-        for (const controle of controles) expect(razaoContraste(controle, fundo)).toBeGreaterThanOrEqual(3)
-      }
-    }
-    // Texto sobre acento (botao primario) e sobre a superficie de acento (item ativo)
-    expect(razaoContraste('#FFFFFF', '#0B6E8A')).toBeGreaterThanOrEqual(4.5)
-    expect(razaoContraste('#0B1120', '#0EA5E9')).toBeGreaterThanOrEqual(4.5)
-    expect(razaoContraste('#0B1120', '#38BDF8')).toBeGreaterThanOrEqual(4.5)
-    expect(razaoContraste('#0B6E8A', '#E0F2FE')).toBeGreaterThanOrEqual(4.5)
-    expect(razaoContraste('#7DD3FC', '#0C4A6E')).toBeGreaterThanOrEqual(4.5)
-    // Preenchimentos solidos com texto branco (aliases antigos de botoes)
-    for (const solido of ['#047857', '#B45309', '#B91C1C', '#0B6E8A']) {
-      expect(razaoContraste('#FFFFFF', solido)).toBeGreaterThanOrEqual(4.5)
-    }
+    expect(razaoContraste('#777777', '#777777')).toBeCloseTo(1, 4)
   })
 
   it('shell tem uma unica navegacao principal com 6 destinos sem emoji e alterna o tema persistido', () => {

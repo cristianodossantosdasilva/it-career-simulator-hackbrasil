@@ -21,7 +21,7 @@ Observação sobre a decisão 1 a 5: o usuário respondeu "aprovado" ao plano fi
 | E2 | sim2-implementador | concluída (commit local, sem push) | ver Registro, E2 |
 | E3 | sim2-implementador | concluída (commit local, sem push) | ver Registro, E3 |
 | E4 | sim2-implementador | concluída (commit local, sem push) | ver Registro, E4 |
-| E5 | sim2-implementador | pendente | |
+| E5 | sim2-implementador | concluída (2 commits locais, sem push) | ver Registro, E5 |
 | E6 | sim2-implementador | pendente | |
 | E7 | sim2-validador | pendente | |
 | E8 | sim2-fechamento | pendente | |
@@ -67,3 +67,80 @@ Observação sobre a decisão 1 a 5: o usuário respondeu "aprovado" ao plano fi
 - Observacoes: (1) A barra inferior fixa de 375 px e a barra lateral de 1440 px aparecem no meio ou cortadas nas capturas de pagina inteira, resultado da neutralizacao de elementos fixos da E1; nao e defeito do produto e nao foi tocado. (2) Tab: o jsdom nao simula Tab, entao o teste prova a ordem do DOM sem tabindex positivo; a navegacao real por teclado em navegador nao foi automatizada nesta etapa. (3) Details sem estado persistido reabre a cada visita (risco aceito no plano). (4) 375 px sem rolagem horizontal tambem confirmado pela medicao temporaria (scrollWidth 375 igual a innerWidth).
 - Pendencias: contraste da regra .missao-zero-resumo .muted (text-muted sobre bg-surface) e do .btn-indisponivel no navegador fica para a E5 e a E7; .missao-competencias com 11 px segue para a E6.
 - Proxima acao: E5 (tokens de contorno e texto, cores literais, teste de tokens que leia index.css), partindo do commit local da E4.
+
+### E5, matriz de pares antes de editar (2026-11-16)
+
+Calculada com script temporário em TEMP (node, fórmula WCAG igual a src/utils/contraste.ts), apagado depois. Cada célula mostra atual → novo. Limiares: texto 4,5; controle e foco 3,0; border-strong 2,0 sobre surface e canvas; border-subtle 1,4 no corporate e sem regressão no tactical (1,71 e 1,81). Elevated, hover e accent-surface fora dos limiares de contorno são informativos.
+
+Valores escolhidos (menor deslocamento que cumpre todos os limiares, com folga mínima de 0,05 sobre o piso):
+
+| Tema | Token | Atual | Novo | Por quê |
+|---|---|---|---|---|
+| corporate | border-strong | #CBD5E1 | #A5B2C4 | canvas 2,06 (o candidato #AAB7C8 dá 1,95 e falha; #9AA8BB dá 2,31, mais pesado que o necessário) |
+| corporate | border-subtle | #E2E8F0 | #CBD5E1 | surface 1,48 e canvas 1,42 (piso 1,4); #D2DBE6 dá 1,34 no canvas e falha |
+| corporate | text-muted | #5E6E84 | #586980 | hover 4,55 (o atual dá 4,22); continua mais claro que text-secondary #475569 |
+| tactical | text-muted | #8593A8 | #8E9DB2 | hover 4,55 (o atual dá 4,02); o candidato #94A1B5 quase iguala text-secondary #94A3B8 e foi descartado, #8E9DB2 mantém secondary 4,89 acima de muted 4,55 |
+| tactical | border-strong, border-subtle, border-control | sem mudança | sem mudança | já cumprem (2,36 e 2,48; 1,72 e 1,82; 3,75 e 3,96) |
+
+Matriz de texto (razão, atual → novo):
+
+| Tema | Token | surface | canvas | elevated | hover | accent-surface |
+|---|---|---|---|---|---|---|
+| corporate | text-primary | 17,85 | 17,06 | 16,30 | 14,48 | 15,56 |
+| corporate | text-secondary | 7,58 | 7,24 | 6,92 | 6,15 | 6,60 |
+| corporate | text-muted | 5,20 → 5,60 | 4,97 → 5,36 | 4,75 → 5,12 | 4,22 → 4,55 | 4,53 → 4,88 |
+| corporate | accent-text | 5,81 | 5,56 | 5,31 | 4,72 | 5,07 |
+| tactical | text-primary | 17,06 | 18,00 | 13,98 | 11,99 | 9,04 |
+| tactical | text-secondary | 6,96 | 7,34 | 5,71 | 4,89 | 3,69 (informativo) |
+| tactical | text-muted | 5,73 → 6,47 | 6,04 → 6,83 | 4,69 → 5,31 | 4,02 → 4,55 | 3,03 → 3,43 (informativo) |
+| tactical | accent-text | 10,71 | 11,29 | 8,77 | 7,53 | 5,67 |
+
+Matriz de contorno e controle (razão, atual → novo):
+
+| Tema | Token | Limiar | surface | canvas | elevated | hover |
+|---|---|---|---|---|---|---|
+| corporate | border-control | 3,0 | 4,76 | 4,55 | 4,34 | 3,86 (info) |
+| corporate | focus-ring | 3,0 | 5,81 | 5,56 | 5,31 | 4,72 (info) |
+| corporate | border-strong | 2,0 | 1,48 → 2,15 | 1,42 → 2,06 | 1,36 → 1,96 (info) | 1,20 → 1,74 (info) |
+| corporate | border-subtle | 1,4 | 1,23 → 1,48 | 1,18 → 1,42 | 1,13 → 1,36 (info) | 1,00 → 1,20 (info) |
+| tactical | border-control | 3,0 | 3,75 | 3,96 | 3,07 | 2,64 (info) |
+| tactical | focus-ring | 3,0 | 8,33 | 8,79 | 6,83 | 5,86 (info) |
+| tactical | border-strong | 2,0 | 2,36 | 2,48 | 1,93 (info) | 1,66 (info) |
+| tactical | border-subtle | 1,71 e 1,81 | 1,72 | 1,82 | 1,41 (info) | 1,21 (info) |
+
+Pares de estado e alertas (sem mudança, todos atendem): status-success-text sobre status-success-surface 5,21 corporate e 7,70 tactical; warning 4,84 e 9,70; danger 5,91 e 6,31; text-primary sobre as três superfícies de alerta de 14,14 a 17,22 (piso 8,0, usado pelos alertas migrados para tokens); text-primary sobre accent-surface 15,56 corporate e 9,04 tactical (banner); accent-contrast sobre accent-primary, accent-hover e accent-solid de 5,81 a 8,79. Hierarquia (secondary mais distante que muted): atende em todos os fundos dos dois temas com os valores novos (corporate 7,58 contra 5,60 até 6,15 contra 4,55; tactical 6,96 contra 6,47 até 4,89 contra 4,55).
+
+Tratamento do text-muted sobre accent-surface no tactical: nenhum token de texto neutro chega a 4,5 sobre #0C4A6E sem colidir com a hierarquia (secondary dá 3,69). O item ativo de Aulas passa a usar accent-text (5,67 no tactical, 5,07 no corporate), o par já usado por .dock-btn.active. O fundo selecionado não muda.
+
+Alvos de edição em src/frontend/src/index.css (listados antes de editar, nenhum componente TSX será tocado):
+
+- Tokens (linhas 76, 77, 82, 127).
+- Contorno de container passa de var(--border) ou var(--border-subtle) para var(--border-strong): .edu-card, .glossary-details, .panel, .kb-article (o hover do kb-article passa a border-control para manter o sinal), mais os cartões de página da mesma função, para não misturar pesos de contorno na mesma tela: .missoes, .credencial-bloco, .itsm-fila, .itsm-detalhe, .replay-resumo, .replay-criterios, .replay-tempo, .replay-vazio. Ficam como estão: .card-section não flagrado, .painel-bloco, .itsm-nota, divisores internos.
+- Controle para var(--border-control): textarea.block (Aulas), .suggest button (botões do Mentor), hover de .missao-escolha e .dock-btn (hoje border-strong), e a borda inferior de .lab-guia-alternar (375 e 768 px).
+- Divisores (.missao-linha, tr, td) continuam em border-subtle, que no corporate passa a #CBD5E1.
+- Item ativo de Aulas: nova regra .lesson-item.active .muted, .lesson-item.active-fix .muted com accent-text.
+- Literais (commit 2): .btn-white, ::file-selector-button e os três alertas, com a remoção dos três overrides tactical (os tokens já mudam por tema).
+
+### E5, tokens, literais e teste real (2026-11-16)
+
+- Commits locais: 25b59c7 "fix(ux): tokens de contorno e texto dos temas" (somente src/frontend/src/index.css) e o commit de literais e teste (index.css, App.test.tsx, tokensContraste.test.ts e este registro). Nenhum componente TSX foi tocado.
+- Arquivos: src/frontend/src/index.css (tokens corporate border-subtle #CBD5E1, border-strong #A5B2C4, text-muted #586980 e tactical text-muted #8E9DB2; contorno de container em border-strong para .edu-card, .glossary-details, .panel, .kb-article, .missoes, .credencial-bloco, .itsm-fila, .itsm-detalhe e .replay-*; border-control em textarea.block, .suggest button, hover de .missao-escolha e .dock-btn e na borda inferior de .lab-guia-alternar; regra .lesson-item.active .muted com accent-text; .btn-white, ::file-selector-button, .banner-notice, .alert-success e .alert-danger em tokens, sem os três overrides tactical); src/frontend/src/App.test.tsx (bloco de hexadecimais obsoletos e o teste de tokens com hexadecimais fixos removidos, resta o teste da fórmula); src/frontend/src/tokensContraste.test.ts (novo, 26 testes).
+- Teste de tokens: lê os blocos de tema de index.css e cobre texto 4,5 em cinco fundos, hierarquia secondary acima de muted, estado e acento, controle e foco 3,0, border-strong 2,0, divisor 1,4 (corporate) e 1,71 e 1,81 (tactical), pares dos componentes migrados de literal para token (piso 8,0), regras de CSS (sem literais nos avisos, container em border-strong, controle em border-control, hover do botão troca a borda para o acento, item ativo de Aulas em accent-text) e o terminal do SimuDesk em tactical medido à parte, incluindo a borda dele sobre a página corporate (2,0 ou mais).
+- Desvio: a importação com sufixo ?raw volta vazia no Vitest (a opção css.include padrão é vazia e o plugin zera o CSS, comprovado com um teste temporário, apagado). O teste lê index.css com node:fs a partir do caminho do próprio arquivo, sem pacote novo e sem tocar em vite.config.ts. new URL falha no ambiente jsdom, por isso fileURLToPath da string de import.meta.url. Uma tentativa por causa, nenhuma repetida.
+- Verificações: npm.cmd test -- --run src/App.test.tsx src/tokensContraste.test.ts, 41 de 41 verdes (15 e 26); npm.cmd run lint, 0 avisos e 0 erros; npm.cmd run build, ok e varredura de segredos ok; Playwright e2e/contraste.spec.ts com portas 8080 e 5173 livres antes de cada rodada, uma execução por vez, workers 1: desktop-1440 (4 de 4) e mobile-375 (4 de 4), nos dois temas. Varredura do caractere E comercial e das formas passadas de sair nas linhas adicionadas: zero.
+- Comparação com a linha de base (E1), contagem de elementos distintos por célula, baseline → E5:
+
+| Coluna | texto | container | divisor | controle | foco | hover |
+|---|---|---|---|---|---|---|
+| tactical 375 | 1 → 0 | 19 → 0 | 0 → 0 | 12 → 0 | 0 → 0 | 5 → 0 |
+| tactical 1440 | 1 → 0 | 19 → 0 | 0 → 0 | 3 → 0 | 0 → 0 | 3 → 0 |
+| corporate 375 | 0 → 0 | 19 → 0 | 2 → 0 | 12 → 0 | 0 → 0 | 8 → 0 |
+| corporate 1440 | 0 → 0 | 19 → 0 | 2 → 0 | 3 → 0 | 0 → 0 | 4 → 0 |
+
+  Nenhuma violação nova. 768 e 1280 não foram rodados nesta etapa (o pedido nomeia desktop-1440 e mobile-375); a regressão neles fica para a E7. As linhas medidas com limiar variam de 295 para 293 (375) e de 326 para 324 (1440) e os nós de texto aprovados de 956 para 948 (375) e de 1006 para 998 (1440): a linha de base é anterior à E2, E3 e E4, que mudaram a tela de Missões (sem seleção inicial, Missão 0 recolhível), então parte da diferença de contagem vem delas, não dos tokens.
+- Menores razões medidas no navegador (E5): corporate container 2,06 (details.glossary-details sobre canvas), divisor 1,48 e 1,42, controle 4,34; tactical container 2,36, divisor 1,72, controle 3,07 (button.lesson-item.active, borda accent-solid). Sob hover, o menor controle medido é 3,07 no tactical. A linha "border-control sobre bg-hover 2,64" da matriz de tokens do tactical segue como informativa: o botão troca a borda para accent-primary no hover (button:hover:not(:disabled) com border-color var(--accent), verificado por teste e pelas amostras de hover sem violação).
+- Spec de contraste: não foi alterada, nenhum limiar afrouxado.
+- Risco visual: (1) o contorno dos cartões passa de #E2E8F0 para #A5B2C4 no corporate e de #334155 para #475569 no tactical, então a tela inteira fica com moldura mais marcada nos dois temas; divisores internos do corporate passam de #E2E8F0 para #CBD5E1. (2) O banner de aviso no tactical passa de um azul translúcido de 16 por cento para o fundo sólido #0C4A6E, e os alertas de sucesso e de erro ganham fundo sólido de status; o contraste sobe (texto 9,04 a 16,95) e a aparência muda. (3) O texto auxiliar do tactical fica mais claro (#8E9DB2), 0,7 ponto de razão acima de antes sobre surface, mas ainda abaixo de text-secondary. (4) .btn-white não tem uso no TSX; virou botão invertido (texto primario como fundo). Não foi aberto nenhum PNG nesta etapa: a inspeção visual dos dois temas é da E6.
+- Cartões não medidos pela spec e fora da lista de containers (.painel-bloco, .itsm-nota, .card-section não flagrado, .step-box, .chat) continuam em border-subtle; a E6 decide, olhando os PNG, se algum precisa de border-strong para não destoar.
+- Pendências: .missao-competencias com 11 px (E6); 768 e 1280 px na E7; texto do seletor de arquivo em português (E6).
+- Próxima ação: E6 (ajustes por tela guiados pelos PNG dos dois temas), partindo do segundo commit local da E5.
