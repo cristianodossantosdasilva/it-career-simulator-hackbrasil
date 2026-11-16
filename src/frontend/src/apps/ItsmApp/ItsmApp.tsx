@@ -113,7 +113,7 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
 
             {!ehNivel1 && chamado.status !== 'Resolvido' && chamado.status !== 'Encerrado' && (
               <div className="card-section">
-                <h3>Classificacao &amp; SLA</h3>
+                <h3>Classificação e SLA</h3>
                 <div className="form-grid">
                   <label>
                     Categoria

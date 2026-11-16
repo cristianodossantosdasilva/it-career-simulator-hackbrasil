@@ -20,6 +20,7 @@ public interface IEventStore
     Task<bool> CriarSessaoAsync(RegistroSessao sessao, IReadOnlyList<EnvelopeEvento> eventosIniciais, CancellationToken ct = default);
     Task<(RegistroSessao? Sessao, IReadOnlyList<EnvelopeEvento> Eventos)> ObterSessaoAsync(Guid sessaoId, CancellationToken ct = default);
     Task<ResultadoAnexar> AnexarAsync(Guid sessaoId, int seqEsperado, IReadOnlyList<EnvelopeEvento> novosEventos, CancellationToken ct = default);
+    Task<int> ExpurgarExpiradasAsync(CancellationToken ct = default);
 }
 
 public sealed class InMemoryEventStore : IEventStore
@@ -56,6 +57,9 @@ public sealed class InMemoryEventStore : IEventStore
 
     public Task<ResultadoAnexar> AnexarAsync(Guid sessaoId, int seqEsperado, IReadOnlyList<EnvelopeEvento> novosEventos, CancellationToken ct = default)
     {
+        if (novosEventos.Count == 0)
+            return Task.FromResult(new ResultadoAnexar(false, seqEsperado, Conflito: false));
+
         if (!_sessoes.TryGetValue(sessaoId, out var item))
             return Task.FromResult(new ResultadoAnexar(false, 0, Conflito: false));
 
@@ -68,5 +72,17 @@ public sealed class InMemoryEventStore : IEventStore
             item.Eventos.AddRange(novosEventos);
             return Task.FromResult(new ResultadoAnexar(true, item.Eventos[^1].Seq, Conflito: false));
         }
+    }
+
+    public Task<int> ExpurgarExpiradasAsync(CancellationToken ct = default)
+    {
+        var limite = DateTimeOffset.UtcNow.AddDays(-2);
+        var removidas = 0;
+        foreach (var kv in _sessoes)
+        {
+            if (kv.Value.Meta.ExpiraEm < limite && _sessoes.TryRemove(kv.Key, out _))
+                removidas++;
+        }
+        return Task.FromResult(removidas);
     }
 }

@@ -424,4 +424,81 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.DoesNotContain("CERT_EXPIRED", respostaAtaque, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("DIVERGENCIA_PAGAMENTOS", respostaAtaque, StringComparison.OrdinalIgnoreCase);
     }
+
+    [Fact]
+    public async Task CarreiraResumo_EmiteAssinaturaEcdsaP256_ERejeitaPayloadAdulterado()
+    {
+        var resp = await _client.PostAsJsonAsync("/api/carreira/resumo", new { sessaoIds = Array.Empty<string>(), apelido = "Teste" });
+        resp.EnsureSuccessStatusCode();
+        var resumo = await resp.Content.ReadFromJsonAsync<JsonElement>();
+        var integridade = resumo.GetProperty("integridade");
+
+        Assert.Equal("ECDSA-P256-SHA256", integridade.GetProperty("algoritmoAssinatura").GetString());
+        Assert.Equal("itfs-hackbrasil-2026-es256-v1", integridade.GetProperty("kid").GetString());
+        var assinatura = integridade.GetProperty("assinatura").GetString()!;
+        Assert.Equal(128, assinatura.Length);
+        Assert.Equal("P-256", integridade.GetProperty("chavePublicaJwk").GetProperty("crv").GetString());
+
+        var nucleoValido = new
+        {
+            cargoAtual = resumo.GetProperty("cargoAtual").GetString(),
+            xpTotal = resumo.GetProperty("xpTotal").GetInt32(),
+            competencias = resumo.GetProperty("competencias").EnumerateArray().Select(x => x.GetString()).ToArray(),
+            sessoesConfirmadas = resumo.GetProperty("sessoesConfirmadas").Clone()
+        };
+        var jcsValido = Simulador.Avaliacao.JcsCanonico.Serializar(nucleoValido);
+        Assert.True(Simulador.Avaliacao.AssinadorCurriculoVivo.VerificarHex(jcsValido, assinatura));
+
+        var nucleoAdulterado = new
+        {
+            cargoAtual = "Diretor (Forjado)",
+            xpTotal = 9999,
+            competencias = nucleoValido.competencias,
+            sessoesConfirmadas = nucleoValido.sessoesConfirmadas
+        };
+        var jcsAdulterado = Simulador.Avaliacao.JcsCanonico.Serializar(nucleoAdulterado);
+        Assert.False(Simulador.Avaliacao.AssinadorCurriculoVivo.VerificarHex(jcsAdulterado, assinatura));
+    }
+
+    [Fact]
+    public async Task RateLimit_SeparaIpsReaisViaXForwardedFor()
+    {
+        using var factory = new WebApplicationFactory<Program>();
+        using var client = factory.CreateClient();
+
+        for (var i = 0; i < 120; i++)
+        {
+            using var req = new HttpRequestMessage(HttpMethod.Get, "/rota-inexistente");
+            req.Headers.Add("X-Forwarded-For", "203.0.113.10");
+            using var resp = await client.SendAsync(req);
+            Assert.Equal(HttpStatusCode.NotFound, resp.StatusCode);
+        }
+
+        using var bloqueada = new HttpRequestMessage(HttpMethod.Get, "/rota-inexistente");
+        bloqueada.Headers.Add("X-Forwarded-For", "203.0.113.10");
+        Assert.Equal(HttpStatusCode.TooManyRequests, (await client.SendAsync(bloqueada)).StatusCode);
+
+        using var outroIp = new HttpRequestMessage(HttpMethod.Get, "/rota-inexistente");
+        outroIp.Headers.Add("X-Forwarded-For", "203.0.113.11");
+        Assert.Equal(HttpStatusCode.NotFound, (await client.SendAsync(outroIp)).StatusCode);
+    }
+
+    [Fact]
+    public async Task CriarSessao_BloqueiaCausaForcadaESementeQuandoDesabilitados()
+    {
+        using var factory = new WebApplicationFactory<Program>()
+            .WithWebHostBuilder(b => b.UseSetting("Demo:PermitirParametrosDeTeste", "false"));
+        using var client = factory.CreateClient();
+
+        var bloqCausa = await client.PostAsJsonAsync("/api/sessoes", new { cenarioId = "pasta-rede-inacessivel", causaForcada = "C1" });
+        Assert.Equal(HttpStatusCode.BadRequest, bloqCausa.StatusCode);
+        var problem = await bloqCausa.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("parametros_teste_desabilitados", problem.GetProperty("type").GetString());
+
+        var bloqSemente = await client.PostAsJsonAsync("/api/sessoes", new { cenarioId = "pasta-rede-inacessivel", semente = 42L });
+        Assert.Equal(HttpStatusCode.BadRequest, bloqSemente.StatusCode);
+
+        var livre = await client.PostAsJsonAsync("/api/sessoes", new { cenarioId = "pasta-rede-inacessivel" });
+        Assert.Equal(HttpStatusCode.Created, livre.StatusCode);
+    }
 }

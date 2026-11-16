@@ -4,20 +4,20 @@ public static class KbCatalogo
 {
     public static readonly IReadOnlyDictionary<string, string> UriParaId = new Dictionary<string, string>
     {
-        // N1: Seguranca & Engenharia Social
+        // N1: Seguranca e Engenharia Social
         ["kb://seguranca/politica-reset-senha"] = "KB-001",
         ["kb://seguranca/verificacao-identidade"] = "KB-002",
         ["kb://seguranca/engenharia-social"] = "KB-003",
         ["kb://itsm/documentacao-incidentes"] = "KB-004",
 
-        // N2: Diagnostico & Rede
+        // N2: Diagnostico e Rede
         ["kb://diagnostico/fluxo-estruturado"] = "KB-005",
         ["kb://rede/pasta-inacessivel"] = "KB-006",
         ["kb://itsm/resolucao-chamado"] = "KB-007",
         ["kb://itsm/classificacao-sla"] = "KB-008",
         ["kb://seguranca/acoes-prejudiciais"] = "KB-009",
 
-        // N3: ITIL & Incidentes Massivos
+        // N3: ITIL e Incidentes Massivos
         ["kb://itil/gestao-problemas"] = "KB-010",
         ["kb://itil/vinculacao-problema"] = "KB-011",
         ["kb://diagnostico/logs-servicos"] = "KB-012",
@@ -27,7 +27,7 @@ public static class KbCatalogo
         ["kb://itil/resolucao-lote"] = "KB-016",
         ["kb://itsm/gestao-sla"] = "KB-017",
 
-        // N4 SRE: Cloud & Kubernetes
+        // N4 SRE: Cloud e Kubernetes
         ["kb://sre/classificacao-incidente"] = "KB-018",
         ["kb://sre/diagnostico-cloud"] = "KB-019",
         ["kb://sre/mitigacao-kubernetes"] = "KB-020",

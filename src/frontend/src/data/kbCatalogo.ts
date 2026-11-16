@@ -8,7 +8,7 @@ export interface ArtigoKb {
 }
 
 export const KB_CATALOGO: ArtigoKb[] = [
-  // === N1: Seguranca & Engenharia Social ===
+  // === N1: Seguranca e Engenharia Social ===
   {
     id: 'KB-001',
     uri: 'kb://seguranca/politica-reset-senha',
@@ -46,7 +46,7 @@ export const KB_CATALOGO: ArtigoKb[] = [
       'Toda tentativa de engenharia social ou solicitacao suspeita deve ser documentada com nota interna no chamado. Inclua: data/hora, canal de comunicacao, dados fornecidos pelo solicitante, razao da recusa. Esta documentacao alimenta metricas de seguranca e auditorias de compliance.',
   },
 
-  // === N2: Diagnostico & Rede ===
+  // === N2: Diagnostico e Rede ===
   {
     id: 'KB-005',
     uri: 'kb://diagnostico/fluxo-estruturado',
@@ -93,7 +93,7 @@ export const KB_CATALOGO: ArtigoKb[] = [
       'Acoes prejudiciais incluem: desativar firewall da estacao, executar comandos destrutivos (format, del /f), ignorar politicas de grupo, resetar senha sem validacao. Qualquer acao prejudicial e registrada como incidente de seguranca e afeta a avaliacao do atendimento. Na duvida, consulte o runbook ou escalone.',
   },
 
-  // === N3: ITIL & Incidentes Massivos ===
+  // === N3: ITIL e Incidentes Massivos ===
   {
     id: 'KB-010',
     uri: 'kb://itil/gestao-problemas',
@@ -167,7 +167,7 @@ export const KB_CATALOGO: ArtigoKb[] = [
       'Em incidentes criticos, o SLA e calculado a partir da abertura do primeiro chamado. Classifique e priorize rapidamente para refletir a urgencia real. Chamados vinculados a um Problema herdam a prioridade do Problema. SLA estourado afeta metricas de equipe e avaliacao individual.',
   },
 
-  // === N4 SRE: Cloud & Kubernetes ===
+  // === N4 SRE: Cloud e Kubernetes ===
   {
     id: 'KB-018',
     uri: 'kb://sre/classificacao-incidente',

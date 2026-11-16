@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Simulador.Avaliacao;
 using Simulador.Cenarios;
@@ -9,6 +10,7 @@ using Simulador.Dominio;
 using Simulador.Infra;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.ConfigureKestrel(k => k.Limits.MaxRequestBodySize = 32 * 1024);
 
 var portEnv = Environment.GetEnvironmentVariable("PORT");
 if (!string.IsNullOrWhiteSpace(portEnv) && string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ASPNETCORE_URLS")))
@@ -76,6 +78,14 @@ builder.Services.AddSingleton<IClienteDialogo>(sp =>
     return new DialogoComFallback(apiKey, habilitarLlm);
 });
 
+builder.Services.Configure<ForwardedHeadersOptions>(opt =>
+{
+    opt.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    opt.KnownIPNetworks.Clear();
+    opt.KnownProxies.Clear();
+    opt.ForwardLimit = 2;
+});
+
 builder.Services.AddRateLimiter(opt =>
 {
     opt.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -104,7 +114,18 @@ else
     app.Logger.LogWarning("EventStore operando em modo InMemory (Development).");
 }
 
+try
+{
+    var storeInicial = app.Services.GetRequiredService<IEventStore>();
+    await storeInicial.ExpurgarExpiradasAsync();
+}
+catch (Exception ex)
+{
+    app.Logger.LogWarning(ex, "Falha nao fatal ao expurgar sessoes expiradas na inicializacao.");
+}
+
 app.UseExceptionHandler();
+app.UseForwardedHeaders();
 app.UseCors();
 app.UseRateLimiter();
 
@@ -162,6 +183,10 @@ app.MapPost("/api/sessoes", async (
     if (!catalogo.SuportaVersao(cenarioId, versao))
         return ErroProblema(400, "nivel_indisponivel", $"Cenario '{cenarioId}' versao '{versao}' nao suportado.");
 
+    var permitirParamsTeste = app.Configuration.GetValue("Demo:PermitirParametrosDeTeste", true);
+    if (!permitirParamsTeste && (!string.IsNullOrWhiteSpace(body?.CausaForcada) || body?.Semente.HasValue == true))
+        return ErroProblema(400, "parametros_teste_desabilitados", "Parametros de teste (causaForcada e semente) desabilitados neste ambiente.");
+
     var semente = body?.Semente ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     var cenario = catalogo.Obter(cenarioId, versao, body?.CausaForcada, semente);
     var inicio = Motor.Iniciar(cenario, semente);
@@ -196,14 +221,19 @@ app.MapGet("/api/sessoes/{id:guid}", async (
 });
 
 app.MapPost("/api/sessoes/{id:guid}/acoes", async (
+    HttpContext http,
     Guid id,
     ExecutarAcaoDto? body,
     ICatalogoCenarios catalogo,
     IEventStore store,
     CancellationToken ct) =>
 {
+    if (http.Request.ContentLength > 32 * 1024)
+        return ErroProblema(413, "payload_excedido", "Corpo da requisicao excede o limite de 32 KB.");
     if (body is null || string.IsNullOrWhiteSpace(body.Tipo) || body.SeqEsperado <= 0)
         return ErroProblema(400, "validacao", "tipo e seqEsperado (> 0) sao obrigatorios.");
+    if (body.Dados is not null && JsonSerializer.SerializeToUtf8Bytes(body.Dados).Length > 16 * 1024)
+        return ErroProblema(413, "payload_excedido", "Dados da acao excedem o limite de 16 KB.");
 
     var (meta, eventos) = await store.ObterSessaoAsync(id, ct);
     if (meta is null) return ErroProblema(404, "sessao_nao_encontrada", "Sessao nao encontrada.");
@@ -407,6 +437,7 @@ app.MapPost("/api/carreira/resumo", async (
     };
     var jsonNucleo = JcsCanonico.Serializar(nucleo);
     var hash = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(jsonNucleo)));
+    var assinatura = AssinadorCurriculoVivo.AssinarHex(jsonNucleo);
 
     return Results.Ok(new
     {
@@ -421,7 +452,11 @@ app.MapPost("/api/carreira/resumo", async (
         {
             hash,
             algoritmo = "SHA-256/JCS-RFC8785",
-            regraHash = "SHA-256 sobre UTF-8 do JSON canonico JCS (RFC 8785) {cargoAtual, xpTotal, competencias[], sessoesConfirmadas[]} sem apelido, promocoes/badges e sem hash."
+            regraHash = "SHA-256 sobre UTF-8 do JSON canonico JCS (RFC 8785) {cargoAtual, xpTotal, competencias[], sessoesConfirmadas[]} sem apelido, promocoes/badges e sem hash.",
+            assinatura,
+            algoritmoAssinatura = AssinadorCurriculoVivo.Algoritmo,
+            kid = AssinadorCurriculoVivo.KeyId,
+            chavePublicaJwk = AssinadorCurriculoVivo.ChavePublicaJwk
         }
     });
 });

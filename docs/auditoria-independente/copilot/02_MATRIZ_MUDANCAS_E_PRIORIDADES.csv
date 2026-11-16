@@ -1,0 +1,25 @@
+id,frente,tipo,titulo,evidencia_observada,problema_ou_oportunidade,mudanca_proposta,horizonte,impacto,esforco
+P01,Produto,risco,Reduzir promessa ao MVP demonstravel,"PRD descreve 560h e 80 cenarios; src concentra quatro cenarios","Risco de vaporware na banca","Posicionar simulador pratico e marcar academia como roadmap",IMEDIATO_HACKATHON,alto,baixo
+P02,Produto,melhoria,Jornada de demonstracao unica,"Workstation tem missao guiada e replay","Banca pode perder o fio entre apps","Roteiro seed fixa com objetivo, evidencia, acao e resultado",IMEDIATO_HACKATHON,alto,baixo
+U01,UXUI,melhoria,Modo guiado para leigo,"Dock expõe ITSM, chat, SimuDesk, KB e replay","Metafora exige conhecimento previo","Adicionar passo a passo persistente e ocultar detalhes avancados",IMEDIATO_HACKATHON,alto,medio
+U02,UXUI,validacao,Testar prototipo contra React,"Prototipo local possui estados que nao sao prova de integracao","Risco de demo divergente","Mapear cada estado do prototipo para teste ou marcar como conceito",IMEDIATO_HACKATHON,medio,medio
+U03,UXUI,acessibilidade,Validar zoom e mobile,"Ha axe e media queries, mas nao ha evidencia de zoom 200 por cento","Falha WCAG fora do fluxo desktop","Executar jornadas em 360, 768 e 1440 pixels com teclado",ONDA_1,alto,medio
+E01,Educacional,conteudo,Microciclo aprender lembrar praticar explicar,"Documentacao cita SM-2, Cornell, Feynman e STAR; codigo ainda nao entrega a camada","Tecnicas ficam como marketing","Implementar um modulo minimo ligado ao cenario",IMEDIATO_HACKATHON,alto,medio
+E02,Educacional,conteudo,Adicionar Linux mobile VoIP e atendimento dificil,"Matriz privilegia Windows, rede, cloud e N3","Lacunas de entrada no suporte brasileiro","Inserir unidades basicas antes de N3",ONDA_1,alto,medio
+E03,Educacional,risco,Separar fundamentos de N3,"UC1 a UC8 misturam leigo e infraestrutura avancada","Sobrecarga e pre-requisito oculto","Criar gates de dominio e trilhas progressivas",ONDA_2,alto,alto
+F01,Financeiro,risco,Recalcular custo total,"Planilha enfatiza infra e IA, mas omite suporte, chargeback e observabilidade","Margem pode estar superestimada","Modelo com cenarios de uso, churn, CAC, inadimplencia e video",ONDA_1,alto,medio
+F02,Financeiro,governanca,Plano de saida de creditos,"Beneficios Hack Brasil tem prazos e condicoes de patrocinador","Custo pos-credito pode surpreender","Teto mensal, substituto pago e kill switch por fornecedor",IMEDIATO_HACKATHON,alto,baixo
+F03,Financeiro,preco,Validar preco com entrevistas,"Precos sao hipotese documental","Nao ha prova de disposicao a pagar","Teste de pre-venda sem cobrar e pesquisa com segmentos",ONDA_1,medio,medio
+C01,Contabil,risco,Validar CNAE por receita,"Curso, software, licenca e tutoria sao atividades distintas","CNAE principal pode nao cobrir toda receita","Parecer de contador e cadastro secundario quando necessario",ONDA_1,alto,medio
+C02,Contabil,risco,Simular Simples e ISS,"Anexo III e Fator R sao tratados como premissa","Aliquota efetiva pode mudar","Tabela por faixa, folha, municipio e natureza da receita",ONDA_1,alto,medio
+J01,Advogado,risco,Blindar certificado,"PRD cita FIC e microcertificados","Pode parecer diploma ou certificacao oficial","Texto padrao sobre curso livre, competencias e limites",IMEDIATO_HACKATHON,alto,baixo
+J02,Advogado,risco,Revisar marcas e trade dress,"Docs citam varios fabricantes e interfaces inspiradas","Risco de confusao ou uso indevido","Usar simulacao generica e inventario de licencas",IMEDIATO_HACKATHON,alto,medio
+J03,Advogado,seguranca,Autenticar Curriculo Vivo,"Frontend verifica hash local; backend calcula SHA-256","Hash nao prova autoria","Ed25519 ou HMAC com chave no servidor e revogacao",ONDA_1,alto,medio
+J04,Advogado,privacidade,Governar video e menores,"Onda 4 prevê voz, video e transcricao","Dados biometricos e de criancas elevam risco","Base legal, consentimento responsavel, retencao e exclusao",POS_HACKATHON_ONDA_4,alto,alto
+D01,Dev,robustez,Validar lista de eventos no store,"PostgresEventStore usa novosEventos indice final","Contrato pode quebrar com lista vazia","Retornar falha explicita ou rejeitar lista vazia",ONDA_1,medio,baixo
+D02,Dev,operacao,Remover schema no startup de producao,"Render inicia e chama InicializarSchemaAsync","Replicas podem disputar DDL","Migracoes versionadas e lock operacional",ONDA_1,alto,medio
+D03,Dev,seguranca,Revisar canonicalizacao RFC 8785,"JCS local ordena chaves e usa serializadores genericos","Numeros e Unicode podem divergir de RFC","Expandir vetores e usar biblioteca conforme especificacao",IMEDIATO_HACKATHON,alto,medio
+D04,Infra,disponibilidade,Testar deploy real,"render.yaml usa plano free e Postgres externo","Cold start ou banco podem derrubar demo","Smoke test remoto, timeout e fallback de apresentacao",IMEDIATO_HACKATHON,alto,medio
+D05,Dev,memoria,Expirar sessoes InMemory,"Store em memoria nao poda sessoes","Crescimento em processo longo","TTL e limite por store, com metricas",ONDA_1,medio,baixo
+D06,Dev,observabilidade,Instrumentar limites,"Rate limit por IP e health liberado","NAT e abuso nao sao diferenciados","Proxy confiavel, logs estruturados e metricas por rota",ONDA_1,medio,medio
+

@@ -150,7 +150,7 @@ function SqlPainelSchema({ schema }: { schema: TableSchema[] }) {
       </div>
 
       <div className="card-section sql-schema-panel" role="region" aria-label="Schema do Dataset Sintetico">
-        <h3>Schema &amp; Dataset Sintetico</h3>
+        <h3>Schema e Dataset Sintético</h3>
         {schema.map((tabela) => (
           <div key={tabela.nome} className="table-schema" role="article" aria-label={`Tabela ${tabela.nome}`}>
             <div className="table-header">
@@ -388,7 +388,7 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
           {isSqlCenario && <SqlPainelSchema schema={getSchemaDataset()} />}
 
           <div className="card-section" role="region" aria-label="Diretorio e Grupos">
-            <h3>Diretorio &amp; Grupos</h3>
+            <h3>Diretório e Grupos</h3>
             {Object.entries(sessao.estacao.gruposPorUsuario).map(([u, grupos]) => (
               <div key={u} className="kv-row">
                 <strong>{u}:</strong> <span>{grupos.join(', ')}</span>

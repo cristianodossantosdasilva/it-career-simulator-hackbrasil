@@ -46,5 +46,19 @@
     },
     "jcs": "{\"ativo\":false,\"lista\":[3,1,2],\"nulo\":null}",
     "sha256": "c805b90d83e33f2525293e1beb9441708516b54022db51ce86ffeb3a7178f7d4"
+  },
+  {
+    "nome": "curriculo_acentuado_utf8",
+    "entrada": {
+      "xpTotal": 210,
+      "competencias": [
+        "Conformidade e Governança",
+        "Observabilidade e Logs",
+        "Simulação Prática 1º Dia"
+      ],
+      "cargoAtual": "Técnico de Suporte Júnior (N1)"
+    },
+    "jcs": "{\"cargoAtual\":\"Técnico de Suporte Júnior (N1)\",\"competencias\":[\"Conformidade e Governança\",\"Observabilidade e Logs\",\"Simulação Prática 1º Dia\"],\"xpTotal\":210}",
+    "sha256": "268b7c9578edd1c0ae262c7ad6e33a291f82c2e7fd0347bf135a60f2c0e6180a"
   }
 ]

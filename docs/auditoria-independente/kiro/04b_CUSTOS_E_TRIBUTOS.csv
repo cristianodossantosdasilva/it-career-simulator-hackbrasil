@@ -1,0 +1,44 @@
+bloco,item,valor,unidade,premissa_ou_fonte
+simples_anexo_III,faixa 1 receita ate 180000,6.00,percentual nominal,Lei Complementar 123/2006 Anexo III; parcela a deduzir 0
+simples_anexo_III,faixa 2 de 180000.01 a 360000,11.20,percentual nominal,parcela a deduzir 9360
+simples_anexo_III,faixa 3 de 360000.01 a 720000,13.50,percentual nominal,parcela a deduzir 17640
+simples_anexo_III,faixa 4 de 720000.01 a 1800000,16.00,percentual nominal,parcela a deduzir 35640
+simples_anexo_III,faixa 5 de 1800000.01 a 3600000,21.00,percentual nominal,parcela a deduzir 125640
+simples_anexo_V,faixa 1 receita ate 180000,15.50,percentual nominal,parcela a deduzir 0
+simples_anexo_V,faixa 2 de 180000.01 a 360000,18.00,percentual nominal,parcela a deduzir 4500
+simples_anexo_V,faixa 3 de 360000.01 a 720000,19.50,percentual nominal,parcela a deduzir 9900
+simples_anexo_V,faixa 4 de 720000.01 a 1800000,20.50,percentual nominal,parcela a deduzir 17100
+efetiva,40 assinantes Anexo III,6.00,percentual,RBT12 28752
+efetiva,100 assinantes Anexo III,6.00,percentual,RBT12 71880
+efetiva,300 assinantes Anexo III,6.86,percentual,RBT12 215640
+efetiva,1000 assinantes Anexo III,11.05,percentual,RBT12 718800
+efetiva,300 assinantes Anexo V,15.91,percentual,sem Fator R
+efetiva,1000 assinantes Anexo V,18.12,percentual,sem Fator R
+contribuicao_essencial,6 por cento fixo do documento,52.01,reais por assinante por mes,gateway 4 por cento e nuvem mais IA 1.90 (premissa de gateway)
+contribuicao_essencial,Anexo III 1000 assinantes,49.00,reais por assinante por mes,aliquota efetiva 11.05
+contribuicao_essencial,Anexo V 1000 assinantes,44.75,reais por assinante por mes,aliquota efetiva 18.12
+unit_economics,otimista churn 5 por cento CAC 100,9.9,LTV dividido por CAC,premissa de mercado nao medida
+unit_economics,base churn 8 por cento CAC 150,4.1,LTV dividido por CAC,premissa de mercado nao medida
+unit_economics,pessimista churn 12 por cento CAC 250,1.6,LTV dividido por CAC,premissa de mercado nao medida
+voz_tempo_real,preco audio entrada,32,dolares por milhao de tokens,paginas de preco e analises de terceiros em out/2026
+voz_tempo_real,preco audio saida,64,dolares por milhao de tokens,idem
+voz_tempo_real,custo por minuto com cache ideal,0.08,dolares,estimativa de terceiros
+voz_tempo_real,custo por minuto sem cache,0.235,dolares,estimativa de terceiros
+voz_tempo_real,sessao de 8 minutos cache ideal,3.71,reais,cambio 5.80
+voz_tempo_real,sessao de 8 minutos sem cache,10.90,reais,cambio 5.80
+voz_tempo_real,4 sessoes por mes sem cache,43.62,reais,cambio 5.80 sem avatar nem TURN
+pro,contribuicao com 4 sessoes sem cache,44,percentual,preco 119.90 imposto 11.05 gateway 4
+hackbrasil,participantes com rascunho aprovado Firecrawl,5000,creditos,regulamento 10.3 limite 2000 participantes
+hackbrasil,participantes com rascunho aprovado Devin,20,dolares,regulamento 10.3 limite 2000 participantes
+hackbrasil,participantes com rascunho aprovado Nvoip,3,meses plano Pro 1 usuario,regulamento 10.3 contas novas
+hackbrasil,finalistas WorkOS,1188,dolares valor avaliado,regulamento 10.3
+hackbrasil,finalistas Resend,3,meses plano Pro,regulamento 10.3
+hackbrasil,top 3 Resend,10000,dolares em 12 meses,regulamento 10.3
+hackbrasil,top 3 AbacatePay primeiro segundo terceiro,300000 150000 50000,reais em credito de taxa,regulamento 10.3 ate 24 meses
+hackbrasil,Convex dinheiro,3000 2000 1000,dolares,regulamento 10.2
+concorrentes,TryHackMe Premium anual,10.50,euros por mes,pagina oficial de precos
+concorrentes,TryHackMe Premium mensal,16.99,euros por mes,pagina oficial de precos
+concorrentes,Alura plano mensal,nao existe,,pagina de suporte da Alura
+concorrentes,Alura corporativo,125 a 197,reais por pessoa por mes,blog de terceiro outubro 2026 verificar
+infraestrutura,Render gratuita desligamento por inatividade,15,minutos,fontes de terceiros e observacao propria de espera de 13.8 segundos
+infraestrutura,Render Starter,7,dolares por mes,preco de tabela aproximado verificar

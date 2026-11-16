@@ -55,7 +55,7 @@ function obterProximaDicaMissao(
     if (ch1.status !== 'Resolvido' && ch1.status !== 'Encerrado') {
       return '6) Resolva o chamado no card "Resolver Chamado (Encerrar Recusa)" com nota publica.'
     }
-    return 'Missao concluida! Abra "Juiz 360º & Replay" para conferir sua nota e Curriculo Vivo.'
+    return 'Missao concluida! Abra "Juiz 360º e Replay" para conferir sua nota e Curriculo Vivo.'
   }
   if (cenario === 'incidente-massivo') {
     if (sessao.chamados.every((c) => c.status === 'Novo')) {
@@ -66,23 +66,23 @@ function obterProximaDicaMissao(
       return '3) Valide a identidade da Maria no Comunicador IA (AUR-1042 / 2042) para liberar o SimuDesk.'
     }
     if (!sessao.estacao.servicos.some((s) => s.nome === 'AuroraGateway' && s.status === 'Running')) {
-      return '4) Investigue logs/servicos no SimuDesk, eleve privilegio e inicie o AuroraGateway.'
+      return '4) Investigue logs e servicos no SimuDesk, eleve privilegio e inicie o AuroraGateway.'
     }
-    if (!sessao.problemas.some((p) => p.resolvido)) return '5) Registre a causa raiz (servico + atualizacao) no Problema e resolva em lote.'
-    return 'Incidente massivo resolvido! Confira Juiz 360º & Replay.'
+    if (!sessao.problemas.some((p) => p.resolvido)) return '5) Registre a causa raiz (servico e atualizacao) no Problema e resolva em lote.'
+    return 'Incidente massivo resolvido! Confira Juiz 360º e Replay.'
   }
   if (cenario === 'sre-cloud-latencia') {
     if (ch1.status === 'Novo') return '1) Assuma e classifique o incidente SRE CH-0001 no ITSM.'
     if (!sessao.dialogo.acessoRemotoLiberado) return '2) Valide a identidade da Maria no Comunicador IA (AUR-1042 / 2042) para liberar o SimuDesk.'
     if (!sessao.estacao.compartilhamentoAcessivel) return '3) No SimuDesk, diagnostique pods/logs/curl, eleve privilegio e aplique a mitigacao.'
     if (ch1.status !== 'Resolvido' && ch1.status !== 'Encerrado') return '4) Resolva o chamado CH-0001 com nota de post-mortem.'
-    return 'Incidente SRE mitigado! Confira Juiz 360º & Replay.'
+    return 'Incidente SRE mitigado! Confira Juiz 360º e Replay.'
   }
   if (cenario === 'diagnostico-sql-readonly') {
     if (ch1.status === 'Novo') return '1) Assuma e classifique o chamado de auditoria SQL CH-0001 no ITSM.'
     if (!sessao.dialogo.acessoRemotoLiberado) return '2) Valide a identidade da Maria no Comunicador IA (AUR-1042 / 2042) para liberar o console SQL.'
     if (ch1.status !== 'Resolvido' && ch1.status !== 'Encerrado') return '3) Execute SELECT somente leitura no SimuDesk (sem escrita) e resolva o chamado com o diagnostico.'
-    return 'Auditoria SQL concluida! Confira Juiz 360º & Replay.'
+    return 'Auditoria SQL concluida! Confira Juiz 360º e Replay.'
   }
   if (ch1.status === 'Novo') return '1) Assuma e classifique o chamado CH-0001 no ITSM.'
   if (!sessao.dialogo.acessoRemotoLiberado) return '2) Valide a identidade da Maria no Comunicador (AUR-1042 / 2042) para liberar o SimuDesk.'
@@ -116,6 +116,7 @@ function salvarSessaoId(id: string): string[] {
 }
 
 function WorkstationInner() {
+  const [tema, setTema] = useState<'light' | 'dark'>('light')
   const [sessaoId, setSessaoId] = useState<string | null>(null)
   const [sessao, setSessao] = useState<SessaoProjecao | null>(null)
   const [aba, setAba] = useState<Aba>('itsm')
@@ -131,6 +132,10 @@ function WorkstationInner() {
   const [artigoKbSelecionado, setArtigoKbSelecionado] = useState<string | null>(null)
   const [kbRetornoLinkUri, setKbRetornoLinkUri] = useState<string | null>(null)
   const linkKbOrigemRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = tema
+  }, [tema])
 
   function abrirArtigoKb(artigoId: string, origem: HTMLElement) {
     setKbRetornoLinkUri(
@@ -228,7 +233,7 @@ function WorkstationInner() {
           setAviso('Token corporativo verificado: solicitante NAO possui token valido (alerta de engenharia social!).')
         } else if (ev.tipo === 'ResetRecusado') {
           setNivel1Passos((p) => ({ ...p, recusado: true }))
-          setAviso('Reset fraudulento recusado com seguranca! Abra "Juiz 360º & Replay" para conferir sua avaliacao.')
+          setAviso('Reset fraudulento recusado com seguranca! Abra "Juiz 360º e Replay" para conferir sua avaliacao.')
         } else if (ev.tipo === 'SenhaResetadaIndevidamente') {
           setAviso('ALERTA: Senha resetada sem verificacao! Incidente de seguranca registrado.')
         } else if (ev.tipo === 'ComandoExecutado' || ev.tipo === 'ComandoNaoSuportado') {
@@ -298,6 +303,8 @@ function WorkstationInner() {
         apelido={apelido}
         onApelidoChange={setApelido}
         onAtualizarCarreira={(nome) => void atualizarResumoCarreira(undefined, nome)}
+        tema={tema}
+        onAlternarTema={() => setTema((t) => (t === 'light' ? 'dark' : 'light'))}
       />
     )
   }
@@ -314,6 +321,14 @@ function WorkstationInner() {
         <div className="topbar-right">
           <span className="badge badge-ok">Tempo Simulado: {sessao.meta.minutoSimulado}m</span>
           <span className="badge">Seq #{sessao.ultimoSeq}</span>
+          <button
+            type="button"
+            className="btn-secondary"
+            aria-label={tema === 'light' ? 'Ativar tema escuro' : 'Ativar tema claro'}
+            onClick={() => setTema((t) => (t === 'light' ? 'dark' : 'light'))}
+          >
+            {tema === 'light' ? 'Tema Escuro' : 'Tema Claro'}
+          </button>
           <button
             type="button"
             className="btn-secondary"
@@ -375,7 +390,7 @@ function WorkstationInner() {
                 void carregarReplay()
               }}
             >
-              <span>Juiz 360º &amp; Replay</span>
+              <span>Juiz 360º e Replay</span>
               <span className="badge badge-info">XP</span>
             </button>
           </nav>

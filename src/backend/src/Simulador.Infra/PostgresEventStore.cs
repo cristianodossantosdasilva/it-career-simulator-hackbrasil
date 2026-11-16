@@ -177,6 +177,9 @@ public sealed class PostgresEventStore : IEventStore
 
     public async Task<ResultadoAnexar> AnexarAsync(Guid sessaoId, int seqEsperado, IReadOnlyList<EnvelopeEvento> novosEventos, CancellationToken ct = default)
     {
+        if (novosEventos.Count == 0)
+            return new ResultadoAnexar(false, seqEsperado, Conflito: false);
+
         await using var conn = new NpgsqlConnection(_connectionString);
         await conn.OpenAsync(ct);
         await using var tx = await conn.BeginTransactionAsync(ct);
@@ -216,6 +219,15 @@ public sealed class PostgresEventStore : IEventStore
             await tx.RollbackAsync(ct);
             return new ResultadoAnexar(false, seqEsperado, Conflito: true);
         }
+    }
+
+    public async Task<int> ExpurgarExpiradasAsync(CancellationToken ct = default)
+    {
+        await using var conn = new NpgsqlConnection(_connectionString);
+        await conn.OpenAsync(ct);
+        const string sql = "DELETE FROM sessoes WHERE expira_em < now() - interval '2 days';";
+        await using var cmd = new NpgsqlCommand(sql, conn);
+        return await cmd.ExecuteNonQueryAsync(ct);
     }
 
     private static async Task InserirEventosAsync(

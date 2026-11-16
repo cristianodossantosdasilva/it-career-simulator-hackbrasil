@@ -22,7 +22,7 @@ export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetorno
   if (!replay) {
     return (
       <section className="panel" aria-label="Relatorio do Juiz 360" aria-busy={ocupado}>
-        <h2>Avaliacao 360º, Replay &amp; Curriculo Vivo</h2>
+        <h2>Avaliação 360º, Replay e Currículo Vivo</h2>
         <button type="button" className="btn-primary" disabled={ocupado} onClick={onAtualizar}>
           Carregar Replay e Avaliacao
         </button>
@@ -33,15 +33,26 @@ export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetorno
 
   const indiceValido = replay ? Math.min(Math.max(0, indiceSelecionado), Math.max(0, replay.eventos.length - 1)) : 0
   const eventoAtual = replay.eventos[indiceValido]
+  const criteriosAtendidos = replay.avaliacao.criterios.filter((c) => c.atendido).length
+  const proximoFoco = replay.avaliacao.criterios.find((c) => !c.atendido)
 
   return (
     <div className="app-split" role="group" aria-label="Replay e Avaliacao 360">
       <section className="panel" aria-label="Relatorio do Juiz 360">
         <div className="row-between">
-          <h2>Relatorio do Juiz 360º</h2>
+          <h2>Relatório do Juiz 360º</h2>
           <button type="button" disabled={ocupado} onClick={onAtualizar}>
             Atualizar
           </button>
+        </div>
+        <div className="debrief-box">
+          <strong>Debrief Didático da Caixa-Preta:</strong> {criteriosAtendidos} de {replay.avaliacao.criterios.length} critérios
+          atendidos.{' '}
+          {replay.avaliacao.incidenteSeguranca
+            ? 'Houve incidente de segurança — revise na linha do tempo o momento do erro para consolidar o procedimento seguro.'
+            : proximoFoco
+              ? `Próximo foco de aprendizado: ${proximoFoco.praticaEsperada ?? proximoFoco.descricao}`
+              : 'Atendimento conduzido com evidências completas e postura segura.'}
         </div>
         <p className="muted">
           Status: <strong>{replay.avaliacao.concluida ? 'Concluida' : 'Em andamento'}</strong> |{' '}
@@ -136,7 +147,7 @@ export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetorno
       </section>
 
       <section className="panel" aria-label="Linha do tempo do Replay">
-        <h2>Replay em Linha do Tempo ({replay.eventos.length} eventos)</h2>
+        <h2>Caixa-Preta do Atendimento ({replay.eventos.length} eventos)</h2>
         {replay.eventos.length === 0 ? <p className="muted">Nenhum evento registrado nesta sessao.</p> : <>
         <div className="timeline-controls">
           <label htmlFor="replay-range">Passo: #{eventoAtual?.seq ?? 1}</label>

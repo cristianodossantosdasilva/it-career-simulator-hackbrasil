@@ -1,0 +1,26 @@
+id,frente,tipo,titulo,evidencia_observada,problema_ou_oportunidade,mudanca_proposta,horizonte,impacto,esforco
+P01,Produto,risco,Escopo demonstrado menor que promessa,Frontend React é workstation com cinco cenários,Oito bancadas e 80 laboratórios não demonstrados,Mostrar disponível demonstrado e roadmap,IMEDIATO_HACKATHON,Alto,Baixo
+P02,Produto,melhoria,Pitch de impacto,Trilha Acesso à educação sem pesquisa de aluno,Aprendizagem e impacto são alegações,Mostrar jornada e resultado observável,IMEDIATO_HACKATHON,Alto,Baixo
+P03,Evento,conformidade,Submissão completa,Regulamento pede repo demo e vídeo até 3 minutos,Falta de peça reduz avaliação,Validar painel público e disponibilidade,IMEDIATO_HACKATHON,Crítico,Baixo
+P04,UX UI,risco,Protótipo separado,HTML usa localStorage e heurística,Não comprova integração,Rotular como protótipo,IMEDIATO_HACKATHON,Alto,Baixo
+P05,UX UI,acessibilidade,WCAG incompleta,CSS escuro e nenhum screenshot verificado,Teste de tela inicial não cobre tudo,Validar teclado leitor contraste zoom e mobile,ONDA_1,Médio,Médio
+P06,Educacional,prioridade,Reduzir currículo inicial,Plano cobre 560h e N1 a N3,Escopo excede evidência de aprendizagem,Entregar três práticas graduadas de suporte,ONDA_1,Alto,Médio
+P07,Educacional,conteúdo,Completar tarefas de entrada,Plano omite MDM móvel VoIP e cliente difícil,Desalinhamento com tarefas de service desk,Adicionar Android iOS MDM telefonia e atendimento,ONDA_1,Alto,Médio
+P08,Educacional,métrica,Medir transferência,Sem dados de coorte ou retenção,Conclusão de roteiro não prova competência,Pré pós-teste caso novo e revisão retardada,ONDA_1,Alto,Médio
+P09,Financeiro,correção,Refazer tributação,Modelo assume 6 por cento e mil clientes,Receita ultrapassa primeira faixa,Modelar RBT12 atividades e fator R,IMEDIATO_HACKATHON,Alto,Médio
+P10,Financeiro,risco,Unit economics incompleto,Não há CAC suporte chargeback e folha,Margem superestimada,Construir cenário pessimista base e otimista,ONDA_1,Alto,Médio
+P11,Financeiro,custo,Realtime com teto,Plano prevê vídeo recorrente,Tokens mídia e rede variam,Limitar minutos e desligar por inatividade,POS_HACKATHON_ONDA_4,Alto,Médio
+P12,Contador,risco,CNAE de SaaS,CNAEs listados são de treinamento,Licença pode exigir atividade secundária,Validar 6203 6202 ou 6201 com contador,ONDA_1,Alto,Baixo
+P13,Contador,correção,ISS IBS e CBS,Plano presume 8.02 e Anexo III fixo,Licença e treinamento podem divergir,Validar NFS-e municipal e segregação,ONDA_1,Alto,Médio
+P14,Jurídico,risco,Certificado sem equivalência,Plano menciona FIC e prontidão,Curso livre não é diploma técnico,Definir certificado e evitar garantia de emprego,IMEDIATO_HACKATHON,Alto,Baixo
+P15,Jurídico,risco,Marcas e interfaces,Plano nomeia vários consoles comerciais,UI pode sugerir afiliação ou copiar trade dress,Usar interface original e aviso independente,ONDA_1,Alto,Médio
+P16,Jurídico,privacidade,Currículo compartilhado,Exportação inclui apelido opcional,Hash não autentica e currículo expõe trajetória,Manter privado e assinar após consentimento,ONDA_1,Alto,Médio
+P17,Jurídico,privacidade,Menores e vídeo,Produto mira jovens e propõe gravação,LGPD e ECA Digital elevam deveres,Definir idade responsável retenção e alternativa sem gravação,POS_HACKATHON_ONDA_4,Crítico,Alto
+P18,Arquitetura,segurança,Sessão bearer,Rotas por UUID não mostram autorização,Quem obtém ID lê e altera,Autenticar ou proteger capability,ONDA_1,Alto,Médio
+P19,Arquitetura,integridade,Hash não assina,Verificador recalcula SHA-256 do conteúdo,Terceiro cria JSON e hash,Assinar com chave privada protegida,ONDA_1,Alto,Médio
+P20,Arquitetura,durabilidade,Append-only não imposto,Schema sem hash chain ou regra imutável,Credencial com escrita reescreve eventos,Restringir permissões e encadear eventos,ONDA_1,Alto,Médio
+P21,Infra,risco,Retenção física,TTL bloqueia acesso e tabela tem índice,Não há limpeza observada,Definir expurgo e retenção,ONDA_1,Médio,Médio
+P22,Infra,risco,Plano Free sem SLA,Render Free e Vercel deployment Ready,Banco e suspensão não foram verificados,Testar disponibilidade e preparar fallback,IMEDIATO_HACKATHON,Alto,Baixo
+P23,Governança,risco,Snapshot obsoleto,Ledger aponta 4f2c756 limpo; observado e6aae5c sujo,Registro não representa checkout,Reconciliar pelo fluxo autorizado,ONDA_1,Alto,Baixo
+P24,Evento,conformidade,Congelamento após submissão,Regulamento impede commits até final,Correção tardia pode violar regra,Planejar freeze e desenvolvimento no local da final,IMEDIATO_HACKATHON,Crítico,Baixo
+P25,UX UI,melhoria,Fluxo para leigos,App inicia em seleção e cinco abas,Jargão eleva carga cognitiva,Modo guiado com pista e saída segura,ONDA_1,Alto,Médio

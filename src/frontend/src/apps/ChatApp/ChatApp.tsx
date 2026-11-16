@@ -149,7 +149,7 @@ export function ChatApp({ sessao, onChat, onAcao, ocupado }: Props) {
         </div>
 
         <div className="card-section">
-          <h3>Mentoria &amp; Pistas (D3)</h3>
+          <h3>Mentoria e Pistas (D3)</h3>
           <p className="muted">Pistas usadas: <strong>{sessao.dialogo.pistasSolicitadas}/3</strong> (sem punição de tempo)</p>
           <button
             type="button"

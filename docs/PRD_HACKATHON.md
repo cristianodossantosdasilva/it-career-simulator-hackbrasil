@@ -1,84 +1,85 @@
 # PRD — IT Flight Simulator (Edição Hack Brasil 2026)
 
 **Produto:** IT Flight Simulator — Simulador Prático de Carreira em TI  
-**Time:** CVE-K (Cristiano Silva, Enzo Santos, Kauan Dantas · Victória Silva — *formação original; participação encerrada em 14/11/2026 por inviabilidade logística para a etapa presencial*)  
+**Time:** CVE-K (Cristiano Silva, Enzo Santos e Kauan Dantas — 3 integrantes ativos)  
 **Trilha:** Acesso à educação (Hack Brasil 2026)  
+**Demo Pública Oficial:** `https://it-flight-simulator-hackbrasil.vercel.app`  
 **Prazo de entrega:** 30/nov/2026 às 23h59 (BRT)  
 
 ---
 
-## 1. Visão do Produto e Problema
+## 1. Visão do Produto, Problema e Posicionamento Educacional
 
-Milhares de estudantes e profissionais em transição estudam teoria de TI, mas esbarram no **"paradoxo do júnior"**: não conseguem a primeira vaga porque não têm experiência prática em ambiente corporativo real (ITSM, SLA, atendimento sob pressão, diagnóstico de causa raiz, postura de segurança).
+Milhares de pessoas fora da área de TI desejam ingressar no mercado de tecnologia, e milhares de estudantes já consomem teoria passiva, mas todos esbarram no **"paradoxo do júnior"**: não conseguem a primeira oportunidade porque não possuem vivência prática em operação corporativa real (ITSM, SLA, atendimento sob pressão, manutenção física preventiva, cabeamento de rede, diagnóstico de causa raiz e postura de segurança).
 
-O **IT Flight Simulator** resolve essa lacuna transformando o navegador em uma **Workstation Corporativa Simulada** (um "simulador de voo" para carreiras de TI). Em vez de assistir aulas passivas ou responder quizzes, o participante assume cargos progressivos, atende chamados em fila com SLA, conversa com usuários e líderes técnicos simulados, acessa estações e ambientes remotamente, diagnostica falhas injetadas dinamicamente e recebe uma **avaliação auditável 360º com Replay em linha do tempo** e um **Currículo Vivo** verificável offline.
+O **IT Flight Simulator** resolve essa lacuna combinando uma **Plataforma de Aprendizagem Ativa** (aulas curtas com analogias, recordação ativa, repetição espaçada, caderno estilo Notion no Método Cornell, Técnica de Feynman e Pitch STAR) com uma **Workstation Corporativa Simulada** e **8 Laboratórios Interativos Dedicados** (1 por Unidade Curricular — começando no Hackathon por Hardware/UPS e evoluindo para Cabeamento/Rack `U`, Estúdio Wi-Fi Design, Redes Multi-Vendor, Firewall NGFW, Data Center 42U com Cloud Backup WORM e Blue Team/EDR) na empresa fictícia **Aurora Logística** (`aurora.local`).
+
+Em vez de promessas irreais ou cargas horárias superficiais, o estudo de caso inaugural entrega profundidade equivalente à grade de um curso técnico profissionalizante em **560 horas distribuídas em até 8 meses (32 semanas)** em **2 Ciclos Estratégicos**:
+- **Ciclo 1 (Meses 1 a 4 · Semanas 1 a 16 · 280h):** *Prontidão Rápida para o Mercado* — do zero ao **Técnico de Suporte Júnior (N1) e Field Service**, apto a trabalhar já ao final do 4º mês;
+- **Ciclo 2 (Meses 5 a 8 · Semanas 17 a 32 · +280h = 560h):** *Evolução Corporativa* — **Técnico de Suporte Pleno (N2)** e **3 Vertentes Técnicas N3** (*Infraestrutura, Redes, Zabbix e Cloud*; *Data Center, Virtualização, Storage RAID/SAN/NAS, Backup 3-2-1-1-0 e DRP*; e *Cibersegurança Blue Team, IAM, Proteção de E-mail e Auditoria SQL Read-Only*), culminando em um **Juiz 360º com Replay** e **Currículo Vivo** verificável offline via **JCS (RFC 8785) + SHA-256 + ECDSA P-256**. Na evolução de produto (Onda 4), o aluno também treinará atendimentos reais em **Chamada em Vídeo e Voz ao Vivo com Agentes de IA** (com teto de minutos e fallback texto/voz).
+
+### 1.1. Enquadramento Legal e Regulação Brasileira (Aplicação Real)
+- **Natureza:** **Curso Livre de Qualificação Profissional e Capacitação Prática** amparado pela **LDB (Lei nº 9.394/1996, Art. 39, parágrafo 2º, inciso I e Art. 42)** e **Resolução CNE/CP nº 1/2021** (educação por competências), com emissão de **Certificado de Conclusão de Curso Livre** (horas medidas pelo motor determinístico e trilha declarada de competências), respeitando **LGPD**, **ECA Digital (Lei nº 15.211/2025)** e **CDC** (sem equivalência automática a diploma técnico MEC ou certificação FIC institucional sem credenciamento formal).
+- **Alinhamento CBO (MTE), LPI/LDA/CDC e Matriz Completa de 560h:** Estruturado em **8 Unidades Curriculares (`UC1` a `UC8`)**, somando **260h de Teoria e Fixação** e **300h de Laboratórios Práticos** (**8 Laboratórios Especializados** e **80 Cenários** `LAB-UC1-01` a `LAB-UC8-10`), além de trilha preparatória para certificações oficiais com uso nominativo lícito de marcas (`Lei nº 9.279/1996 Art. 132`), interfaces autorais sem imitação de trade dress de terceiros (`LPI Art. 195`), simulação própria sem pirataria de firmware (`Lei nº 9.609/1998`), proibição de *brain dumps* (`Lei nº 9.610/1998`), tributação realista com base na **Solução de Consulta Cosit nº 236/2017** (faixa progressiva real do **Simples Nacional Anexo III com Fator R `>= 28%` (~11,05%) ou Anexo V (~18,12%)** em `RBT12 R\$ 576 mil`, **CNAEs principais `8599-6/03` / `8599-6/04` e secundários SaaS `6203-1/00`, `6311-9/00`, `6319-4/00`**, além de transição gradual para **IBS/CBS da LC nº 214/2025**) e `CDC Art. 49` / `Decreto nº 7.962/2013`. Detalhes completos em [PLANEJAMENTO_PEDAGOGICO_E_MATRIZ_560H.md](PLANEJAMENTO_PEDAGOGICO_E_MATRIZ_560H.md).
 
 ---
 
-## 2. Objetivos da Versão Hackathon
+## 2. Objetivos da Versão Hackathon e Diretriz de Interface
 
-1. **Experiência completa ponta a ponta sem login obrigatório:** qualquer avaliador acessa a demonstração com 1 clique (sessão anônima com semente configurável), escolhe iniciar a trilha ou testar diretamente um nível específico.
-2. **Os 4 Motores funcionando de ponta a ponta:**
+1. **Experiência completa ponta a ponta sem login obrigatório:** qualquer avaliador acessa a demonstração com 1 clique (sessão anônima com semente configurável), podendo iniciar desde o nível zero ou testar diretamente qualquer cenário.
+2. **Proibição Absoluta de E Comercial na Interface:** Nenhum título, aba, página, botão ou rótulo de tela utiliza o símbolo E comercial — adota-se exclusivamente **"e"**.
+3. **Experiência Educacional no MVP vs. Ciclo Cognitivo Completo (Roadmap):**
+   - **Implementado no MVP Hackathon:** **Tema Claro Educacional** (leitura confortável com modo escuro opcional), **Missão 0 guiada em 4 passos**, **Glossário rápido**, **Matriz transparente de Escopo (MVP vs. Roadmap)**, **Debrief Didático da Caixa-Preta** e aviso explícito de operação 100% sintética.
+   - **Roadmap Ondas 1–3 (Pós-Hackathon):** Microaulas com analogias e recordação ativa + **Repetição Espaçada (SM-2)**, **Caderno estilo Notion (Método Cornell)**, **Mentor IA (Feynman e Pitch STAR)** e **Bancadas Físicas dedicadas (`UC1` a `UC8`)** com `HardwareWorkbenchLab` (peças/ESD/pasta térmica/upgrade) e Cabeamento T568A/B + Rack PoE.
+4. **Os 4 Motores Determinísticos funcionando de ponta a ponta:**
    - **Workstation Unificada:** Desktop corporativo no navegador com 4 apps integrados (**ITSM**, **Comunicador/Chat**, **SimuDesk Acesso Remoto**, **Intranet/KB**).
-   - **Clientes Sintéticos & Tech Lead (Máquina de Estados + Sistema em 3 Atos):** Personas distintas com gatilho determinístico de liberação de acesso remoto e diálogo roteirizado sem dependência de chave externa.
-   - **Chaos Injector (Injeção de Falhas):** Cenários parametrizados por semente para impedir "receita decorada".
-   - **Juiz 360º, Replay & Currículo Vivo:** Avaliação determinística por critérios binários observáveis na trilha de eventos + linha do tempo navegável + **Currículo Vivo** verificável por **JCS (RFC 8785) + SHA-256**.
-3. **Progressão de Carreira Jogável:** Jornada em **5 níveis/cenários** demonstrando a evolução do profissional (**Estagiário → Analista Jr N1 → Analista Pleno N2 → SRE/Cloud N4 → SQL Audit N4b**), com XP, promoção, Modo Guiado vs. Autônomo e eventos de caos corporativo.
+   - **Clientes Sintéticos e Tech Lead (Máquina de Estados e Sistema em 3 Atos):** Personas distintas com gatilho determinístico de liberação de acesso remoto e diálogo roteirizado sem dependência de chave externa.
+   - **Chaos Injector (Injeção de Falhas):** Cenários parametrizados por semente (`SplitMix64`) para impedir "receita decorada" (e trava de produção `Demo:PermitirParametrosDeTeste` desabilitada por padrão).
+   - **Juiz 360º, Replay e Currículo Vivo:** Avaliação determinística por critérios binários observáveis na trilha de eventos (*Event Sourcing*) + linha do tempo navegável (**Caixa-Preta do Atendimento**) + **Currículo Vivo** verificável offline em `/verificar` por **JCS (RFC 8785 UTF-8) + SHA-256 + assinatura ECDSA P-256**.
+5. **Visão Futura Onda 4 (Simulador de Chamada em Vídeo com Agentes de IA):** Evolução pós-Hackathon onde o estudante atende clientes leigos, gestores sob pressão de SLA P1, ataques de engenharia social (*Vishing*) e entrevistas técnicas em chamada de vídeo e voz ao vivo dentro do cockpit, com o motor `.NET 10` mantendo autoridade exclusiva sobre o estado técnico.
 
 ---
 
-## 3. Escopo Funcional — Os 5 Níveis da Jornada
+## 3. Escopo Funcional — Trilha de Técnico de Suporte (MVP Hackathon e Matriz 560h)
 
-### Nível 1: Estagiário (`triagem-engenharia-social`) — *Triagem, Atendimento e Segurança*
-- **Foco:** Acolhimento do usuário, classificação no ITSM, consulta à Base de Conhecimento (`KB-001`) e política de verificação de identidade.
-- **Mecânica:** Modo guiado com checklist de boas práticas.
-- **Evento Surpresa (Caos Corporativo):** Um "suposto Diretor/VIP" entra no chat pedindo reset de senha urgente sem passar pelo protocolo de verificação.
-  - Validar pela política da KB e recusar/escalar corretamente resulta em aprovação de segurança.
-  - Ceder à pressão e resetar sem validar gera incidente de segurança registrado pelo Juiz.
+### Ciclo 1 — Prontidão Rápida Júnior e Field Service (Meses 1 a 4 · 280h · `UC1` a `UC4`)
+- **UC1 (Mês 1 · 70h) — Eletricidade Aplicada, ESD e Bancada Física (`CBO 3132-20` · `HardwareWorkbenchLab`):** Fontes ATX, Nobreaks/UPS, ESD, placa-mãe, POST/UEFI, RAM DDR4/DDR5, SSD NVMe/SMART, termodinâmica e manutenção preventiva em desktop e notebook (`LAB-UC1-01` a `LAB-UC1-10`).
+- **UC2 (Mês 2 · 70h) — Sistemas Operacionais Profundos (`CBO 3172-10` · `OsSystemAdminLab`):** Windows 10/11 (UEFI/BCD, BitLocker, Registro, Perfil Temporário, Serviços, Sysinternals, `DISM`/`SFC`, BSOD, PowerShell) e Linux Corporativo (FHS, permissões POSIX, `systemd`, `journalctl`, SSH) (`LAB-UC2-01` a `LAB-UC2-10`).
+- **UC3 (Mês 3 · 70h) — Redes TCP/IP, Cabeamento, Rack `U`, Wi-Fi Design e VPN (`NetworkCablingWifiDesignLab`):** Bancada Física de Cabeamento T568A/B, Keystone/Patch Panel, Testador de Cabos, Rack `U` PoE + **Estúdio Visual de Design Wi-Fi inspirado no *Ubiquiti UniFi Design Center*** (planta baixa, atenuação dB, *Heatmap RF* `2.4/5/6 GHz` e Controladora), IPv4/CIDR, DHCP, DNS, SMB, `802.1X` e VPN (`LAB-UC3-01` a `LAB-UC3-10`; base **implementada no MVP** em `pasta-rede-inacessivel` C1/C2/C3).
+- **UC4 (Mês 4 · 70h) — Ambientes Corporativos, M365, Impressão, Certificados A1/A3 e ITIL/LGPD (`CorporateWorkspaceLab`):** Active Directory N1, Microsoft 365/Exchange (`.ost`/OneDrive), Spooler/Scanner SMB, ICP-Brasil A1/A3, matriz Impacto x Urgência, LGPD e defesa contra engenharia social (`LAB-UC4-01` a `LAB-UC4-10`; cenário **implementado no MVP** `triagem-engenharia-social` + Capstone Jr 280h).
 
-### Nível 2: Analista Jr N1 (`pasta-rede-inacessivel`) — *Diagnóstico Técnico com Chaos Injector*
-- **Foco:** Investigação em ambiente remoto (`SimuDesk`), correlação de chamados e uso disciplinado de privilégio (sessão da usuária vs. prompt elevado).
-- **Fila ITSM:** Chamado principal da usuária Maria + chamados correlatos/ruído na fila com SLA ativo.
-- **Chaos Injector (3 causas raiz sorteadas por semente):**
-  - **C1:** Usuária fora do grupo de acesso no diretório fictício (exige aprovação do gestor antes da inclusão e novo logon).
-  - **C2:** Registro DNS apontando para IP incorreto (exige escalonamento com evidência para N2 + `ipconfig /flushdns` elevado após correção).
-  - **C3:** Serviço `LanmanWorkstation` parado na estação (exige diagnóstico, elevação, reinício do serviço correto e registro do programa suspeito).
-- **Transferência de aprendizado:** Permite executar novas sementes para comprovar investigação genuína em vez de sequência memorizada.
+### Ciclo 2 — Técnico Pleno (N2) e 3 Vertentes Técnicas N3 (Meses 5 a 8 · +280h = 560h · `UC5` a `UC8`)
+- **UC5 (Mês 5 · 80h) — Sustentação N2 (`CBO 2124-20` · `ServerSustainmentLab`):** Windows/Linux Server, File Server Share vs. NTFS, GPO (`LSDOU`), *Account Lockout* (`Event ID 4740`), Trust AD, Event Viewer, scripts PowerShell/Bash, Gestão de Problemas ITIL e RCA (`LAB-UC5-01` a `LAB-UC5-10`; cenário **implementado no MVP** `incidente-massivo`).
+- **UC6 (Mês 6 · 65h) — Vertente N3-A: Redes Multi-Vendor, Firewall NGFW, Zabbix e Cloud (`CBO 2124-10 / 3171-05` · `MultiVendorNetworkFirewallLab`):** Switches/roteadores em **Cisco IOS XE**, **MikroTik RouterOS/WinBox** e **Ubiquiti UniFi** (VLAN `802.1Q`/STP/LACP/Dual WAN Failover) + **Simulador de Firewall NGFW/UTM (inspirado em Fortinet FortiGate)** com NAT, **Bloqueio Geográfico (`GeoIP Filtering`)**, **Filtro de Conteúdo (`Content Filter`)**, **Antivírus de Borda (`Gateway Antivirus`)**, IPS e VPN IPsec Site-to-Site + Zabbix e Kubernetes (`LAB-UC6-01` a `LAB-UC6-10`; cenário **implementado no MVP** `sre-cloud-latencia`).
+- **UC7 (Mês 7 · 70h) — Vertente N3-B: Data Center, Virtualização, Storage, Backup Cloud e DRP (`CBO 3172-05 / 2124-20` · `DataCenterStorageCloudBackupLab`):** **Rack `42U`** com PDUs A+B e fluxo frio/quente, S.M.A.R.T., RAID `0/1/5/6/10` + *Hot Spare*, SAN iSCSI (`SAN Policy`/MPIO), Datastores e Snapshots Hyper-V/VMware, **Backup Corporativo Local e Backup em Nuvem com Imutabilidade WORM (`S3 Object Lock` / AES-256)** na regra **3-2-1-1-0**, VSS, `RPO`/`RTO`, Teste de Restore em Sandbox e DRP (`LAB-UC7-01` a `LAB-UC7-10`; prioridade Onda 1 com `falha-backup-restore`).
+- **UC8 (Mês 8 · 65h) — Vertente N3-C: Cibersegurança Blue Team, IAM, Antivírus/EDR e Auditoria SQL (`CBO 2123-05 / 3172-10` · `CyberBlueTeamSqlLab`):** MFA/FIDO2, Acesso Condicional/*Impossible Travel*, Break-Glass, apps OAuth, SPF/DKIM/DMARC, forense Phishing/BEC, **Console Central de Antivírus Corporativo e EDR**, Auditoria SQL *Fail-Closed* (`SELECT` / `EXPLAIN`) e proteção contra SQL Injection (`LAB-UC8-01` a `LAB-UC8-10`; cenário **implementado no MVP** `diagnostico-sql-readonly` + Capstone Final 560h).
 
-### Nível 3: Analista Pleno N2 (`incidente-massivo`) — *Incidente Massivo e Análise de Causa Raiz (RCA)*
-- **Foco:** Correlação de múltiplos incidentes em um Problema ITIL, leitura de logs da estação e contenção sem ações destrutivas.
-- **Cenário:** Atualização recente derruba conectividade/serviço em múltiplos usuários da empresa fictícia *Aurora Logística*. O participante identifica o padrão nos logs, cria o Problema ITIL vinculando os incidentes, restaura `AuroraGateway`, documenta a causa raiz e encerra os chamados.
-
-### Nível 4: SRE / Cloud (`sre-cloud-latencia`) — *Diagnóstico Cloud e Kubernetes Simulado*
-- **Foco:** Investigação de degradação de disponibilidade em ambiente cloud simulado em memória, com **3 causas raiz sorteadas por semente** (`OOM_KILLED`, `POOL_EXHAUSTED`, `CERT_EXPIRED`).
-- **Mecânica:** Comandos declarados (`kubectl get pods`, `kubectl logs`, `kubectl describe ingress`, `pg_stat_activity`, `curl -I`, `kubectl set resources`, `kubectl rollout restart`), mitigação com privilégio elevado e painéis de cluster/pool/ingress, recusando comandos destrutivos.
-
-### Nível 4b: SQL Read-Only (`diagnostico-sql-readonly`) — *Auditoria SQL Fail-Closed*
-- **Foco:** Investigação de divergência de fechamento entre `pedidos` e `pagamentos` sobre dataset sintético imutável mantido em memória.
-- **Mecânica:** Parser *fail-closed* restrito a `SELECT` e `EXPLAIN SELECT` sobre allowlist explícita, bloqueando DDL/DML e tentativas de injeção SQL.
+### Fomento a Certificações, Parcerias (*Vendor Academies*) e Modelos Comerciais
+- **Centro de Simulados de Certificações (Pós-Hackathon):** Mapeia as `UC1–UC8` para **CompTIA (Tech+/A+/Network+/Security+/Server+)**, **Cisco (CCST/CCNA)**, **MikroTik (MTCNA/MTCRE)**, **Fortinet (FCF/FCA/FCP)**, **Ubiquiti (UWA/UBRSS)**, **Microsoft (MS-900/MD-102/AZ-800/SC-900/SC-200)**, **LPI**, **Zabbix**, **Veeam (VMCE)** e **ITIL 4**, com banco autoral inédito (zero *dumps*) e futuro credenciamento em **Vendor Academies** para vouchers e laboratórios com sistemas oficiais licenciados.
+- **Modelos de Monetização Validados:** Assinatura Essencial (**R\$ 59,90/mês** anual ou **R\$ 79,90/mês** mensal), Assinatura Pro com Certificações e Vídeo IA Onda 4 (**R\$ 119,90/mês** anual ou **R\$ 149,90/mês** mensal), Pacotes Intensivos Fechados (**R\$ 497,00** Júnior 4m / **R\$ 897,00** Completo 8m) e Licenciamento B2B (**R\$ 45–85/assento/mês**).
 
 ---
 
-## 4. Requisitos dos 4 Apps da Workstation Unificada
+## 4. Requisitos dos Ambientes Integrados
 
-1. **ITSM (Ticket Manager):**
-   - Fila com status, SLA em tempo real, categoria, prioridade (Urgência × Impacto), linha do tempo de notas (públicas e internas), criação/vinculação de Problema, solicitação de aprovação, escalonamento (N2) e resolução do chamado.
-2. **Comunicador Corporativo (Chat):**
-   - Aba com o **Cliente Simulado** (personalidades distintas por cenário; só libera o ID/PIN do acesso remoto após triagem e identificação).
-   - Aba com o **Tech Lead** (botão explícito de "Pedir Pista", registrado sem penalidade automática; oferece orientação contextual).
-3. **SimuDesk (Acesso Remoto à Estação / Console Fictício):**
-   - Conexão via ID/PIN recebido no chat.
-   - **Terminal interativo** com dois contextos explícitos (usuário vs. elevado) e comandos declarados por cenário (respostas honestas para comandos não suportados).
-   - **Painéis Operacionais (visual próprio, sem copiar marcas proprietárias):** Usuários & Grupos, Serviços, DNS, Logs, Cluster Kubernetes/PgBouncer/Ingress (N4) e Console SQL Read-Only (N4b).
-4. **Intranet / KB, Replay & Currículo Vivo:**
-   - Base de Conhecimento pesquisável com procedimentos padrão, topologia da *Aurora Logística* e política de segurança.
-   - **Tela de Avaliação 360º + Replay:** Linha do tempo passo a passo de todas as ações e eventos, checklist de critérios observáveis e exportação do **Currículo Vivo** verificável offline em `/verificar` via **JCS (RFC 8785) + SHA-256**.
+### 4.1. Camada Pedagógica e de Fixação
+1. **`🏠 Painel do Aluno`:** Banner "Continue de onde parou", trilha nos Ciclos 1 e 2 com 3 barras por nível (*Teoria*, *Fixação*, *Prática*), meta semanal, timer Pomodoro 25/5, revisões devidas hoje e Plano de Estudos.
+2. **`📖 Aulas e Flashcards`:** Microaulas estruturadas com analogias e diagramas, checkpoint de recordação ativa antes de exibir alternativas, repetição espaçada (`SM-2`) e anotações Cornell ao lado da aula.
+3. **`🔧 Laboratórios e Bancadas:`** 1 Laboratório Interativo Dedicado por Unidade Curricular (`UC1` a `UC8`) — iniciando no Hackathon com `HardwareWorkbenchLab` (Hardware/Preventiva/UPS 2D) e Workstation, evoluindo nas Ondas 1–3 para Cabeamento T568A/B + Estúdio Wi-Fi Design, Multi-Vendor Cisco/MikroTik/UniFi + Firewall Fortinet NGFW (GeoIP, Content Filter, Gateway AV), Rack 42U/RAID/iSCSI + Cloud Backup WORM e Console EDR/Antivírus.
+4. **`📓 Caderno (estilo Notion)`:** Páginas pesquisáveis com modelos (*Método Cornell*, *Plano de Estudos*, *Página Livre*) e salvamento automático acessível também em gaveta retrátil dentro do Laboratório.
+5. **`🤖 Mentor IA e Carreira`:** Chat de dúvidas pedagógicas, avaliador da **Técnica de Feynman** (nota `0–100` e detector de jargão), **Construtor de Pitch STAR** integrado ao Currículo Vivo e futuro **Simulador de Chamada em Vídeo ao Vivo (Onda 4)**.
+
+### 4.2. Os 4 Apps da Workstation Unificada (`🛠️ Laboratório`)
+1. **ITSM (Ticket Manager):** Fila com status, SLA em tempo real, categoria, prioridade (Urgência x Impacto), notas públicas/internas, criação/vinculação de Problema ITIL, escalonamento e resolução.
+2. **Comunicador Corporativo (Chat):** Cliente Simulado (só libera ID/PIN após triagem e verificação de identidade) e Tech Lead (botão explícito de "Pedir Pista" em 3 atos sem penalidade automática).
+3. **SimuDesk (Acesso Remoto e Consoles):** Conexão via ID/PIN, terminal interativo com dois contextos (`UsuarioPadrao` vs. `Elevado`), catálogo declarado de comandos e painéis operacionais (Diretório, Serviços, DNS, Logs, Cluster Kubernetes/PgBouncer/Ingress e Console SQL Read-Only).
+4. **Intranet / KB, Replay e Currículo Vivo:** Base de Conhecimento pesquisável (26+ artigos sintéticos), **Avaliação 360º com Debrief Didático e Replay da Caixa-Preta em linha do tempo** e exportação do **Currículo Vivo** verificável offline em `/verificar` via **JCS (RFC 8785 UTF-8) + SHA-256 + assinatura ECDSA P-256**.
 
 ---
 
-## 5. Requisitos Não-Funcionais e Conformidade (Hack Brasil 2026)
+## 5. Requisitos Não-Funcionais, Conformidade e Sustentabilidade Econômica
 
 - **Código autoral para o Hackathon:** Todo o código (backend, motor, ITSM, cenários, frontend) foi escrito especificamente neste repositório público para o Hack Brasil 2026.
-- **100% Dados Sintéticos:** Nenhuma coleta de dados pessoais reais; empresa fictícia (*Aurora Logística*), usuários sintéticos e sessões anônimas com TTL automático.
-- **Acessibilidade:** Navegação por teclado, foco visível, semântica ARIA e contraste validado por testes automatizados (`axe-core`).
-- **Disponibilidade e Custo Zero:** Execução determinística habilitada por padrão (`Dialogo:HabilitarLlm=false`), garantindo zero custo externo de API e 100% de disponibilidade para avaliação.
+- **100% Dados Sintéticos:** Nenhuma coleta de dados pessoais reais; empresa fictícia (*Aurora Logística*), usuários sintéticos e sessões anônimas com TTL automático (expurgo de sessões expiradas `> 2 dias`).
+- **Acessibilidade (WCAG AA):** Navegação por teclado, foco visível, semântica ARIA e contraste maior ou igual a `4.5:1` (em Tema Claro e Tema Escuro) validados automaticamente (`axe-core`, **25 testes Vitest**, **69 testes xUnit** + integração PostgreSQL CI e **11 jornadas E2E Playwright**).
+- **Disponibilidade, Custo Zero no Hackathon, Créditos Oficiais e Economia Real em Produção:** Execução determinística habilitada por padrão (`Dialogo:HabilitarLlm=false`), garantindo **R\$ 0,00** no Hackathon (com benefícios oficiais do `hackbrasil.com`: WorkOS, Resend e Nvoip para finalistas; e premiações/créditos AbacatePay, Firecrawl, Cognition, Convex e Resend/visto para vencedores e Top 3). No produto comercial pronto (preços reais de tabela 2026 sem gratuidade para 1.000 alunos ativos pagos), a infraestrutura fixa + IA texto 80/20 é de **R\$ 1,47 a R\$ 2,35 por aluno/mês**, com adicional sob demanda de **R\$ 3,71 a R\$ 10,90 por sessão de vídeo de 8 min** na Onda 4 (com teto de minutos e fallback voz/chat) apenas no Plano Pro, mantendo **margem de contribuição real de 66,1% a 83,0%** já após **Simples Nacional real (11,05% Anexo III c/ Fator R em RBT12 R\$ 576 mil)** e gateway (detalhes em [PLANEJAMENTO_PEDAGOGICO_E_MATRIZ_560H.md](PLANEJAMENTO_PEDAGOGICO_E_MATRIZ_560H.md)).

@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  backend:
+    name: Backend (.NET 10 + PostgreSQL 17)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: simulador
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restaurar solução backend
+        run: dotnet restore src/backend/Simulador.slnx
+
+      - name: Compilar solução backend
+        run: dotnet build src/backend/Simulador.slnx --no-restore
+
+      - name: Executar testes unitários e de API (xUnit)
+        run: dotnet test src/backend/Simulador.slnx --no-build --verbosity normal
+
+      - name: Executar testes de integração PostgreSQL
+        env:
+          SIMULADOR_TEST_POSTGRES: Host=127.0.0.1;Port=5432;Database=simulador;Username=postgres;Password=postgres
+        run: dotnet test src/backend/tests/Simulador.Infra.IntegrationTests/Simulador.Infra.IntegrationTests.csproj --verbosity normal
+
+  frontend:
+    name: Frontend (React 19 + Vitest + Oxlint)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/frontend
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: 'src/frontend/package-lock.json'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Lint (Oxlint)
+        run: npm run lint
+
+      - name: Testes unitários e de acessibilidade (Vitest + axe-core)
+        run: npm test -- --run
+
+      - name: Build de produção e checagem anti-segredos no bundle
+        run: npm run build

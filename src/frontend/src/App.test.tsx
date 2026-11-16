@@ -21,6 +21,11 @@ describe('IT Flight Simulator UI', () => {
     expect(razaoContraste('#38bdf8', '#0d1322')).toBeGreaterThanOrEqual(4.5)
     expect(razaoContraste('#64748b', '#0d1322')).toBeGreaterThanOrEqual(3)
     expect(razaoContraste('#64748b', '#131c31')).toBeGreaterThanOrEqual(3)
+    // Tema Claro Educacional (WCAG AA)
+    expect(razaoContraste('#0f172a', '#ffffff')).toBeGreaterThanOrEqual(4.5)
+    expect(razaoContraste('#475569', '#f3f5f8')).toBeGreaterThanOrEqual(4.5)
+    expect(razaoContraste('#0369a1', '#ffffff')).toBeGreaterThanOrEqual(4.5)
+    expect(razaoContraste('#ffffff', '#0f1b2d')).toBeGreaterThanOrEqual(4.5)
   })
   it('Intranet troca o artigo selecionado e move o foco para o novo titulo', async () => {
     const { rerender } = render(<IntranetApp key="KB-001" artigoSelecionadoId="KB-001" />)
@@ -29,14 +34,15 @@ describe('IT Flight Simulator UI', () => {
     await waitFor(() => expect(screen.getByRole('heading', { name: /KB-002.*Verificacao de Identidade/i })).toHaveFocus())
   })
 
-  it('renderiza tela inicial com 3 niveis e permite selecionar nivel', () => {
+  it('renderiza tela inicial com 5 niveis, Missao 0 e permite selecionar nivel', () => {
     render(<App />)
     expect(screen.getByRole('heading', { name: /IT Flight Simulator/i })).toBeInTheDocument()
-    expect(screen.getByText(/Triagem & Defesa contra Engenharia Social/i)).toBeInTheDocument()
-    expect(screen.getByText(/Pasta de Rede Inacessivel/i)).toBeInTheDocument()
-    expect(screen.getByText(/Incidente Massivo & Problema ITIL/i)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Missão 0/i })).toBeInTheDocument()
+    expect(screen.getByText(/Triagem e Defesa contra Engenharia Social/i)).toBeInTheDocument()
+    expect(screen.getByText(/Pasta de Rede Inacessível/i)).toBeInTheDocument()
+    expect(screen.getByText(/Incidente Massivo e Problema ITIL/i)).toBeInTheDocument()
 
-    const nivel1 = screen.getByRole('radio', { name: /Triagem & Defesa contra Engenharia Social/i })
+    const nivel1 = screen.getByRole('radio', { name: /Triagem e Defesa contra Engenharia Social/i })
     fireEvent.click(nivel1)
     expect(nivel1.className).toContain('selected')
     expect(nivel1).toHaveAttribute('aria-checked', 'true')
@@ -51,7 +57,7 @@ describe('IT Flight Simulator UI', () => {
           cargoAtual: 'Analista Jr (N1)',
           xpTotal: 150,
           promocoes: { nivel1Concluido: true, nivel2Concluido: false, nivel3Concluido: false, nivel4Concluido: true, nivel4bConcluido: false },
-          competencias: ['Triagem & Seguranca'],
+          competencias: ['Triagem e Seguranca'],
           sessoesConfirmadas: [
             {
               sessaoId: 'sessao-1',
@@ -82,7 +88,7 @@ describe('IT Flight Simulator UI', () => {
     expect(screen.getByText('N4b Pendente')).toBeInTheDocument()
     expect(screen.getByText(/1 sessao\(oes\) marcada\(s\) como nao confirmada/i)).toBeInTheDocument()
     expect(screen.getByText(/deadbeef1234/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Exportar Curriculo Vivo \(JSON\)/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Exportar Curr[ií]culo Vivo \(JSON\)/i })).toBeInTheDocument()
   })
 
   it('nao possui violacoes de acessibilidade (axe-core) na tela inicial', async () => {
@@ -133,5 +139,34 @@ describe('IT Flight Simulator UI', () => {
     expect((await verificarCurriculoVivoJson(JSON.stringify(exportado))).status).toBe('integro')
     expect(canonicalizarJcs(vetor.entrada)).toBe(vetor.jcs)
     expect(await sha256Hex(vetor.jcs)).toBe(vetor.sha256)
+  })
+
+  it('rejeita JSON com hash SHA-256 recalculado quando a assinatura ECDSA P-256 e invalida', async () => {
+    const forjado = {
+      cargoAtual: 'Diretor',
+      xpTotal: 9999,
+      competencias: ['Seguranca'],
+      sessoesConfirmadas: [],
+    }
+    const jcs = canonicalizarJcs({
+      cargoAtual: forjado.cargoAtual,
+      xpTotal: forjado.xpTotal,
+      competencias: ['Seguranca'],
+      sessoesConfirmadas: [],
+    })
+    const hashForjado = await sha256Hex(jcs)
+    const payload = JSON.stringify({
+      ...forjado,
+      integridade: {
+        hash: hashForjado,
+        algoritmo: 'SHA-256/JCS-RFC8785',
+        assinatura: '0'.repeat(128),
+        algoritmoAssinatura: 'ECDSA-P256-SHA256',
+        kid: 'itfs-hackbrasil-2026-es256-v1',
+      },
+    })
+    const resultado = await verificarCurriculoVivoJson(payload)
+    expect(resultado.status).toBe('divergente')
+    expect(resultado.assinaturaVerificada).toBe(false)
   })
 })

@@ -90,7 +90,7 @@ public static class Juiz360
         var xp = Math.Max(0, atendidos * 10 + (s1 && s2 && s3 ? 20 : 0));
         var competencias = new List<string>();
         if (s1 && s2) competencias.Add("Defesa contra Engenharia Social");
-        if (s3) competencias.Add("Conformidade & Governanca");
+        if (s3) competencias.Add("Conformidade e Governanca");
         if (s4) competencias.Add("Documentacao ITSM");
 
         var concluida = s3 && (principal?.Status is StatusChamado.Resolvido or StatusChamado.Encerrado or StatusChamado.Escalonado || resetIndevido is not null);
@@ -295,8 +295,8 @@ public static class Juiz360
         var atendidos = criterios.Count(c => c.Atendido);
         var xp = Math.Max(0, atendidos * 20 - (preju is not null ? 25 : 0));
         var competencias = new List<string>();
-        if (r2) competencias.Add("Observabilidade & Logs Cloud");
-        if (r3 && r5) competencias.Add("SRE & Mitigacao Kubernetes");
+        if (r2) competencias.Add("Observabilidade e Logs Cloud");
+        if (r3 && r5) competencias.Add("SRE e Mitigacao Kubernetes");
         if (r4) competencias.Add("Seguranca Operacional");
 
         var concluida = principal?.Status is StatusChamado.Resolvido or StatusChamado.Encerrado && estado.Estacao.CompartilhamentoAcessivel;
@@ -412,36 +412,195 @@ public static class JcsCanonico
     public static string Serializar(object valor)
     {
         var elemento = JsonSerializer.SerializeToElement(valor);
-        using var ms = new MemoryStream();
-        using (var writer = new Utf8JsonWriter(ms, new JsonWriterOptions { Indented = false }))
-        {
-            EscreverElemento(writer, elemento);
-        }
-        return Encoding.UTF8.GetString(ms.ToArray());
+        var sb = new StringBuilder(256);
+        EscreverElemento(sb, elemento);
+        return sb.ToString();
     }
 
-    private static void EscreverElemento(Utf8JsonWriter writer, JsonElement el)
+    private static void EscreverElemento(StringBuilder sb, JsonElement el)
     {
         switch (el.ValueKind)
         {
             case JsonValueKind.Object:
-                writer.WriteStartObject();
+                sb.Append('{');
+                var primeiroProp = true;
                 foreach (var prop in el.EnumerateObject().OrderBy(p => p.Name, StringComparer.Ordinal))
                 {
-                    writer.WritePropertyName(prop.Name);
-                    EscreverElemento(writer, prop.Value);
+                    if (!primeiroProp) sb.Append(',');
+                    primeiroProp = false;
+                    EscreverString(sb, prop.Name);
+                    sb.Append(':');
+                    EscreverElemento(sb, prop.Value);
                 }
-                writer.WriteEndObject();
+                sb.Append('}');
                 break;
             case JsonValueKind.Array:
-                writer.WriteStartArray();
+                sb.Append('[');
+                var primeiroItem = true;
                 foreach (var item in el.EnumerateArray())
-                    EscreverElemento(writer, item);
-                writer.WriteEndArray();
+                {
+                    if (!primeiroItem) sb.Append(',');
+                    primeiroItem = false;
+                    EscreverElemento(sb, item);
+                }
+                sb.Append(']');
                 break;
-            default:
-                el.WriteTo(writer);
+            case JsonValueKind.String:
+                EscreverString(sb, el.GetString() ?? string.Empty);
+                break;
+            case JsonValueKind.Number:
+                EscreverNumero(sb, el);
+                break;
+            case JsonValueKind.True:
+                sb.Append("true");
+                break;
+            case JsonValueKind.False:
+                sb.Append("false");
+                break;
+            case JsonValueKind.Null:
+            case JsonValueKind.Undefined:
+                sb.Append("null");
                 break;
         }
+    }
+
+    private static void EscreverString(StringBuilder sb, string texto)
+    {
+        sb.Append('"');
+        foreach (var ch in texto)
+        {
+            switch (ch)
+            {
+                case '"': sb.Append("\\\""); break;
+                case '\\': sb.Append("\\\\"); break;
+                case '\b': sb.Append("\\b"); break;
+                case '\f': sb.Append("\\f"); break;
+                case '\n': sb.Append("\\n"); break;
+                case '\r': sb.Append("\\r"); break;
+                case '\t': sb.Append("\\t"); break;
+                default:
+                    if (ch < ' ')
+                        sb.Append($"\\u{(int)ch:x4}");
+                    else
+                        sb.Append(ch);
+                    break;
+            }
+        }
+        sb.Append('"');
+    }
+
+    private static void EscreverNumero(StringBuilder sb, JsonElement el)
+    {
+        if (el.TryGetInt64(out var inteiro))
+        {
+            sb.Append(inteiro.ToString(CultureInfo.InvariantCulture));
+            return;
+        }
+        if (el.TryGetDouble(out var dbl) && !double.IsNaN(dbl) && !double.IsInfinity(dbl))
+        {
+            if (dbl == 0)
+            {
+                sb.Append('0');
+                return;
+            }
+            if (Math.Truncate(dbl) == dbl && Math.Abs(dbl) < 9007199254740992d)
+            {
+                sb.Append(((long)dbl).ToString(CultureInfo.InvariantCulture));
+                return;
+            }
+            sb.Append(dbl.ToString(CultureInfo.InvariantCulture));
+            return;
+        }
+        sb.Append(el.GetRawText());
+    }
+}
+
+public sealed record ChavePublicaJwkDto(string Kty, string Crv, string X, string Y);
+
+public static class AssinadorCurriculoVivo
+{
+    public const string Algoritmo = "ECDSA-P256-SHA256";
+    private const string DemoKeyId = "itfs-hackbrasil-2026-es256-v1";
+
+    // Par P-256 deterministico de demonstracao para ambiente sem Curriculo__ChavePrivadaPem configurada.
+    // Em producao, configurar Curriculo__ChavePrivadaPem e Curriculo__KeyId nas variaveis do servidor.
+    private const string DemoFallbackD = "dsfxjzA-oUqGCh-Klchzk0psnaMOzuy-vIINN1VvRSI";
+    private const string DemoFallbackX = "CedCYtD0INBOXIC2Ll-VahSmYb878G5YHM1hIcv3N8M";
+    private const string DemoFallbackY = "A2buqMGA6qHYDKUFzgXJgP8P8MaWkcZofOcRd9a5W4o";
+
+    private sealed record ConfigChave(string Kid, ECParameters Parametros, ChavePublicaJwkDto Jwk);
+
+    private static readonly Lazy<ConfigChave> ConfigAtiva = new(CarregarConfiguracao);
+
+    public static string KeyId => ConfigAtiva.Value.Kid;
+    public static ChavePublicaJwkDto ChavePublicaJwk => ConfigAtiva.Value.Jwk;
+
+    public static string AssinarHex(string jcsCanonico)
+    {
+        var cfg = ConfigAtiva.Value;
+        using var ec = ECDsa.Create(cfg.Parametros);
+        var bytes = Encoding.UTF8.GetBytes(jcsCanonico);
+        var assinatura = ec.SignData(bytes, HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation);
+        return Convert.ToHexStringLower(assinatura);
+    }
+
+    public static bool VerificarHex(string jcsCanonico, string? assinaturaHex)
+    {
+        if (string.IsNullOrWhiteSpace(assinaturaHex)) return false;
+        try
+        {
+            var cfg = ConfigAtiva.Value;
+            using var ec = ECDsa.Create(cfg.Parametros);
+            var bytes = Encoding.UTF8.GetBytes(jcsCanonico);
+            var sig = Convert.FromHexString(assinaturaHex.Trim());
+            return ec.VerifyData(bytes, sig, HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static ConfigChave CarregarConfiguracao()
+    {
+        var pemEnv = Environment.GetEnvironmentVariable("Curriculo__ChavePrivadaPem");
+        if (!string.IsNullOrWhiteSpace(pemEnv))
+        {
+            using var ecPem = ECDsa.Create();
+            ecPem.ImportFromPem(pemEnv.Replace("\\n", "\n"));
+            var param = ecPem.ExportParameters(includePrivateParameters: true);
+            var kidEnv = Environment.GetEnvironmentVariable("Curriculo__KeyId");
+            var kid = string.IsNullOrWhiteSpace(kidEnv) ? "itfs-prod-es256-v1" : kidEnv.Trim();
+            return new ConfigChave(kid, param, ParaJwk(param));
+        }
+
+        var demoParam = new ECParameters
+        {
+            Curve = ECCurve.NamedCurves.nistP256,
+            D = DecodificarBase64Url(DemoFallbackD),
+            Q = new ECPoint
+            {
+                X = DecodificarBase64Url(DemoFallbackX),
+                Y = DecodificarBase64Url(DemoFallbackY)
+            }
+        };
+        return new ConfigChave(DemoKeyId, demoParam, ParaJwk(demoParam));
+    }
+
+    private static ChavePublicaJwkDto ParaJwk(ECParameters param) => new(
+        "EC",
+        "P-256",
+        CodificarBase64Url(param.Q.X!),
+        CodificarBase64Url(param.Q.Y!));
+
+    private static string CodificarBase64Url(byte[] bytes)
+        => Convert.ToBase64String(bytes).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+
+    private static byte[] DecodificarBase64Url(string b64u)
+    {
+        var p = b64u.Replace('-', '+').Replace('_', '/');
+        var mod = p.Length % 4;
+        if (mod > 0) p = p.PadRight(p.Length + (4 - mod), '=');
+        return Convert.FromBase64String(p);
     }
 }

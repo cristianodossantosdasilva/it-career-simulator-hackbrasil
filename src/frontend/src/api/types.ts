@@ -163,5 +163,9 @@ export interface CarreiraResumoResponse {
     hash: string
     algoritmo: string
     regraHash: string
+    assinatura?: string
+    algoritmoAssinatura?: string
+    kid?: string
+    chavePublicaJwk?: { kty: string; crv: string; x: string; y: string }
   }
 }

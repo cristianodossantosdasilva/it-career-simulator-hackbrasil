@@ -1,0 +1,19 @@
+{
+  "backup_em": "2026-11-15T21:15:00-03:00",
+  "motivo": "Registro de backup antes da suspensao temporaria do servico vitru-agent-gateway na Render para preservar cota mensal compartilhada do it-flight-simulator-api no Hack Brasil 2026.",
+  "service_id": "srv-dbhthue7bikc73fufi4g",
+  "service_name": "vitru-agent-gateway",
+  "repo": "https://github.com/cristianodossantosdasilva/hackathon-vitru-agents",
+  "plan": "free",
+  "region": "oregon",
+  "runtime": "node",
+  "buildCommand": "npm ci",
+  "startCommand": "npm run api:start",
+  "envVarNamesConfigured": [
+    "OPENAI_API_KEY",
+    "AGENT_KNOWLEDGE_FILE",
+    "OPENAI_MODEL"
+  ],
+  "backup_no_repo_vitru": "docs/RENDER_GATEWAY_BACKUP_20261115.json",
+  "resume_endpoint": "POST https://api.render.com/v1/services/srv-dbhthue7bikc73fufi4g/resume"
+}
