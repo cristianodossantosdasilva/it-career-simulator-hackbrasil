@@ -737,6 +737,10 @@ input[type="file"]::file-selector-button:hover { background: #1e293b; border-col
 
 .glossary-details { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.85rem 1rem; box-shadow: var(--shadow-card); }
 .glossary-details summary { cursor: pointer; font-weight: 700; color: var(--text-primary); min-height: 28px; }
+.glossary-details .missao-zero-resumo { min-height: var(--touch-target); }
+.missao-zero-resumo .h2 { display: inline; margin: 0; }
+.missao-zero-resumo .muted { display: block; margin: 0; }
+.missao-zero-resumo .muted { font-weight: 400; }
 .glossary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0.6rem; margin-top: 0.75rem; }
 .glossary-item { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.75rem; font-size: 0.85rem; color: var(--text-secondary); }
 .glossary-item strong { color: var(--text-primary); }

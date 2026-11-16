@@ -3,7 +3,11 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-li
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { apiClient } from '../api/client'
 import { App } from '../App'
-import { carregarEstadoAcademia, criarEstadoInicialAcademia } from '../educacao/catalogoEducacional'
+import {
+  carregarEstadoAcademia,
+  criarEstadoInicialAcademia,
+  salvarEstadoAcademia,
+} from '../educacao/catalogoEducacional'
 
 afterEach(() => {
   cleanup()
@@ -96,5 +100,70 @@ describe('Focus inicial da Academia', () => {
     const navPrincipal = screen.getByRole('navigation', { name: /Navegação principal/i })
     fireEvent.click(within(navPrincipal).getByRole('button', { name: 'Aulas' }))
     expect(screen.getByRole('heading', { level: 2, name: 'Analista Jr (N1)' })).toBeInTheDocument()
+  })
+})
+
+describe('Missao 0 depois do Primeiro Voo e antes das missoes', () => {
+  function secaoMissaoZero() {
+    const titulo = screen.getByRole('heading', { level: 2, name: /Missão 0/i })
+    const detalhes = titulo.closest('details')
+    expect(detalhes).not.toBeNull()
+    return detalhes as HTMLDetailsElement
+  }
+
+  function vemAntes(a: Element, b: Element) {
+    return a.compareDocumentPosition(b) === Node.DOCUMENT_POSITION_FOLLOWING
+  }
+
+  it('ordem no DOM: Primeiro Voo, Missao 0, Missoes, Glossario, Transparencia', () => {
+    render(<App />)
+    const ordem = [
+      screen.getByRole('heading', { level: 2, name: 'Iniciar primeiro voo' }),
+      screen.getByRole('heading', { level: 2, name: /Missão 0/i }),
+      screen.getByRole('heading', { level: 2, name: /^Missões/i }),
+      screen.getByText(/Glossário rápido para iniciantes/i),
+      screen.getByRole('heading', { level: 2, name: /Transparência do escopo/i }),
+    ]
+    for (let i = 0; i < ordem.length - 1; i += 1) {
+      expect(vemAntes(ordem[i], ordem[i + 1]), `posicao ${i} antes de ${i + 1}`).toBe(true)
+    }
+  })
+
+  it('o texto de apoio diferencia a Missao 0 do Primeiro Voo', () => {
+    render(<App />)
+    expect(secaoMissaoZero()).toHaveTextContent(/dentro do chamado/i)
+    expect(screen.getAllByText(/depois que ele estiver aberto/i)).toHaveLength(1)
+  })
+
+  it('sem progresso a Missao 0 abre aberta', () => {
+    render(<App />)
+    expect(secaoMissaoZero().open).toBe(true)
+  })
+
+  it('com progresso a Missao 0 abre recolhida e a escolha manual nao e persistida', () => {
+    salvarEstadoAcademia({ ...criarEstadoInicialAcademia(), lessonsDone: ['aula-qualquer'] })
+    const primeira = render(<App />)
+    const detalhes = secaoMissaoZero()
+    expect(detalhes.open).toBe(false)
+
+    detalhes.open = true
+    primeira.unmount()
+    render(<App />)
+    expect(secaoMissaoZero().open).toBe(false)
+  })
+
+  it('a ordem de Tab percorre Primeiro Voo, Missao 0 e Missoes', () => {
+    render(<App />)
+    const alvos = Array.from(
+      document.querySelectorAll<HTMLElement>('button:not([disabled]), summary, [role="radio"], a[href], input, select, textarea'),
+    )
+    // Sem tabindex positivo, a ordem de Tab segue a ordem do DOM.
+    expect(alvos.some((el) => el.tabIndex > 0)).toBe(false)
+    const primeiroVoo = screen.getByRole('button', { name: 'Iniciar primeiro voo' })
+    const resumoMissaoZero = secaoMissaoZero().querySelector('summary') as HTMLElement
+    const primeiraMissao = screen.getAllByRole('radio')[0]
+    expect(alvos.indexOf(primeiroVoo)).toBeGreaterThanOrEqual(0)
+    expect(alvos.indexOf(resumoMissaoZero)).toBeGreaterThan(alvos.indexOf(primeiroVoo))
+    expect(alvos.indexOf(primeiraMissao)).toBeGreaterThan(alvos.indexOf(resumoMissaoZero))
   })
 })

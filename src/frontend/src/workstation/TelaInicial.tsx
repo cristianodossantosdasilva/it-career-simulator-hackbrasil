@@ -281,6 +281,27 @@ export function TelaInicial({
                 onRetomarLaboratorio={() => shell.retomarLaboratorio?.()}
               />
 
+              {/* Nao persiste a escolha manual: a cada visita a abertura segue temProgresso. */}
+              <details className="glossary-details" open={!temProgresso} aria-labelledby="missao-zero-titulo">
+                <summary className="missao-zero-resumo">
+                  <h2 id="missao-zero-titulo" className="h2">
+                    Missão 0: o que fazer dentro do chamado
+                  </h2>
+                  <span className="muted">
+                    O Primeiro Voo abre o chamado. Este roteiro mostra o que fazer depois que ele estiver aberto.
+                  </span>
+                </summary>
+                <ol className="steps-grid">
+                  {ETAPAS_MISSAO_ZERO.map((etapa, indice) => (
+                    <li key={etapa.titulo} className="step-box">
+                      <strong>
+                        {indice + 1}. {etapa.titulo}
+                      </strong>
+                      {etapa.texto}
+                    </li>
+                  ))}
+                </ol>
+              </details>
               <TabelaMissoes
                 estado={estadoAcademia}
                 cenarioSelecionado={cenario}
@@ -296,23 +317,6 @@ export function TelaInicial({
                 }}
                 onDemoRapida={() => void onIniciar('pasta-rede-inacessivel', 42, 'C1')}
               />
-
-              <section className="edu-card card-b" aria-labelledby="missao-zero-titulo">
-                <h2 id="missao-zero-titulo" className="h2">
-                  Missão 0: como funciona em 4 passos
-                </h2>
-                <p className="muted">Nunca atuou em TI? Comece por aqui.</p>
-                <ol className="steps-grid">
-                  {ETAPAS_MISSAO_ZERO.map((etapa, indice) => (
-                    <li key={etapa.titulo} className="step-box">
-                      <strong>
-                        {indice + 1}. {etapa.titulo}
-                      </strong>
-                      {etapa.texto}
-                    </li>
-                  ))}
-                </ol>
-              </section>
 
               <details className="glossary-details">
                 <summary>Glossário rápido para iniciantes (ITSM, SimuDesk, KB, Caixa-Preta e Semente)</summary>
