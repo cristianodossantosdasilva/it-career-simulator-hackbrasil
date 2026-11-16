@@ -82,15 +82,15 @@ export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVoc
 
             <div className="home-voc-telemetria-strip" aria-hidden="true">
               <span className="home-voc-telemetria-item">
-                <Icone nome="chamado" tamanho={14} /> ITSM Realista
+                <Icone nome="chamado" tamanho={16} /> ITSM Realista
               </span>
               <span className="home-voc-telemetria-separador">•</span>
               <span className="home-voc-telemetria-item">
-                <Icone nome="relogio" tamanho={14} /> Telemetria SLA
+                <Icone nome="relogio" tamanho={16} /> Telemetria SLA
               </span>
               <span className="home-voc-telemetria-separador">•</span>
               <span className="home-voc-telemetria-item">
-                <Icone nome="verificar" tamanho={14} /> Caixa-Preta Auditável
+                <Icone nome="verificar" tamanho={16} /> Caixa-Preta Auditável
               </span>
             </div>
           </div>
@@ -103,7 +103,7 @@ export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVoc
                 <span className="dado-mono">AURORA OPERACIONAL • CH-0001</span>
               </div>
               <div className="home-voc-cockpit-sla dado-mono">
-                <Icone nome="relogio" tamanho={13} /> SLA: 12:00
+                <Icone nome="relogio" tamanho={16} /> SLA: 12:00
               </div>
             </div>
 
@@ -130,7 +130,7 @@ export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVoc
 
             <div className="home-voc-cockpit-footer">
               <span className="home-voc-cockpit-hint">
-                <Icone nome="terminal" tamanho={14} /> Console SimuDesk + Base KB-0108 conectados
+                <Icone nome="terminal" tamanho={16} /> Console SimuDesk + Base KB-0108 conectados
               </span>
             </div>
           </div>
@@ -245,7 +245,7 @@ export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVoc
         {/* LIMITES E INTEGRIDADE OPERACIONAL */}
         <section className="panel home-voc-limites-painel" aria-labelledby="home-voc-limites-titulo">
           <div className="home-voc-limites-header">
-            <Icone nome="verificar" tamanho={18} />
+            <Icone nome="verificar" tamanho={20} />
             <h2 id="home-voc-limites-titulo" className="home-voc-secao-titulo">
               {T.limitesTitulo}
             </h2>
