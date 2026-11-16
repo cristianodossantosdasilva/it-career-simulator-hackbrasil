@@ -29,8 +29,9 @@ interface ComandoExecutado {
 }
 
 /**
- * Entrada pública antes da Tela Inicial.
- * Redesenhada como Rampa de Decolagem com Cockpit Tático Interativo.
+ * Home Vocacional: O Consultor Vocacional Interativo e Simulador de TI.
+ * Ocupa 100% da largura da tela, sem limites estreitos de coluna,
+ * atuando como central de diagnóstico vocacional e rampa de decolagem.
  */
 export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVocacionalProps) {
   const [respostas, setRespostas] = useState<Record<string, string>>({})
@@ -78,11 +79,11 @@ export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVoc
         <div className="home-voc-marca-container">
           <p className="home-voc-marca">
             <span className="home-voc-marca-icone" aria-hidden="true">
-              <Icone nome="marca" />
+              <Icone nome="marca" tamanho={16} />
             </span>
             <span className="home-voc-marca-nome">{T.marca}</span>
           </p>
-          <span className="home-voc-badge-topo">Cockpit Tático v2026</span>
+          <span className="home-voc-badge-topo">Consultor Vocacional de TI</span>
         </div>
         <div className="home-voc-topo-acoes">
           <AlternadorTema variante="completo" className="alternador-tema-linha" />
@@ -90,12 +91,12 @@ export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVoc
       </header>
 
       <main id="home-voc-conteudo" className="home-voc-main">
-        {/* HERO SECTION: GRID TÁTICO COM MINI-COCKPIT INTERATIVO */}
+        {/* HERO EM LARGURA TOTAL COM SIMULADOR INTERATIVO */}
         <section className="home-voc-hero-grid" aria-labelledby="home-voc-titulo">
           <div className="home-voc-hero">
             <div className="home-voc-pill-tag">
               <span className="home-voc-pulse-dot" aria-hidden="true" />
-              <span>Simulador de Voo Operacional de TI</span>
+              <span>Consultor Vocacional e Simulador Operacional</span>
             </div>
 
             <h1 id="home-voc-titulo" className="home-voc-titulo">
@@ -116,32 +117,45 @@ export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVoc
             )}
 
             <div className="home-voc-acoes">
-              <button type="button" className="btn btn-primary btn-lg" disabled={ocupado} onClick={onComecar}>
+              <button
+                type="button"
+                className="btn btn-primary btn-lg"
+                disabled={ocupado}
+                onClick={onComecar}
+              >
                 {T.comecar}
-                <Icone nome="avancar" />
+                <Icone nome="avancar" tamanho={16} />
               </button>
-              <button type="button" className="btn btn-secondary btn-lg" disabled={ocupado} onClick={onIrDireto}>
+              <button
+                type="button"
+                className="btn btn-secondary btn-lg"
+                disabled={ocupado}
+                onClick={onIrDireto}
+              >
                 {T.irDireto}
               </button>
             </div>
 
-            <div className="home-voc-telemetria-strip" aria-hidden="true">
+            <div className="home-voc-telemetria-strip">
               <span className="home-voc-telemetria-item">
-                <Icone nome="chamado" tamanho={16} /> ITSM Realista
+                <Icone nome="verificar" tamanho={16} />
+                Triagem Vocacional
               </span>
-              <span className="home-voc-telemetria-separador">•</span>
+              <span className="home-voc-telemetria-separador" aria-hidden="true">•</span>
               <span className="home-voc-telemetria-item">
-                <Icone nome="relogio" tamanho={16} /> Telemetria SLA
+                <Icone nome="terminal" tamanho={16} />
+                Prática Corporativa Real
               </span>
-              <span className="home-voc-telemetria-separador">•</span>
+              <span className="home-voc-telemetria-separador" aria-hidden="true">•</span>
               <span className="home-voc-telemetria-item">
-                <Icone nome="verificar" tamanho={16} /> Caixa-Preta Auditável
+                <Icone nome="relogio" tamanho={16} />
+                SLA e Caixa-Preta
               </span>
             </div>
           </div>
 
-          {/* MINI-CONSOLE INTERATIVO DO SIMULADOR (COCKPIT TEASER) */}
-          <div className="home-voc-cockpit-preview panel" role="region" aria-label="Console Operacional da Aurora Logística">
+          {/* MINI-COCKPIT INTERATIVO */}
+          <div className="home-voc-cockpit-preview" aria-label="Prévia do simulador de suporte técnico">
             <div className="home-voc-cockpit-header">
               <div className="home-voc-cockpit-dots" aria-hidden="true">
                 <span className="cockpit-dot red" />
@@ -149,99 +163,103 @@ export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVoc
                 <span className="cockpit-dot green" />
               </div>
               <div className="home-voc-cockpit-status">
-                <span className="dado-mono">AURORA_OS // CONSOLE_v2.6</span>
-              </div>
-              <div className="home-voc-cockpit-sla dado-mono" aria-label="Tempo de SLA restante: 11 minutos e 42 segundos">
                 <span className="home-voc-pulse-dot" aria-hidden="true" />
-                <Icone nome="relogio" tamanho={16} /> SLA: 11:42
+                <span>Console Operacional Aurora Logística</span>
+              </div>
+              <div className="home-voc-cockpit-sla">
+                <Icone nome="relogio" tamanho={16} />
+                <span>SLA: 08:42</span>
               </div>
             </div>
 
-            {/* ABAS TÁTICAS DO CONSOLE */}
-            <div className="home-voc-cockpit-tabs" role="tablist" aria-label="Ferramentas operacionais do chamado">
+            <div className="home-voc-cockpit-tabs" role="tablist" aria-label="Ferramentas operacionais">
               <button
                 type="button"
                 role="tab"
                 id="tab-itsm"
                 aria-selected={abaAtiva === 'itsm'}
-                aria-controls="panel-itsm"
+                aria-controls="tabpanel-itsm"
                 className={`home-voc-cockpit-tab ${abaAtiva === 'itsm' ? 'ativa' : ''}`}
                 onClick={() => setAbaAtiva('itsm')}
               >
                 <Icone nome="chamado" tamanho={16} />
                 <span>Chamado #001</span>
-                <span className="tab-badge-alerta" aria-hidden="true">P1</span>
+                <span className="tab-badge-alerta">P1</span>
               </button>
-
               <button
                 type="button"
                 role="tab"
                 id="tab-terminal"
                 aria-selected={abaAtiva === 'terminal'}
-                aria-controls="panel-terminal"
+                aria-controls="tabpanel-terminal"
                 className={`home-voc-cockpit-tab ${abaAtiva === 'terminal' ? 'ativa' : ''}`}
                 onClick={() => setAbaAtiva('terminal')}
               >
                 <Icone nome="terminal" tamanho={16} />
                 <span>SimuDesk Shell</span>
               </button>
-
               <button
                 type="button"
                 role="tab"
                 id="tab-chat"
                 aria-selected={abaAtiva === 'chat'}
-                aria-controls="panel-chat"
+                aria-controls="tabpanel-chat"
                 className={`home-voc-cockpit-tab ${abaAtiva === 'chat' ? 'ativa' : ''}`}
                 onClick={() => setAbaAtiva('chat')}
               >
                 <Icone nome="conversa" tamanho={16} />
                 <span>Comunicador</span>
-                <span className="tab-badge-novidade" aria-hidden="true">1</span>
+                <span className="tab-badge-novidade">1 nova</span>
               </button>
             </div>
 
-            {/* CORPO DO CONSOLE CONFORME ABA */}
             <div className="home-voc-cockpit-conteudo">
               {abaAtiva === 'itsm' && (
-                <div id="panel-itsm" role="tabpanel" aria-labelledby="tab-itsm" className="home-voc-tabpanel">
+                <div id="tabpanel-itsm" role="tabpanel" aria-labelledby="tab-itsm" className="home-voc-tabpanel">
                   <div className="home-voc-cockpit-ticket">
                     <div className="home-voc-cockpit-meta">
-                      <span className="chip chip-p1">P1 Alta Prioridade</span>
-                      <span className="home-voc-cockpit-local">Doca de Expedição • Terminal 04</span>
+                      <span className="chip chip-p1">Incidente P1</span>
+                      <span className="home-voc-cockpit-local">Aurora Logística - Doca 4</span>
                     </div>
-                    <p className="home-voc-cockpit-assunto">Impressora térmica Zebra parada no check-out de cargas</p>
-                    <p className="home-voc-cockpit-detalhe">
-                      Três carretas aguardando impressão do romaneio fiscal para liberação na portaria.
+                    <p className="home-voc-cockpit-assunto">
+                      Impressora térmica Zebra travando expedição de cargas
                     </p>
-                    <div className="home-voc-cockpit-acoes-inline">
-                      <button
-                        type="button"
-                        className="btn btn-secondary btn-sm"
-                        onClick={() => setAbaAtiva('terminal')}
-                      >
-                        <Icone nome="terminal" tamanho={16} /> Abrir SimuDesk Shell
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-secondary btn-sm"
-                        onClick={() => setAbaAtiva('chat')}
-                      >
-                        <Icone nome="conversa" tamanho={16} /> Falar com Roberto
-                      </button>
-                    </div>
+                    <p className="home-voc-cockpit-detalhe">
+                      Solicitante: Roberto Dias (Pátio). Etiquetas acumuladas e caminhões parados na rampa.
+                    </p>
+                  </div>
+                  <div className="home-voc-cockpit-acoes-inline">
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => setAbaAtiva('terminal')}
+                    >
+                      <Icone nome="terminal" tamanho={16} />
+                      Abrir SimuDesk Shell
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => setAbaAtiva('chat')}
+                    >
+                      <Icone nome="conversa" tamanho={16} />
+                      Falar com Roberto
+                    </button>
                   </div>
                 </div>
               )}
 
               {abaAtiva === 'terminal' && (
-                <div id="panel-terminal" role="tabpanel" aria-labelledby="tab-terminal" className="home-voc-tabpanel">
-                  <div className="home-voc-terminal-box dado-mono">
+                <div id="tabpanel-terminal" role="tabpanel" aria-labelledby="tab-terminal" className="home-voc-tabpanel">
+                  <div className="home-voc-terminal-box">
                     <div className="home-voc-terminal-logs">
-                      {historicoComandos.map((h, i) => (
+                      {historicoComandos.map((item, i) => (
                         <div key={i} className="home-voc-log-linha">
-                          <p className="cmd-prompt"><span className="prompt-simbolo">$</span> {h.comando}</p>
-                          <p className={`cmd-saida saida-${h.status}`}>{h.saida}</p>
+                          <p className="cmd-prompt">
+                            <span className="prompt-simbolo">$ </span>
+                            {item.comando}
+                          </p>
+                          <p className={`cmd-saida saida-${item.status}`}>{item.saida}</p>
                         </div>
                       ))}
                     </div>
@@ -249,14 +267,14 @@ export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVoc
                       <span className="terminal-dica">Comandos de teste:</span>
                       <button
                         type="button"
-                        className="btn btn-secondary btn-sm cmd-btn"
+                        className="btn btn-sm cmd-btn"
                         onClick={() => executarComandoSimulado('status')}
                       >
                         status spooler
                       </button>
                       <button
                         type="button"
-                        className="btn btn-secondary btn-sm cmd-btn"
+                        className="btn btn-sm cmd-btn"
                         onClick={() => executarComandoSimulado('reiniciar')}
                       >
                         reiniciar spooler
@@ -267,26 +285,30 @@ export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVoc
               )}
 
               {abaAtiva === 'chat' && (
-                <div id="panel-chat" role="tabpanel" aria-labelledby="tab-chat" className="home-voc-tabpanel">
+                <div id="tabpanel-chat" role="tabpanel" aria-labelledby="tab-chat" className="home-voc-tabpanel">
                   <div className="home-voc-cockpit-chat-preview">
                     <div className="home-voc-chat-msg">
-                      <span className="home-voc-chat-avatar" aria-hidden="true">RD</span>
+                      <div className="home-voc-chat-avatar" aria-hidden="true">RD</div>
                       <div className="home-voc-chat-corpo">
                         <div className="home-voc-chat-topo">
                           <strong>Roberto Dias</strong>
-                          <span className="home-voc-chat-hora">14:02</span>
+                          <span className="home-voc-chat-hora">14:22</span>
                         </div>
-                        <p>O caminhão precisa sair em 15 minutos e as etiquetas pararam de imprimir. Pode me ajudar urgente?</p>
+                        <p>
+                          Operador, o caminhão da rota Sul precisa sair até 14:40! A Zebra da Doca 4 não imprime o manifesto. Consegue liberar com urgência?
+                        </p>
                       </div>
                     </div>
-                    <div className="home-voc-chat-msg chat-msg-resposta">
-                      <span className="home-voc-chat-avatar avatar-operador" aria-hidden="true">TI</span>
+                    <div className="home-voc-chat-msg">
+                      <div className="home-voc-chat-avatar avatar-operador" aria-hidden="true">TI</div>
                       <div className="home-voc-chat-corpo">
                         <div className="home-voc-chat-topo">
-                          <strong>Você (Operador N1)</strong>
-                          <span className="home-voc-chat-hora">14:03</span>
+                          <strong>Você (Suporte N1)</strong>
+                          <span className="home-voc-chat-hora">14:23</span>
                         </div>
-                        <p>Recebido, Roberto. Já abri a sessão no SimuDesk para diagnosticar o spooler da doca.</p>
+                        <p>
+                          Chamado assumido, Roberto. Estou investigando os serviços da doca agora.
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -296,7 +318,7 @@ export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVoc
 
             <div className="home-voc-cockpit-footer">
               <span className="home-voc-cockpit-hint">
-                <Icone nome="terminal" tamanho={16} /> Console SimuDesk e Base KB-0108 conectados
+                Simulador com chamados, chat e terminal integrados.
               </span>
               <button
                 type="button"
@@ -305,69 +327,23 @@ export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVoc
                 onClick={onIrDireto}
               >
                 Assumir chamado
+                <Icone nome="avancar" tamanho={16} />
               </button>
             </div>
           </div>
         </section>
 
-        {/* JORNADA EM CINCO PASSOS */}
-        <section aria-labelledby="home-voc-jornada-titulo">
-          <div className="home-voc-secao-cabecalho">
-            <h2 id="home-voc-jornada-titulo" className="home-voc-secao-titulo">
-              {T.jornadaTitulo}
-            </h2>
-            <p className="home-voc-secao-subtitulo">Da primeira chamada até a credencial com evidências reais do seu turno.</p>
-          </div>
-          <ol className="home-voc-lista home-voc-jornada">
-            {JORNADA.map((passo, indice) => (
-              <li key={passo.id} className="panel home-voc-cartao home-voc-passo-card">
-                <div className="home-voc-passo-topo">
-                  <span className="home-voc-numero dado-mono" aria-hidden="true">
-                    0{indice + 1}
-                  </span>
-                  <span className="home-voc-passo-fase">Etapa {indice + 1}</span>
-                </div>
-                <h3 className="home-voc-cartao-titulo">{passo.titulo}</h3>
-                <p className="home-voc-cartao-texto">{passo.texto}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        {/* ÁREAS E NÍVEIS */}
-        <section aria-labelledby="home-voc-areas-titulo">
-          <div className="home-voc-secao-cabecalho">
-            <h2 id="home-voc-areas-titulo" className="home-voc-secao-titulo">
-              {T.areasTitulo}
-            </h2>
-            <p className="home-voc-secao-texto">{T.areasTexto}</p>
-          </div>
-          <ul className="home-voc-lista home-voc-areas">
-            {AREAS.map((area) => (
-              <li
-                key={area.id}
-                className={`panel home-voc-cartao home-voc-area ${area.disponivel ? 'disponivel' : 'futura'}`}
-              >
-                <div className="home-voc-area-header">
-                  <h3 className="home-voc-cartao-titulo">{area.nome}</h3>
-                  {area.disponivel && <span className="home-voc-area-badge-ativo">Ativo</span>}
-                </div>
-                {area.disponivel && area.descricao && <p className="home-voc-cartao-texto">{area.descricao}</p>}
-                {area.disponivel && area.nivel && <p className="home-voc-cartao-texto home-voc-area-nivel">{area.nivel}</p>}
-                <span className={`chip ${area.disponivel ? 'home-voc-selo-ativo' : ''}`}>
-                  {area.disponivel ? 'Disponível nesta edição' : 'Roteiro futuro'}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        {/* GUIA DE ORIENTAÇÃO */}
-        <section className="panel home-voc-guia" aria-labelledby="home-voc-guia-titulo">
+        {/* GUIA DE ORIENTAÇÃO (O CONSULTOR VOCACIONAL) EM LARGURA TOTAL */}
+        <section
+          className="home-voc-guia home-voc-secao-largura-total"
+          aria-labelledby="home-voc-guia-titulo"
+          role="region"
+        >
           <div className="home-voc-guia-topo">
-            <div className="home-voc-guia-badge">
-              <Icone nome="mentor" tamanho={16} /> Radar de Orientação
-            </div>
+            <p className="home-voc-guia-badge">
+              <Icone nome="mentor" tamanho={16} />
+              <span>Consultoria e Orientação Vocacional</span>
+            </p>
             <h2 id="home-voc-guia-titulo" className="home-voc-secao-titulo">
               {T.guiaTitulo}
             </h2>
@@ -383,10 +359,12 @@ export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVoc
                     <label key={opcao.id} className="home-voc-opcao">
                       <input
                         type="radio"
-                        name={`home-voc-${pergunta.id}`}
+                        name={pergunta.id}
                         value={opcao.id}
                         checked={respostas[pergunta.id] === opcao.id}
-                        onChange={() => setRespostas((anteriores) => ({ ...anteriores, [pergunta.id]: opcao.id }))}
+                        onChange={() =>
+                          setRespostas((prev) => ({ ...prev, [pergunta.id]: opcao.id }))
+                        }
                       />
                       <span>{opcao.rotulo}</span>
                     </label>
@@ -396,28 +374,104 @@ export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVoc
             ))}
           </div>
 
-          <div className="home-voc-resposta-area" role="status" aria-live="polite">
-            {(foco || ritmo) && (
+          <div className="home-voc-resposta-area">
+            {foco && (
+              <p className="home-voc-resposta" role="status">
+                {foco}
+              </p>
+            )}
+
+            {ritmo && (
               <div className="home-voc-resposta">
-                {foco && <p>{foco}</p>}
-                {ritmo && <p>{ritmo.texto}</p>}
+                <p>{ritmo.texto}</p>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm home-voc-sugestao"
+                  disabled={ocupado}
+                  onClick={ritmo.encaminhamento === 'comecar' ? onComecar : onIrDireto}
+                >
+                  {ritmo.botao}
+                  <Icone nome="avancar" tamanho={16} />
+                </button>
               </div>
             )}
           </div>
-          {ritmo && (
-            <button
-              type="button"
-              className="btn btn-secondary btn-sm home-voc-sugestao"
-              disabled={ocupado}
-              onClick={ritmo.encaminhamento === 'laboratorio' ? onIrDireto : onComecar}
-            >
-              {ritmo.botao}
-            </button>
-          )}
         </section>
 
-        {/* LIMITES E INTEGRIDADE OPERACIONAL */}
-        <section className="panel home-voc-limites-painel" aria-labelledby="home-voc-limites-titulo">
+        {/* ÁREAS E NÍVEIS MAPEADOS EM 4 COLUNAS DE LARGURA TOTAL */}
+        <section
+          className="home-voc-secao-largura-total"
+          aria-labelledby="home-voc-areas-titulo"
+          role="region"
+        >
+          <div className="home-voc-secao-cabecalho">
+            <h2 id="home-voc-areas-titulo" className="home-voc-secao-titulo">
+              {T.areasTitulo}
+            </h2>
+            <p className="home-voc-secao-texto">{T.areasTexto}</p>
+          </div>
+
+          <ul className="home-voc-lista home-voc-areas">
+            {AREAS.map((area) => (
+              <li
+                key={area.id}
+                className={`home-voc-cartao home-voc-area ${area.disponivel ? 'disponivel' : 'futura'}`}
+              >
+                <div className="home-voc-area-header">
+                  <h3 className="home-voc-cartao-titulo">{area.nome}</h3>
+                  {area.disponivel && (
+                    <span className="home-voc-area-badge-ativo">Disponível nesta edição</span>
+                  )}
+                </div>
+
+                {area.descricao && <p className="home-voc-cartao-texto">{area.descricao}</p>}
+                {area.nivel && <p className="home-voc-area-nivel">{area.nivel}</p>}
+
+                {!area.disponivel && (
+                  <span className="chip home-voc-chip-futuro">Roteiro futuro</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* JORNADA EM CINCO PASSOS EM 5 COLUNAS DE LARGURA TOTAL */}
+        <section
+          className="home-voc-secao-largura-total"
+          aria-labelledby="home-voc-jornada-titulo"
+          role="region"
+        >
+          <div className="home-voc-secao-cabecalho">
+            <h2 id="home-voc-jornada-titulo" className="home-voc-secao-titulo">
+              {T.jornadaTitulo}
+            </h2>
+            <p className="home-voc-secao-subtitulo">
+              Como você avança da orientação inicial até a decisão de carreira.
+            </p>
+          </div>
+
+          <ol className="home-voc-lista home-voc-jornada">
+            {JORNADA.map((passo, i) => (
+              <li key={passo.id} className="home-voc-cartao home-voc-passo-card">
+                <div className="home-voc-passo-topo">
+                  <span className="home-voc-passo-fase">Fase {i + 1}</span>
+                  <span className="home-voc-numero" aria-hidden="true">
+                    {i + 1}
+                  </span>
+                </div>
+                <h3 className="home-voc-cartao-titulo">{passo.titulo}</h3>
+                <p className="home-voc-cartao-texto">{passo.texto}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        {/* COMPROMISSO ÉTICO E TRANSPARÊNCIA */}
+        <section
+          className="home-voc-limites-painel home-voc-secao-largura-total"
+          aria-labelledby="home-voc-limites-titulo"
+          role="region"
+        >
           <div className="home-voc-limites-header">
             <Icone nome="verificar" tamanho={20} />
             <h2 id="home-voc-limites-titulo" className="home-voc-secao-titulo">
@@ -425,12 +479,18 @@ export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVoc
             </h2>
           </div>
           <ul className="home-voc-limites">
-            {T.limites.map((linha) => (
-              <li key={linha}>{linha}</li>
+            {T.limites.map((limite, i) => (
+              <li key={i}>{limite}</li>
             ))}
           </ul>
         </section>
       </main>
+
+      <footer className="home-voc-rodape">
+        <p className="home-voc-rodape-texto">
+          {T.marca} — Plataforma de voo e orientação vocacional em TI com dados e cenários sintéticos da Aurora Logística.
+        </p>
+      </footer>
     </div>
   )
 }
