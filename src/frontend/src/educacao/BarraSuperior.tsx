@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { AlternadorTema } from '../shell/AlternadorTema'
 import { useShell } from '../shell/contextoShell'
-import { MenuPerfil } from '../shell/MenuPerfil'
+import { type ApiMenuPerfil, MenuPerfil } from '../shell/MenuPerfil'
 import { Icone, type NomeIcone } from '../ui/Icone'
 import type { EstadoAcademia, NivelId } from './catalogoEducacional'
 
@@ -29,11 +29,7 @@ const ROTULO_VISAO: Record<VisaoAcademia | 'lab', string> = {
 interface BarraSuperiorProps {
   visaoAtual: VisaoAcademia | 'lab'
   estado: EstadoAcademia
-  /** @deprecated O tema agora vem do AppShell. Mantido ate a etapa 3 reescrever TelaInicial. */
-  tema?: 'light' | 'dark'
   xpOficial?: number
-  /** @deprecated O alternador de tema fica no rail e usa o contexto do AppShell. */
-  onAlternarTema?: () => void
   onSelecionarVisao?: (visao: VisaoAcademia) => void
   onEntrarLaboratorio?: () => void
   onMudarFoco?: (nivel: NivelId) => void
@@ -43,7 +39,9 @@ interface BarraSuperiorProps {
   /** Dados e acoes da sessao exibidos na barra de contexto (Workstation). */
   slotDireitoSessao?: ReactNode
   /** Conteudo extra do menu de perfil. */
-  conteudoPerfil?: ReactNode
+  conteudoPerfil?: ReactNode | ((api: ApiMenuPerfil) => ReactNode)
+  /** Substitui o rotulo do local atual na barra de contexto (por exemplo, Credencial). */
+  rotuloLocal?: string
 }
 
 /**
@@ -61,6 +59,7 @@ export function BarraSuperior({
   credencialAtiva = false,
   slotDireitoSessao,
   conteudoPerfil,
+  rotuloLocal,
 }: BarraSuperiorProps) {
   const shell = useShell()
   const xpTotal = xpOficial ?? estado.xp
@@ -124,7 +123,7 @@ export function BarraSuperior({
           <span className="barra-contexto-separador" aria-hidden="true">
             /
           </span>
-          <span className="barra-contexto-local">{ROTULO_VISAO[visaoAtual]}</span>
+          <span className="barra-contexto-local">{rotuloLocal ?? ROTULO_VISAO[visaoAtual]}</span>
         </p>
         <div className="barra-contexto-acoes">
           {slotDireitoSessao}

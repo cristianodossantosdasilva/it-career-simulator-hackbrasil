@@ -57,7 +57,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
 
   test('Feliz 2: Nivel 2 (Demo Rapida C1) conclui atendimento e passa no Verificador Offline', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: /Demo R[aá]pida \(N[ií]vel 2 · C1\)/i }).click()
+    await page.getByRole('button', { name: /Demo r[aá]pida: N[ií]vel 2, C1/i }).click()
 
     await page.getByRole('button', { name: 'Assumir Chamado' }).click()
     await page.getByRole('button', { name: 'Salvar Classificacao' }).click()
@@ -94,6 +94,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
 
     // Volta para Tela Inicial e valida Curriculo Vivo gerado
     await page.getByRole('button', { name: /Tela Inicial/i }).click()
+    await page.getByRole('navigation', { name: /Navegação principal/i }).getByRole('button', { name: 'Credencial' }).click()
     await expect(page.getByText('N2 OK')).toBeVisible()
 
     const downloadPromise = page.waitForEvent('download')
@@ -106,7 +107,6 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     }
     const jsonText = Buffer.concat(chunks).toString('utf-8')
 
-    await page.getByRole('button', { name: /Verificar Curr[ií]culo Vivo/i }).click()
     await page.getByLabel(/Cole o JSON do Curr[ií]culo Vivo/i).fill(jsonText)
     await expect(page.getByRole('status')).toContainText('INTEGRO:')
   })
@@ -206,7 +206,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
 
   test('Negativa 2: Verificador Offline detecta JSON adulterado (DIVERGENTE) e incompleto (NAO VERIFICAVEL)', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: /Verificar Curr[ií]culo Vivo/i }).click()
+    await page.getByRole('navigation', { name: /Navegação principal/i }).getByRole('button', { name: 'Credencial' }).click()
 
     const textarea = page.getByLabel(/Cole o JSON do Curr[ií]culo Vivo/i)
     await textarea.fill('{"cargoAtual":"Senior","xpTotal":999}')
@@ -356,7 +356,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
 
   test('Teclado: Tab alcança controles do Comunicador e Enter envia mensagem', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: /Demo R[aá]pida \(N[ií]vel 2 · C1\)/i }).click()
+    await page.getByRole('button', { name: /Demo r[aá]pida: N[ií]vel 2, C1/i }).click()
     await page.getByRole('button', { name: 'Assumir Chamado' }).click()
     await page.getByRole('button', { name: /Comunicador IA/i }).click()
 

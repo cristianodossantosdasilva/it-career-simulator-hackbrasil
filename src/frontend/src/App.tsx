@@ -13,6 +13,9 @@ import {
   responderMentor,
   salvarEstadoAcademia,
 } from './educacao/catalogoEducacional'
+import { MissionGuide } from './lab/MissionGuide'
+import { roteiroDoCenario } from './lab/roteiros'
+import { SplitLabWorkspace } from './lab/SplitLabWorkspace'
 import { ReplayView } from './replay/ReplayView'
 import { AppShell } from './shell/AppShell'
 import { Icone } from './ui/Icone'
@@ -361,7 +364,7 @@ function WorkstationInner() {
   ) ?? {
     id: `pg-${nivelSessao.id}`,
     icon: nivelSessao.icon,
-    title: `${nivelSessao.nome} · Anotações`,
+    title: `${nivelSessao.nome}: Anotações`,
     level: nivelSessao.id,
     type: 'cornell' as const,
     cues: '',
@@ -369,6 +372,9 @@ function WorkstationInner() {
     summary: '',
   }
   const dicaAtual = obterProximaDicaMissao(sessao, nivel1Passos)
+  const contextoRoteiro = { sessao, passosNivel1: nivel1Passos }
+  const roteiroAtual = roteiroDoCenario(sessao.meta.cenarioId)
+  const passosFeitos = roteiroAtual.passos.filter((passo) => passo.concluido(contextoRoteiro)).length
 
   // A sessao continua em memoria: o destino Laboratorio do shell retoma o turno sem criar outro.
   function irParaAcademia(visao: VisaoAcademia = 'home') {
@@ -423,6 +429,10 @@ function WorkstationInner() {
                 <span className="sr-only">de tempo simulado</span>
               </span>
               <span className="dado-contexto hide-sm">
+                <span className="dado-contexto-rotulo">Semente</span>{' '}
+                <span className="dado-mono">{sessao.meta.semente}</span>
+              </span>
+              <span className="dado-contexto hide-sm">
                 <span className="dado-contexto-rotulo">Seq</span> <span className="dado-mono">{sessao.ultimoSeq}</span>
               </span>
               <button
@@ -456,13 +466,6 @@ function WorkstationInner() {
           }
         />
 
-        <div className="mission-strip" role="status">
-          <span>
-            <strong>Missao Atual:</strong> {dicaAtual}
-          </span>
-          <span className="muted">Aurora Logistica · Semente {sessao.meta.semente}</span>
-        </div>
-
         {aviso && (
           <div className="banner-notice" role="status" aria-live="polite">
             <span>{aviso}</span>
@@ -472,58 +475,72 @@ function WorkstationInner() {
           </div>
         )}
 
-        <div className={`cockpit-body ${gaveta ? 'with-drawer' : ''}`}>
-          <aside className="app-dock" aria-label="Aplicativos da Workstation">
-            <nav aria-label="Aplicativos da Workstation">
-              <button
-                type="button"
-                aria-current={aba === 'itsm' ? 'page' : undefined}
-                className={`dock-btn ${aba === 'itsm' ? 'active' : ''}`}
-                onClick={() => setAba('itsm')}
-              >
-                <span>ITSM / Chamados</span>
-                <span className="badge">{sessao.chamados.length}</span>
-              </button>
-              <button
-                type="button"
-                aria-current={aba === 'chat' ? 'page' : undefined}
-                className={`dock-btn ${aba === 'chat' ? 'active' : ''}`}
-                onClick={() => setAba('chat')}
-              >
-                <span>Comunicador IA</span>
-                <span className="badge">{sessao.dialogo.mensagens.length}</span>
-              </button>
-              <button
-                type="button"
-                aria-current={aba === 'simudesk' ? 'page' : undefined}
-                className={`dock-btn ${aba === 'simudesk' ? 'active' : ''}`}
-                onClick={() => setAba('simudesk')}
-              >
-                <span>SimuDesk Remoto</span>
-                <span className={`badge ${sessao.dialogo.acessoRemotoLiberado ? 'badge-ok' : ''}`}>
-                  {sessao.dialogo.acessoRemotoLiberado ? 'ON' : 'LOCK'}
-                </span>
-              </button>
-              <button
-                type="button"
-                aria-current={aba === 'kb' ? 'page' : undefined}
-                className={`dock-btn ${aba === 'kb' ? 'active' : ''}`}
-                onClick={() => setAba('kb')}
-              >
-                <span>Intranet / KB</span>
-                <span className="badge">KB</span>
-              </button>
-              <button
-                type="button"
-                aria-current={aba === 'replay' ? 'page' : undefined}
-                className={`dock-btn ${aba === 'replay' ? 'active' : ''}`}
-                onClick={abrirReplay}
-              >
-                <span>Juiz 360º e Replay</span>
-                <span className="badge badge-info">XP</span>
-              </button>
-            </nav>
-          </aside>
+        <SplitLabWorkspace
+          resumoGuia={`${passosFeitos} de ${roteiroAtual.passos.length} passos`}
+          guia={
+            <MissionGuide
+              cenarioId={sessao.meta.cenarioId}
+              contexto={contextoRoteiro}
+              proximoPasso={dicaAtual}
+              tituloMissao={nivelSessao.titulo}
+              onAbrirFerramenta={(ferramenta) => setAba(ferramenta)}
+              onAbrirCaixaPreta={abrirReplay}
+            />
+          }
+          consola={
+            <>
+              <nav className="lab-ferramentas" aria-label="Aplicativos da Workstation">
+                <button
+                  type="button"
+                  aria-current={aba === 'itsm' ? 'page' : undefined}
+                  className={`dock-btn ${aba === 'itsm' ? 'active' : ''}`}
+                  onClick={() => setAba('itsm')}
+                >
+                  <Icone nome="chamado" tamanho={16} />
+                  <span>ITSM / Chamados</span>
+                  <span className="dock-contagem dado-mono">{sessao.chamados.length}</span>
+                </button>
+                <button
+                  type="button"
+                  aria-current={aba === 'chat' ? 'page' : undefined}
+                  className={`dock-btn ${aba === 'chat' ? 'active' : ''}`}
+                  onClick={() => setAba('chat')}
+                >
+                  <Icone nome="conversa" tamanho={16} />
+                  <span>Comunicador IA</span>
+                  <span className="dock-contagem dado-mono">{sessao.dialogo.mensagens.length}</span>
+                </button>
+                <button
+                  type="button"
+                  aria-current={aba === 'simudesk' ? 'page' : undefined}
+                  className={`dock-btn ${aba === 'simudesk' ? 'active' : ''}`}
+                  onClick={() => setAba('simudesk')}
+                >
+                  <Icone nome="remoto" tamanho={16} />
+                  <span>SimuDesk Remoto</span>
+                  <span className={`dock-contagem ${sessao.dialogo.acessoRemotoLiberado ? 'ok' : ''}`}>
+                    {sessao.dialogo.acessoRemotoLiberado ? 'Liberado' : 'Bloqueado'}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  aria-current={aba === 'kb' ? 'page' : undefined}
+                  className={`dock-btn ${aba === 'kb' ? 'active' : ''}`}
+                  onClick={() => setAba('kb')}
+                >
+                  <Icone nome="base" tamanho={16} />
+                  <span>Intranet / KB</span>
+                </button>
+                <button
+                  type="button"
+                  aria-current={aba === 'replay' ? 'page' : undefined}
+                  className={`dock-btn ${aba === 'replay' ? 'active' : ''}`}
+                  onClick={abrirReplay}
+                >
+                  <Icone nome="credencial" tamanho={16} />
+                  <span>Juiz 360º e Replay</span>
+                </button>
+              </nav>
 
           <main className="workspace-main">
             {aba === 'itsm' && <ItsmApp sessao={sessao} onAcao={executarAcao} ocupado={ocupado} />}
@@ -554,6 +571,11 @@ function WorkstationInner() {
               />
             )}
           </main>
+            </>
+          }
+          gaveta={
+            gaveta ? (
+              <>
 
           {gaveta === 'notas' && (
             <aside className="cockpit-drawer" aria-label="Minhas notas durante o atendimento">
@@ -650,7 +672,10 @@ function WorkstationInner() {
               </form>
             </aside>
           )}
-        </div>
+              </>
+            ) : undefined
+          }
+        />
       </div>
     </AppShell>
   )

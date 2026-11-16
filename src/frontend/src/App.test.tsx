@@ -126,6 +126,41 @@ describe('IT Flight Simulator UI', () => {
     expect(nivel1).toHaveAttribute('aria-checked', 'true')
   })
 
+  it('home tem o Primeiro Voo como objeto central e guarda Pomodoro, meta e plano no menu de perfil', async () => {
+    const { container } = render(<App />)
+    expect(screen.getByRole('heading', { name: 'Iniciar primeiro voo', level: 2 })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Iniciar primeiro voo' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Estudar antes' })).toBeInTheDocument()
+    const fluxo = screen.getByRole('list', { name: 'Fluxo do primeiro voo' })
+    expect(within(fluxo).getAllByRole('listitem').map((item) => within(item).getByRole('heading').textContent)).toEqual([
+      'Estudar',
+      'Praticar no Split-Screen',
+      'Revisar na Caixa-Preta',
+    ])
+    expect(screen.queryByText(/Timer de foco/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Meta semanal/i)).not.toBeInTheDocument()
+    expect(container.textContent).not.toMatch(/\p{Extended_Pictographic}/u)
+
+    fireEvent.click(screen.getByRole('button', { name: /Perfil/i }))
+    const painel = screen.getByRole('region', { name: 'Seu progresso' })
+    expect(within(painel).getByText('Meta semanal')).toBeInTheDocument()
+    expect(within(painel).getByRole('timer', { name: /Tempo restante do foco/i })).toHaveTextContent('25:00')
+    expect(within(painel).getByRole('button', { name: 'Iniciar' })).toBeInTheDocument()
+    expect(within(painel).getByText('Plano de estudos')).toBeInTheDocument()
+    expect((await axe.run(container)).violations).toEqual([])
+  })
+
+  it('Credencial abre como destino, mostra o verificador e volta para as missoes', () => {
+    render(<App />)
+    const navPrincipal = screen.getByRole('navigation', { name: /Navegação principal/i })
+    fireEvent.click(within(navPrincipal).getByRole('button', { name: 'Credencial' }))
+    expect(within(navPrincipal).getByRole('button', { name: 'Credencial' })).toHaveAttribute('aria-current', 'page')
+    expect(within(navPrincipal).getByRole('button', { name: 'Missões' })).not.toHaveAttribute('aria-current')
+    expect(screen.getByRole('region', { name: /Verificador local de Currículo Vivo/i })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: /IT Flight Simulator/i })).not.toBeInTheDocument()
+    fireEvent.click(within(navPrincipal).getByRole('button', { name: 'Missões' }))
+    expect(screen.getByRole('heading', { name: /IT Flight Simulator/i })).toBeInTheDocument()
+  })
   it('carrega resumo de carreira a partir do localStorage e exibe integridade SHA-256', async () => {
     window.localStorage.setItem('itfs_jornada_sessoes', JSON.stringify(['sessao-1', 'sessao-expirada']))
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
@@ -158,6 +193,9 @@ describe('IT Flight Simulator UI', () => {
     )
 
     render(<App />)
+    const navPrincipal = screen.getByRole('navigation', { name: /Navegação principal/i })
+    fireEvent.click(within(navPrincipal).getByRole('button', { name: 'Credencial' }))
+    expect(screen.getByRole('heading', { name: 'Credencial', level: 1 })).toBeInTheDocument()
     const painelCarreira = await screen.findByRole('region', {
       name: /Progressão de Carreira e Currículo Vivo/i,
     })
@@ -165,7 +203,7 @@ describe('IT Flight Simulator UI', () => {
     expect(within(painelCarreira).getByText(/150 XP/i)).toBeInTheDocument()
     expect(within(painelCarreira).getByText('N4 OK')).toBeInTheDocument()
     expect(within(painelCarreira).getByText('N4b Pendente')).toBeInTheDocument()
-    expect(within(painelCarreira).getByText(/1 sessao\(oes\) marcada\(s\) como nao confirmada/i)).toBeInTheDocument()
+    expect(within(painelCarreira).getByText(/1 sessão\(ões\) marcada\(s\) como não confirmada/i)).toBeInTheDocument()
     expect(within(painelCarreira).getByText(/deadbeef1234/i)).toBeInTheDocument()
     expect(
       within(painelCarreira).getByRole('button', { name: /Exportar Curr[ií]culo Vivo \(JSON\)/i }),

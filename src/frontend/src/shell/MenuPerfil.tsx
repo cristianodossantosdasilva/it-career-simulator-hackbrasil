@@ -3,13 +3,17 @@ import { LEVELS, type EstadoAcademia, type NivelId, obterPatente } from '../educ
 import { Icone } from '../ui/Icone'
 import { AlternadorTema } from './AlternadorTema'
 
+export interface ApiMenuPerfil {
+  fechar: () => void
+}
+
 interface MenuPerfilProps {
   estado: EstadoAcademia
   xpTotal: number
   onMudarFoco?: (nivel: NivelId) => void
   onAbrirCurriculo?: () => void
-  /** Conteudo extra do painel (Pomodoro, plano e meta entram aqui na etapa 3). */
-  children?: ReactNode
+  /** Conteudo extra do painel (Pomodoro, meta e plano). A funcao recebe `fechar` para acoes que navegam. */
+  children?: ReactNode | ((api: ApiMenuPerfil) => ReactNode)
 }
 
 export function MenuPerfil({ estado, xpTotal, onMudarFoco, onAbrirCurriculo, children }: MenuPerfilProps) {
@@ -91,7 +95,7 @@ export function MenuPerfil({ estado, xpTotal, onMudarFoco, onAbrirCurriculo, chi
             </label>
           )}
 
-          {children}
+          {typeof children === 'function' ? children({ fechar: () => setAberto(false) }) : children}
 
           {onAbrirCurriculo && (
             <button
