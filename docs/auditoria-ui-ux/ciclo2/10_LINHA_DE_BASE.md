@@ -82,7 +82,7 @@ Contagem de elementos distintos por célula (tela e estado). O mesmo componente 
 
 ## 4. Violações medidas
 
-Cada grupo reúne elementos com o mesmo tema, seletor, par de cores e razão. O arquivo 10_linha_de_base.json traz todas as linhas, uma por elemento distinto, tela, estado, tema e viewport.
+Cada grupo reúne elementos com o mesmo tema, seletor, par de cores e razão. O arquivo 10_linha_de_base.json traz todas as linhas, uma por elemento distinto, tela, estado, tema e viewport. Esse JSON (1,7 MB) deixa de ser versionado no fechamento do ciclo 2 e continua no histórico do commit 2d29ef6; para regerá-lo, rode a spec de contraste e depois node e2e/contraste.relatorio.mjs.
 
 ### 4.1 Texto (axe)
 
