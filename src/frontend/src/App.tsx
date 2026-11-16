@@ -156,6 +156,12 @@ function WorkstationInner() {
   const [artigoKbSelecionado, setArtigoKbSelecionado] = useState<string | null>(null)
   const [kbRetornoLinkUri, setKbRetornoLinkUri] = useState<string | null>(null)
   const linkKbOrigemRef = useRef<HTMLElement | null>(null)
+  const kbOrigemItsmRef = useRef(false)
+
+  // Quem sai da Intranet sem fechar o artigo não volta ao ITSM numa consulta manual posterior.
+  useEffect(() => {
+    if (aba !== 'kb') kbOrigemItsmRef.current = false
+  }, [aba])
 
   function atualizarEstadoAcademia(updater: (prev: EstadoAcademia) => EstadoAcademia) {
     setEstadoAcademia((prev) => {
@@ -174,14 +180,21 @@ function WorkstationInner() {
     setAba('kb')
   }
 
-  /** Abre o artigo a partir do ITSM. Sem origem de replay, fechar o artigo só recolhe o texto. */
+  /** Abre o artigo a partir do ITSM. Ao fechar o artigo, o aluno volta ao chamado. */
   function abrirKbDoItsm(artigoId: string) {
     setKbRetornoLinkUri(null)
     linkKbOrigemRef.current = null
+    kbOrigemItsmRef.current = true
     setArtigoKbSelecionado(artigoId)
     setAba('kb')
   }
   function fecharArtigoKb() {
+    if (kbOrigemItsmRef.current) {
+      kbOrigemItsmRef.current = false
+      setArtigoKbSelecionado(null)
+      setAba('itsm')
+      return
+    }
     const origem = linkKbOrigemRef.current
     if (!origem) return
     setAba('replay')

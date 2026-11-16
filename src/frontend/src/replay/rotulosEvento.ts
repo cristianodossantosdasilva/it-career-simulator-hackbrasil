@@ -12,6 +12,7 @@ interface RotuloEvento {
 
 /** Tipos gerados pelo motor (Simulador.Dominio). Um tipo desconhecido aparece com o nome técnico. */
 const EVENTOS: Record<string, RotuloEvento> = {
+  SessaoIniciada: { rotulo: 'Sessão iniciada', origem: 'sistema' },
   ChamadoAberto: { rotulo: 'Chamado aberto', origem: 'itsm' },
   ChamadoAssumido: { rotulo: 'Chamado assumido', origem: 'itsm' },
   ChamadoClassificado: { rotulo: 'Chamado classificado', origem: 'itsm' },

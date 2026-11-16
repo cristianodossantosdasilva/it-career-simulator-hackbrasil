@@ -537,7 +537,7 @@ export const CARDS: Record<NivelId, FlashCard[]> = {
     {
       id: 'c-n1-2',
       f: 'Só uma pessoa recebe "acesso negado" numa pasta. Primeiro suspeito?',
-      b: 'Grupo ou permissão no Active Directory: ela pode ter saído do grupo correto.',
+      b: 'Grupo ou permissão no Active Directory: ela pode ter perdido o vínculo com o grupo correto.',
     },
     {
       id: 'c-n1-3',
@@ -770,17 +770,17 @@ export function criarEstadoInicialAcademia(): EstadoAcademia {
 }
 
 const ICONE_LEGADO: Record<string, NomeIcone> = {
-  '🎒': 'nivel-estagiario',
-  '🎧': 'nivel-n1',
-  '🧩': 'nivel-n2',
-  '☁️': 'nivel-n3',
-  '🏅': 'nivel-esp',
-  '🗓️': 'plano',
-  '💡': 'ideia',
-  '🎤': 'pitch',
-  '📝': 'notas',
-  '🎯': 'meta',
-  '📄': 'pagina',
+  '\u{1F392}': 'nivel-estagiario',
+  '\u{1F3A7}': 'nivel-n1',
+  '\u{1F9E9}': 'nivel-n2',
+  '\u2601\uFE0F': 'nivel-n3',
+  '\u{1F3C5}': 'nivel-esp',
+  '\u{1F5D3}\uFE0F': 'plano',
+  '\u{1F4A1}': 'ideia',
+  '\u{1F3A4}': 'pitch',
+  '\u{1F4DD}': 'notas',
+  '\u{1F3AF}': 'meta',
+  '\u{1F4C4}': 'pagina',
 }
 
 /** Converte o icone de uma pagina salva (inclusive emoji de versoes antigas) em um identificador valido. */

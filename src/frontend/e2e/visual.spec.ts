@@ -95,6 +95,8 @@ for (const tema of TEMAS) {
       await page.getByRole('button', { name: /ITSM \/ Chamados/i }).click()
       await page.getByRole('button', { name: T.itsm.assumirChamado }).click()
       await page.getByRole('button', { name: T.itsm.consultarPolitica }).click()
+      await page.getByRole('button', { name: T.intranet.fecharArtigo }).click()
+      await expect(page.getByRole('heading', { name: /CH-0001/i })).toBeVisible()
       await page.getByRole('button', { name: T.itsm.solicitarToken }).click()
       await page.getByLabel('Texto da nota').fill('Solicitante sem token corporativo válido; tentativa bloqueada.')
       await page.getByRole('button', { name: T.itsm.registrarNota }).click()
