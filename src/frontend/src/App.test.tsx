@@ -224,7 +224,7 @@ describe('IT Flight Simulator UI', () => {
     expect((await axe.run(container)).violations).toEqual([])
 
     fireEvent.click(within(navPrincipal).getByRole('button', { name: 'Mentor' }))
-    expect(screen.getByRole('heading', { name: /Mentor IA/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Mentor' })).toBeInTheDocument()
     expect((await axe.run(container)).violations).toEqual([])
   })
 

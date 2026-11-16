@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Icone } from '../ui/Icone'
 import {
   CARDS,
   CONCEPTS,
@@ -28,7 +29,7 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
   const [mensagens, setMensagens] = useState<{ who: 'me' | 'ai'; text: string }[]>([
     {
       who: 'ai',
-      text: 'Oi! Sou seu mentor de estudos. Posso explicar conceitos com analogias, te testar sobre o que você estudou e ajudar a preparar seu pitch para entrevistas. Por onde começamos?',
+      text: 'Escolha uma pergunta sugerida, digite uma palavra-chave (por exemplo DNS, SLA ou SQL) ou peça para ser testado. As respostas vêm do conteúdo da trilha.',
     },
   ])
 
@@ -71,7 +72,7 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
       { who: 'me', text: 'Me teste sobre o que estudei' },
       {
         who: 'ai',
-        text: `Pergunta: ${escolhido.f}\n\nResponda aqui com suas palavras — depois te mostro a resposta de referência.`,
+        text: `Pergunta: ${escolhido.f}\n\nResponda aqui com suas palavras. Depois mostro a resposta de referência.`,
       },
     ])
   }
@@ -93,7 +94,7 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
       onAtualizarEstado((prev) =>
         prev.feynman.includes(c.level) ? prev : { ...prev, feynman: [...prev.feynman, c.level], xp: prev.xp + 30 },
       )
-      setAvisoMentor(`Explicação aprovada! +30 XP na fixação de ${nivelPorId(c.level).nome}.`)
+      setAvisoMentor(`Explicação aprovada. +30 XP na fixação de ${nivelPorId(c.level).nome}.`)
     }
   }
 
@@ -104,7 +105,7 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
     onAtualizarEstado((prev) => {
       const targetId = `pg-${lvlId}`
       const existe = prev.pages.some((p) => p.id === targetId)
-      const entrada = `[Feynman · ${feyConceito}]\n${feyTexto.trim()}`
+      const entrada = `[Feynman: ${feyConceito}]\n${feyTexto.trim()}`
       const pages = existe
         ? prev.pages.map((p) =>
             p.id === targetId ? { ...p, notes: `${(p.notes ?? '').trim()}\n${entrada}`.trim() } : p,
@@ -114,7 +115,7 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
             {
               id: targetId,
               icon: L.icon,
-              title: `${L.nome} · Anotações`,
+              title: `${L.nome}: Anotações`,
               level: lvlId,
               type: 'cornell' as const,
               cues: '',
@@ -137,7 +138,7 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
         xp: prev.xp + 20,
       }
     })
-    setAvisoMentor('Pitch adicionado ao seu Currículo Vivo!')
+    setAvisoMentor('Pitch adicionado ao seu Currículo Vivo.')
   }
 
   function salvarPitchNoCaderno() {
@@ -153,7 +154,7 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
             ...prev.pages,
             {
               id: 'pg-pitch',
-              icon: '🎤',
+              icon: 'pitch' as const,
               title: 'Meus pitches STAR',
               level: null,
               type: 'free' as const,
@@ -170,17 +171,21 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
   return (
     <div className="page">
       <div className="page-head">
-        <p className="eyebrow">Explicar</p>
-        <h1 className="h1">🤖 Mentor IA</h1>
-        <p className="lead">
-          Tire dúvidas, ensine com suas palavras (Técnica de Feynman) e prepare o pitch para sua primeira vaga.
+        <h1 className="h1">Mentor</h1>
+        <p className="lead">Respostas guiadas pelo conteúdo da trilha.</p>
+        <p className="nota-transparencia">
+          <Icone nome="info" tamanho={16} />
+          <span>
+            O Mentor não é um chat de inteligência artificial aberto. As respostas vêm de uma base escrita para esta trilha,
+            e a avaliação de explicações e de pitches segue regras fixas. O mesmo texto sempre recebe o mesmo resultado.
+          </span>
         </p>
       </div>
 
       {avisoMentor && (
-        <div className="banner-notice" style={{ marginBottom: '14px' }}>
+        <div className="banner-notice aviso-estudo">
           <span>{avisoMentor}</span>
-          <button type="button" className="chip" onClick={() => setAvisoMentor(null)}>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setAvisoMentor(null)}>
             Fechar
           </button>
         </div>
@@ -194,7 +199,8 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
           className={`tab ${aba === 'ask' ? 'active' : ''}`}
           onClick={() => setAba('ask')}
         >
-          💬 Tirar dúvidas
+          <Icone nome="conversa" tamanho={16} />
+          Perguntas da trilha
         </button>
         <button
           type="button"
@@ -203,7 +209,8 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
           className={`tab ${aba === 'fey' ? 'active' : ''}`}
           onClick={() => setAba('fey')}
         >
-          🧑‍🏫 Técnica de Feynman
+          <Icone nome="feynman" tamanho={16} />
+          Técnica de Feynman
         </button>
         <button
           type="button"
@@ -212,7 +219,8 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
           className={`tab ${aba === 'pitch' ? 'active' : ''}`}
           onClick={() => setAba('pitch')}
         >
-          🎤 Pitch STAR para entrevistas
+          <Icone nome="pitch" tamanho={16} />
+          Pitch STAR para entrevistas
         </button>
       </div>
 
@@ -222,7 +230,7 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
             <div className="chat" aria-live="polite">
               {mensagens.map((m, i) => (
                 <div key={i} className={`bubble ${m.who}`}>
-                  {m.who === 'ai' && <div className="who">🤖 Mentor IA</div>}
+                  {m.who === 'ai' && <div className="who">Mentor</div>}
                   {m.text}
                 </div>
               ))}
@@ -235,49 +243,50 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
               }}
             >
               <label className="skip" htmlFor="m-in">
-                Mensagem para o mentor
+                Pergunta ou palavra-chave
               </label>
               <input
                 id="m-in"
                 type="text"
                 className="text grow"
-                placeholder="Pergunte qualquer coisa sobre o que está estudando..."
+                placeholder="Digite uma palavra-chave, como DNS, SLA ou SQL"
                 value={inputChat}
                 onChange={(e) => setInputChat(e.target.value)}
               />
-              <button type="submit" className="btn btn-ai">
+              <button type="submit" className="btn btn-primary">
                 Enviar
               </button>
             </form>
           </section>
 
           <aside className="edu-card card-b">
-            <h2 className="h3">Sugestões</h2>
+            <h2 className="h3">Perguntas sugeridas</h2>
             <div className="suggest mt">
               {[
                 'O que é DNS?',
                 'Como calcular prioridade e SLA?',
                 'Como reconhecer engenharia social?',
                 'Como estudar sem esquecer?',
-                'Como me sair numa entrevista de suporte?',
+                'Como me preparar para uma entrevista de suporte?',
               ].map((q) => (
                 <button key={q} type="button" onClick={() => enviarPergunta(q)}>
                   {q}
                 </button>
               ))}
               <button type="button" onClick={testarConhecimento}>
-                🎯 Me teste sobre o que estudei
+                <Icone nome="meta" tamanho={16} />
+                Me teste sobre o que estudei
               </button>
             </div>
             <hr className="divider" />
-            <h2 className="h3">Como tirar o máximo do mentor</h2>
-            <ul className="muted" style={{ paddingLeft: '18px', margin: '8px 0 0' }}>
-              <li>Pergunte &quot;por quê?&quot; e peça analogias.</li>
-              <li>Peça para ser testado antes de reler a aula.</li>
-              <li>Leve para cá as dúvidas anotadas no Caderno.</li>
-            </ul>
+            <h2 className="h3">Exercício guiado: estude, teste, anote</h2>
+            <ol className="steps4">
+              <li>Escolha uma pergunta sugerida e leia a resposta.</li>
+              <li>Use Me teste sobre o que estudei e responda de cabeça.</li>
+              <li>Compare com a resposta de referência e anote o que faltou no Caderno.</li>
+            </ol>
             <p className="muted mt">
-              🤖 Modo determinístico roteirizado ativo por padrão (custo zero de API na avaliação).
+              Perguntas fora da base recebem a lista de assuntos cobertos. Nenhuma pergunta é enviada a um serviço externo.
             </p>
           </aside>
         </div>
@@ -287,7 +296,7 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
         <div className="grid-2">
           <section className="edu-card card-b">
             <h2 className="h2">Ensine para aprender</h2>
-            <p className="muted" style={{ margin: '4px 0 12px' }}>
+            <p className="muted texto-apoio">
               Explique o conceito como se fosse para alguém que nunca trabalhou com TI. O avaliador aponta onde ficou técnico demais.
             </p>
             <label className="f" htmlFor="fey-c">
@@ -298,7 +307,7 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
                 value={feyConceito}
                 onChange={(e) => setFeyConceito(e.target.value)}
               >
-                <option value="">Escolha um conceito...</option>
+                <option value="">Escolha um conceito</option>
                 {LEVELS.map((L) => (
                   <optgroup key={L.id} label={L.nome}>
                     {CONCEPTS.filter((c) => c.level === L.id).map((c) => (
@@ -316,13 +325,13 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
             <textarea
               id="fey-t"
               className="block"
-              placeholder="Exemplo: O DNS é como a agenda do celular..."
+              placeholder="Exemplo: o DNS é como a agenda do celular"
               value={feyTexto}
               onChange={(e) => setFeyTexto(e.target.value)}
             />
             <div className="row-between mt">
               <span className="muted">{feyWords} palavras</span>
-              <button type="button" className="btn btn-ai" onClick={rodarFeynman}>
+              <button type="button" className="btn btn-primary" onClick={rodarFeynman}>
                 Avaliar minha explicação
               </button>
             </div>
@@ -358,38 +367,31 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
                   aria-valuemax={100}
                 >
                   <span
-                    style={{
-                      width: `${feyRes.score}%`,
-                      background:
-                        feyRes.score >= 80
-                          ? 'var(--mastery-solid)'
-                          : feyRes.score >= 55
-                            ? 'var(--warn-solid)'
-                            : 'var(--danger)',
-                    }}
+                    className={feyRes.score >= 80 ? 'meter-ok' : feyRes.score >= 55 ? 'meter-atencao' : 'meter-risco'}
+                    style={{ width: `${feyRes.score}%` }}
                   />
                 </div>
                 <p className="mt">
                   <strong>
                     {feyRes.score >= 80
-                      ? 'Claro como água — você domina o conceito!'
+                      ? 'Explicação clara. Você domina o conceito.'
                       : feyRes.score >= 55
                         ? 'Bom caminho — ajuste os pontos abaixo.'
-                        : 'Ainda confuso — revise a aula e tente de novo.'}
+                        : 'Ainda confusa. Revise a aula e tente de novo.'}
                   </strong>
                 </p>
                 <div className="mt">
                   <div className="check">
-                    <span className={`check-ic ${feyRes.analogy ? 'ok' : 'no'}`}>{feyRes.analogy ? '✓' : '!'}</span>
+                    <span className={`check-ic ${feyRes.analogy ? 'ok' : 'no'}`}><Icone nome={feyRes.analogy ? 'confirmar' : 'alerta'} tamanho={16} /></span>
                     <span>{feyRes.analogy ? 'Usou analogia.' : 'Faltou uma analogia do dia a dia.'}</span>
                   </div>
                   <div className="check">
-                    <span className={`check-ic ${feyRes.example ? 'ok' : 'no'}`}>{feyRes.example ? '✓' : '!'}</span>
+                    <span className={`check-ic ${feyRes.example ? 'ok' : 'no'}`}><Icone nome={feyRes.example ? 'confirmar' : 'alerta'} tamanho={16} /></span>
                     <span>{feyRes.example ? 'Trouxe um exemplo concreto.' : 'Faltou um exemplo concreto.'}</span>
                   </div>
                   <div className="check">
                     <span className={`check-ic ${feyRes.unexplained.length ? 'no' : 'ok'}`}>
-                      {feyRes.unexplained.length ? '!' : '✓'}
+                      <Icone nome={feyRes.unexplained.length ? 'alerta' : 'confirmar'} tamanho={16} />
                     </span>
                     <span>
                       {feyRes.unexplained.length
@@ -399,7 +401,7 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
                   </div>
                   <div className="check">
                     <span className={`check-ic ${feyRes.avg > 22 ? 'no' : 'ok'}`}>
-                      {feyRes.avg > 22 ? '!' : '✓'}
+                      <Icone nome={feyRes.avg > 22 ? 'alerta' : 'confirmar'} tamanho={16} />
                     </span>
                     <span>
                       Média de {feyRes.avg} palavras por frase{feyRes.avg > 22 ? ' (tente frases menores).' : '.'}
@@ -408,16 +410,17 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
                 </div>
                 {feyRes.qs.length > 0 && (
                   <>
-                    <h3 className="h3 mt">🙋 Perguntas do aluno-IA</h3>
+                    <h3 className="h3 mt">Perguntas de um aluno iniciante</h3>
                     {feyRes.qs.map((q, idx) => (
-                      <div key={idx} className="bubble ai" style={{ maxWidth: '100%', marginTop: '8px' }}>
+                      <div key={idx} className="bubble ai pergunta-aluno">
                         {q}
                       </div>
                     ))}
                   </>
                 )}
                 <button type="button" className="btn btn-secondary mt" onClick={salvarFeynmanNoCaderno}>
-                  📓 Salvar explicação no Caderno
+                  <Icone nome="notas" tamanho={16} />
+                  Salvar explicação no Caderno
                 </button>
               </>
             )}
@@ -438,14 +441,15 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
                   setPitchRes(null)
                 }}
               >
-                ⚡ Usar o laboratório de {nivelPorId(estado.focus).nome}
+                <Icone nome="praticar" tamanho={16} />
+                Preencher com o laboratório de {nivelPorId(estado.focus).nome}
               </button>
             </div>
-            <p className="muted" style={{ marginTop: '4px' }}>
+            <p className="muted mt-1">
               Transforme o que você praticou numa história curta para entrevistas.
             </p>
             <label className="block-label" htmlFor="pt-s">
-              S · Situação
+              Situação (S)
             </label>
             <textarea
               id="pt-s"
@@ -455,7 +459,7 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
               onChange={(e) => setPitch((p) => ({ ...p, s: e.target.value }))}
             />
             <label className="block-label" htmlFor="pt-t">
-              T · Tarefa
+              Tarefa (T)
             </label>
             <textarea
               id="pt-t"
@@ -465,7 +469,7 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
               onChange={(e) => setPitch((p) => ({ ...p, t: e.target.value }))}
             />
             <label className="block-label" htmlFor="pt-a">
-              A · Ação
+              Ação (A)
             </label>
             <textarea
               id="pt-a"
@@ -475,7 +479,7 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
               onChange={(e) => setPitch((p) => ({ ...p, a: e.target.value }))}
             />
             <label className="block-label" htmlFor="pt-r">
-              R · Resultado
+              Resultado (R)
             </label>
             <textarea
               id="pt-r"
@@ -484,8 +488,8 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
               value={pitch.r}
               onChange={(e) => setPitch((p) => ({ ...p, r: e.target.value }))}
             />
-            <button type="button" className="btn btn-ai mt" onClick={() => setPitchRes(avaliarPitchStar(pitch))}>
-              Receber feedback do recrutador IA
+            <button type="button" className="btn btn-primary mt" onClick={() => setPitchRes(avaliarPitchStar(pitch))}>
+              Avaliar meu pitch
             </button>
           </section>
 
@@ -495,16 +499,16 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
                 <h2 className="h3">O que é o método STAR?</h2>
                 <ol className="steps4">
                   <li>
-                    <strong>Situação</strong> — o contexto.
+                    <strong>Situação:</strong> o contexto.
                   </li>
                   <li>
-                    <strong>Tarefa</strong> — o desafio.
+                    <strong>Tarefa:</strong> o desafio.
                   </li>
                   <li>
-                    <strong>Ação</strong> — o que você fez.
+                    <strong>Ação:</strong> o que você fez.
                   </li>
                   <li>
-                    <strong>Resultado</strong> — o impacto, com números.
+                    <strong>Resultado:</strong> o impacto, com números.
                   </li>
                 </ol>
                 <p className="muted mt">
@@ -514,30 +518,30 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
             ) : (
               <>
                 <div className="row-between">
-                  <h2 className="h3">Feedback do recrutador IA</h2>
-                  <span className={`chip ${pitchRes.score === 4 ? 'c-mastery' : 'c-warn'}`}>
-                    {pitchRes.score}/4 critérios
-                  </span>
+                  <h2 className="h3">Avaliação do pitch</h2>
+                  <span className="meta-item">{pitchRes.score} de 4 critérios</span>
                 </div>
                 {pitchRes.checks.map((c, idx) => (
                   <div key={idx} className="check">
-                    <span className={`check-ic ${c.ok ? 'ok' : 'no'}`}>{c.ok ? '✓' : '!'}</span>
+                    <span className={`check-ic ${c.ok ? 'ok' : 'no'}`}><Icone nome={c.ok ? 'confirmar' : 'alerta'} tamanho={16} /></span>
                     <span>{c.ok ? c.good : c.bad}</span>
                   </div>
                 ))}
-                <h3 className="h3 mt">Seu pitch (≈ {pitchRes.secs} segundos falando)</h3>
-                <div className="preview mt">{pitchRes.text || '—'}</div>
+                <h3 className="h3 mt">Seu pitch, cerca de {pitchRes.secs} segundos falando</h3>
+                <div className="preview mt">{pitchRes.text || 'Nenhum texto informado.'}</div>
                 <div className="row wrap gap mt">
                   <button
                     type="button"
-                    className="btn btn-mastery"
+                    className="btn btn-primary"
                     disabled={pitchRes.score < 3}
                     onClick={adicionarPitchAoCurriculo}
                   >
-                    📜 Adicionar ao Currículo Vivo
+                    <Icone nome="credencial" tamanho={16} />
+                    Adicionar ao Currículo Vivo
                   </button>
                   <button type="button" className="btn btn-secondary" onClick={salvarPitchNoCaderno}>
-                    📓 Salvar no Caderno
+                    <Icone nome="notas" tamanho={16} />
+                    Salvar no Caderno
                   </button>
                 </div>
                 {pitchRes.score < 3 && (

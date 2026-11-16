@@ -69,7 +69,7 @@ export function TabelaMissoes({
                   <span className="missao-cargo">{nivel.cargo}</span>
                   <span className="missao-titulo">{nivel.titulo}</span>
                   <span className="missao-desc">{nivel.desc}</span>
-                  <span className="missao-competencias">{nivel.competencias.split(' · ').join(', ')}</span>
+                  <span className="missao-competencias">{nivel.competencias}</span>
                 </span>
               </button>
 

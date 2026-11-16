@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Icone } from '../ui/Icone'
 import { type EstadoAcademia, type PaginaCaderno, nivelPorId } from './catalogoEducacional'
 
 interface CadernoViewProps {
@@ -36,8 +37,8 @@ export function CadernoView({ estado, onAtualizarEstado }: CadernoViewProps) {
       tpl === 'cornell'
         ? {
             id,
-            icon: '📝',
-            title: `Novas anotações · ${focusLvl.nome}`,
+            icon: 'notas',
+            title: `Novas anotações: ${focusLvl.nome}`,
             level: estado.focus,
             type: 'cornell',
             cues: '',
@@ -45,8 +46,8 @@ export function CadernoView({ estado, onAtualizarEstado }: CadernoViewProps) {
             summary: '',
           }
         : tpl === 'todo'
-          ? { id, icon: '🎯', title: 'Novo plano de estudos', level: null, type: 'todo', todos: [] }
-          : { id, icon: '📄', title: 'Página sem título', level: null, type: 'free', text: '' }
+          ? { id, icon: 'meta', title: 'Novo plano de estudos', level: null, type: 'todo', todos: [] }
+          : { id, icon: 'pagina', title: 'Página sem título', level: null, type: 'free', text: '' }
 
     onAtualizarEstado((prev) => ({
       ...prev,
@@ -88,15 +89,15 @@ export function CadernoView({ estado, onAtualizarEstado }: CadernoViewProps) {
     <div className="page">
       <div className="page-head">
         <p className="eyebrow">Fixação</p>
-        <h1 className="h1">📓 Caderno de estudos</h1>
+        <h1 className="h1">Caderno de estudos</h1>
         <p className="lead">
-          Seu espaço estilo Notion: anotações por nível no Método Cornell, plano de estudos e dúvidas. Ele também abre ao lado das aulas e do laboratório.
+          Anotações por nível no Método Cornell, plano de estudos e dúvidas. O caderno também abre ao lado das aulas e do laboratório.
         </p>
       </div>
 
       <div className="grid-notes">
         <aside className="edu-card card-b" aria-label="Páginas do caderno">
-          <label className="block-label" htmlFor="cad-q" style={{ marginTop: 0 }}>
+          <label className="block-label primeiro" htmlFor="cad-q">
             Buscar
           </label>
           <input
@@ -108,9 +109,9 @@ export function CadernoView({ estado, onAtualizarEstado }: CadernoViewProps) {
             onChange={(e) => setBusca(e.target.value)}
           />
 
-          <div className="stack-xs" style={{ marginTop: '12px' }}>
+          <div className="stack-xs mt">
             {paginasFiltradas.length === 0 ? (
-              <p className="muted" style={{ padding: '8px' }}>
+              <p className="muted vazio-lista">
                 Nenhuma página encontrada.
               </p>
             ) : (
@@ -121,7 +122,7 @@ export function CadernoView({ estado, onAtualizarEstado }: CadernoViewProps) {
                   className={`tree-item ${p.id === paginaAtiva.id ? 'active' : ''}`}
                   onClick={() => onAtualizarEstado((prev) => ({ ...prev, activePage: p.id }))}
                 >
-                  <span aria-hidden="true">{p.icon}</span>
+                  <Icone nome={p.icon} tamanho={16} />
                   <span className="tree-title">{p.title || 'Sem título'}</span>
                 </button>
               ))
@@ -129,32 +130,39 @@ export function CadernoView({ estado, onAtualizarEstado }: CadernoViewProps) {
           </div>
 
           <hr className="divider" />
-          <p className="block-label" style={{ marginTop: 0 }}>
+          <p className="block-label primeiro">
             Nova página
           </p>
           <div className="stack-xs">
             <button type="button" className="btn btn-secondary btn-sm" onClick={() => criarPagina('cornell')}>
-              + Anotações (Cornell)
+              <Icone nome="adicionar" tamanho={16} />
+              Anotações (Cornell)
             </button>
             <button type="button" className="btn btn-secondary btn-sm" onClick={() => criarPagina('todo')}>
-              + Plano de estudos
+              <Icone nome="adicionar" tamanho={16} />
+              Plano de estudos
             </button>
             <button type="button" className="btn btn-secondary btn-sm" onClick={() => criarPagina('free')}>
-              + Página livre
+              <Icone nome="adicionar" tamanho={16} />
+              Página livre
             </button>
           </div>
         </aside>
 
         <article className="edu-card editor" aria-label="Editor da página">
-          <div className="row wrap gap">
-            <span className="chip c-fix">{tipoLabel}</span>
+          <p className="meta-linha">
+            <span className="meta-item">{tipoLabel}</span>
             {paginaAtiva.level && (
-              <span className="chip">
-                {nivelPorId(paginaAtiva.level).icon} {nivelPorId(paginaAtiva.level).nome}
+              <span className="meta-item">
+                <Icone nome={nivelPorId(paginaAtiva.level).icon} tamanho={16} />
+                {nivelPorId(paginaAtiva.level).nome}
               </span>
             )}
-            <span className="muted">✓ Salvo automaticamente</span>
-          </div>
+            <span className="meta-item">
+              <Icone nome="confirmar" tamanho={16} />
+              Salvo automaticamente
+            </span>
+          </p>
 
           <label className="skip" htmlFor="ed-title">
             Título da página
@@ -170,7 +178,10 @@ export function CadernoView({ estado, onAtualizarEstado }: CadernoViewProps) {
           {paginaAtiva.type === 'cornell' ? (
             <>
               <div className="hint">
-                📐 <strong>Método Cornell:</strong> perguntas à esquerda, anotações à direita e um resumo embaixo. Para revisar, cubra as anotações e tente responder às perguntas.
+                <Icone nome="info" tamanho={16} />
+                <span>
+                  <strong>Método Cornell:</strong> perguntas à esquerda, anotações à direita e um resumo embaixo. Para revisar, cubra as anotações e tente responder às perguntas.
+                </span>
               </div>
               <div className="cornell">
                 <div>
@@ -209,7 +220,10 @@ export function CadernoView({ estado, onAtualizarEstado }: CadernoViewProps) {
           ) : paginaAtiva.type === 'todo' ? (
             <>
               <div className="hint">
-                🎯 Metas pequenas e específicas funcionam melhor. Exemplo: &quot;15 min de flashcards&quot; em vez de &quot;estudar redes&quot;.
+                <Icone nome="meta" tamanho={16} />
+                <span>
+                  Metas pequenas e específicas funcionam melhor. Exemplo: “15 min de flashcards” em vez de “estudar redes”.
+                </span>
               </div>
               {(paginaAtiva.todos ?? []).map((td, idx) => (
                 <div key={idx} className={`todo ${td.done ? 'done' : ''}`}>
@@ -226,7 +240,7 @@ export function CadernoView({ estado, onAtualizarEstado }: CadernoViewProps) {
                     aria-label="Remover tarefa"
                     onClick={() => removerTodo(idx)}
                   >
-                    ✕
+                    <Icone nome="fechar" tamanho={16} />
                   </button>
                 </div>
               ))}
@@ -260,8 +274,7 @@ export function CadernoView({ estado, onAtualizarEstado }: CadernoViewProps) {
               </label>
               <textarea
                 id="ed-free"
-                className="block"
-                style={{ minHeight: '340px' }}
+                className="block alto"
                 value={paginaAtiva.text ?? ''}
                 onChange={(e) => atualizarPagina(paginaAtiva.id, { text: e.target.value })}
               />
@@ -271,7 +284,8 @@ export function CadernoView({ estado, onAtualizarEstado }: CadernoViewProps) {
           {paginaAtiva.id !== 'plano' && (
             <div className="mt">
               <button type="button" className="btn btn-ghost btn-sm" onClick={() => excluirPagina(paginaAtiva.id)}>
-                🗑️ Excluir página
+                <Icone nome="excluir" tamanho={16} />
+                Excluir página
               </button>
             </div>
           )}

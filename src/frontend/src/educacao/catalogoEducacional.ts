@@ -1,9 +1,11 @@
+import { type NomeIcone, ehNomeIcone } from '../ui/catalogoIcones'
+
 export type NivelId = 'estagiario' | 'n1' | 'n2' | 'n3' | 'esp'
 
 export interface NivelEducacional {
   id: NivelId
   cenarioId: string
-  icon: string
+  icon: NomeIcone
   cargo: string
   nome: string
   titulo: string
@@ -51,7 +53,8 @@ export interface TarefaPlano {
 
 export interface PaginaCaderno {
   id: string
-  icon: string
+  /** Identificador do modulo de icones. Paginas salvas com emoji sao convertidas ao carregar. */
+  icon: NomeIcone
   title: string
   level: NivelId | null
   type: 'todo' | 'cornell' | 'free'
@@ -88,58 +91,58 @@ export const LEVELS: NivelEducacional[] = [
   {
     id: 'estagiario',
     cenarioId: 'triagem-engenharia-social',
-    icon: '🎒',
-    cargo: 'Nível 1 · Estagiário',
+    icon: 'nivel-estagiario',
+    cargo: 'Nível 1: Estagiário',
     nome: 'Estagiário',
     titulo: 'Triagem e Defesa contra Engenharia Social',
     sub: 'Fundamentos do suporte e segurança',
     desc: 'Atenda um pedido urgente de suposto diretor sem token. Consulte a política, registre nota interna e proteja a empresa.',
-    competencias: 'Segurança · Política KB · Triagem ITSM',
+    competencias: 'Segurança, Política KB, Triagem ITSM',
     tag: 'Comece aqui',
   },
   {
     id: 'n1',
     cenarioId: 'pasta-rede-inacessivel',
-    icon: '🎧',
-    cargo: 'Nível 2 · Analista Jr (N1)',
+    icon: 'nivel-n1',
+    cargo: 'Nível 2: Analista Jr (N1)',
     nome: 'Analista Jr (N1)',
     titulo: 'Pasta de Rede Inacessível (Simulador de Causas)',
     sub: 'Redes, usuários e acesso remoto',
     desc: '3 causas sorteadas por semente (Grupo AD, DNS ou Serviço parado). Valide identidade, conecte no SimuDesk e resolva.',
-    competencias: 'AD · DNS · Serviços · SimuDesk',
+    competencias: 'AD, DNS, Serviços, SimuDesk',
   },
   {
     id: 'n2',
     cenarioId: 'incidente-massivo',
-    icon: '🧩',
-    cargo: 'Nível 3 · Analista Pleno (N2)',
+    icon: 'nivel-n2',
+    cargo: 'Nível 3: Analista Pleno (N2)',
     nome: 'Analista Pleno (N2)',
     titulo: 'Incidente Massivo e Problema ITIL',
     sub: 'ITIL, incidentes em massa e logs',
     desc: '3 chamados simultâneos após atualização. Crie um Problema ITIL, investigue logs, restaure o AuroraGateway e resolva em lote.',
-    competencias: 'Problema ITIL · Causa Raiz · Logs',
+    competencias: 'Problema ITIL, Causa Raiz, Logs',
   },
   {
     id: 'n3',
     cenarioId: 'sre-cloud-latencia',
-    icon: '☁️',
-    cargo: 'Nível 4 (V2) · SRE e Cloud',
+    icon: 'nivel-n3',
+    cargo: 'Nível 4 (V2): SRE e Cloud',
     nome: 'SRE e Cloud (N3)',
     titulo: 'Incidente Cloud e Kubernetes (Simulador)',
     sub: 'Cloud, Kubernetes e observabilidade SRE',
     desc: '3 causas raiz simuladas (OOMKilled, Pool Postgres ou TLS expirado). Investigue pods e logs no SimuDesk e mitigue com segurança.',
-    competencias: 'Kubernetes · Observabilidade · SRE',
+    competencias: 'Kubernetes, Observabilidade, SRE',
   },
   {
     id: 'esp',
     cenarioId: 'diagnostico-sql-readonly',
-    icon: '🏅',
-    cargo: 'Nível 4b (V2) · SQL Read-Only',
+    icon: 'nivel-esp',
+    cargo: 'Nível 4b (V2): SQL Read-Only',
     nome: 'Especialista SQL',
     titulo: 'Auditoria SQL Somente Leitura',
     sub: 'Dados e auditoria SQL fail-closed',
     desc: 'Investigue divergência de faturamento no conjunto de dados sintético via SELECT e EXPLAIN. Escrita e injeção SQL são bloqueadas.',
-    competencias: 'SQL Analítico · Auditoria · Segurança',
+    competencias: 'SQL Analítico, Auditoria, Segurança',
   },
 ]
 
@@ -198,7 +201,7 @@ export const LESSONS: Record<NivelId, MicroAula[]> = {
       flow: ['Urgência', '+ Impacto', '= Prioridade (P1–P4)', 'Prazo SLA'],
       quiz: {
         q: 'O sistema de faturamento parou para a empresa inteira no fechamento do mês. Qual a prioridade?',
-        opts: ['P4 · Baixa', 'P2 · Alta', 'P1 · Crítica'],
+        opts: ['P4: Baixa', 'P2: Alta', 'P1: Crítica'],
         ok: 2,
         why: 'Urgência crítica somada a impacto generalizado resulta em P1. Isso pede ação imediata.',
       },
@@ -630,11 +633,11 @@ export const STAR_PREFILLS: Record<NivelId, PitchStar> = {
 export const AI_KB: { k: string[]; a: string }[] = [
   {
     k: ['dns'],
-    a: 'DNS é a agenda de contatos da rede: você digita um nome (AURORA-SRV01) e ele devolve o número (IP) do computador. Se o DNS aponta para o número errado, parece que o sistema caiu — mas ele só está discando errado.\nAula recomendada: N1 · Rede, IP e DNS.',
+    a: 'DNS é a agenda de contatos da rede: você digita um nome (AURORA-SRV01) e ele devolve o número (IP) do computador. Se o DNS aponta para o número errado, parece que o sistema caiu — mas ele só está discando errado.\nAula recomendada: N1, Rede, IP e DNS.',
   },
   {
     k: ['sla', 'prioridade', 'urgência', 'urgencia', 'impacto'],
-    a: 'Prioridade combina Urgência (pressa) com Impacto (quantas pessoas pararam). Exemplo: faturamento parado para a empresa toda no fechamento gera prioridade P1. Cada prioridade tem um prazo combinado, o SLA.\nAula recomendada: Estagiário · Prioridade.',
+    a: 'Prioridade combina Urgência (pressa) com Impacto (quantas pessoas pararam). Exemplo: faturamento parado para a empresa toda no fechamento gera prioridade P1. Cada prioridade tem um prazo combinado, o SLA.\nAula recomendada: Estagiário, Prioridade.',
   },
   {
     k: ['token', 'engenharia', 'golpe', 'senha', 'phishing'],
@@ -642,7 +645,7 @@ export const AI_KB: { k: string[]; a: string }[] = [
   },
   {
     k: ['ad', 'active directory', 'grupo', 'permiss'],
-    a: 'O Active Directory é a portaria da empresa: lista quem trabalha ali e quais portas cada crachá abre. Permissões são dadas a grupos; quem sai do grupo recebe acesso negado.\nAula recomendada: N1 · Usuários, grupos e permissões.',
+    a: 'O Active Directory é a portaria da empresa: lista quem trabalha ali e quais portas cada crachá abre. Permissões são dadas a grupos; quem sai do grupo recebe acesso negado.\nAula recomendada: N1, Usuários, grupos e permissões.',
   },
   {
     k: ['incidente', 'itil'],
@@ -681,7 +684,7 @@ export const AI_KB: { k: string[]; a: string }[] = [
 export const DEFAULT_PAGES: PaginaCaderno[] = [
   {
     id: 'plano',
-    icon: '🗓️',
+    icon: 'plano',
     title: 'Plano de estudos da semana',
     level: null,
     type: 'todo',
@@ -695,8 +698,8 @@ export const DEFAULT_PAGES: PaginaCaderno[] = [
   },
   {
     id: 'pg-estagiario',
-    icon: '🎒',
-    title: 'Estagiário · Chamados, prioridade e golpes',
+    icon: 'nivel-estagiario',
+    title: 'Estagiário: Chamados, prioridade e golpes',
     level: 'estagiario',
     type: 'cornell',
     cues: 'O que é um chamado?\nComo calcular a prioridade?\nComo reconhecer engenharia social?',
@@ -706,8 +709,8 @@ export const DEFAULT_PAGES: PaginaCaderno[] = [
   },
   {
     id: 'pg-n1',
-    icon: '🎧',
-    title: 'N1 · Redes, DNS e acesso remoto',
+    icon: 'nivel-n1',
+    title: 'N1: Redes, DNS e acesso remoto',
     level: 'n1',
     type: 'cornell',
     cues: 'O que o DNS faz?',
@@ -716,7 +719,7 @@ export const DEFAULT_PAGES: PaginaCaderno[] = [
   },
   {
     id: 'duvidas',
-    icon: '💡',
+    icon: 'ideia',
     title: 'Dúvidas para levar ao mentor',
     level: null,
     type: 'free',
@@ -766,6 +769,26 @@ export function criarEstadoInicialAcademia(): EstadoAcademia {
   }
 }
 
+const ICONE_LEGADO: Record<string, NomeIcone> = {
+  '🎒': 'nivel-estagiario',
+  '🎧': 'nivel-n1',
+  '🧩': 'nivel-n2',
+  '☁️': 'nivel-n3',
+  '🏅': 'nivel-esp',
+  '🗓️': 'plano',
+  '💡': 'ideia',
+  '🎤': 'pitch',
+  '📝': 'notas',
+  '🎯': 'meta',
+  '📄': 'pagina',
+}
+
+/** Converte o icone de uma pagina salva (inclusive emoji de versoes antigas) em um identificador valido. */
+export function normalizarIconePagina(valor: unknown): NomeIcone {
+  if (ehNomeIcone(valor)) return valor
+  return (typeof valor === 'string' && ICONE_LEGADO[valor]) || 'pagina'
+}
+
 export function carregarEstadoAcademia(): EstadoAcademia {
   try {
     const raw = window.localStorage.getItem(ACADEMIA_STORAGE_KEY)
@@ -775,7 +798,10 @@ export function carregarEstadoAcademia(): EstadoAcademia {
     return {
       ...base,
       ...parsed,
-      pages: Array.isArray(parsed.pages) && parsed.pages.length > 0 ? parsed.pages : base.pages,
+      pages:
+        Array.isArray(parsed.pages) && parsed.pages.length > 0
+          ? parsed.pages.map((pagina) => ({ ...pagina, icon: normalizarIconePagina(pagina.icon) }))
+          : base.pages,
       lessonsDone: Array.isArray(parsed.lessonsDone) ? parsed.lessonsDone : base.lessonsDone,
       pitches: Array.isArray(parsed.pitches) ? parsed.pitches : base.pitches,
       feynman: Array.isArray(parsed.feynman) ? parsed.feynman : base.feynman,
@@ -857,7 +883,7 @@ export function obterProximaAcao(estado: EstadoAcademia) {
         phase: 'theory' as const,
         level: L.id,
         title: nl.title,
-        meta: `Aula · ${L.nome} · ${nl.min} min`,
+        meta: `Aula de ${L.nome}, ${nl.min} min`,
         act: 'lesson' as const,
         lessonId: nl.id,
         cta: 'Começar a aula',
@@ -868,7 +894,7 @@ export function obterProximaAcao(estado: EstadoAcademia) {
         phase: 'fix' as const,
         level: L.id,
         title: `Revisar os flashcards de ${L.nome}`,
-        meta: 'Repetição espaçada · 5 min',
+        meta: 'Repetição espaçada, 5 min',
         act: 'cards' as const,
         cta: 'Revisar agora',
       }
@@ -878,7 +904,7 @@ export function obterProximaAcao(estado: EstadoAcademia) {
         phase: 'practice' as const,
         level: L.id,
         title: `Laboratório: ${L.titulo}`,
-        meta: `Prática guiada no cockpit · ${L.nome} · ~15 min`,
+        meta: `Prática guiada no cockpit, ${L.nome}, cerca de 15 min`,
         act: 'lab' as const,
         cta: 'Entrar no laboratório',
       }
@@ -907,7 +933,7 @@ export function responderMentor(raw: string): string {
   for (const item of AI_KB) {
     if (item.k.some((k) => (k.length <= 3 ? new RegExp(`\\b${k}\\b`).test(t) : t.includes(k)))) return item.a
   }
-  return 'Boa pergunta! Essa resposta ainda não está roteirizada no MVP. Tente perguntar sobre chamados, prioridade/SLA, engenharia social, DNS, Active Directory, logs, Kubernetes, SQL, técnicas de estudo ou entrevistas.'
+  return 'Essa pergunta está fora da base desta trilha. O Mentor responde sobre chamados, prioridade e SLA, engenharia social, DNS, Active Directory, logs, Kubernetes, SQL, técnicas de estudo e entrevistas.'
 }
 
 const JARGON = [

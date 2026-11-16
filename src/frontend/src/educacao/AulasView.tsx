@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Icone } from '../ui/Icone'
 import {
   CARDS,
   LESSONS,
@@ -57,7 +58,7 @@ export function AulasView({
     paginaCornell = {
       id: `pg-${nivel}`,
       icon: L.icon,
-      title: `${L.nome} · Anotações`,
+      title: `${L.nome}: Anotações`,
       level: nivel,
       type: 'cornell',
       cues: '',
@@ -133,8 +134,11 @@ export function AulasView({
       <div className="grid-aula">
         <nav className="edu-card card-b" aria-label="Aulas do nível">
           <p className="eyebrow">Módulo {idxModulo + 1} de {LEVELS.length}</p>
-          <h2 className="h2">{L.icon} {L.nome}</h2>
-          <p className="muted" style={{ margin: '2px 0 10px' }}>{L.sub}</p>
+          <h2 className="h2 titulo-com-icone">
+            <Icone nome={L.icon} tamanho={24} />
+            {L.nome}
+          </h2>
+          <p className="muted nivel-sub">{L.sub}</p>
           <div className="mini-top">
             <span>Teoria</span>
             <strong>{pr.t}%</strong>
@@ -162,10 +166,10 @@ export function AulasView({
                     aria-current={active ? 'true' : undefined}
                     onClick={() => selecionarAula(l.id)}
                   >
-                    <span className="tick">{done ? '✓' : i + 1}</span>
+                    <span className="tick">{done ? <Icone nome="confirmar" tamanho={16} /> : i + 1}</span>
                     <span>
                       <strong>{l.title}</strong>
-                      <span className="muted d-block">📖 {l.min} min</span>
+                      <span className="muted d-block">{l.min} min</span>
                     </span>
                   </button>
                 </li>
@@ -184,7 +188,9 @@ export function AulasView({
               setAvisoLocal(null)
             }}
           >
-            <span className="tick fix">🧠</span>
+            <span className="tick fix">
+              <Icone nome="cartoes" tamanho={16} />
+            </span>
             <span>
               <strong>Flashcards de revisão</strong>
               <span className="muted d-block">{dueHere} para revisar hoje</span>
@@ -193,18 +199,19 @@ export function AulasView({
 
           <button
             type="button"
-            className="btn btn-practice btn-block mt"
+            className="btn btn-primary btn-block mt"
             onClick={() => onIniciarLaboratorio(L.cenarioId)}
           >
-            🛠️ Praticar no laboratório
+            <Icone nome="praticar" tamanho={16} />
+            Praticar no laboratório
           </button>
         </nav>
 
         <div>
           {avisoLocal && (
-            <div className="banner-notice" style={{ marginBottom: '14px' }}>
+            <div className="banner-notice aviso-estudo">
               <span>{avisoLocal}</span>
-              <button type="button" className="chip" onClick={() => setAvisoLocal(null)}>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setAvisoLocal(null)}>
                 Fechar
               </button>
             </div>
@@ -212,14 +219,17 @@ export function AulasView({
 
           {modo === 'cards' ? (
             <section className="edu-card card-b" aria-label="Flashcards">
-              <div className="row wrap gap">
-                <span className="chip c-fix">🧠 Fixação</span>
-                <span className="chip">Repetição espaçada</span>
-                <span className="chip">
+              <p className="meta-linha">
+                <span className="meta-item">
+                  <Icone nome="cartoes" tamanho={16} />
+                  Fixação
+                </span>
+                <span className="meta-item">Repetição espaçada</span>
+                <span className="meta-item">
                   Cartão {(cardIdx % cs.length) + 1} de {cs.length}
                 </span>
-              </div>
-              <h1 className="lesson-title">Flashcards · {L.nome}</h1>
+              </p>
+              <h1 className="lesson-title">Flashcards de {L.nome}</h1>
               <p className="muted">
                 Leia a pergunta, responda de cabeça e só depois vire o cartão. Avalie com honestidade para agendar a revisão.
               </p>
@@ -227,11 +237,11 @@ export function AulasView({
               <div className={`flash ${flipped ? 'flipped' : ''}`}>
                 <div className="flash-inner">
                   <div className="face front" aria-hidden={flipped}>
-                    <span className="chip c-fix">Pergunta</span>
+                    <span className="face-rotulo">Pergunta</span>
                     <p className="flash-q">{cardAtual.f}</p>
                   </div>
                   <div className="face back" aria-hidden={!flipped}>
-                    <span className="chip c-fix">Resposta</span>
+                    <span className="face-rotulo">Resposta</span>
                     <p className="flash-a">{cardAtual.b}</p>
                   </div>
                 </div>
@@ -244,29 +254,30 @@ export function AulasView({
                   </p>
                   <div className="rate">
                     <button type="button" className="r-hard" onClick={() => avaliarFlashcard(cardAtual.id, 1)}>
-                      😓 Errei / Difícil
+                      Errei ou foi difícil
                       <small>volta amanhã</small>
                     </button>
                     <button type="button" className="r-good" onClick={() => avaliarFlashcard(cardAtual.id, 3)}>
-                      🙂 Lembrei com esforço
+                      Lembrei com esforço
                       <small>em 3 dias</small>
                     </button>
                     <button type="button" className="r-easy" onClick={() => avaliarFlashcard(cardAtual.id, 7)}>
-                      😎 Lembrei fácil
+                      Lembrei fácil
                       <small>em 7 dias</small>
                     </button>
                   </div>
                 </>
               ) : (
                 <div className="center">
-                  <button type="button" className="btn btn-ai btn-lg" onClick={() => setFlipped(true)}>
-                    ↻ Virar cartão
+                  <button type="button" className="btn btn-primary btn-lg" onClick={() => setFlipped(true)}>
+                    <Icone nome="virar" tamanho={16} />
+                    Virar cartão
                   </button>
                 </div>
               )}
 
               <p className="center muted mt">
-                {cardStatus ? `Próxima revisão deste cartão: em ${cardStatus.due} dia(s)` : 'Cartão novo — primeira revisão'}
+                {cardStatus ? `Próxima revisão deste cartão: em ${cardStatus.due} dia(s)` : 'Cartão novo, primeira revisão'}
               </p>
 
               <div className="dots" aria-hidden="true">
@@ -281,22 +292,33 @@ export function AulasView({
           ) : (
             <article className="edu-card" aria-labelledby="lesson-title">
               <div className="card-b">
-                <div className="row wrap gap">
-                  <span className="chip c-theory">📖 Teoria</span>
-                  <span className="chip">
+                <p className="meta-linha">
+                  <span className="meta-item">
+                    <Icone nome="aulas" tamanho={16} />
+                    Teoria
+                  </span>
+                  <span className="meta-item">
                     Aula {aulaIndex + 1} de {ls.length}
                   </span>
-                  <span className="chip">⏱ {aulaAtual.min} min</span>
-                  {estado.lessonsDone.includes(aulaAtual.id) && <span className="chip c-mastery">✓ Concluída</span>}
-                </div>
+                  <span className="meta-item">
+                    <Icone nome="relogio" tamanho={16} />
+                    {aulaAtual.min} min
+                  </span>
+                  {estado.lessonsDone.includes(aulaAtual.id) && (
+                    <span className="meta-item meta-ok">
+                      <Icone nome="confirmar" tamanho={16} />
+                      Concluída
+                    </span>
+                  )}
+                </p>
 
                 <h1 id="lesson-title" className="lesson-title">
                   {aulaAtual.title}
                 </h1>
 
                 <div className="analogy">
-                  <span className="analogy-ic" aria-hidden="true">
-                    💡
+                  <span className="analogy-ic">
+                    <Icone nome="ideia" tamanho={24} />
                   </span>
                   <div>
                     <strong>Analogia do dia a dia</strong>
@@ -313,11 +335,9 @@ export function AulasView({
                 <h2 className="h3">Como funciona, num olhar</h2>
                 <div className="flow">
                   {aulaAtual.flow.map((step, k) => (
-                    <span key={k} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                    <span key={k} className="flow-passo">
                       {k > 0 && (
-                        <span className="flow-arrow" aria-hidden="true">
-                          →
-                        </span>
+                        <Icone nome="avancar" tamanho={16} className="flow-arrow" />
                       )}
                       <span className="flow-node">{step}</span>
                     </span>
@@ -328,7 +348,8 @@ export function AulasView({
                   <div className="row-between">
                     <h2 className="h3">Pontos-chave</h2>
                     <button type="button" className="btn btn-ghost btn-sm" onClick={enviarPontosAoCaderno}>
-                      📓 Enviar ao meu caderno
+                      <Icone nome="notas" tamanho={16} />
+                      Enviar ao meu caderno
                     </button>
                   </div>
                   <ul>
@@ -339,14 +360,19 @@ export function AulasView({
                 </div>
 
                 <section className="recall" aria-live="polite">
-                  <span className="chip c-fix">🧠 Checkpoint de recordação ativa</span>
+                  <p className="meta-linha">
+                    <span className="meta-item">
+                      <Icone nome="cartoes" tamanho={16} />
+                      Checkpoint de recordação ativa
+                    </span>
+                  </p>
                   <p className="recall-q">{aulaAtual.quiz.q}</p>
                   {!revelado ? (
                     <>
                       <p>
                         Antes de ver as alternativas, <strong>responda de cabeça</strong> (ou escreva nas anotações ao lado). Tentar lembrar é o que mais fixa a memória.
                       </p>
-                      <button type="button" className="btn btn-ai mt" onClick={() => setRevelado(true)}>
+                      <button type="button" className="btn btn-primary mt" onClick={() => setRevelado(true)}>
                         Já pensei — mostrar alternativas
                       </button>
                     </>
@@ -373,16 +399,10 @@ export function AulasView({
 
                       {respondido !== null && (
                         <>
-                          <div
-                            className="feedback"
-                            style={{
-                              borderLeftColor:
-                                respondido === aulaAtual.quiz.ok ? 'var(--mastery-solid)' : 'var(--warn)',
-                            }}
-                          >
+                          <div className={`feedback ${respondido === aulaAtual.quiz.ok ? 'feedback-certo' : 'feedback-errado'}`}>
                             <strong>
                               {respondido === aulaAtual.quiz.ok
-                                ? '✓ Isso mesmo!'
+                                ? 'Isso mesmo!'
                                 : `Quase! A resposta certa é a ${String.fromCharCode(65 + aulaAtual.quiz.ok)}.`}
                             </strong>{' '}
                             {aulaAtual.quiz.why}
@@ -390,27 +410,30 @@ export function AulasView({
 
                           {!avaliado ? (
                             <>
-                              <p style={{ marginTop: '16px' }}>
+                              <p className="mt">
                                 <strong>Quão fácil foi lembrar?</strong> Sua resposta define quando revisaremos este assunto.
                               </p>
                               <div className="rate">
                                 <button type="button" className="r-hard" onClick={() => avaliarAula(1)}>
-                                  😓 Difícil
+                                  Difícil
                                   <small>revisar amanhã</small>
                                 </button>
                                 <button type="button" className="r-good" onClick={() => avaliarAula(3)}>
-                                  🙂 Bom
+                                  Bom
                                   <small>revisar em 3 dias</small>
                                 </button>
                                 <button type="button" className="r-easy" onClick={() => avaliarAula(7)}>
-                                  😎 Fácil
+                                  Fácil
                                   <small>revisar em 7 dias</small>
                                 </button>
                               </div>
                             </>
                           ) : (
                             <div className="row wrap gap mt">
-                              <span className="chip c-mastery">✓ Aula concluída · +20 XP</span>
+                              <span className="meta-item meta-ok">
+                                <Icone nome="confirmar" tamanho={16} />
+                                Aula concluída, +20 XP
+                              </span>
                               <button
                                 type="button"
                                 className="btn btn-primary"
@@ -423,14 +446,16 @@ export function AulasView({
                                   }
                                 }}
                               >
-                                {aulaIndex < ls.length - 1 ? 'Próxima aula →' : 'Ir para os flashcards →'}
+                                {aulaIndex < ls.length - 1 ? 'Próxima aula' : 'Ir para os flashcards'}
+                                <Icone nome="avancar" tamanho={16} />
                               </button>
                               <button
                                 type="button"
-                                className="btn btn-practice"
+                                className="btn btn-secondary"
                                 onClick={() => onIniciarLaboratorio(L.cenarioId)}
                               >
-                                🛠️ Praticar agora
+                                <Icone nome="praticar" tamanho={16} />
+                                Praticar agora
                               </button>
                             </div>
                           )}
@@ -446,12 +471,16 @@ export function AulasView({
 
         <aside className="edu-card card-b notes-col" aria-label="Minhas anotações">
           <div className="row-between">
-            <h2 className="h3">📓 Minhas anotações</h2>
+            <h2 className="h3 titulo-com-icone">
+              <Icone nome="notas" tamanho={20} />
+              Minhas anotações
+            </h2>
             <button type="button" className="btn btn-ghost btn-sm" onClick={() => onIrParaCaderno(paginaCornell.id)}>
-              Abrir no Caderno ↗
+              Abrir no Caderno
+              <Icone nome="avancar" tamanho={16} />
             </button>
           </div>
-          <p className="muted" style={{ marginTop: '4px' }}>
+          <p className="muted mt-1">
             Método Cornell: escreva com suas palavras enquanto estuda. Salva automaticamente no navegador.
           </p>
           <label className="block-label" htmlFor="as-cues">
@@ -472,7 +501,10 @@ export function AulasView({
             value={paginaCornell.notes ?? ''}
             onChange={(e) => atualizarCampoCornell('notes', e.target.value)}
           />
-          <p className="muted saved">✓ Salvo automaticamente</p>
+          <p className="muted saved">
+            <Icone nome="confirmar" tamanho={16} />
+            Salvo automaticamente
+          </p>
         </aside>
       </div>
     </div>

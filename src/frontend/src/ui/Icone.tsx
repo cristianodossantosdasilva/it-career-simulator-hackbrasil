@@ -1,75 +1,7 @@
-import {
-  ArrowLeft,
-  ArrowRight,
-  Award,
-  BadgeCheck,
-  BookOpen,
-  Briefcase,
-  Check,
-  ChevronDown,
-  CircleUser,
-  Clock,
-  Crosshair,
-  Download,
-  Flame,
-  Gauge,
-  Info,
-  Layers,
-  Library,
-  ListChecks,
-  type LucideIcon,
-  type LucideProps,
-  MessageSquare,
-  MessagesSquare,
-  Monitor,
-  NotebookPen,
-  Plane,
-  ScreenShare,
-  ShieldCheck,
-  SquareTerminal,
-  Star,
-  Ticket,
-  X,
-} from 'lucide-react'
+import type { LucideProps } from 'lucide-react'
+import { ICONES, type NomeIcone } from './catalogoIcones'
 
-/**
- * Catalogo unico de icones. As telas usam apenas o nome semantico, nunca o componente do pacote,
- * para que a troca da biblioteca fique restrita a este arquivo.
- */
-const ICONES = {
-  missoes: ListChecks,
-  aulas: BookOpen,
-  laboratorio: Monitor,
-  caderno: NotebookPen,
-  mentor: MessagesSquare,
-  credencial: BadgeCheck,
-  'tema-tatico': Crosshair,
-  'tema-corporativo': Briefcase,
-  perfil: CircleUser,
-  marca: Plane,
-  voltar: ArrowLeft,
-  avancar: ArrowRight,
-  baixar: Download,
-  verificar: ShieldCheck,
-  cartoes: Layers,
-  fechar: X,
-  confirmar: Check,
-  expandir: ChevronDown,
-  sequencia: Flame,
-  xp: Star,
-  conquista: Award,
-  info: Info,
-  relogio: Clock,
-  notas: NotebookPen,
-  conversa: MessageSquare,
-  chamado: Ticket,
-  remoto: ScreenShare,
-  base: Library,
-  terminal: SquareTerminal,
-  saude: Gauge,
-} satisfies Record<string, LucideIcon>
-
-export type NomeIcone = keyof typeof ICONES
+export type { NomeIcone }
 
 export interface IconeProps extends Omit<LucideProps, 'ref' | 'size' | 'strokeWidth'> {
   nome: NomeIcone
