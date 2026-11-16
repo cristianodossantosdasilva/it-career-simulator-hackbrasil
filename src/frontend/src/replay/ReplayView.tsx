@@ -1,6 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import type { ReplayResponse } from '../api/types'
-import { resolverUriParaId } from '../data/kbCatalogo'
+import { TEXTOS_WORKSTATION } from '../textos/workstation'
+import { Icone } from '../ui/Icone'
+import { CredentialCard } from './CredentialCard'
+import { CriteriaPanel } from './CriteriaPanel'
+import { TimelineReplay } from './TimelineReplay'
+
+const T = TEXTOS_WORKSTATION.replay
 
 interface Props {
   replay: ReplayResponse | null
@@ -12,187 +18,119 @@ interface Props {
 
 export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetornoLinkUri }: Props) {
   const [indiceSelecionado, setIndiceSelecionado] = useState(0)
-  const kbLinksRef = useRef<Record<string, HTMLButtonElement | null>>({})
   const eventoCardRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (kbRetornoLinkUri) requestAnimationFrame(() => kbLinksRef.current[kbRetornoLinkUri!]?.focus())
-  }, [kbRetornoLinkUri, replay])
 
   if (!replay) {
     return (
-      <section className="panel" aria-label="Relatorio do Juiz 360" aria-busy={ocupado}>
-        <h2>Avaliação 360º, Replay e Currículo Vivo</h2>
-        <button type="button" className="btn-primary" disabled={ocupado} onClick={onAtualizar}>
-          Carregar Replay e Avaliacao
+      <section className="replay replay-vazio" aria-label={T.regiaoRelatorio} aria-busy={ocupado}>
+        <h2 className="h2">Avaliação 360º, replay e Currículo Vivo</h2>
+        <p className="muted">{T.semReplay}</p>
+        <button type="button" className="btn btn-primary" disabled={ocupado} onClick={onAtualizar}>
+          {T.carregar}
         </button>
-        <p className="muted">Nenhum replay carregado. Carregue para ver criterios e linha do tempo.</p>
       </section>
     )
   }
 
-  const indiceValido = replay ? Math.min(Math.max(0, indiceSelecionado), Math.max(0, replay.eventos.length - 1)) : 0
-  const eventoAtual = replay.eventos[indiceValido]
-  const criteriosAtendidos = replay.avaliacao.criterios.filter((c) => c.atendido).length
-  const proximoFoco = replay.avaliacao.criterios.find((c) => !c.atendido)
+  const { avaliacao, eventos, meta, curriculo } = replay
+  const indiceValido = Math.min(Math.max(0, indiceSelecionado), Math.max(0, eventos.length - 1))
+  const atendidos = avaliacao.criterios.filter((c) => c.atendido).length
+  const proximoFoco = avaliacao.criterios.find((c) => !c.atendido)
+
+  function verEvento(seq: number) {
+    const idx = eventos.findIndex((e) => e.seq === seq)
+    if (idx < 0) return
+    setIndiceSelecionado(idx)
+    requestAnimationFrame(() => eventoCardRef.current?.focus())
+  }
 
   return (
-    <div className="app-split" role="group" aria-label="Replay e Avaliacao 360">
-      <section className="panel" aria-label="Relatorio do Juiz 360">
-        <div className="row-between">
-          <h2>Relatório do Juiz 360º</h2>
-          <button type="button" disabled={ocupado} onClick={onAtualizar}>
-            Atualizar
+    <div className="replay" role="group" aria-label={T.grupo}>
+      <div className="replay-grade">
+      <section className="replay-resumo" aria-label={T.regiaoRelatorio} aria-busy={ocupado}>
+        <div className="replay-topo">
+          <h2 className="h2">Relatório do Juiz 360º</h2>
+          <button type="button" className="btn btn-neutro btn-sm" disabled={ocupado} onClick={onAtualizar}>
+            {T.atualizar}
           </button>
         </div>
-        <div className="debrief-box">
-          <strong>Debrief Didático da Caixa-Preta:</strong> {criteriosAtendidos} de {replay.avaliacao.criterios.length} critérios
-          atendidos.{' '}
-          {replay.avaliacao.incidenteSeguranca
-            ? 'Houve incidente de segurança — revise na linha do tempo o momento do erro para consolidar o procedimento seguro.'
-            : proximoFoco
-              ? `Próximo foco de aprendizado: ${proximoFoco.praticaEsperada ?? proximoFoco.descricao}`
-              : 'Atendimento conduzido com evidências completas e postura segura.'}
+
+        <div className="replay-placar">
+          <p className="replay-placar-numero dado-mono">
+            {atendidos} de {avaliacao.criterios.length}
+          </p>
+          <p className="replay-placar-legenda">critérios atendidos</p>
+          <div className="replay-medidor" aria-hidden="true">
+            {avaliacao.criterios.map((c) => (
+              <span key={c.id} data-atendido={c.atendido ? 'sim' : 'nao'} />
+            ))}
+          </div>
         </div>
-        <p className="muted">
-          Status: <strong>{replay.avaliacao.concluida ? 'Concluida' : 'Em andamento'}</strong> |{' '}
-          {replay.avaliacao.resumo}
-          {replay.meta.causa && (
-            <>
-              {' '}
-              | Causa sorteada: <strong>{replay.meta.causa}</strong>
-            </>
+
+        <div className="meta-linha replay-status">
+          <span>
+            Status: <strong>{avaliacao.concluida ? T.concluida : T.emAndamento}</strong>
+          </span>
+          <span>{avaliacao.resumo}</span>
+          {meta.causa && (
+            <span>
+              Causa sorteada: <strong>{meta.causa}</strong>
+            </span>
           )}
+        </div>
+
+        <p className="replay-debrief">
+          <Icone nome="ideia" tamanho={20} />
+          <span>
+            <strong>Debrief da Caixa-Preta.</strong>{' '}
+            {avaliacao.incidenteSeguranca
+              ? 'Houve incidente de segurança. Revise na linha do tempo o momento do erro para consolidar o procedimento seguro.'
+              : proximoFoco
+                ? `Próximo foco de aprendizado: ${proximoFoco.praticaEsperada ?? proximoFoco.descricao}`
+                : 'Atendimento conduzido com evidências completas e postura segura.'}
+          </span>
         </p>
 
-        {replay.avaliacao.incidenteSeguranca && (
+        {avaliacao.incidenteSeguranca && (
           <div className="alert-danger" role="alert">
-            Incidente de seguranca registrado nesta sessao!
-          </div>
-        )}
-
-        <ul className="criteria-list" role="list" aria-label="Criterios de avaliacao">
-          {replay.avaliacao.criterios.map((c) => (
-            <li
-              key={c.id}
-              className={c.atendido ? 'crit-ok' : 'crit-fail'}
-            >
-              <div className="crit-header">
-                <strong>{c.id}</strong> — {c.descricao}{' '}
-                <span className="badge">
-                  {c.atendido ? 'Atendido' : 'Pendente'}
-                </span>
-                {c.eventoSeq && (
-                  <button
-                    type="button"
-                    className="chip"
-                    aria-label={`Ver evento sequencia ${c.eventoSeq}`}
-                    onClick={() => {
-                      const idx = replay.eventos.findIndex((e) => e.seq === c.eventoSeq)
-                      if (idx >= 0) {
-                        setIndiceSelecionado(idx)
-                        requestAnimationFrame(() => eventoCardRef.current?.focus())
-                      }
-                    }}
-                  >
-                    Ver seq #{c.eventoSeq}
-                  </button>
-                )}
-              </div>
-              {c.motivo && (
-                <p className="crit-motivo" aria-label="Motivo">
-                  <em>{c.motivo}</em>
-                </p>
-              )}
-              {c.praticaEsperada && (
-                <p className="crit-pratica">
-                  <span className="crit-label">Pratica esperada:</span> {c.praticaEsperada}
-                </p>
-              )}
-              {c.linkKb && (
-                resolverUriParaId(c.linkKb) &&
-                <button
-                  type="button"
-                  className="crit-kb-link"
-                  aria-label={`Consultar KB: ${c.linkKb}`}
-                  data-kb-uri={c.linkKb}
-                  ref={(el) => { kbLinksRef.current[c.linkKb!] = el }}
-                  onClick={(e) => {
-                    const artigoId = resolverUriParaId(c.linkKb!)
-                    if (artigoId) onNavegaKb?.(artigoId, e.currentTarget)
-                  }}
-                >
-                  Consultar KB
-                </button>
-              )}
-            </li>
-          ))}
-        </ul>
-
-        {replay.curriculo && (
-          <div className="card-section curriculo-box">
-            <h3>Curriculo Vivo (Portfolio Auditavel)</h3>
-            <p>
-              Competencias comprovadas:{' '}
-              <strong>{replay.curriculo.competencias.join(' · ') || 'Nenhuma'}</strong>
-            </p>
-            <p className="muted">
-              Algoritmo: <code>{replay.curriculo.algoritmo}</code>
-            </p>
-            <div className="hash-box">
-              Hash de Auditoria: <code>{replay.curriculo.hash}</code>
-            </div>
+            {T.incidente}
           </div>
         )}
       </section>
 
-      <section className="panel" aria-label="Linha do tempo do Replay">
-        <h2>Caixa-Preta do Atendimento ({replay.eventos.length} eventos)</h2>
-        {replay.eventos.length === 0 ? <p className="muted">Nenhum evento registrado nesta sessao.</p> : <>
-        <div className="timeline-controls">
-          <label htmlFor="replay-range">Passo: #{eventoAtual?.seq ?? 1}</label>
-          <input
-            id="replay-range"
-            type="range"
-            min={0}
-            max={Math.max(0, replay.eventos.length - 1)}
-            value={indiceValido}
-            aria-valuetext={eventoAtual ? `Evento #${eventoAtual.seq} — ${eventoAtual.tipo}` : undefined}
-            onChange={(e) => setIndiceSelecionado(Number(e.target.value))}
+      <section className="replay-criterios" aria-labelledby="replay-criterios-titulo">
+        <h2 id="replay-criterios-titulo" className="h2">
+          Decisões e prática recomendada
+        </h2>
+        <CriteriaPanel
+          criterios={avaliacao.criterios}
+          onVerEvento={verEvento}
+          onNavegaKb={onNavegaKb}
+          kbRetornoLinkUri={kbRetornoLinkUri}
+        />
+      </section>
+
+      <section className="replay-tempo" aria-label={T.regiaoLinhaTempo}>
+        <h2 className="h2">Caixa-Preta do atendimento ({eventos.length} eventos)</h2>
+        {eventos.length === 0 ? (
+          <p className="muted">{T.semEventos}</p>
+        ) : (
+          <TimelineReplay
+            eventos={eventos}
+            criterios={avaliacao.criterios}
+            indice={indiceValido}
+            onSelecionar={setIndiceSelecionado}
+            cartaoRef={eventoCardRef}
           />
-        </div>
-
-        {eventoAtual && (
-          <div className="card-section" ref={eventoCardRef} tabIndex={-1}>
-            <div className="row-between">
-              <strong>
-                Seq #{eventoAtual.seq} — {eventoAtual.tipo}
-              </strong>
-              <span>{eventoAtual.minutoSimulado}m</span>
-            </div>
-            <pre className="json-box">{JSON.stringify(eventoAtual.payload ?? eventoAtual.dados ?? {}, null, 2)}</pre>
-          </div>
         )}
-
-        <ul className="timeline-list" aria-label="Eventos da linha do tempo">
-          {replay.eventos.map((e, idx) => (
-            <li key={e.seq}>
-              <button
-                type="button"
-                className={`timeline-btn ${idx === indiceValido ? 'active' : ''}`}
-                aria-current={idx === indiceValido ? 'step' : undefined}
-                onClick={() => setIndiceSelecionado(idx)}
-              >
-                <span>
-                  #{e.seq} {e.tipo}
-                </span>
-                <span>{e.minutoSimulado}m</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-        </>}
       </section>
+
+      {curriculo && (
+        <div className="replay-selo">
+          <CredentialCard curriculo={curriculo} nivel={meta.nivel} />
+        </div>
+      )}
+      </div>
     </div>
   )
 }

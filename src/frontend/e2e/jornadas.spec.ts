@@ -44,7 +44,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByRole('button', { name: T.itsm.resolverChamado }).click()
 
     await page.getByRole('button', { name: /Juiz 360º e Replay/i }).click()
-    await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
+    await expect(page.getByText(T.replay.concluida, { exact: true })).toBeVisible()
     await expect(page.getByText('XP: 60')).toBeVisible()
 
     const linkKb = page.getByRole('button', { name: /^Consultar KB.*politica-reset-senha/i })
@@ -91,7 +91,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByRole('button', { name: T.itsm.resolverChamado }).click()
 
     await page.getByRole('button', { name: /Juiz 360º e Replay/i }).click()
-    await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
+    await expect(page.getByText(T.replay.concluida, { exact: true })).toBeVisible()
 
     // Volta para Tela Inicial e valida Curriculo Vivo gerado
     await page.getByRole('button', { name: /Tela Inicial/i }).click()
@@ -140,7 +140,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByLabel(T.itsm.notaResolucao).fill('Servico Workstation iniciado apos diagnostico.')
     await page.getByRole('button', { name: T.itsm.resolverChamado }).click()
     await page.getByRole('button', { name: /Juiz 360º e Replay/i }).click()
-    await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
+    await expect(page.getByText(T.replay.concluida, { exact: true })).toBeVisible()
     await expect(page.getByText('XP: 60')).toBeVisible()
   })
 
@@ -180,7 +180,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByRole('button', { name: T.itsm.resolverLote }).click()
 
     await page.getByRole('button', { name: /Juiz 360º e Replay/i }).click()
-    await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
+    await expect(page.getByText(T.replay.concluida, { exact: true })).toBeVisible()
   })
 
   test('Negativa 1: Prompt injection nao libera SimuDesk e /replay oculta causa antes da conclusao', async ({ page }) => {
@@ -283,7 +283,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByRole('button', { name: T.itsm.resolverChamado }).click()
 
     await page.getByRole('button', { name: /Juiz 360º e Replay/i }).click()
-    await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
+    await expect(page.getByText(T.replay.concluida, { exact: true })).toBeVisible()
     await expect(page.getByText('XP: 100')).toBeVisible()
     const criterioSre = page.getByRole('listitem').filter({ hasText: /R3\s*—/ })
     await expect(criterioSre.getByLabel('Motivo')).toBeVisible()
@@ -331,7 +331,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByLabel(T.itsm.notaResolucao).fill('Investigações somente leitura concluídas; divergência identificada no dataset sintético.')
     await page.getByRole('button', { name: T.itsm.resolverChamado }).click()
     await page.getByRole('button', { name: /Juiz 360º e Replay/i }).click()
-    await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
+    await expect(page.getByText(T.replay.concluida, { exact: true })).toBeVisible()
     await expect(page.getByText('XP: 80')).toBeVisible()
   })
 

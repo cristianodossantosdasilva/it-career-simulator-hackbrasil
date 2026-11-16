@@ -1,5 +1,5 @@
 /**
- * Textos acionaveis das ferramentas do laboratorio (ITSM, SimuDesk, Chat e Intranet).
+ * Textos acionaveis das ferramentas do laboratorio (ITSM, SimuDesk, Chat, Intranet e Replay).
  * Componentes, testes unitarios e a spec E2E importam as mesmas constantes, entao uma
  * correcao de acentuacao muda um unico lugar. Nenhuma string de DTO da API passa por aqui.
  */
@@ -54,5 +54,25 @@ export const TEXTOS_WORKSTATION = {
   },
   intranet: {
     fecharArtigo: 'Fechar artigo',
+  },
+  replay: {
+    regiaoRelatorio: 'Relatório do Juiz 360',
+    regiaoLinhaTempo: 'Linha do tempo do replay',
+    grupo: 'Replay e avaliação 360',
+    carregar: 'Carregar replay e avaliação',
+    atualizar: 'Atualizar',
+    semReplay: 'Nenhum replay carregado. Carregue para ver critérios e linha do tempo.',
+    semEventos: 'Nenhum evento registrado nesta sessão.',
+    concluida: 'Concluída',
+    emAndamento: 'Em andamento',
+    atendido: 'Atendido',
+    pendente: 'Pendente',
+    incidente: 'Incidente de segurança registrado nesta sessão.',
+    listaCriterios: 'Critérios de avaliação',
+    listaEventos: 'Eventos da linha do tempo',
+    verEvento: (seq: number) => `Ver evento sequência ${seq}`,
+    consultarKb: (uri: string) => `Consultar KB: ${uri}`,
+    eventoBruto: 'Ver evento bruto',
+    credencial: 'Currículo Vivo',
   },
 } as const

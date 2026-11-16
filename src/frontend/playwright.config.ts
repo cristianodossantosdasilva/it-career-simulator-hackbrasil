@@ -1,5 +1,12 @@
 import { defineConfig, devices } from '@playwright/test'
 
+/**
+ * Projetos visuais: percorrem as visões principais em quatro larguras e salvam screenshots em
+ * test-results/visual/. Só executam e2e/visual.spec.ts. As jornadas de comportamento
+ * (e2e/jornadas.spec.ts) continuam no projeto `chromium`.
+ */
+const SPEC_VISUAL = /visual\.spec\.ts$/
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: false,
@@ -13,7 +20,28 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
+      testIgnore: SPEC_VISUAL,
       use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'mobile-375',
+      testMatch: SPEC_VISUAL,
+      use: { ...devices['Pixel 7'], viewport: { width: 375, height: 812 } },
+    },
+    {
+      name: 'tablet-768',
+      testMatch: SPEC_VISUAL,
+      use: { ...devices['Desktop Chrome'], viewport: { width: 768, height: 1024 } },
+    },
+    {
+      name: 'desktop-1280',
+      testMatch: SPEC_VISUAL,
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
+    },
+    {
+      name: 'desktop-1440',
+      testMatch: SPEC_VISUAL,
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
     },
   ],
   webServer: [
