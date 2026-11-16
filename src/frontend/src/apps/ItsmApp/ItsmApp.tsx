@@ -1,13 +1,43 @@
 import { useState } from 'react'
 import type { ChamadoDto, SessaoProjecao } from '../../api/types'
+import { TEXTOS_WORKSTATION } from '../../textos/workstation'
+import { Icone } from '../../ui/Icone'
+import { SlaMeter } from '../../ui/SlaMeter'
+
+const T = TEXTOS_WORKSTATION.itsm
 
 interface Props {
   sessao: SessaoProjecao
   onAcao: (tipo: string, dados?: Record<string, unknown>) => Promise<void>
   ocupado: boolean
+  /** Abre um artigo da base de conhecimento. Sem ele, a consulta de política só registra a ação no motor. */
+  onAbrirKb?: (artigoId: string) => void
 }
 
-export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
+type EstadoVisual = 'neutro' | 'ativo' | 'atencao' | 'ok'
+
+const STATUS_CHAMADO: Record<string, { rotulo: string; estado: EstadoVisual }> = {
+  Novo: { rotulo: 'Novo', estado: 'neutro' },
+  EmAtendimento: { rotulo: 'Em atendimento', estado: 'ativo' },
+  Escalonado: { rotulo: 'Escalonado', estado: 'atencao' },
+  Resolvido: { rotulo: 'Resolvido', estado: 'ok' },
+  Encerrado: { rotulo: 'Encerrado', estado: 'ok' },
+}
+
+function EstadoChamado({ status }: { status: string }) {
+  const info = STATUS_CHAMADO[status] ?? { rotulo: status, estado: 'neutro' as EstadoVisual }
+  return (
+    <span className="estado" data-estado={info.estado}>
+      {info.rotulo}
+    </span>
+  )
+}
+
+function chamadoEncerrado(c: ChamadoDto) {
+  return c.status === 'Resolvido' || c.status === 'Encerrado'
+}
+
+export function ItsmApp({ sessao, onAcao, ocupado, onAbrirKb }: Props) {
   const [selecionadoId, setSelecionadoId] = useState<string>(sessao.chamados[0]?.id ?? 'CH-0001')
   const [categoria, setCategoria] = useState('Acesso a Rede')
   const [urgencia, setUrgencia] = useState('Alta')
@@ -22,55 +52,113 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
     sessao.chamados.find((c) => c.id === selecionadoId) ?? sessao.chamados[0]
   const ehNivel1 = sessao.meta.cenarioId === 'triagem-engenharia-social'
   const ehNivel3 = sessao.meta.cenarioId === 'incidente-massivo'
+  const minutoAtual = sessao.meta.minutoSimulado
+
+  async function consultarPolitica() {
+    await onAcao('seguranca.consultar_politica')
+    onAbrirKb?.('KB-001')
+  }
 
   return (
-    <div className="app-split" aria-label="Sistema ITSM">
-      <section className="panel" aria-label="Fila de chamados">
-        <h2>Fila ITSM ({sessao.chamados.length})</h2>
-        <ul className="ticket-list">
-          {sessao.chamados.map((c) => (
-            <li key={c.id}>
-              <button
-                type="button"
-                className={`ticket-item ${c.id === chamado?.id ? 'active' : ''}`}
-                onClick={() => setSelecionadoId(c.id)}
-              >
-                <div className="row-between">
-                  <strong>{c.id}</strong>
-                  <span className={`badge status-${c.status.toLowerCase()}`}>{c.status}</span>
-                </div>
-                <div className="ticket-title">{c.titulo}</div>
-                <div className="ticket-meta">
-                  <span>{c.solicitante}</span>
-                  <span>{c.prioridade ?? 'Sem P'}</span>
-                  {c.slaAlvoMinuto !== null && (
-                    <span className={c.slaVencido ? 'text-danger' : ''}>
-                      SLA: {c.slaAlvoMinuto}m {c.slaVencido ? '(VENCIDO)' : ''}
-                    </span>
-                  )}
-                </div>
-              </button>
-            </li>
-          ))}
-        </ul>
+    <section className="itsm" aria-label="Sistema ITSM">
+      <section className="itsm-fila" aria-label="Fila de chamados">
+        <h2>
+          Fila de chamados <span className="muted">({sessao.chamados.length})</span>
+        </h2>
+        <div className="tabela-rolagem">
+          <table className="tabela-dados fila-chamados">
+            <caption className="sr-only">Chamados da sessão. Use o botão da chave para abrir o detalhe.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Chave</th>
+                <th scope="col">Resumo</th>
+                <th scope="col">Prioridade</th>
+                <th scope="col">SLA</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sessao.chamados.map((c) => {
+                const ativo = c.id === chamado?.id
+                return (
+                  <tr key={c.id} aria-selected={ativo} data-ativo={ativo}>
+                    <td data-rotulo="Chave">
+                      <button
+                        type="button"
+                        className={`ticket-item ${ativo ? 'active' : ''}`}
+                        aria-current={ativo ? 'true' : undefined}
+                        onClick={() => setSelecionadoId(c.id)}
+                      >
+                        {c.id}
+                      </button>
+                    </td>
+                    <td data-rotulo="Resumo">
+                      <span className="fila-titulo">{c.titulo}</span>
+                      <span className="fila-solicitante">{c.solicitante}</span>
+                    </td>
+                    <td data-rotulo="Prioridade" className="dado-mono">
+                      {c.prioridade ?? 'Sem prioridade'}
+                    </td>
+                    <td data-rotulo="SLA">
+                      <SlaMeter
+                        abertoEmMinuto={c.abertoEmMinuto}
+                        alvoMinuto={c.slaAlvoMinuto}
+                        minutoAtual={minutoAtual}
+                        vencido={c.slaVencido}
+                        encerrado={chamadoEncerrado(c)}
+                      />
+                    </td>
+                    <td data-rotulo="Status">
+                      <EstadoChamado status={c.status} />
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       </section>
 
-      <section className="panel" aria-label="Detalhes do chamado">
+      <section className="itsm-detalhe" aria-label="Detalhes do chamado">
         {!chamado ? (
           <p>Nenhum chamado selecionado.</p>
         ) : (
           <>
-            <div className="row-between">
+            <header className="itsm-detalhe-topo">
               <h2>
-                {chamado.id} — {chamado.titulo}
+                <Icone nome="chamado" tamanho={20} />
+                <span>
+                  {chamado.id}: {chamado.titulo}
+                </span>
               </h2>
-              <span className="badge">{chamado.status}</span>
-            </div>
-            <p className="muted">
-              Solicitante: <strong>{chamado.solicitante}</strong> | Categoria:{' '}
-              <strong>{chamado.categoria ?? 'Nao classificado'}</strong> | Prioridade:{' '}
-              <strong>{chamado.prioridade ?? '—'}</strong>
-            </p>
+              <EstadoChamado status={chamado.status} />
+            </header>
+            <dl className="itsm-dados">
+              <div>
+                <dt>Solicitante</dt>
+                <dd>{chamado.solicitante}</dd>
+              </div>
+              <div>
+                <dt>Categoria</dt>
+                <dd>{chamado.categoria ?? 'Não classificado'}</dd>
+              </div>
+              <div>
+                <dt>Prioridade</dt>
+                <dd className="dado-mono">{chamado.prioridade ?? 'Não definida'}</dd>
+              </div>
+              <div>
+                <dt>SLA</dt>
+                <dd>
+                  <SlaMeter
+                    abertoEmMinuto={chamado.abertoEmMinuto}
+                    alvoMinuto={chamado.slaAlvoMinuto}
+                    minutoAtual={minutoAtual}
+                    vencido={chamado.slaVencido}
+                    encerrado={chamadoEncerrado(chamado)}
+                  />
+                </dd>
+              </div>
+            </dl>
             <p className="ticket-desc">{chamado.descricao}</p>
 
             {chamado.status === 'Novo' && (
@@ -81,38 +169,39 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
                   disabled={ocupado}
                   onClick={() => onAcao('itsm.assumir_chamado', { chamadoId: chamado.id })}
                 >
-                  Assumir Chamado
+                  {T.assumirChamado}
                 </button>
               </div>
             )}
 
             {ehNivel1 && (
-              <div className="card-section">
-                <h3>Acoes de Seguranca (Engenharia Social)</h3>
-                <p className="muted">
-                  Passo a passo: <strong>1)</strong> Assuma o chamado → <strong>2)</strong> Consulte a Politica KB-001 →{' '}
-                  <strong>3)</strong> Solicite Token Corporativo → <strong>4)</strong> Registre Nota Interna →{' '}
-                  <strong>5)</strong> Recuse o reset → <strong>6)</strong> Resolva o chamado com nota publica.
-                </p>
+              <div className="itsm-bloco">
+                <h3>Ações de segurança</h3>
+                <ol className="itsm-checklist">
+                  <li>Consulte a política KB-001 antes de agir.</li>
+                  <li>Peça o token corporativo e confirme a identidade de quem pede.</li>
+                  <li>Registre a evidência em uma nota interna.</li>
+                  <li>Decida o que fazer com o pedido de reset e resolva o chamado com uma nota pública.</li>
+                </ol>
                 <div className="actions-bar">
-                  <button type="button" disabled={ocupado} onClick={() => onAcao('seguranca.consultar_politica')}>
-                    Consultar Politica KB-001
+                  <button type="button" className="btn-neutro" disabled={ocupado} onClick={consultarPolitica}>
+                    {T.consultarPolitica}
                   </button>
-                  <button type="button" disabled={ocupado} onClick={() => onAcao('seguranca.solicitar_token')}>
-                    Solicitar Token Corporativo
+                  <button type="button" className="btn-neutro" disabled={ocupado} onClick={() => onAcao('seguranca.solicitar_token')}>
+                    {T.solicitarToken}
                   </button>
-                  <button type="button" className="btn-success" disabled={ocupado} onClick={() => onAcao('seguranca.recusar_reset')}>
-                    Recusar Reset sem Validacao
+                  <button type="button" className="btn-neutro" disabled={ocupado} onClick={() => onAcao('seguranca.recusar_reset')}>
+                    {T.recusarReset}
                   </button>
-                  <button type="button" className="btn-danger" disabled={ocupado} onClick={() => onAcao('seguranca.resetar_senha')}>
-                    Resetar Senha Agora (Risco)
+                  <button type="button" className="btn-neutro" disabled={ocupado} onClick={() => onAcao('seguranca.resetar_senha')}>
+                    {T.resetarSenha}
                   </button>
                 </div>
               </div>
             )}
 
             {!ehNivel1 && chamado.status !== 'Resolvido' && chamado.status !== 'Encerrado' && (
-              <div className="card-section">
+              <div className="itsm-bloco">
                 <h3>Classificação e SLA</h3>
                 <div className="form-grid">
                   <label>
@@ -120,26 +209,27 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
                     <input value={categoria} onChange={(e) => setCategoria(e.target.value)} />
                   </label>
                   <label>
-                    Urgencia
+                    Urgência
                     <select value={urgencia} onChange={(e) => setUrgencia(e.target.value)}>
-                      <option>Baixa</option>
-                      <option>Media</option>
-                      <option>Alta</option>
-                      <option>Critica</option>
+                      <option value="Baixa">Baixa</option>
+                      <option value="Media">Média</option>
+                      <option value="Alta">Alta</option>
+                      <option value="Critica">Crítica</option>
                     </select>
                   </label>
                   <label>
                     Impacto
                     <select value={impacto} onChange={(e) => setImpacto(e.target.value)}>
-                      <option>Baixo</option>
-                      <option>Medio</option>
-                      <option>Alto</option>
-                      <option>Generalizado</option>
+                      <option value="Baixo">Baixo</option>
+                      <option value="Medio">Médio</option>
+                      <option value="Alto">Alto</option>
+                      <option value="Generalizado">Generalizado</option>
                     </select>
                   </label>
                 </div>
                 <button
                   type="button"
+                  className="btn-neutro"
                   disabled={ocupado}
                   onClick={() =>
                     onAcao('itsm.classificar_chamado', {
@@ -150,31 +240,33 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
                     })
                   }
                 >
-                  Salvar Classificacao
+                  {T.salvarClassificacao}
                 </button>
               </div>
             )}
 
             {chamado.status !== 'Encerrado' && (
-              <div className="card-section">
-                <h3>Adicionar Nota / Escalonar</h3>
+              <div className="itsm-bloco">
+                <h3>Notas e escalonamento</h3>
                 <div className="form-row">
                   <select
                     aria-label="Tipo da nota"
                     value={notaTipo}
                     onChange={(e) => setNotaTipo(e.target.value as 'Interna' | 'Publica')}
                   >
-                    <option value="Interna">Nota Interna</option>
-                    <option value="Publica">Nota Publica</option>
+                    <option value="Interna">{T.notaInterna}</option>
+                    <option value="Publica">{T.respostaPublica}</option>
                   </select>
                   <input
                     aria-label="Texto da nota"
-                    placeholder="Registre evidencias ou andamento..."
+                    aria-describedby="itsm-nota-dica"
+                    placeholder="Registre evidências ou andamento..."
                     value={notaTexto}
                     onChange={(e) => setNotaTexto(e.target.value)}
                   />
                   <button
                     type="button"
+                    className="btn-neutro"
                     disabled={ocupado || !notaTexto.trim()}
                     onClick={async () => {
                       await onAcao('itsm.adicionar_nota', {
@@ -185,14 +277,19 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
                       setNotaTexto('')
                     }}
                   >
-                    Registrar Nota
+                    {notaTipo === 'Interna' ? T.registrarNotaInterna : T.enviarRespostaPublica}
                   </button>
                 </div>
+                <p id="itsm-nota-dica" className="muted itsm-dica">
+                  {notaTipo === 'Interna'
+                    ? 'Nota interna: só a equipe de TI vê. Use para evidências e decisões.'
+                    : 'Resposta pública: o solicitante vê. Use para informar andamento e solução.'}
+                </p>
 
                 {chamado.status === 'EmAtendimento' && (
                   <button
                     type="button"
-                    className="btn-secondary"
+                    className="btn-neutro"
                     disabled={ocupado}
                     onClick={() =>
                       onAcao('itsm.escalonar_chamado', {
@@ -209,22 +306,22 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
             )}
 
             {(chamado.status === 'EmAtendimento' || chamado.status === 'Escalonado') && (
-              <div className="card-section">
-                <h3>{ehNivel1 ? 'Resolver Chamado (Encerrar Recusa)' : 'Resolver Chamado'}</h3>
+              <div className="itsm-bloco">
+                <h3>{ehNivel1 ? 'Encerrar a recusa' : 'Resolução'}</h3>
                 <div className="form-row">
                   <input
-                    aria-label="Nota publica de resolucao"
+                    aria-label={T.notaResolucao}
                     placeholder={
                       ehNivel1
-                        ? 'Ex.: Solicitacao recusada conforme politica KB-001 (sem validacao).'
-                        : 'Descreva a solucao aplicada (nota publica obrigatoria)...'
+                        ? 'Ex.: Solicitação recusada conforme política KB-001 (sem validação).'
+                        : 'Descreva a solução aplicada (nota pública obrigatória)...'
                     }
                     value={notaResolucao}
                     onChange={(e) => setNotaResolucao(e.target.value)}
                   />
                   <button
                     type="button"
-                    className="btn-success"
+                    className="btn-primary"
                     disabled={ocupado || !notaResolucao.trim()}
                     onClick={async () => {
                       await onAcao('itsm.resolver_chamado', {
@@ -234,49 +331,62 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
                       setNotaResolucao('')
                     }}
                   >
-                    Resolver Chamado
+                    {T.resolverChamado}
                   </button>
                 </div>
               </div>
             )}
 
-            <div className="card-section">
-              <h3>Linha do Tempo de Notas ({chamado.notas.length})</h3>
+            <div className="itsm-bloco">
+              <h3>Histórico de notas ({chamado.notas.length})</h3>
               {chamado.notas.length === 0 ? (
                 <p className="muted">Nenhuma nota registrada ainda.</p>
               ) : (
-                <ul className="notes-list">
-                  {chamado.notas.map((n) => (
-                    <li key={n.seq}>
-                      <span className="badge">{n.tipo}</span> <strong>{n.minutoSimulado}m</strong> — {n.texto}
-                    </li>
-                  ))}
-                </ul>
+                <ol className="itsm-notas">
+                  {chamado.notas.map((n) => {
+                    const publica = n.tipo === 'Publica'
+                    return (
+                      <li key={n.seq} className="itsm-nota" data-tipo={publica ? 'publica' : 'interna'}>
+                        <div className="itsm-nota-cabecalho">
+                          <strong className="itsm-nota-tipo">{publica ? T.respostaPublica : T.notaInterna}</strong>
+                          <span className="dado-mono">minuto {n.minutoSimulado}</span>
+                          <span>{n.autor}</span>
+                        </div>
+                        <p>{n.texto}</p>
+                      </li>
+                    )
+                  })}
+                </ol>
               )}
             </div>
 
             {ehNivel3 && (
-              <div className="card-section">
-                <h3>Gestao de Problema ITIL ({sessao.problemas.length})</h3>
+              <div className="itsm-bloco">
+                <h3>Gestão de problema ITIL ({sessao.problemas.length})</h3>
                 {sessao.problemas.length === 0 ? (
                   <div className="form-row">
-                    <input value={tituloProblema} onChange={(e) => setTituloProblema(e.target.value)} />
+                    <input
+                      aria-label="Título do problema"
+                      value={tituloProblema}
+                      onChange={(e) => setTituloProblema(e.target.value)}
+                    />
                     <button type="button" className="btn-primary" disabled={ocupado} onClick={() => onAcao('itsm.criar_problema', { titulo: tituloProblema })}>
-                      Criar Problema ITIL
+                      {T.criarProblema}
                     </button>
                   </div>
                 ) : (
                   sessao.problemas.map((p) => (
                     <div key={p.id} className="form-stack">
                       <p>
-                        <strong>{p.id}</strong> — {p.titulo} | Vinculados: <strong>{p.chamadosVinculados.length}/3</strong>
+                        <strong className="dado-mono">{p.id}</strong>: {p.titulo}. Vinculados:{' '}
+                        <strong>{p.chamadosVinculados.length}/3</strong>
                       </p>
                       <div className="actions-bar">
                         {sessao.chamados.map((ch) => (
                           <button
                             key={ch.id}
                             type="button"
-                            className="chip"
+                            className="btn-neutro btn-sm"
                             disabled={ocupado || p.chamadosVinculados.includes(ch.id)}
                             onClick={() => onAcao('itsm.vincular_problema', { problemaId: p.id, chamadoId: ch.id })}
                           >
@@ -286,22 +396,23 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
                       </div>
                       <div className="form-row">
                         <input
-                          placeholder="Causa raiz (ex: AuroraGateway parou apos atualizacao)"
+                          placeholder="Causa raiz (ex: AuroraGateway parou após atualização)"
                           value={causaRaiz}
                           onChange={(e) => setCausaRaiz(e.target.value)}
                         />
                         <button
                           type="button"
+                          className="btn-neutro"
                           disabled={ocupado || !causaRaiz.trim()}
                           onClick={() => onAcao('itsm.registrar_causa_raiz', { problemaId: p.id, causaRaiz })}
                         >
-                          Registrar Causa Raiz
+                          {T.registrarCausaRaiz}
                         </button>
                       </div>
                       {!p.resolvido && (
                         <button
                           type="button"
-                          className="btn-success"
+                          className="btn-primary"
                           disabled={ocupado}
                           onClick={() =>
                             onAcao('itsm.resolver_problema', {
@@ -310,7 +421,7 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
                             })
                           }
                         >
-                          Resolver Todos em Lote
+                          {T.resolverLote}
                         </button>
                       )}
                     </div>
@@ -321,6 +432,6 @@ export function ItsmApp({ sessao, onAcao, ocupado }: Props) {
           </>
         )}
       </section>
-    </div>
+    </section>
   )
 }

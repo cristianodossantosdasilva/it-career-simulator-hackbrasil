@@ -39,7 +39,7 @@ interface Props {
 const ETAPAS_MISSAO_ZERO = [
   {
     titulo: 'Leia o chamado no ITSM',
-    texto: 'Clique em Assumir Chamado e confira quem pediu ajuda e qual é a urgência (SLA).',
+    texto: 'Clique em Assumir chamado e confira quem pediu ajuda e qual é a urgência (SLA).',
   },
   {
     titulo: 'Valide identidade no Chat',

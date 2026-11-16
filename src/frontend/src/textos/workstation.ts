@@ -1,0 +1,58 @@
+/**
+ * Textos acionaveis das ferramentas do laboratorio (ITSM, SimuDesk, Chat e Intranet).
+ * Componentes, testes unitarios e a spec E2E importam as mesmas constantes, entao uma
+ * correcao de acentuacao muda um unico lugar. Nenhuma string de DTO da API passa por aqui.
+ */
+export const TEXTOS_WORKSTATION = {
+  itsm: {
+    assumirChamado: 'Assumir chamado',
+    consultarPolitica: 'Consultar política KB-001',
+    solicitarToken: 'Solicitar token corporativo',
+    recusarReset: 'Recusar reset sem validação',
+    resetarSenha: 'Resetar senha agora',
+    salvarClassificacao: 'Salvar classificação',
+    registrarNota: 'Registrar nota',
+    registrarNotaInterna: 'Registrar nota interna',
+    enviarRespostaPublica: 'Enviar resposta pública',
+    notaResolucao: 'Nota pública de resolução',
+    resolverChamado: 'Resolver chamado',
+    criarProblema: 'Criar problema ITIL',
+    registrarCausaRaiz: 'Registrar causa raiz',
+    resolverLote: 'Resolver todos em lote',
+    notaInterna: 'Nota interna',
+    respostaPublica: 'Resposta pública',
+  },
+  simudesk: {
+    conectar: 'Conectar na estação',
+    preencherConectar: 'Preencher e conectar',
+    placeholderId: 'NNN NNN NNN',
+    placeholderPin: '4 dígitos',
+    idInvalido: 'ID ou PIN inválido.',
+    terminal: 'Terminal',
+    painelAdmin: 'Painéis admin',
+    elevarPrivilegio: 'Elevar privilégio',
+    lerLogs: 'Ler logs da estação',
+    usuarioPadrao: 'Usuário padrão',
+    requerPromptElevado: 'Requer prompt elevado',
+    comandosSugeridos: 'Comandos sugeridos',
+    comandosSre: 'Comandos de diagnóstico SRE',
+    consultasSql: 'Consultas SQL somente leitura',
+    regiaoDiretorio: 'Diretório e grupos',
+    regiaoSreMitigacao: 'Ações de mitigação SRE',
+    regiaoSchema: 'Schema do dataset sintético',
+    semGrupos: 'Nenhum grupo carregado.',
+    semServicos: 'Nenhum serviço carregado.',
+    semDns: 'Nenhum registro DNS carregado.',
+    semLogs: 'Nenhum log carregado.',
+    pastaFinanceiro: (acessivel: boolean) => `Pasta Financeiro: ${acessivel ? 'acessível' : 'inacessível'}`,
+  },
+  chat: {
+    clienteMaria: 'Cliente (Maria)',
+    techLeadIa: 'Tech Lead IA',
+    validarIdentidade: 'Validar identidade',
+    identidadeVerificada: 'Identidade verificada',
+  },
+  intranet: {
+    fecharArtigo: 'Fechar artigo',
+  },
+} as const

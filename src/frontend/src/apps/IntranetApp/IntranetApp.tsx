@@ -1,9 +1,31 @@
 import { useEffect, useRef, useState } from 'react'
 import { KB_CATALOGO, type ArtigoKb } from '../../data/kbCatalogo'
+import { TEXTOS_WORKSTATION } from '../../textos/workstation'
+import { dividirConteudo } from './passosKb'
 
 interface Props {
   artigoSelecionadoId?: string | null
   onArtigoFechado?: () => void
+}
+
+function ConteudoArtigo({ artigo, onFechar }: { artigo: ArtigoKb; onFechar: () => void }) {
+  const { introducao, passos, fecho } = dividirConteudo(artigo.conteudo)
+  return (
+    <div id={`kb-conteudo-${artigo.id}`} className="kb-conteudo" role="region" aria-labelledby={`kb-titulo-${artigo.id}`}>
+      {introducao && <p>{introducao}</p>}
+      {passos.length > 0 && (
+        <ol className="kb-passos">
+          {passos.map((passo) => (
+            <li key={passo}>{passo}</li>
+          ))}
+        </ol>
+      )}
+      {fecho && <p>{fecho}</p>}
+      <button type="button" className="btn-neutro btn-sm" onClick={onFechar}>
+        {TEXTOS_WORKSTATION.intranet.fecharArtigo}
+      </button>
+    </div>
+  )
 }
 
 export function IntranetApp({ artigoSelecionadoId, onArtigoFechado }: Props) {
@@ -56,7 +78,7 @@ export function IntranetApp({ artigoSelecionadoId, onArtigoFechado }: Props) {
   return (
     <section className="panel" aria-label="Intranet e Base de Conhecimento">
       <div className="row-between">
-        <h2>Intranet — Base de Conhecimento (Aurora Logistica)</h2>
+        <h2>Intranet: base de conhecimento da Aurora Logística</h2>
         <input
           aria-label="Buscar na Base de Conhecimento"
           placeholder="Buscar procedimento, categoria ou ID..."
@@ -95,18 +117,12 @@ export function IntranetApp({ artigoSelecionadoId, onArtigoFechado }: Props) {
                 >
                   <span className="kb-id">{a.id}</span>
                   <span className="kb-titulo-text">{a.titulo}</span>
-                  <span className="kb-categoria badge">{a.categoria}</span>
-                  <span className="kb-nivel badge badge-info">{a.nivel.join(', ')}</span>
+                  <span className="kb-meta">
+                    {a.categoria}, nível {a.nivel.join(', ')}
+                  </span>
                 </button>
               </h3>
-              {expandido && (
-                <div id={`kb-conteudo-${a.id}`} className="kb-conteudo" role="region" aria-labelledby={`kb-titulo-${a.id}`}>
-                  <p>{a.conteudo}</p>
-                  <button type="button" className="chip" onClick={handleFecharArtigo}>
-                    Fechar artigo
-                  </button>
-                </div>
-              )}
+              {expandido && <ConteudoArtigo artigo={a} onFechar={handleFecharArtigo} />}
               </article>
             </div>
           )

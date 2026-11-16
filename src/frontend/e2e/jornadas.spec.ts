@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { TEXTOS_WORKSTATION as T } from '../src/textos/workstation'
 
 test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
   test('W10: sem overflow horizontal em 375, 768 e 1280px e início N1 por teclado', async ({ page }) => {
@@ -29,18 +30,18 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByRole('button', { name: /Decolar no Simulador/i }).click()
 
     await expect(page.getByRole('heading', { name: /CH-0001/i })).toBeVisible()
-    await page.getByRole('button', { name: 'Assumir Chamado' }).click()
-    await page.getByRole('button', { name: 'Consultar Politica KB-001' }).click()
-    await page.getByRole('button', { name: 'Solicitar Token Corporativo' }).click()
+    await page.getByRole('button', { name: T.itsm.assumirChamado }).click()
+    await page.getByRole('button', { name: T.itsm.consultarPolitica }).click()
+    await page.getByRole('button', { name: T.itsm.solicitarToken }).click()
 
     await page.getByLabel('Texto da nota').fill('Solicitante sem token corporativo valido; tentativa bloqueada.')
-    await page.getByRole('button', { name: 'Registrar Nota' }).click()
-    await page.getByRole('button', { name: 'Recusar Reset sem Validacao' }).click()
+    await page.getByRole('button', { name: T.itsm.registrarNota }).click()
+    await page.getByRole('button', { name: T.itsm.recusarReset }).click()
 
     await page
-      .getByLabel('Nota publica de resolucao')
+      .getByLabel(T.itsm.notaResolucao)
       .fill('Solicitacao recusada conforme politica de seguranca KB-001.')
-    await page.getByRole('button', { name: 'Resolver Chamado' }).click()
+    await page.getByRole('button', { name: T.itsm.resolverChamado }).click()
 
     await page.getByRole('button', { name: /Juiz 360º e Replay/i }).click()
     await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
@@ -59,35 +60,35 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.goto('/')
     await page.getByRole('button', { name: /Demo r[aá]pida: N[ií]vel 2, C1/i }).click()
 
-    await page.getByRole('button', { name: 'Assumir Chamado' }).click()
-    await page.getByRole('button', { name: 'Salvar Classificacao' }).click()
+    await page.getByRole('button', { name: T.itsm.assumirChamado }).click()
+    await page.getByRole('button', { name: T.itsm.salvarClassificacao }).click()
 
     await page.getByRole('button', { name: /Comunicador IA/i }).click()
     await page.getByLabel(/Matr[ií]cula/i).fill('AUR-1042')
     await page.getByLabel(/Ramal/i).fill('2042')
     await page.getByRole('button', { name: /Validar Identidade/i }).click()
-    await expect(page.getByText('Identidade Verificada!')).toBeVisible()
+    await expect(page.getByText(T.chat.identidadeVerificada)).toBeVisible()
 
     await page.getByRole('button', { name: /SimuDesk Remoto/i }).click()
-    await page.getByPlaceholder('NNN NNN NNN').fill('000000000')
-    await page.getByPlaceholder('4 digitos').fill('0000')
-    await page.getByRole('button', { name: 'Conectar na Estacao' }).click()
-    await expect(page.getByRole('alert')).toHaveText('ID ou PIN invalido.')
-    await page.getByRole('button', { name: 'Preencher e Conectar' }).click()
+    await page.getByPlaceholder(T.simudesk.placeholderId).fill('000000000')
+    await page.getByPlaceholder(T.simudesk.placeholderPin).fill('0000')
+    await page.getByRole('button', { name: T.simudesk.conectar }).click()
+    await expect(page.getByRole('alert')).toHaveText(T.simudesk.idInvalido)
+    await page.getByRole('button', { name: T.simudesk.preencherConectar }).click()
 
     await page.getByLabel('Comando do terminal').fill('whoami /groups')
     await page.getByRole('button', { name: 'Executar' }).click()
     await expect(page.getByText('Domain Users', { exact: false })).toBeVisible()
 
-    await page.getByRole('button', { name: 'Elevar Privilegio' }).click()
-    await page.getByRole('button', { name: 'Paineis Admin' }).click()
-    await expect(page.getByRole('region', { name: 'Diretorio e Grupos' })).toBeVisible()
+    await page.getByRole('button', { name: T.simudesk.elevarPrivilegio }).click()
+    await page.getByRole('button', { name: T.simudesk.painelAdmin }).click()
+    await expect(page.getByRole('region', { name: T.simudesk.regiaoDiretorio })).toBeVisible()
     await page.getByRole('button', { name: /Adicionar maria\.souza/i }).click()
-    await expect(page.getByText('Pasta Financeiro: Acessivel')).toBeVisible()
+    await expect(page.getByText(T.simudesk.pastaFinanceiro(true))).toBeVisible()
 
     await page.getByRole('button', { name: /ITSM \/ Chamados/i }).click()
-    await page.getByLabel('Nota publica de resolucao').fill('Usuaria incluida no grupo GRP_FINANCEIRO_PASTA.')
-    await page.getByRole('button', { name: 'Resolver Chamado' }).click()
+    await page.getByLabel(T.itsm.notaResolucao).fill('Usuaria incluida no grupo GRP_FINANCEIRO_PASTA.')
+    await page.getByRole('button', { name: T.itsm.resolverChamado }).click()
 
     await page.getByRole('button', { name: /Juiz 360º e Replay/i }).click()
     await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
@@ -117,27 +118,27 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByLabel(/Semente/i).fill('48')
     await page.getByRole('button', { name: /Decolar no Simulador/i }).click()
 
-    await page.getByRole('button', { name: 'Assumir Chamado' }).click()
-    await page.getByRole('button', { name: 'Salvar Classificacao' }).click()
+    await page.getByRole('button', { name: T.itsm.assumirChamado }).click()
+    await page.getByRole('button', { name: T.itsm.salvarClassificacao }).click()
     await page.getByRole('button', { name: /Comunicador IA/i }).click()
     await page.getByLabel(/Matr[ií]cula/i).fill('AUR-1042')
     await page.getByLabel(/Ramal/i).fill('2042')
     await page.getByRole('button', { name: /Validar Identidade/i }).click()
-    await expect(page.getByText('Identidade Verificada!')).toBeVisible()
+    await expect(page.getByText(T.chat.identidadeVerificada)).toBeVisible()
 
     await page.getByRole('button', { name: /SimuDesk Remoto/i }).click()
-    await page.getByRole('button', { name: 'Preencher e Conectar' }).click()
+    await page.getByRole('button', { name: T.simudesk.preencherConectar }).click()
     await page.getByLabel('Comando do terminal').fill('net start')
     await page.getByRole('button', { name: 'Executar' }).click()
     await expect(page.getByText(/Workstation.*Stopped/i)).toBeVisible()
-    await page.getByRole('button', { name: 'Elevar Privilegio' }).click()
+    await page.getByRole('button', { name: T.simudesk.elevarPrivilegio }).click()
     await page.getByLabel('Comando do terminal').fill('net start Workstation')
     await page.getByRole('button', { name: 'Executar' }).click()
     await expect(page.getByText(/Workstation.*Running/i)).toBeVisible()
 
     await page.getByRole('button', { name: /ITSM \/ Chamados/i }).click()
-    await page.getByLabel('Nota publica de resolucao').fill('Servico Workstation iniciado apos diagnostico.')
-    await page.getByRole('button', { name: 'Resolver Chamado' }).click()
+    await page.getByLabel(T.itsm.notaResolucao).fill('Servico Workstation iniciado apos diagnostico.')
+    await page.getByRole('button', { name: T.itsm.resolverChamado }).click()
     await page.getByRole('button', { name: /Juiz 360º e Replay/i }).click()
     await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
     await expect(page.getByText('XP: 60')).toBeVisible()
@@ -150,11 +151,11 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
 
     for (const id of ['CH-0001', 'CH-0002', 'CH-0003']) {
       await page.getByRole('button', { name: new RegExp(`^${id}\\b`) }).click()
-      await page.getByRole('button', { name: 'Salvar Classificacao' }).click()
+      await page.getByRole('button', { name: T.itsm.salvarClassificacao }).click()
     }
     await page.getByRole('button', { name: /^CH-0001\b/ }).click()
-    await page.getByRole('button', { name: 'Assumir Chamado' }).click()
-    await page.getByRole('button', { name: 'Criar Problema ITIL' }).click()
+    await page.getByRole('button', { name: T.itsm.assumirChamado }).click()
+    await page.getByRole('button', { name: T.itsm.criarProblema }).click()
     await page.getByRole('button', { name: 'Vincular CH-0001' }).click()
     await page.getByRole('button', { name: 'Vincular CH-0002' }).click()
     await page.getByRole('button', { name: 'Vincular CH-0003' }).click()
@@ -163,20 +164,20 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByLabel(/Matr[ií]cula/i).fill('AUR-1042')
     await page.getByLabel(/Ramal/i).fill('2042')
     await page.getByRole('button', { name: /Validar Identidade/i }).click()
-    await expect(page.getByText('Identidade Verificada!')).toBeVisible()
+    await expect(page.getByText(T.chat.identidadeVerificada)).toBeVisible()
 
     await page.getByRole('button', { name: /SimuDesk Remoto/i }).click()
-    await page.getByRole('button', { name: 'Preencher e Conectar' }).click()
-    await page.getByRole('button', { name: 'Ler Logs da Estacao' }).click()
-    await page.getByRole('button', { name: 'Elevar Privilegio' }).click()
-    await page.getByRole('button', { name: 'Paineis Admin' }).click()
+    await page.getByRole('button', { name: T.simudesk.preencherConectar }).click()
+    await page.getByRole('button', { name: T.simudesk.lerLogs }).click()
+    await page.getByRole('button', { name: T.simudesk.elevarPrivilegio }).click()
+    await page.getByRole('button', { name: T.simudesk.painelAdmin }).click()
     await page.getByRole('button', { name: 'Iniciar' }).click()
     await expect(page.getByText('AuroraGateway: Running').first()).toBeVisible()
 
     await page.getByRole('button', { name: /ITSM \/ Chamados/i }).click()
     await page.getByPlaceholder(/Causa raiz/i).fill('Servico AuroraGateway parou apos atualizacao.')
-    await page.getByRole('button', { name: 'Registrar Causa Raiz' }).click()
-    await page.getByRole('button', { name: 'Resolver Todos em Lote' }).click()
+    await page.getByRole('button', { name: T.itsm.registrarCausaRaiz }).click()
+    await page.getByRole('button', { name: T.itsm.resolverLote }).click()
 
     await page.getByRole('button', { name: /Juiz 360º e Replay/i }).click()
     await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
@@ -193,7 +194,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByRole('button', { name: 'Enviar' }).click()
 
     await expect(page.getByText('LOCK')).toBeVisible()
-    await expect(page.getByText('Identidade Verificada!')).toHaveCount(0)
+    await expect(page.getByText(T.chat.identidadeVerificada)).toHaveCount(0)
 
     const [replayResp] = await Promise.all([
       page.waitForResponse((r) => r.url().includes('/replay') && r.status() === 200),
@@ -235,18 +236,18 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByLabel(/Semente/i).fill('0')
     await page.getByRole('button', { name: /Decolar no Simulador/i }).click()
 
-    await page.getByRole('button', { name: 'Assumir Chamado' }).click()
-    await page.getByRole('button', { name: 'Salvar Classificacao' }).click()
+    await page.getByRole('button', { name: T.itsm.assumirChamado }).click()
+    await page.getByRole('button', { name: T.itsm.salvarClassificacao }).click()
 
     await page.getByRole('button', { name: /Comunicador IA/i }).click()
     await page.getByLabel(/Matr[ií]cula/i).fill('AUR-1042')
     await page.getByLabel(/Ramal/i).fill('2042')
     await page.getByRole('button', { name: /Validar Identidade/i }).click()
-    await expect(page.getByText('Identidade Verificada!')).toBeVisible()
+    await expect(page.getByText(T.chat.identidadeVerificada)).toBeVisible()
 
     await page.getByRole('button', { name: /SimuDesk Remoto/i }).click()
-    await page.getByRole('button', { name: 'Preencher e Conectar' }).click()
-    await page.getByRole('button', { name: 'Paineis Admin' }).click()
+    await page.getByRole('button', { name: T.simudesk.preencherConectar }).click()
+    await page.getByRole('button', { name: T.simudesk.painelAdmin }).click()
     await expect(page.getByRole('region', { name: 'Painel de Cluster Kubernetes' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Cluster / Pods' })).toBeVisible()
     await expect(page.getByText('api-pedidos-7f8b6')).toBeVisible()
@@ -272,14 +273,14 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await expect(page.getByText(/Error from server \(Forbidden\): operacao de cluster exige privilegio Elevado\./)).toBeVisible()
     await expect(page.getByText('Cluster Cloud: Degraded')).toBeVisible()
 
-    await page.getByRole('button', { name: 'Elevar Privilegio' }).click()
+    await page.getByRole('button', { name: T.simudesk.elevarPrivilegio }).click()
     await page.getByLabel('Comando do terminal').fill(mitigacao)
     await page.getByRole('button', { name: 'Executar' }).click()
     await expect(page.getByText('Cluster Cloud: Healthy')).toBeVisible()
 
     await page.getByRole('button', { name: /ITSM \/ Chamados/i }).click()
-    await page.getByLabel('Nota publica de resolucao').fill('Limite de memoria ajustado e pod estabilizado.')
-    await page.getByRole('button', { name: 'Resolver Chamado' }).click()
+    await page.getByLabel(T.itsm.notaResolucao).fill('Limite de memoria ajustado e pod estabilizado.')
+    await page.getByRole('button', { name: T.itsm.resolverChamado }).click()
 
     await page.getByRole('button', { name: /Juiz 360º e Replay/i }).click()
     await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
@@ -295,19 +296,19 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.getByRole('radio', { name: /N[ií]vel 4b \(V2\): SQL Read-Only/i }).click()
     await page.getByRole('button', { name: /Decolar no Simulador/i }).click()
 
-    await page.getByRole('button', { name: 'Assumir Chamado' }).click()
-    await page.getByRole('button', { name: 'Salvar Classificacao' }).click()
+    await page.getByRole('button', { name: T.itsm.assumirChamado }).click()
+    await page.getByRole('button', { name: T.itsm.salvarClassificacao }).click()
 
     await page.getByRole('button', { name: /Comunicador IA/i }).click()
     await page.getByLabel(/Matr[ií]cula/i).fill('AUR-1042')
     await page.getByLabel(/Ramal/i).fill('2042')
     await page.getByRole('button', { name: /Validar Identidade/i }).click()
-    await expect(page.getByText('Identidade Verificada!')).toBeVisible()
+    await expect(page.getByText(T.chat.identidadeVerificada)).toBeVisible()
 
     await page.getByRole('button', { name: /SimuDesk Remoto/i }).click()
-    await page.getByRole('button', { name: 'Preencher e Conectar' }).click()
-    await page.getByRole('button', { name: 'Paineis Admin' }).click()
-    await expect(page.getByRole('region', { name: 'Schema do Dataset Sintetico' })).toBeVisible()
+    await page.getByRole('button', { name: T.simudesk.preencherConectar }).click()
+    await page.getByRole('button', { name: T.simudesk.painelAdmin }).click()
+    await expect(page.getByRole('region', { name: T.simudesk.regiaoSchema })).toBeVisible()
     await expect(page.getByRole('heading', { name: /Schema e Dataset Sint[eé]tico/i })).toBeVisible()
     await expect(page.getByRole('region', { name: 'Modo somente leitura' })).toContainText('SELECT')
     await page.getByRole('button', { name: 'Terminal' }).click()
@@ -327,8 +328,8 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await expect(page.locator('.terminal-output').last()).toContainText('PAG-3')
 
     await page.getByRole('button', { name: /ITSM \/ Chamados/i }).click()
-    await page.getByLabel('Nota publica de resolucao').fill('Investigações somente leitura concluídas; divergência identificada no dataset sintético.')
-    await page.getByRole('button', { name: 'Resolver Chamado' }).click()
+    await page.getByLabel(T.itsm.notaResolucao).fill('Investigações somente leitura concluídas; divergência identificada no dataset sintético.')
+    await page.getByRole('button', { name: T.itsm.resolverChamado }).click()
     await page.getByRole('button', { name: /Juiz 360º e Replay/i }).click()
     await expect(page.getByText('Concluida', { exact: true })).toBeVisible()
     await expect(page.getByText('XP: 80')).toBeVisible()
@@ -338,15 +339,15 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     await page.goto('/')
     await page.getByRole('radio', { name: /N[ií]vel 4b \(V2\): SQL Read-Only/i }).click()
     await page.getByRole('button', { name: /Decolar no Simulador/i }).click()
-    await page.getByRole('button', { name: 'Assumir Chamado' }).click()
-    await page.getByRole('button', { name: 'Salvar Classificacao' }).click()
+    await page.getByRole('button', { name: T.itsm.assumirChamado }).click()
+    await page.getByRole('button', { name: T.itsm.salvarClassificacao }).click()
     await page.getByRole('button', { name: /Comunicador IA/i }).click()
     await page.getByLabel(/Matr[ií]cula/i).fill('AUR-1042')
     await page.getByLabel(/Ramal/i).fill('2042')
     await page.getByRole('button', { name: /Validar Identidade/i }).click()
-    await expect(page.getByText('Identidade Verificada!')).toBeVisible()
+    await expect(page.getByText(T.chat.identidadeVerificada)).toBeVisible()
     await page.getByRole('button', { name: /SimuDesk Remoto/i }).click()
-    await page.getByRole('button', { name: 'Preencher e Conectar' }).click()
+    await page.getByRole('button', { name: T.simudesk.preencherConectar }).click()
     for (const comando of ['DROP TABLE pagamentos', 'SELECT * FROM pedidos UNION SELECT * FROM usuarios; --']) {
       await page.getByLabel('Comando do terminal').fill(comando)
       await page.getByRole('button', { name: 'Executar' }).click()
@@ -357,7 +358,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
   test('Teclado: Tab alcança controles do Comunicador e Enter envia mensagem', async ({ page }) => {
     await page.goto('/')
     await page.getByRole('button', { name: /Demo r[aá]pida: N[ií]vel 2, C1/i }).click()
-    await page.getByRole('button', { name: 'Assumir Chamado' }).click()
+    await page.getByRole('button', { name: T.itsm.assumirChamado }).click()
     await page.getByRole('button', { name: /Comunicador IA/i }).click()
 
     const cliente = page.getByRole('button', { name: 'Cliente (Maria)' })
