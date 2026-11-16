@@ -293,7 +293,7 @@ async function instalarAuxiliares(page: Page) {
     }
 
     ct.papeis = [
-      ['container', '.edu-card, .panel, .glossary-details, .card-section, table'],
+      ['container', '.edu-card, .panel, .glossary-details, .card-section, table, .painel-bloco, .step-box, .chat, .chat-log'],
       ['divisor', '.missao-linha, table th, table td, .itsm-nota'],
       ['controle', 'button, input:not([type=hidden]), select, textarea, summary'],
     ]

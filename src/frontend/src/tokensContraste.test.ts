@@ -162,9 +162,19 @@ describe('regras de index.css que dependem dos tokens', () => {
   })
 
   it('contornos de container usam border-strong', () => {
-    for (const seletor of ['.edu-card {', '.glossary-details {', '.panel {', '.kb-article {']) {
+    for (const seletor of ['.edu-card {', '.glossary-details {', '.panel {', '.kb-article {', '.step-box {', '.chat {', '.painel-bloco {', '.chat-log {']) {
       expect(regra(seletor), seletor).toMatch(/border:\s*1px solid var\(--border-strong\)/)
     }
+  })
+
+  it('texto auxiliar tem no minimo 12 px e alvos pequenos tem 44 px', () => {
+    const xs = /--font-size-xs:\s*([\d.]+)rem/.exec(css)
+    expect(xs).not.toBeNull()
+    expect(Number(xs?.[1]) * 16).toBeGreaterThanOrEqual(12)
+    expect(regra('.btn-sm {')).toMatch(/min-height:\s*var\(--touch-target\)/)
+    expect(regra('.glossary-details summary {')).toMatch(/min-height:\s*var\(--touch-target\)/)
+    expect(regra('.todo label {')).toMatch(/min-height:\s*var\(--touch-target\)/)
+    expect(regra('code {')).toMatch(/max\(0\.88em,\s*var\(--font-size-xs\)\)/)
   })
 
   it('bordas de controle usam border-control', () => {
