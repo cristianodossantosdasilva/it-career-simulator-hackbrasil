@@ -1,11 +1,11 @@
-import { Component, type ReactNode, useEffect, useRef, useState } from 'react'
+import { Component, type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { apiClient, ConflitoSeqError } from './api/client'
 import type { CarreiraResumoResponse, ReplayResponse, SessaoProjecao } from './api/types'
 import { ChatApp } from './apps/ChatApp/ChatApp'
 import { IntranetApp } from './apps/IntranetApp/IntranetApp'
 import { ItsmApp } from './apps/ItsmApp/ItsmApp'
 import { SimuDeskApp } from './apps/SimuDeskApp/SimuDeskApp'
-import { BarraSuperior } from './educacao/BarraSuperior'
+import { BarraSuperior, type VisaoAcademia } from './educacao/BarraSuperior'
 import {
   type EstadoAcademia,
   carregarEstadoAcademia,
@@ -14,6 +14,8 @@ import {
   salvarEstadoAcademia,
 } from './educacao/catalogoEducacional'
 import { ReplayView } from './replay/ReplayView'
+import { AppShell } from './shell/AppShell'
+import { Icone } from './ui/Icone'
 import { TelaInicial } from './workstation/TelaInicial'
 
 type Aba = 'itsm' | 'chat' | 'simudesk' | 'kb' | 'replay'
@@ -124,7 +126,8 @@ function salvarSessaoId(id: string): string[] {
 }
 
 function WorkstationInner() {
-  const [tema, setTema] = useState<'light' | 'dark'>('light')
+  const [emLaboratorio, setEmLaboratorio] = useState(false)
+  const [visaoAcademia, setVisaoAcademia] = useState<VisaoAcademia>('home')
   const [estadoAcademia, setEstadoAcademia] = useState<EstadoAcademia>(() => carregarEstadoAcademia())
   const [sessaoId, setSessaoId] = useState<string | null>(null)
   const [sessao, setSessao] = useState<SessaoProjecao | null>(null)
@@ -133,6 +136,7 @@ function WorkstationInner() {
   const [tutorMsgs, setTutorMsgs] = useState<{ who: 'me' | 'ai'; text: string }[]>([
     { who: 'ai', text: 'Estou aqui durante o atendimento. Clique em "O que faço agora?" ou pergunte algo.' },
   ])
+  const retomarLaboratorio = useCallback(() => setEmLaboratorio(true), [])
   const [tutorInput, setTutorInput] = useState('')
   const [ocupado, setOcupado] = useState(false)
   const [aviso, setAviso] = useState<string | null>(null)
@@ -146,10 +150,6 @@ function WorkstationInner() {
   const [artigoKbSelecionado, setArtigoKbSelecionado] = useState<string | null>(null)
   const [kbRetornoLinkUri, setKbRetornoLinkUri] = useState<string | null>(null)
   const linkKbOrigemRef = useRef<HTMLElement | null>(null)
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = tema
-  }, [tema])
 
   function atualizarEstadoAcademia(updater: (prev: EstadoAcademia) => EstadoAcademia) {
     setEstadoAcademia((prev) => {
@@ -220,6 +220,7 @@ function WorkstationInner() {
       atualizarEstadoAcademia((prev) => ({ ...prev, focus: nivel.id }))
       setSessaoId(criada.sessaoId)
       setSessao(proj)
+      setEmLaboratorio(true)
       setReplay(null)
       setNivel1Passos({ politica: false, token: false, recusado: false })
       setHistoricoTerminal([])
@@ -333,21 +334,24 @@ function WorkstationInner() {
     }
   }
 
-  if (!sessaoId || !sessao) {
+  const sessaoAtiva = Boolean(sessaoId && sessao)
+
+  if (!sessaoId || !sessao || !emLaboratorio) {
     return (
-      <TelaInicial
-        onIniciar={iniciarSessao}
-        ocupado={ocupado}
-        erro={aviso}
-        resumoCarreira={resumoCarreira}
-        apelido={apelido}
-        onApelidoChange={setApelido}
-        onAtualizarCarreira={(nome) => void atualizarResumoCarreira(undefined, nome)}
-        tema={tema}
-        onAlternarTema={() => setTema((t) => (t === 'light' ? 'dark' : 'light'))}
-        estadoAcademia={estadoAcademia}
-        onAtualizarAcademia={atualizarEstadoAcademia}
-      />
+      <AppShell densidade="editorial" sessaoAtiva={sessaoAtiva} onRetomarLaboratorio={retomarLaboratorio}>
+        <TelaInicial
+          visaoInicial={visaoAcademia}
+          onIniciar={iniciarSessao}
+          ocupado={ocupado}
+          erro={aviso}
+          resumoCarreira={resumoCarreira}
+          apelido={apelido}
+          onApelidoChange={setApelido}
+          onAtualizarCarreira={(nome) => void atualizarResumoCarreira(undefined, nome)}
+          estadoAcademia={estadoAcademia}
+          onAtualizarAcademia={atualizarEstadoAcademia}
+        />
+      </AppShell>
     )
   }
 
@@ -366,11 +370,17 @@ function WorkstationInner() {
   }
   const dicaAtual = obterProximaDicaMissao(sessao, nivel1Passos)
 
-  function sairParaTelaInicial() {
-    setSessaoId(null)
-    setSessao(null)
+  // A sessao continua em memoria: o destino Laboratorio do shell retoma o turno sem criar outro.
+  function irParaAcademia(visao: VisaoAcademia = 'home') {
+    setVisaoAcademia(visao)
+    setEmLaboratorio(false)
     setGaveta(null)
     void atualizarResumoCarreira()
+  }
+
+  function abrirReplay() {
+    setAba('replay')
+    void carregarReplay()
   }
 
   function atualizarNotasSessao(campo: 'cues' | 'notes', valor: string) {
@@ -393,235 +403,256 @@ function WorkstationInner() {
   }
 
   return (
-    <div className="workstation">
-      <BarraSuperior
-        visaoAtual="lab"
-        estado={estadoAcademia}
-        tema={tema}
-        xpOficial={resumoCarreira ? Math.max(resumoCarreira.xpTotal, estadoAcademia.xp) : estadoAcademia.xp}
-        onAlternarTema={() => setTema((t) => (t === 'light' ? 'dark' : 'light'))}
-        onSelecionarVisao={sairParaTelaInicial}
-        slotDireitoSessao={
-          <>
-            <span className="nav-chip hide-sm">{sessao.meta.nivel} · {sessao.meta.cenarioId}</span>
-            <span className="nav-chip">Tempo Simulado: {sessao.meta.minutoSimulado}m</span>
-            <span className="nav-chip hide-sm">Seq #{sessao.ultimoSeq}</span>
-            <button
-              type="button"
-              className={`nav-btn ${gaveta === 'notas' ? 'solid' : ''}`}
-              aria-pressed={gaveta === 'notas'}
-              onClick={() => setGaveta((g) => (g === 'notas' ? null : 'notas'))}
-            >
-              📓 Minhas notas
-            </button>
-            <button
-              type="button"
-              className={`nav-btn ${gaveta === 'tutor' ? 'solid' : ''}`}
-              aria-pressed={gaveta === 'tutor'}
-              onClick={() => setGaveta((g) => (g === 'tutor' ? null : 'tutor'))}
-            >
-              🤖 Tutor IA
-            </button>
-            <button
-              type="button"
-              className="nav-btn"
-              aria-label="Voltar para a Tela Inicial"
-              onClick={sairParaTelaInicial}
-            >
-              ← Tela Inicial
-            </button>
-          </>
-        }
-      />
-
-      <div className="mission-strip" role="status">
-        <span>
-          <strong>Missao Atual:</strong> {dicaAtual}
-        </span>
-        <span className="muted">Aurora Logistica · Semente {sessao.meta.semente}</span>
-      </div>
-
-      {aviso && (
-        <div className="banner-notice" role="status" aria-live="polite">
-          <span>{aviso}</span>
-          <button type="button" className="chip" onClick={() => setAviso(null)}>
-            Fechar
-          </button>
-        </div>
-      )}
-
-      <div className={`cockpit-body ${gaveta ? 'with-drawer' : ''}`}>
-        <aside className="app-dock" aria-label="Aplicativos da Workstation">
-          <nav aria-label="Aplicativos da Workstation">
-            <button
-              type="button"
-              aria-current={aba === 'itsm' ? 'page' : undefined}
-              className={`dock-btn ${aba === 'itsm' ? 'active' : ''}`}
-              onClick={() => setAba('itsm')}
-            >
-              <span>ITSM / Chamados</span>
-              <span className="badge">{sessao.chamados.length}</span>
-            </button>
-            <button
-              type="button"
-              aria-current={aba === 'chat' ? 'page' : undefined}
-              className={`dock-btn ${aba === 'chat' ? 'active' : ''}`}
-              onClick={() => setAba('chat')}
-            >
-              <span>Comunicador IA</span>
-              <span className="badge">{sessao.dialogo.mensagens.length}</span>
-            </button>
-            <button
-              type="button"
-              aria-current={aba === 'simudesk' ? 'page' : undefined}
-              className={`dock-btn ${aba === 'simudesk' ? 'active' : ''}`}
-              onClick={() => setAba('simudesk')}
-            >
-              <span>SimuDesk Remoto</span>
-              <span className={`badge ${sessao.dialogo.acessoRemotoLiberado ? 'badge-ok' : ''}`}>
-                {sessao.dialogo.acessoRemotoLiberado ? 'ON' : 'LOCK'}
+    <AppShell densidade="operacional" sessaoAtiva={sessaoAtiva} onRetomarLaboratorio={retomarLaboratorio}>
+      <div className="workstation">
+        <BarraSuperior
+          visaoAtual="lab"
+          estado={estadoAcademia}
+          xpOficial={resumoCarreira ? Math.max(resumoCarreira.xpTotal, estadoAcademia.xp) : estadoAcademia.xp}
+          onSelecionarVisao={irParaAcademia}
+          onAbrirCurriculo={abrirReplay}
+          credencialAtiva={aba === 'replay'}
+          slotDireitoSessao={
+            <>
+              <span className="dado-contexto hide-sm">
+                <span className="dado-contexto-rotulo">Nível</span> {sessao.meta.nivel}
               </span>
-            </button>
-            <button
-              type="button"
-              aria-current={aba === 'kb' ? 'page' : undefined}
-              className={`dock-btn ${aba === 'kb' ? 'active' : ''}`}
-              onClick={() => setAba('kb')}
-            >
-              <span>Intranet / KB</span>
-              <span className="badge">KB</span>
-            </button>
-            <button
-              type="button"
-              aria-current={aba === 'replay' ? 'page' : undefined}
-              className={`dock-btn ${aba === 'replay' ? 'active' : ''}`}
-              onClick={() => {
-                setAba('replay')
-                void carregarReplay()
-              }}
-            >
-              <span>Juiz 360º e Replay</span>
-              <span className="badge badge-info">XP</span>
-            </button>
-          </nav>
-        </aside>
-
-        <main className="workspace-main">
-          {aba === 'itsm' && <ItsmApp sessao={sessao} onAcao={executarAcao} ocupado={ocupado} />}
-          {aba === 'chat' && <ChatApp sessao={sessao} onChat={enviarChat} onAcao={executarAcao} ocupado={ocupado} />}
-          {aba === 'simudesk' && (
-            <SimuDeskApp
-              sessao={sessao}
-              historicoTerminal={historicoTerminal}
-              onComando={(comando) => executarAcao('estacao.executar_comando', { comando })}
-              onAcao={executarAcao}
-              ocupado={ocupado}
-            />
-          )}
-          {aba === 'kb' && (
-            <IntranetApp
-              key={artigoKbSelecionado ?? 'intranet'}
-              artigoSelecionadoId={artigoKbSelecionado}
-              onArtigoFechado={fecharArtigoKb}
-            />
-          )}
-          {aba === 'replay' && (
-            <ReplayView
-              replay={replay}
-              onAtualizar={carregarReplay}
-              ocupado={ocupado}
-              onNavegaKb={abrirArtigoKb}
-              kbRetornoLinkUri={kbRetornoLinkUri}
-            />
-          )}
-        </main>
-
-        {gaveta === 'notas' && (
-          <aside className="cockpit-drawer" aria-label="Minhas notas durante o atendimento">
-            <div className="row-between">
-              <h2 className="h3">📓 Minhas notas · {nivelSessao.nome}</h2>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setGaveta(null)}>
-                ✕
+              <span className="dado-contexto">
+                <Icone nome="relogio" tamanho={16} />
+                <span className="dado-mono">{sessao.meta.minutoSimulado} min</span>
+                <span className="sr-only">de tempo simulado</span>
+              </span>
+              <span className="dado-contexto hide-sm">
+                <span className="dado-contexto-rotulo">Seq</span> <span className="dado-mono">{sessao.ultimoSeq}</span>
+              </span>
+              <button
+                type="button"
+                className="botao-contexto"
+                aria-pressed={gaveta === 'notas'}
+                onClick={() => setGaveta((g) => (g === 'notas' ? null : 'notas'))}
+              >
+                <Icone nome="notas" />
+                <span className="botao-contexto-texto">Minhas notas</span>
               </button>
-            </div>
-            <p className="muted" style={{ marginTop: '4px' }}>
-              Método Cornell sincronizado ao seu Caderno de estudos.
-            </p>
-            <label className="block-label" htmlFor="ws-cues">
-              Perguntas-chave
-            </label>
-            <textarea
-              id="ws-cues"
-              className="block xs"
-              value={paginaNotasSessao.cues ?? ''}
-              onChange={(e) => atualizarNotasSessao('cues', e.target.value)}
-            />
-            <label className="block-label" htmlFor="ws-notes">
-              Anotações
-            </label>
-            <textarea
-              id="ws-notes"
-              className="block"
-              value={paginaNotasSessao.notes ?? ''}
-              onChange={(e) => atualizarNotasSessao('notes', e.target.value)}
-            />
-            <p className="muted saved">✓ Salvo automaticamente</p>
-          </aside>
+              <button
+                type="button"
+                className="botao-contexto"
+                aria-pressed={gaveta === 'tutor'}
+                onClick={() => setGaveta((g) => (g === 'tutor' ? null : 'tutor'))}
+              >
+                <Icone nome="conversa" />
+                <span className="botao-contexto-texto">Mentor da missão</span>
+              </button>
+              <button
+                type="button"
+                className="botao-contexto"
+                aria-label="Voltar para a Tela Inicial"
+                onClick={() => irParaAcademia('home')}
+              >
+                <Icone nome="voltar" />
+                <span className="botao-contexto-texto">Tela inicial</span>
+              </button>
+            </>
+          }
+        />
+
+        <div className="mission-strip" role="status">
+          <span>
+            <strong>Missao Atual:</strong> {dicaAtual}
+          </span>
+          <span className="muted">Aurora Logistica · Semente {sessao.meta.semente}</span>
+        </div>
+
+        {aviso && (
+          <div className="banner-notice" role="status" aria-live="polite">
+            <span>{aviso}</span>
+            <button type="button" className="chip" onClick={() => setAviso(null)}>
+              Fechar
+            </button>
+          </div>
         )}
 
-        {gaveta === 'tutor' && (
-          <aside className="cockpit-drawer" aria-label="Tutor IA durante o atendimento">
-            <div className="row-between">
-              <h2 className="h3">🤖 Tutor IA</h2>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setGaveta(null)}>
-                ✕
+        <div className={`cockpit-body ${gaveta ? 'with-drawer' : ''}`}>
+          <aside className="app-dock" aria-label="Aplicativos da Workstation">
+            <nav aria-label="Aplicativos da Workstation">
+              <button
+                type="button"
+                aria-current={aba === 'itsm' ? 'page' : undefined}
+                className={`dock-btn ${aba === 'itsm' ? 'active' : ''}`}
+                onClick={() => setAba('itsm')}
+              >
+                <span>ITSM / Chamados</span>
+                <span className="badge">{sessao.chamados.length}</span>
               </button>
-            </div>
-            <div className="chat short mt" aria-live="polite">
-              {tutorMsgs.map((m, i) => (
-                <div key={i} className={`bubble ${m.who}`}>
-                  {m.who === 'ai' && <div className="who">🤖 Tutor IA</div>}
-                  {m.text}
-                </div>
-              ))}
-            </div>
-            <div className="suggest mt">
-              <button type="button" onClick={() => perguntarTutorSessao('O que faço agora?')}>
-                O que faço agora?
+              <button
+                type="button"
+                aria-current={aba === 'chat' ? 'page' : undefined}
+                className={`dock-btn ${aba === 'chat' ? 'active' : ''}`}
+                onClick={() => setAba('chat')}
+              >
+                <span>Comunicador IA</span>
+                <span className="badge">{sessao.dialogo.mensagens.length}</span>
               </button>
-              <button type="button" onClick={() => perguntarTutorSessao('O que é DNS?')}>
-                O que é DNS?
+              <button
+                type="button"
+                aria-current={aba === 'simudesk' ? 'page' : undefined}
+                className={`dock-btn ${aba === 'simudesk' ? 'active' : ''}`}
+                onClick={() => setAba('simudesk')}
+              >
+                <span>SimuDesk Remoto</span>
+                <span className={`badge ${sessao.dialogo.acessoRemotoLiberado ? 'badge-ok' : ''}`}>
+                  {sessao.dialogo.acessoRemotoLiberado ? 'ON' : 'LOCK'}
+                </span>
               </button>
-              <button type="button" onClick={() => perguntarTutorSessao('O que é engenharia social?')}>
-                Engenharia social
+              <button
+                type="button"
+                aria-current={aba === 'kb' ? 'page' : undefined}
+                className={`dock-btn ${aba === 'kb' ? 'active' : ''}`}
+                onClick={() => setAba('kb')}
+              >
+                <span>Intranet / KB</span>
+                <span className="badge">KB</span>
               </button>
-            </div>
-            <form
-              className="row gap mt"
-              onSubmit={(e) => {
-                e.preventDefault()
-                perguntarTutorSessao(tutorInput)
-              }}
-            >
-              <label className="skip" htmlFor="ws-tutor-in">
-                Pergunta ao Tutor IA
-              </label>
-              <input
-                id="ws-tutor-in"
-                type="text"
-                className="text grow"
-                placeholder="Pergunte ao tutor..."
-                value={tutorInput}
-                onChange={(e) => setTutorInput(e.target.value)}
+              <button
+                type="button"
+                aria-current={aba === 'replay' ? 'page' : undefined}
+                className={`dock-btn ${aba === 'replay' ? 'active' : ''}`}
+                onClick={abrirReplay}
+              >
+                <span>Juiz 360º e Replay</span>
+                <span className="badge badge-info">XP</span>
+              </button>
+            </nav>
+          </aside>
+
+          <main className="workspace-main">
+            {aba === 'itsm' && <ItsmApp sessao={sessao} onAcao={executarAcao} ocupado={ocupado} />}
+            {aba === 'chat' && <ChatApp sessao={sessao} onChat={enviarChat} onAcao={executarAcao} ocupado={ocupado} />}
+            {aba === 'simudesk' && (
+              <SimuDeskApp
+                sessao={sessao}
+                historicoTerminal={historicoTerminal}
+                onComando={(comando) => executarAcao('estacao.executar_comando', { comando })}
+                onAcao={executarAcao}
+                ocupado={ocupado}
               />
-              <button type="submit" className="btn btn-ai btn-sm">
-                Enviar
-              </button>
-            </form>
-          </aside>
-        )}
+            )}
+            {aba === 'kb' && (
+              <IntranetApp
+                key={artigoKbSelecionado ?? 'intranet'}
+                artigoSelecionadoId={artigoKbSelecionado}
+                onArtigoFechado={fecharArtigoKb}
+              />
+            )}
+            {aba === 'replay' && (
+              <ReplayView
+                replay={replay}
+                onAtualizar={carregarReplay}
+                ocupado={ocupado}
+                onNavegaKb={abrirArtigoKb}
+                kbRetornoLinkUri={kbRetornoLinkUri}
+              />
+            )}
+          </main>
+
+          {gaveta === 'notas' && (
+            <aside className="cockpit-drawer" aria-label="Minhas notas durante o atendimento">
+              <div className="row-between">
+                <h2 className="h3">Minhas notas: {nivelSessao.nome}</h2>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  aria-label="Fechar minhas notas"
+                  onClick={() => setGaveta(null)}
+                >
+                  <Icone nome="fechar" />
+                </button>
+              </div>
+              <p className="muted mt-1">Método Cornell sincronizado ao seu Caderno de estudos.</p>
+              <label className="block-label" htmlFor="ws-cues">
+                Perguntas-chave
+              </label>
+              <textarea
+                id="ws-cues"
+                className="block xs"
+                value={paginaNotasSessao.cues ?? ''}
+                onChange={(e) => atualizarNotasSessao('cues', e.target.value)}
+              />
+              <label className="block-label" htmlFor="ws-notes">
+                Anotações
+              </label>
+              <textarea
+                id="ws-notes"
+                className="block"
+                value={paginaNotasSessao.notes ?? ''}
+                onChange={(e) => atualizarNotasSessao('notes', e.target.value)}
+              />
+              <p className="muted saved">
+                <Icone nome="confirmar" tamanho={16} /> Salvo automaticamente
+              </p>
+            </aside>
+          )}
+
+          {gaveta === 'tutor' && (
+            <aside className="cockpit-drawer" aria-label="Mentor da missão durante o atendimento">
+              <div className="row-between">
+                <h2 className="h3">Mentor da missão</h2>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  aria-label="Fechar mentor da missão"
+                  onClick={() => setGaveta(null)}
+                >
+                  <Icone nome="fechar" />
+                </button>
+              </div>
+              <p className="muted mt-1">Respostas guiadas pelo conteúdo da trilha.</p>
+              <div className="chat short mt" aria-live="polite">
+                {tutorMsgs.map((m, i) => (
+                  <div key={i} className={`bubble ${m.who}`}>
+                    {m.who === 'ai' && <div className="who">Mentor</div>}
+                    {m.text}
+                  </div>
+                ))}
+              </div>
+              <div className="suggest mt">
+                <button type="button" onClick={() => perguntarTutorSessao('O que faço agora?')}>
+                  O que faço agora?
+                </button>
+                <button type="button" onClick={() => perguntarTutorSessao('O que é DNS?')}>
+                  O que é DNS?
+                </button>
+                <button type="button" onClick={() => perguntarTutorSessao('O que é engenharia social?')}>
+                  Engenharia social
+                </button>
+              </div>
+              <form
+                className="row gap mt"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  perguntarTutorSessao(tutorInput)
+                }}
+              >
+                <label className="skip" htmlFor="ws-tutor-in">
+                  Pergunta ao mentor
+                </label>
+                <input
+                  id="ws-tutor-in"
+                  type="text"
+                  className="text grow"
+                  placeholder="Pergunte ao mentor..."
+                  value={tutorInput}
+                  onChange={(e) => setTutorInput(e.target.value)}
+                />
+                <button type="submit" className="btn btn-primary btn-sm">
+                  Enviar
+                </button>
+              </form>
+            </aside>
+          )}
+        </div>
       </div>
-    </div>
+    </AppShell>
   )
 }
 

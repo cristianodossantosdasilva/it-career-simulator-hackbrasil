@@ -1,139 +1,143 @@
-import { LEVELS, type EstadoAcademia, type NivelId, obterPatente } from './catalogoEducacional'
+import type { ReactNode } from 'react'
+import { AlternadorTema } from '../shell/AlternadorTema'
+import { useShell } from '../shell/contextoShell'
+import { MenuPerfil } from '../shell/MenuPerfil'
+import { Icone, type NomeIcone } from '../ui/Icone'
+import type { EstadoAcademia, NivelId } from './catalogoEducacional'
 
 export type VisaoAcademia = 'home' | 'aulas' | 'caderno' | 'mentor'
+
+type Destino = VisaoAcademia | 'lab' | 'credencial'
+
+const DESTINOS: { id: Destino; rotulo: string; icone: NomeIcone }[] = [
+  { id: 'home', rotulo: 'Missões', icone: 'missoes' },
+  { id: 'aulas', rotulo: 'Aulas', icone: 'aulas' },
+  { id: 'lab', rotulo: 'Laboratório', icone: 'laboratorio' },
+  { id: 'caderno', rotulo: 'Caderno', icone: 'caderno' },
+  { id: 'mentor', rotulo: 'Mentor', icone: 'mentor' },
+  { id: 'credencial', rotulo: 'Credencial', icone: 'credencial' },
+]
+
+const ROTULO_VISAO: Record<VisaoAcademia | 'lab', string> = {
+  home: 'Missões',
+  aulas: 'Aulas',
+  caderno: 'Caderno',
+  mentor: 'Mentor',
+  lab: 'Laboratório',
+}
 
 interface BarraSuperiorProps {
   visaoAtual: VisaoAcademia | 'lab'
   estado: EstadoAcademia
-  tema: 'light' | 'dark'
+  /** @deprecated O tema agora vem do AppShell. Mantido ate a etapa 3 reescrever TelaInicial. */
+  tema?: 'light' | 'dark'
   xpOficial?: number
-  onAlternarTema: () => void
+  /** @deprecated O alternador de tema fica no rail e usa o contexto do AppShell. */
+  onAlternarTema?: () => void
   onSelecionarVisao?: (visao: VisaoAcademia) => void
   onEntrarLaboratorio?: () => void
   onMudarFoco?: (nivel: NivelId) => void
   onAbrirCurriculo?: () => void
-  slotDireitoSessao?: React.ReactNode
+  /** Destaca o destino Credencial (por exemplo, quando o Replay da sessao esta aberto). */
+  credencialAtiva?: boolean
+  /** Dados e acoes da sessao exibidos na barra de contexto (Workstation). */
+  slotDireitoSessao?: ReactNode
+  /** Conteudo extra do menu de perfil. */
+  conteudoPerfil?: ReactNode
 }
 
+/**
+ * Navegacao principal do shell: rail de 56 px no desktop, barra inferior abaixo de 768 px
+ * (o mesmo elemento nav, reposicionado por CSS) e barra de contexto de 44 px.
+ */
 export function BarraSuperior({
   visaoAtual,
   estado,
-  tema,
   xpOficial,
-  onAlternarTema,
   onSelecionarVisao,
   onEntrarLaboratorio,
   onMudarFoco,
   onAbrirCurriculo,
+  credencialAtiva = false,
   slotDireitoSessao,
+  conteudoPerfil,
 }: BarraSuperiorProps) {
+  const shell = useShell()
   const xpTotal = xpOficial ?? estado.xp
-  const patente = obterPatente(estado)
+
+  function entrarLaboratorio() {
+    if (visaoAtual === 'lab') return
+    if (shell.sessaoAtiva && shell.retomarLaboratorio) {
+      shell.retomarLaboratorio()
+      return
+    }
+    onEntrarLaboratorio?.()
+  }
+
+  function acionar(destino: Destino) {
+    if (destino === 'lab') entrarLaboratorio()
+    else if (destino === 'credencial') onAbrirCurriculo?.()
+    else onSelecionarVisao?.(destino)
+  }
+
+  function estaAtivo(destino: Destino) {
+    if (destino === 'credencial') return credencialAtiva
+    return !credencialAtiva && destino === visaoAtual
+  }
 
   return (
     <>
-      <header className="topnav">
-        <div className="brand">
-          <div className="brand-logo-badge" aria-hidden="true">
-            ✈
-          </div>
-          <div>
-            <div className="brand-name">IT Flight Simulator</div>
-            <div className="brand-sub">Academia de Suporte de TI · Hack Brasil 2026</div>
-          </div>
+      <div className="shell-rail">
+        <div className="shell-rail-marca" aria-hidden="true">
+          <Icone nome="marca" />
         </div>
 
-        <nav className="nav-links" aria-label="Navegação principal">
-          <button
-            type="button"
-            className={`nav-link ${visaoAtual === 'home' ? 'active' : ''}`}
-            aria-current={visaoAtual === 'home' ? 'page' : undefined}
-            onClick={() => onSelecionarVisao?.('home')}
-          >
-            🏠 Painel
-          </button>
-          <button
-            type="button"
-            className={`nav-link ${visaoAtual === 'aulas' ? 'active' : ''}`}
-            aria-current={visaoAtual === 'aulas' ? 'page' : undefined}
-            onClick={() => onSelecionarVisao?.('aulas')}
-          >
-            📖 Aulas
-          </button>
-          <button
-            type="button"
-            className={`nav-link ${visaoAtual === 'caderno' ? 'active' : ''}`}
-            aria-current={visaoAtual === 'caderno' ? 'page' : undefined}
-            onClick={() => onSelecionarVisao?.('caderno')}
-          >
-            📓 Caderno
-          </button>
-          <button
-            type="button"
-            className={`nav-link ${visaoAtual === 'mentor' ? 'active' : ''}`}
-            aria-current={visaoAtual === 'mentor' ? 'page' : undefined}
-            onClick={() => onSelecionarVisao?.('mentor')}
-          >
-            🤖 Mentor IA
-          </button>
-          <button
-            type="button"
-            className={`nav-link ${visaoAtual === 'lab' ? 'active' : ''}`}
-            aria-current={visaoAtual === 'lab' ? 'page' : undefined}
-            onClick={() => onEntrarLaboratorio?.()}
-          >
-            🛠️ Laboratório
-          </button>
+        <nav className="nav-principal" aria-label="Navegação principal">
+          <ul className="nav-principal-lista">
+            {DESTINOS.filter((d) => d.id !== 'credencial' || onAbrirCurriculo).map((destino) => {
+              const ativo = estaAtivo(destino.id)
+              return (
+                <li key={destino.id} className={destino.id === 'credencial' ? 'so-desktop' : undefined}>
+                  <button
+                    type="button"
+                    className={`nav-item ${ativo ? 'active' : ''}`}
+                    aria-current={ativo ? 'page' : undefined}
+                    onClick={() => acionar(destino.id)}
+                  >
+                    <Icone nome={destino.icone} />
+                    <span className="nav-item-rotulo">{destino.rotulo}</span>
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
         </nav>
 
-        <div className="nav-right">
-          {slotDireitoSessao}
-          <span className="nav-chip hide-sm" title="Dias seguidos estudando">
-            🔥 {estado.streak} dia(s)
+        <div className="shell-rail-rodape">
+          <AlternadorTema />
+        </div>
+      </div>
+
+      <header className="barra-contexto">
+        <p className="barra-contexto-trilha">
+          <span className="barra-contexto-marca">IT Flight Simulator</span>
+          <span className="barra-contexto-separador" aria-hidden="true">
+            /
           </span>
-          <span className="nav-chip">⭐ {xpTotal} XP</span>
-          <button
-            type="button"
-            className="nav-btn"
-            aria-label={tema === 'light' ? 'Ativar tema escuro' : 'Ativar tema claro'}
-            onClick={onAlternarTema}
+          <span className="barra-contexto-local">{ROTULO_VISAO[visaoAtual]}</span>
+        </p>
+        <div className="barra-contexto-acoes">
+          {slotDireitoSessao}
+          <MenuPerfil
+            estado={estado}
+            xpTotal={xpTotal}
+            onMudarFoco={visaoAtual !== 'lab' ? onMudarFoco : undefined}
+            onAbrirCurriculo={onAbrirCurriculo}
           >
-            {tema === 'light' ? '🌙 Tema Escuro' : '☀️ Tema Claro'}
-          </button>
-          {onAbrirCurriculo && (
-            <button type="button" className="nav-btn solid" onClick={onAbrirCurriculo}>
-              📜 Currículo Vivo
-            </button>
-          )}
+            {conteudoPerfil}
+          </MenuPerfil>
         </div>
       </header>
-
-      {visaoAtual !== 'lab' && onMudarFoco && (
-        <div className="subbar">
-          <label htmlFor="focus-select" className="sub-label">
-            Nível em foco
-          </label>
-          <select
-            id="focus-select"
-            className="text sm"
-            value={estado.focus}
-            onChange={(e) => onMudarFoco(e.target.value as NivelId)}
-          >
-            {LEVELS.map((L) => (
-              <option key={L.id} value={L.id}>
-                {L.icon} {L.nome}
-              </option>
-            ))}
-          </select>
-          <span className="chip c-mastery">🎖️ {patente}</span>
-          <div className="legend" aria-label="Legenda das cores do ciclo de aprendizagem">
-            <span className="lg theory">Teoria</span>
-            <span className="lg fix">Fixação</span>
-            <span className="lg practice">Prática</span>
-            <span className="lg mastery">Domínio</span>
-          </div>
-        </div>
-      )}
     </>
   )
 }

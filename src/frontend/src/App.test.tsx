@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import vetoresJcs from '../../../docs/vetores-jcs-sha256.json'
 import { App } from './App'
 import { IntranetApp } from './apps/IntranetApp/IntranetApp'
+import { Icone } from './ui/Icone'
 import { canonicalizarJcs, sha256Hex, verificarCurriculoVivoJson } from './utils/jcs'
 import { razaoContraste } from './utils/contraste'
 
@@ -26,6 +27,83 @@ describe('IT Flight Simulator UI', () => {
     expect(razaoContraste('#475569', '#f3f5f8')).toBeGreaterThanOrEqual(4.5)
     expect(razaoContraste('#0369a1', '#ffffff')).toBeGreaterThanOrEqual(4.5)
     expect(razaoContraste('#ffffff', '#0f1b2d')).toBeGreaterThanOrEqual(4.5)
+  })
+
+  it('tokens dos temas tactical e corporate atingem WCAG AA nos pares de texto e controle', () => {
+    const temas = {
+      corporate: {
+        superficies: ['#F8FAFC', '#FFFFFF', '#F1F5F9'],
+        textos: ['#0F172A', '#475569', '#5E6E84', '#0B6E8A', '#047857', '#B45309', '#B91C1C'],
+        controles: ['#64748B', '#0B6E8A'],
+      },
+      tactical: {
+        superficies: ['#0B1120', '#0F172A', '#1E293B'],
+        textos: ['#F8FAFC', '#94A3B8', '#8593A8', '#0EA5E9', '#7DD3FC', '#34D399', '#FBBF24', '#F87171'],
+        controles: ['#64748B', '#0EA5E9', '#38BDF8'],
+      },
+    }
+    for (const { superficies, textos, controles } of Object.values(temas)) {
+      for (const fundo of superficies) {
+        for (const texto of textos) expect(razaoContraste(texto, fundo)).toBeGreaterThanOrEqual(4.5)
+        for (const controle of controles) expect(razaoContraste(controle, fundo)).toBeGreaterThanOrEqual(3)
+      }
+    }
+    // Texto sobre acento (botao primario) e sobre a superficie de acento (item ativo)
+    expect(razaoContraste('#FFFFFF', '#0B6E8A')).toBeGreaterThanOrEqual(4.5)
+    expect(razaoContraste('#0B1120', '#0EA5E9')).toBeGreaterThanOrEqual(4.5)
+    expect(razaoContraste('#0B1120', '#38BDF8')).toBeGreaterThanOrEqual(4.5)
+    expect(razaoContraste('#0B6E8A', '#E0F2FE')).toBeGreaterThanOrEqual(4.5)
+    expect(razaoContraste('#7DD3FC', '#0C4A6E')).toBeGreaterThanOrEqual(4.5)
+    // Preenchimentos solidos com texto branco (aliases antigos de botoes)
+    for (const solido of ['#047857', '#B45309', '#B91C1C', '#0B6E8A']) {
+      expect(razaoContraste('#FFFFFF', solido)).toBeGreaterThanOrEqual(4.5)
+    }
+  })
+
+  it('shell tem uma unica navegacao principal com 6 destinos sem emoji e alterna o tema persistido', () => {
+    render(<App />)
+    const navs = screen.getAllByRole('navigation', { name: /Navegação principal/i })
+    expect(navs).toHaveLength(1)
+    const destinos = within(navs[0]).getAllByRole('button').map((b) => b.textContent?.trim())
+    expect(destinos).toEqual(['Missões', 'Aulas', 'Laboratório', 'Caderno', 'Mentor', 'Credencial'])
+    expect(within(navs[0]).getByRole('button', { name: 'Missões' })).toHaveAttribute('aria-current', 'page')
+    expect(navs[0].textContent).not.toMatch(/\p{Extended_Pictographic}/u)
+
+    expect(document.documentElement.dataset.theme).toBe('tactical')
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
+    const grupoTema = screen.getByRole('group', { name: 'Tema da interface' })
+    const corporativo = within(grupoTema).getByRole('button', { name: /Console Corporativo/i })
+    fireEvent.click(corporativo)
+    expect(corporativo).toHaveAttribute('aria-pressed', 'true')
+    expect(document.documentElement.dataset.theme).toBe('corporate')
+    expect(document.documentElement.classList.contains('dark')).toBe(false)
+    expect(window.localStorage.getItem('itfs_theme')).toBe('corporate')
+    fireEvent.click(within(grupoTema).getByRole('button', { name: /Cockpit Tático/i }))
+    expect(document.documentElement.dataset.theme).toBe('tactical')
+  })
+
+  it('menu de perfil abre o progresso, fecha com Escape e devolve o foco', async () => {
+    const { container } = render(<App />)
+    const botaoPerfil = screen.getByRole('button', { name: /Perfil/i })
+    expect(botaoPerfil).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(botaoPerfil)
+    const painel = screen.getByRole('region', { name: 'Seu progresso' })
+    expect(within(painel).getByLabelText(/Nível em foco/i)).toBeInTheDocument()
+    expect((await axe.run(container)).violations).toEqual([])
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.queryByRole('region', { name: 'Seu progresso' })).not.toBeInTheDocument()
+    expect(botaoPerfil).toHaveFocus()
+  })
+
+  it('Icone e decorativo por padrao e vira imagem nomeada com rotulo', () => {
+    render(
+      <>
+        <Icone nome="aulas" data-testid="decorativo" />
+        <Icone nome="credencial" rotulo="Credencial verificada" />
+      </>,
+    )
+    expect(screen.getByTestId('decorativo')).toHaveAttribute('aria-hidden', 'true')
+    expect(screen.getByRole('img', { name: 'Credencial verificada' })).toBeInTheDocument()
   })
   it('Intranet troca o artigo selecionado e move o foco para o novo titulo', async () => {
     const { rerender } = render(<IntranetApp key="KB-001" artigoSelecionadoId="KB-001" />)
@@ -94,19 +172,20 @@ describe('IT Flight Simulator UI', () => {
     ).toBeInTheDocument()
   })
 
-  it('navega pelas abas Aulas, Caderno e Mentor IA do Prototipo v3 sem violacoes axe-core', async () => {
+  it('navega pelos destinos Aulas, Caderno e Mentor do shell sem violacoes axe-core', async () => {
     const { container } = render(<App />)
     const navPrincipal = screen.getByRole('navigation', { name: /Navegação principal/i })
 
-    fireEvent.click(within(navPrincipal).getByRole('button', { name: /📖 Aulas/i }))
+    fireEvent.click(within(navPrincipal).getByRole('button', { name: 'Aulas' }))
+    expect(within(navPrincipal).getByRole('button', { name: 'Aulas' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('heading', { name: /Rede, IP e DNS/i })).toBeInTheDocument()
     expect((await axe.run(container)).violations).toEqual([])
 
-    fireEvent.click(within(navPrincipal).getByRole('button', { name: /📓 Caderno/i }))
+    fireEvent.click(within(navPrincipal).getByRole('button', { name: 'Caderno' }))
     expect(screen.getByRole('heading', { name: /Caderno de estudos/i })).toBeInTheDocument()
     expect((await axe.run(container)).violations).toEqual([])
 
-    fireEvent.click(within(navPrincipal).getByRole('button', { name: /🤖 Mentor IA/i }))
+    fireEvent.click(within(navPrincipal).getByRole('button', { name: 'Mentor' }))
     expect(screen.getByRole('heading', { name: /Mentor IA/i })).toBeInTheDocument()
     expect((await axe.run(container)).violations).toEqual([])
   })

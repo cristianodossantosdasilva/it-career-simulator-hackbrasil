@@ -30,6 +30,8 @@ interface Props {
   onAlternarTema?: () => void
   estadoAcademia: EstadoAcademia
   onAtualizarAcademia: (updater: (prev: EstadoAcademia) => EstadoAcademia) => void
+  /** Visao aberta ao montar (o shell usa ao voltar do laboratorio para Aulas, Caderno ou Mentor). */
+  visaoInicial?: VisaoAcademia
 }
 
 function formatarTimer(segundos: number): string {
@@ -50,8 +52,9 @@ export function TelaInicial({
   onAlternarTema,
   estadoAcademia,
   onAtualizarAcademia,
+  visaoInicial = 'home',
 }: Props) {
-  const [visao, setVisao] = useState<VisaoAcademia>('home')
+  const [visao, setVisao] = useState<VisaoAcademia>(visaoInicial)
   const [cenario, setCenario] = useState('pasta-rede-inacessivel')
   const [semente, setSemente] = useState('')
   const [aulaAlvo, setAulaAlvo] = useState<{

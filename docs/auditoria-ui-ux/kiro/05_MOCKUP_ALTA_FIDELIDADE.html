@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IT Flight Simulator, mockup de alta fidelidade</title>
+<style>
+:root, [data-theme='light'] {
+  color-scheme: light;
+  --bg-canvas:#f6f7f9; --bg-surface:#fff; --bg-subtle:#eef0f4; --bg-inverse:#1e293b;
+  --border-hairline:#e1e5ec; --border-strong:#7b8594; --border-focus:#0b6e8a;
+  --text-primary:#14181f; --text-secondary:#3b4452; --text-muted:#566070; --text-on-accent:#fff;
+  --accent:#0b6e8a; --accent-hover:#095a72; --accent-subtle:#e4f2f6; --accent-text:#0a5d75;
+  --ok:#17803d; --ok-subtle:#e6f4ea; --warn:#9a5b00; --warn-subtle:#fdf1dc; --danger:#b42318; --sla:#b4501a;
+  --font-ui:'Inter Variable',Inter,'Segoe UI',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  --r-sm:4px; --r-md:6px; --r-lg:10px;
+}
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg-canvas:#0d1117; --bg-surface:#151b23; --bg-subtle:#1f2833; --bg-inverse:#0a0f14;
+  --border-hairline:#28323f; --border-strong:#6b7a8e; --border-focus:#4cc2e0;
+  --text-primary:#eef2f6; --text-secondary:#c3ccd8; --text-muted:#94a1b2; --text-on-accent:#06222b;
+  --accent:#4cc2e0; --accent-hover:#7ad3ea; --accent-subtle:#123541; --accent-text:#6fd0e8;
+  --ok:#4ade80; --ok-subtle:#11301c; --warn:#fbbf24; --warn-subtle:#33260a; --danger:#f87171; --sla:#fb923c;
+}
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg-canvas); color:var(--text-primary); font:14px/1.45 var(--font-ui); }
+svg.i { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; flex:none; }
+svg.s { width:14px; height:14px; }
+.mono { font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
+.muted { color:var(--text-muted); }
+button { font:inherit; cursor:pointer; }
+:focus-visible { outline:none; box-shadow:0 0 0 2px var(--bg-surface), 0 0 0 4px var(--border-focus); }
+
+.btn { display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 14px; border-radius:var(--r-md); border:1px solid var(--border-strong); background:var(--bg-surface); color:var(--text-primary); font-weight:500; }
+.btn:hover { background:var(--bg-subtle); }
+.btn.primary { background:var(--accent); border-color:var(--accent); color:var(--text-on-accent); }
+.btn.primary:hover { background:var(--accent-hover); }
+.btn.ghost { border-color:transparent; background:transparent; color:var(--accent-text); }
+.btn.sm { height:28px; padding:0 10px; font-size:13px; }
+
+.page-title { max-width:1440px; margin:0 auto; padding:24px 24px 8px; display:flex; gap:16px; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; }
+.page-title h1 { margin:0; font-size:22px; font-weight:650; letter-spacing:-0.011em; }
+.page-title p { margin:4px 0 0; color:var(--text-secondary); max-width:68ch; }
+.section-label { max-width:1440px; margin:24px auto 8px; padding:0 24px; font-weight:600; font-size:14px; color:var(--text-secondary); }
+
+.frame { max-width:1440px; margin:0 24px 8px; border:1px solid var(--border-hairline); border-radius:var(--r-lg); overflow:hidden; background:var(--bg-surface); }
+@media (min-width:1490px) { .frame { margin-inline:auto; } }
+.app { display:grid; grid-template-columns:56px minmax(0,1fr); min-height:640px; }
+.rail { background:var(--bg-surface); border-right:1px solid var(--border-hairline); display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 0; }
+.logo { width:32px; height:32px; border-radius:var(--r-md); background:var(--accent); color:var(--text-on-accent); display:grid; place-items:center; margin-bottom:10px; }
+.rail a { width:40px; height:40px; display:grid; place-items:center; border-radius:var(--r-md); color:var(--text-muted); position:relative; text-decoration:none; }
+.rail a:hover { background:var(--bg-subtle); color:var(--text-primary); }
+.rail a[aria-current='page'] { background:var(--accent-subtle); color:var(--accent-text); }
+.rail a[aria-current='page']::before { content:''; position:absolute; left:-8px; top:8px; bottom:8px; width:2px; background:var(--accent); border-radius:2px; }
+.rail .sp { flex:1; }
+.main { min-width:0; display:flex; flex-direction:column; background:var(--bg-canvas); }
+.topbar { height:44px; display:flex; align-items:center; gap:12px; padding:0 16px; background:var(--bg-surface); border-bottom:1px solid var(--border-hairline); }
+.crumb { display:flex; gap:6px; align-items:center; color:var(--text-muted); font-size:13px; }
+.crumb b { color:var(--text-primary); font-weight:600; }
+.topbar .grow { flex:1; }
+.kbd { border:1px solid var(--border-hairline); border-radius:var(--r-sm); padding:0 5px; font:12px var(--font-mono); color:var(--text-muted); background:var(--bg-subtle); }
+.shift { display:flex; gap:16px; align-items:center; font-size:13px; }
+.shift .sla { color:var(--sla); font-weight:600; display:flex; gap:6px; align-items:center; }
+
+.split { display:grid; grid-template-columns:minmax(280px,32%) minmax(0,1fr); flex:1; min-height:0; }
+.guide { background:var(--bg-surface); border-right:1px solid var(--border-hairline); padding:20px; overflow:auto; }
+.guide h2 { margin:0 0 4px; font-size:18px; font-weight:600; }
+.guide .lead { color:var(--text-secondary); margin:0 0 16px; }
+.guide h3 { margin:20px 0 8px; font-size:13px; font-weight:600; color:var(--text-secondary); }
+.tasks { list-style:none; padding:0; margin:0; }
+.tasks li { display:flex; gap:10px; padding:8px 0; border-top:1px solid var(--border-hairline); align-items:flex-start; }
+.tasks li:first-child { border-top:0; }
+.tasks .mark { width:18px; height:18px; border-radius:50%; border:1.5px solid var(--border-strong); display:grid; place-items:center; margin-top:1px; flex:none; }
+.tasks .done .mark { background:var(--ok); border-color:var(--ok); color:#fff; }
+.tasks .done .mark svg { width:12px; height:12px; stroke-width:2.5; }
+.tasks .now { background:var(--accent-subtle); margin:0 -20px; padding-inline:20px; border-top-color:transparent; }
+.tasks .now .mark { border-color:var(--accent); }
+.tasks .t { flex:1; }
+.tasks .done .t { color:var(--text-muted); }
+.hint { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border:1px solid var(--border-hairline); border-radius:var(--r-md); }
+
+.tools { min-width:0; display:flex; flex-direction:column; }
+.tabs { display:flex; gap:4px; padding:0 16px; background:var(--bg-surface); border-bottom:1px solid var(--border-hairline); overflow-x:auto; }
+.tab { height:40px; padding:0 12px; display:flex; align-items:center; gap:8px; border:0; background:transparent; color:var(--text-secondary); border-bottom:2px solid transparent; white-space:nowrap; font-weight:500; }
+.tab[aria-selected='true'] { color:var(--text-primary); border-bottom-color:var(--accent); }
+.count { min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:var(--bg-subtle); font-size:11px; display:inline-grid; place-items:center; color:var(--text-secondary); }
+.lock { color:var(--text-muted); }
+
+.console { display:grid; grid-template-columns:minmax(260px,38%) minmax(0,1fr); flex:1; min-height:0; }
+.queue { background:var(--bg-surface); border-right:1px solid var(--border-hairline); }
+table { width:100%; border-collapse:collapse; }
+th { text-align:left; font-size:12px; font-weight:600; color:var(--text-secondary); background:var(--bg-subtle); height:32px; padding:0 12px; border-bottom:1px solid var(--border-hairline); }
+td { height:48px; padding:0 12px; border-bottom:1px solid var(--border-hairline); font-size:13px; vertical-align:middle; }
+tr.sel td { background:var(--accent-subtle); }
+tr.sel td:first-child { box-shadow:inset 2px 0 0 var(--accent); }
+.status { display:inline-flex; align-items:center; gap:6px; }
+.status svg { color:var(--accent); }
+.status.warn svg { color:var(--sla); }
+.detail { padding:16px 20px; overflow:auto; }
+.detail header { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; flex-wrap:wrap; }
+.detail h2 { margin:2px 0 4px; font-size:18px; font-weight:600; }
+.facts { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:16px 0; padding:12px 0; border-block:1px solid var(--border-hairline); }
+.facts dt { font-size:12px; color:var(--text-muted); }
+.facts dd { margin:2px 0 0; font-weight:500; }
+.sla-meter { height:4px; background:var(--bg-subtle); border-radius:2px; margin-top:6px; overflow:hidden; }
+.sla-meter span { display:block; height:100%; width:22%; background:var(--sla); }
+.verify { display:flex; gap:8px; align-items:center; color:var(--warn); }
+.activity { list-style:none; margin:0 0 16px; padding:0 0 0 16px; border-left:1px solid var(--border-hairline); }
+.activity li { position:relative; padding:0 0 12px 12px; }
+.activity li::before { content:''; position:absolute; left:-21px; top:6px; width:9px; height:9px; border-radius:50%; background:var(--bg-surface); border:2px solid var(--border-strong); }
+.activity .m { font:12px var(--font-mono); color:var(--text-muted); margin-right:8px; }
+.composer { border:1px solid var(--border-strong); border-radius:var(--r-md); background:var(--bg-surface); overflow:hidden; }
+.composer .ct { display:flex; border-bottom:1px solid var(--border-hairline); }
+.composer .ct button { height:34px; padding:0 14px; border:0; background:transparent; color:var(--text-secondary); border-bottom:2px solid transparent; }
+.composer .ct button[aria-selected='true'] { color:var(--text-primary); border-bottom-color:var(--accent); font-weight:600; }
+.composer .ct .internal[aria-selected='true'] { background:var(--warn-subtle); }
+.composer textarea { width:100%; border:0; min-height:64px; padding:10px 12px; font:inherit; background:transparent; color:var(--text-primary); resize:vertical; }
+.composer .cb { display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-top:1px solid var(--border-hairline); background:var(--bg-subtle); }
+.decisions { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 16px; }
+
+/* replay */
+.replay { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:0; }
+.replay > section { padding:20px; min-width:0; }
+.replay > section + section { border-left:1px solid var(--border-hairline); }
+.replay h2 { margin:0 0 12px; font-size:16px; font-weight:600; }
+.tl { list-style:none; padding:0; margin:0; }
+.tl li { display:grid; grid-template-columns:48px 20px minmax(0,1fr) auto; gap:8px; align-items:start; padding:8px 0; }
+.tl .tm { font:12px var(--font-mono); color:var(--text-muted); padding-top:2px; }
+.tl .dot { position:relative; display:grid; place-items:center; height:22px; color:var(--text-muted); }
+.tl li:not(:last-child) .dot::after { content:''; position:absolute; top:22px; bottom:-14px; width:1px; background:var(--border-hairline); }
+.tl .ok .dot { color:var(--ok); } .tl .bad .dot { color:var(--danger); }
+.tl .tag { font:11px var(--font-mono); padding:1px 6px; border:1px solid var(--border-hairline); border-radius:var(--r-sm); color:var(--text-secondary); }
+.tl .sel { background:var(--accent-subtle); margin:0 -12px; padding-inline:12px; border-radius:var(--r-md); }
+.scrub { margin:16px 0 8px; display:flex; align-items:center; gap:10px; }
+.scrub input { flex:1; accent-color:var(--accent); }
+.crit { display:grid; grid-template-columns:20px minmax(0,1fr) auto; gap:10px; padding:10px 0; border-top:1px solid var(--border-hairline); align-items:center; }
+.crit:first-of-type { border-top:0; }
+.crit .ok { color:var(--ok); } .crit .no { color:var(--sla); } .crit .na { color:var(--text-muted); }
+.compare { display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid var(--border-hairline); border-radius:var(--r-md); margin-top:12px; overflow:hidden; }
+.compare > div { padding:10px 12px; }
+.compare > div + div { border-left:1px solid var(--border-hairline); background:var(--accent-subtle); }
+.compare small { display:block; color:var(--text-muted); margin-bottom:2px; }
+.cred { margin:0 20px 20px; border:1px solid var(--border-strong); border-radius:var(--r-lg); display:grid; grid-template-columns:96px minmax(0,1fr) auto; gap:20px; padding:20px; align-items:center; background:var(--bg-surface); }
+.seal { width:84px; height:84px; color:var(--accent); }
+.cred h3 { margin:0 0 2px; font-size:16px; font-weight:600; }
+.cred dl { display:grid; grid-template-columns:auto minmax(0,1fr); gap:2px 12px; margin:10px 0 0; font-size:13px; }
+.cred dt { color:var(--text-muted); }
+.cred dd { margin:0; }
+.valid { display:inline-flex; gap:6px; align-items:center; color:var(--ok); font-weight:600; }
+details.tech { margin-top:8px; font-size:12px; color:var(--text-muted); }
+details.tech code { font-family:var(--font-mono); word-break:break-all; }
+
+/* antes (UI de IA), reconstruido de forma simplificada */
+.before { font-family:system-ui,'Segoe UI',sans-serif; background:#f3f5f8; padding:16px; color:#0f172a; }
+.before .nav { background:#0f1b2d; color:#fff; padding:10px 14px; display:flex; gap:14px; align-items:center; position:relative; border-radius:6px 6px 0 0; font-weight:700; font-size:13px; flex-wrap:wrap; }
+.before .nav::after { content:''; position:absolute; left:0; right:0; bottom:0; height:3px; background:linear-gradient(90deg,#3b8fe6 0 25%,#8b5cf6 25% 50%,#ea6a1f 50% 75%,#22a356 75%); }
+.before .eyebrow { font-size:11px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:#475569; margin:14px 0 4px; }
+.before h4 { margin:0 0 8px; font-size:20px; }
+.before .banner { background:linear-gradient(120deg,#0f1b2d,#1b3354); color:#fff; padding:14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+.before .banner span.w { background:#fff; color:#0f1b2d; padding:8px 14px; border-radius:10px; font-weight:800; }
+.before .row { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+.before .pill { border:1px solid #475569; border-radius:999px; padding:3px 10px; font-size:12px; font-weight:700; background:#fff; }
+.before .card { background:#fff; border:1px solid #d6dde6; border-radius:12px; padding:12px; box-shadow:0 1px 2px rgba(15,23,42,.05),0 3px 10px rgba(15,23,42,.06); flex:1 1 160px; font-size:13px; }
+.before .bar { height:8px; border-radius:99px; background:#e3e8ef; margin-top:6px; }
+.legend-note { max-width:1440px; margin:8px auto 0; padding:0 24px; color:var(--text-muted); font-size:13px; }
+.mobile-wrap { max-width:1440px; margin:0 auto; padding:0 24px 40px; display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start; }
+.phone { width:375px; max-width:100%; border:1px solid var(--border-hairline); border-radius:var(--r-lg); overflow:hidden; background:var(--bg-canvas); }
+.phone .bar { padding:12px 16px; background:var(--bg-surface); border-bottom:1px solid var(--border-hairline); display:flex; justify-content:space-between; font-weight:600; }
+.phone .body { padding:16px; }
+.phone .body h2 { margin:0 0 4px; font-size:20px; letter-spacing:-0.011em; }
+.phone ol { list-style:none; margin:16px 0 0; padding:0; background:var(--bg-surface); border:1px solid var(--border-hairline); border-radius:var(--r-lg); }
+.phone ol li { display:grid; grid-template-columns:24px minmax(0,1fr) auto; gap:10px; padding:12px 14px; border-top:1px solid var(--border-hairline); align-items:center; min-height:56px; }
+.phone ol li:first-child { border-top:0; }
+.phone nav { display:grid; grid-template-columns:repeat(5,1fr); background:var(--bg-surface); border-top:1px solid var(--border-hairline); }
+.phone nav a { display:grid; justify-items:center; gap:2px; padding:8px 0; font-size:11px; color:var(--text-muted); text-decoration:none; min-height:56px; align-content:center; }
+.phone nav a[aria-current='page'] { color:var(--accent-text); }
+@media (max-width:900px) {
+  .split, .console, .replay { grid-template-columns:1fr; }
+  .replay > section + section { border-left:0; border-top:1px solid var(--border-hairline); }
+  .facts { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .cred { grid-template-columns:1fr; }
+}
+@media (prefers-reduced-motion:reduce) { * { transition:none !important; animation:none !important; } }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2.1 6.3-6.3 2.1 2.1-6.3z"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></symbol>
+    <symbol id="i-term" viewBox="0 0 24 24"><path d="m4 17 6-6-6-6"/><path d="M12 19h8"/></symbol>
+    <symbol id="i-note" viewBox="0 0 24 24"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><path d="M21.4 5.6a2 2 0 0 0-2.8-2.8L12 9.4V12h2.6z"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2z"/><path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1"/></symbol>
+    <symbol id="i-badge" viewBox="0 0 24 24"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></symbol>
+    <symbol id="i-dot" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M6 3 20 12 6 21z"/></symbol>
+    <symbol id="i-kb" viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/></symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.3 2a6 6 0 0 0 3.7-1.2.5.5 0 0 1 .8.4v10a1 1 0 0 1-.4.8 6 6 0 0 1-3.7 1.2c-2.2 0-4.3-2-7.3-2a6 6 0 0 0-3.4 1"/></symbol>
+  </defs>
+</svg>
+
+<div class="page-title">
+  <div>
+    <h1>IT Flight Simulator: mockup de alta fidelidade</h1>
+    <p>Mesmo cenário (reset de senha da Diretoria sem token) em duas versões: a interface atual, reconstruída de forma simplificada, e a proposta. Tudo é HTML e CSS estáticos, sem dependências externas.</p>
+  </div>
+  <button class="btn" id="tema" type="button" aria-label="Alternar tema claro e escuro">
+    <svg class="i"><use href="#i-moon"/></svg> Tema
+  </button>
+</div>
+
+<div class="section-label">A. Interface atual (resumo do que denuncia cara de IA)</div>
+<div class="frame">
+  <div class="before" aria-label="Reconstrução simplificada da interface atual">
+    <div class="nav"><span>IT Flight Simulator</span><span>[emoji] Painel</span><span>[emoji] Aulas</span><span>[emoji] Caderno</span><span>[emoji] Mentor IA</span><span>[emoji] Laboratório</span><span>[emoji] 1 dia(s)</span><span>[emoji] 0 XP</span></div>
+    <div class="eyebrow">Painel do aluno · Aurora Logística (100% dados sintéticos · sem login)</div>
+    <h4>IT Flight Simulator — Academia de Suporte de TI</h4>
+    <div class="banner"><div><div class="eyebrow" style="color:#bfdbfe;margin:0">Continue de onde parou</div><strong>O que faz o Suporte de TI</strong></div><span class="w">Começar a aula →</span></div>
+    <div class="row">
+      <div class="card"><span class="pill">Nível 1 · Estagiário</span><p><strong>Triagem e Defesa contra Engenharia Social</strong></p><div class="bar"></div></div>
+      <div class="card"><span class="pill">Nível 2 · Analista Jr (N1)</span><p><strong>Pasta de Rede Inacessível</strong></p><div class="bar"></div></div>
+      <div class="card"><span class="pill">Nível 3 · Analista Pleno (N2)</span><p><strong>Incidente Massivo e Problema ITIL</strong></p><div class="bar"></div></div>
+    </div>
+  </div>
+</div>
+<p class="legend-note">Pontos a notar: emojis no lugar de ícones, faixa de quatro cores sob o topo, rótulo em caixa alta com pontos médios, "dia(s)", gradiente com botão branco, cartões idênticos com pílula em cada um.</p>
+
+<div class="section-label">B. Proposta: Laboratório em turno (1440 px)</div>
+<div class="frame">
+  <div class="app">
+    <aside class="rail" aria-label="Navegação principal">
+      <div class="logo" aria-hidden="true"><svg class="i"><use href="#i-flag"/></svg></div>
+      <a href="#" aria-label="Missões"><svg class="i"><use href="#i-compass"/></svg></a>
+      <a href="#" aria-label="Aulas"><svg class="i"><use href="#i-book"/></svg></a>
+      <a href="#" aria-label="Laboratório" aria-current="page"><svg class="i"><use href="#i-term"/></svg></a>
+      <a href="#" aria-label="Caderno"><svg class="i"><use href="#i-note"/></svg></a>
+      <a href="#" aria-label="Mentor"><svg class="i"><use href="#i-chat"/></svg></a>
+      <a href="#" aria-label="Credencial"><svg class="i"><use href="#i-badge"/></svg></a>
+      <div class="sp"></div>
+      <a href="#" aria-label="Ajuda"><svg class="i"><use href="#i-help"/></svg></a>
+    </aside>
+    <div class="main">
+      <div class="topbar">
+        <nav class="crumb" aria-label="Trilha de navegação"><span>Missões</span><svg class="i s"><use href="#i-chev"/></svg><span>Estagiário</span><svg class="i s"><use href="#i-chev"/></svg><b>Triagem e defesa contra engenharia social</b></nav>
+        <div class="grow"></div>
+        <div class="shift">
+          <span class="mono muted">Turno 02:10</span>
+          <span class="sla"><svg class="i s"><use href="#i-clock"/></svg><span class="mono">SLA 0:35</span></span>
+        </div>
+        <span class="kbd">Ctrl K</span>
+      </div>
+      <div class="split">
+        <aside class="guide" aria-label="Guia da missão">
+          <h2>Reset de senha da Diretoria</h2>
+          <p class="lead">Decida se o pedido do Diretor é legítimo antes de alterar qualquer conta.</p>
+          <h3>Tarefas</h3>
+          <ul class="tasks">
+            <li class="done"><span class="mark"><svg class="i"><use href="#i-check"/></svg></span><span class="t">Assumir o chamado</span></li>
+            <li class="now"><span class="mark"></span><span class="t"><strong>Consultar a política de verificação</strong><br><span class="muted">KB-001, na Intranet</span></span></li>
+            <li><span class="mark"></span><span class="t">Pedir o token corporativo</span></li>
+            <li><span class="mark"></span><span class="t">Registrar uma nota interna</span></li>
+            <li><span class="mark"></span><span class="t">Decidir sobre o reset</span></li>
+            <li><span class="mark"></span><span class="t">Resolver com nota pública</span></li>
+          </ul>
+          <h3>Ajuda</h3>
+          <div class="hint"><span>Dicas usadas: 0 de 3</span><button class="btn sm" type="button">Pedir dica</button></div>
+        </aside>
+        <section class="tools" aria-label="Ferramentas">
+          <div class="tabs" role="tablist">
+            <button class="tab" role="tab" aria-selected="true"><svg class="i"><use href="#i-term"/></svg>ITSM <span class="count">1</span></button>
+            <button class="tab" role="tab" aria-selected="false"><svg class="i"><use href="#i-chat"/></svg>Chat <span class="count">0</span></button>
+            <button class="tab lock" role="tab" aria-selected="false" title="Disponível depois de confirmar a identidade no Chat"><svg class="i"><use href="#i-monitor"/></svg>SimuDesk <svg class="i s"><use href="#i-lock"/></svg></button>
+            <button class="tab" role="tab" aria-selected="false"><svg class="i"><use href="#i-kb"/></svg>Intranet</button>
+          </div>
+          <div class="console">
+            <div class="queue">
+              <table>
+                <thead><tr><th>Chave</th><th>Resumo</th><th>SLA</th></tr></thead>
+                <tbody>
+                  <tr class="sel"><td class="mono">CH-0001</td><td>Reset de senha da Diretoria sem token</td><td class="mono"><span class="status warn"><svg class="i s"><use href="#i-clock"/></svg>0:35</span></td></tr>
+                </tbody>
+              </table>
+              <p class="muted" style="padding:12px">1 chamado na fila.</p>
+            </div>
+            <div class="detail">
+              <header>
+                <div>
+                  <span class="mono muted">CH-0001</span>
+                  <h2>Reset de senha da Diretoria sem token</h2>
+                </div>
+                <span class="status"><svg class="i s"><use href="#i-dot"/></svg>Em atendimento</span>
+              </header>
+              <dl class="facts">
+                <div><dt>Solicitante</dt><dd>Roberto, Diretoria</dd><dd class="verify"><svg class="i s"><use href="#i-alert"/></svg>Identidade não verificada</dd></div>
+                <div><dt>Prioridade</dt><dd>Urgente</dd></div>
+                <div><dt>SLA restante</dt><dd class="mono">0:35 de 2:00</dd><div class="sla-meter"><span></span></div></div>
+                <div><dt>Responsável</dt><dd>Você</dd></div>
+              </dl>
+              <p>Solicitante afirma ser o Diretor Roberto e exige reset imediato sem validação.</p>
+              <div class="decisions" role="group" aria-label="Decisão sobre o reset">
+                <button class="btn" type="button">Consultar KB-001</button>
+                <button class="btn" type="button">Pedir token</button>
+                <button class="btn" type="button">Recusar reset</button>
+                <button class="btn" type="button">Resetar senha</button>
+              </div>
+              <h3 style="font-size:13px;margin:0 0 8px;color:var(--text-secondary)">Atividade</h3>
+              <ul class="activity">
+                <li><span class="m">00:00</span>Chamado aberto</li>
+                <li><span class="m">02:10</span>Você assumiu o chamado</li>
+              </ul>
+              <div class="composer">
+                <div class="ct" role="tablist"><button role="tab" aria-selected="false">Resposta ao solicitante</button><button class="internal" role="tab" aria-selected="true">Nota interna</button></div>
+                <textarea aria-label="Texto da nota" placeholder="Registre evidências. Só a equipe vê esta nota."></textarea>
+                <div class="cb"><span class="muted">Visível só para a equipe</span><button class="btn primary sm" type="button">Registrar nota</button></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-label">C. Proposta: Replay do turno e credencial (1440 px)</div>
+<div class="frame">
+  <div class="app">
+    <aside class="rail" aria-label="Navegação principal">
+      <div class="logo" aria-hidden="true"><svg class="i"><use href="#i-flag"/></svg></div>
+      <a href="#" aria-label="Missões"><svg class="i"><use href="#i-compass"/></svg></a>
+      <a href="#" aria-label="Aulas"><svg class="i"><use href="#i-book"/></svg></a>
+      <a href="#" aria-label="Laboratório"><svg class="i"><use href="#i-term"/></svg></a>
+      <a href="#" aria-label="Caderno"><svg class="i"><use href="#i-note"/></svg></a>
+      <a href="#" aria-label="Mentor"><svg class="i"><use href="#i-chat"/></svg></a>
+      <a href="#" aria-label="Credencial" aria-current="page"><svg class="i"><use href="#i-badge"/></svg></a>
+    </aside>
+    <div class="main">
+      <div class="topbar">
+        <nav class="crumb" aria-label="Trilha de navegação"><span>Missões</span><svg class="i s"><use href="#i-chev"/></svg><span>Replay</span><svg class="i s"><use href="#i-chev"/></svg><b>Sessão 1794792387855</b></nav>
+        <div class="grow"></div>
+        <strong>3 de 4 critérios</strong>
+        <button class="btn sm" type="button">Refazer o cenário</button>
+      </div>
+      <div class="replay">
+        <section aria-label="Linha do tempo">
+          <h2>Linha do tempo</h2>
+          <ul class="tl">
+            <li><span class="tm">00:00</span><span class="dot"><svg class="i s"><use href="#i-dot"/></svg></span><span>Chamado aberto</span><span></span></li>
+            <li><span class="tm">02:10</span><span class="dot"><svg class="i s"><use href="#i-dot"/></svg></span><span>Você assumiu o chamado</span><span></span></li>
+            <li class="ok"><span class="tm">03:40</span><span class="dot"><svg class="i s"><use href="#i-check"/></svg></span><span>Você consultou a política KB-001</span><span class="tag">S1</span></li>
+            <li><span class="tm">05:05</span><span class="dot"><svg class="i s"><use href="#i-dot"/></svg></span><span>Você pediu o token corporativo</span><span></span></li>
+            <li class="ok sel"><span class="tm">06:12</span><span class="dot"><svg class="i s"><use href="#i-check"/></svg></span><span><strong>Você recusou o reset sem validação</strong></span><span class="tag">S2</span></li>
+            <li class="bad"><span class="tm">07:30</span><span class="dot"><svg class="i s"><use href="#i-alert"/></svg></span><span>Chamado resolvido sem nota pública</span><span class="tag">S4</span></li>
+          </ul>
+          <div class="scrub"><span class="mono muted">Passo 5 de 6</span><input type="range" min="1" max="6" value="5" aria-label="Passo do replay"></div>
+          <details class="tech"><summary>Ver evento bruto</summary><pre class="mono" style="margin:8px 0 0;white-space:pre-wrap">{ "seq": 5, "tipo": "ResetRecusado", "minutoSimulado": 6 }</pre></details>
+        </section>
+        <section aria-label="Critérios">
+          <h2>Critérios do turno</h2>
+          <div class="crit"><svg class="i ok"><use href="#i-check"/></svg><span>Triagem: assumiu e classificou o chamado</span><span class="muted">Atendido</span></div>
+          <div class="crit"><svg class="i ok"><use href="#i-check"/></svg><span>Segurança: nenhum reset sem verificação</span><span class="muted">Atendido</span></div>
+          <div class="crit"><svg class="i na"><use href="#i-dot"/></svg><span>Diagnóstico: não se aplica neste cenário</span><span class="muted">Não se aplica</span></div>
+          <div class="crit"><svg class="i no"><use href="#i-alert"/></svg><span>Comunicação: resposta clara ao solicitante</span><button class="btn ghost sm" type="button">Ver passo 6</button></div>
+          <div class="compare">
+            <div><small>Você fez</small>Encerrou o chamado sem explicar a decisão ao solicitante.</div>
+            <div><small>Prática recomendada</small>Registrar nota pública com o motivo da recusa e o caminho correto.</div>
+          </div>
+          <p style="margin:12px 0 0"><button class="btn sm" type="button"><svg class="i s"><use href="#i-kb"/></svg>Abrir KB-004</button></p>
+        </section>
+      </div>
+      <div class="cred" role="group" aria-label="Credencial verificável">
+        <svg class="seal" viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="48" cy="48" r="44"/><circle cx="48" cy="48" r="36" stroke-dasharray="2 4"/>
+          <path d="M30 50 48 28l18 22H56v16H40V50z" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M34 72h28" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <h3>Triagem e defesa contra engenharia social</h3>
+          <span class="muted">Credencial do Currículo Vivo, emitida pelo IT Flight Simulator</span>
+          <dl>
+            <dt>Competências</dt><dd>Triagem, Segurança</dd>
+            <dt>Emitida em</dt><dd>15/11/2026</dd>
+            <dt>Verificação</dt><dd><span class="valid"><svg class="i s"><use href="#i-check"/></svg>Assinatura válida</span></dd>
+          </dl>
+          <details class="tech"><summary>Detalhes técnicos</summary>Algoritmo ECDSA P-256, hash <code>a3f1c9d2e7b4880f5c61d09a77be12e4</code> (exemplo)</details>
+        </div>
+        <div style="display:grid;gap:8px">
+          <button class="btn primary" type="button">Verificar</button>
+          <button class="btn" type="button">Baixar JSON</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-label">D. Proposta: celular (375 px)</div>
+<div class="mobile-wrap">
+  <div class="phone" aria-label="Home no celular">
+    <div class="bar"><span>IT Flight Simulator</span><svg class="i"><use href="#i-moon"/></svg></div>
+    <div class="body">
+      <h2>Seu primeiro turno na Aurora Logística</h2>
+      <p class="muted" style="margin:0 0 14px">Atenda chamados simulados e veja o que fez no Replay.</p>
+      <button class="btn primary" type="button" style="width:100%;height:44px"><svg class="i"><use href="#i-play"/></svg>Iniciar primeiro voo, 8 min</button>
+      <ol aria-label="Trilha de suporte">
+        <li><span class="mono muted">1</span><span><strong>Triagem e defesa</strong><br><span class="muted">Estagiário, 15 min</span></span><svg class="i"><use href="#i-chev"/></svg></li>
+        <li><span class="mono muted">2</span><span><strong>Pasta de rede inacessível</strong><br><span class="muted">Analista Jr, 25 min</span></span><svg class="i"><use href="#i-chev"/></svg></li>
+        <li><span class="mono muted">3</span><span><strong>Incidente massivo</strong><br><span class="muted">Analista Pleno, 35 min</span></span><svg class="i"><use href="#i-chev"/></svg></li>
+      </ol>
+    </div>
+    <nav aria-label="Navegação principal">
+      <a href="#" aria-current="page"><svg class="i"><use href="#i-compass"/></svg>Missões</a>
+      <a href="#"><svg class="i"><use href="#i-book"/></svg>Aulas</a>
+      <a href="#"><svg class="i"><use href="#i-term"/></svg>Lab</a>
+      <a href="#"><svg class="i"><use href="#i-note"/></svg>Caderno</a>
+      <a href="#"><svg class="i"><use href="#i-chat"/></svg>Mentor</a>
+    </nav>
+  </div>
+  <div class="phone" aria-label="Laboratório no celular">
+    <div class="bar"><span>Triagem</span><span class="mono" style="color:var(--sla)">SLA 0:35</span></div>
+    <div class="body">
+      <div class="hint" style="background:var(--accent-subtle);border-color:transparent"><span><strong>Tarefa 2 de 6</strong><br>Consultar a política KB-001</span><button class="btn sm" type="button">Ver missão</button></div>
+      <div class="tabs" role="tablist" style="margin:12px -16px 0"><button class="tab" role="tab" aria-selected="true">ITSM</button><button class="tab" role="tab" aria-selected="false">Chat</button><button class="tab lock" role="tab" aria-selected="false">SimuDesk</button><button class="tab" role="tab" aria-selected="false">KB</button></div>
+      <h2 style="font-size:16px;margin:14px 0 4px">Reset de senha da Diretoria sem token</h2>
+      <span class="verify"><svg class="i s"><use href="#i-alert"/></svg>Identidade não verificada</span>
+      <div class="decisions"><button class="btn" type="button">Consultar KB-001</button><button class="btn" type="button">Pedir token</button></div>
+    </div>
+    <nav aria-label="Navegação principal">
+      <a href="#"><svg class="i"><use href="#i-compass"/></svg>Missões</a>
+      <a href="#"><svg class="i"><use href="#i-book"/></svg>Aulas</a>
+      <a href="#" aria-current="page"><svg class="i"><use href="#i-term"/></svg>Lab</a>
+      <a href="#"><svg class="i"><use href="#i-note"/></svg>Caderno</a>
+      <a href="#"><svg class="i"><use href="#i-chat"/></svg>Mentor</a>
+    </nav>
+  </div>
+</div>
+
+<script>
+document.getElementById('tema').addEventListener('click', function () {
+  var r = document.documentElement;
+  r.setAttribute('data-theme', r.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+});
+</script>
+</body>
+</html>
