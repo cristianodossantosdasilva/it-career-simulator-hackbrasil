@@ -20,15 +20,53 @@ interface HomeVocacionalProps {
   onIrDireto: () => void
 }
 
+type AbaCockpit = 'itsm' | 'terminal' | 'chat'
+
+interface ComandoExecutado {
+  comando: string
+  saida: string
+  status: 'ok' | 'alerta' | 'sucesso'
+}
+
 /**
  * Entrada pública antes da Tela Inicial.
- * Redesenhada com estética de Cockpit Operacional e Teaser do Simulador em Voo.
+ * Redesenhada como Rampa de Decolagem com Cockpit Tático Interativo.
  */
 export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVocacionalProps) {
   const [respostas, setRespostas] = useState<Record<string, string>>({})
+  const [abaAtiva, setAbaAtiva] = useState<AbaCockpit>('itsm')
+  const [historicoComandos, setHistoricoComandos] = useState<ComandoExecutado[]>([
+    {
+      comando: 'ping gateway-doca4.aurora.local',
+      saida: '64 bytes de 192.168.10.1: icmp_seq=1 ttl=64 tempo=1.2ms (Online)',
+      status: 'ok',
+    },
+  ])
 
   const foco = respostas.foco ? RESPOSTAS_FOCO[respostas.foco] : undefined
   const ritmo = respostas.ritmo ? RESPOSTAS_RITMO[respostas.ritmo] : undefined
+
+  function executarComandoSimulado(tipo: 'status' | 'reiniciar') {
+    if (tipo === 'status') {
+      setHistoricoComandos((ant) => [
+        ...ant,
+        {
+          comando: 'systemctl status zebra-spooler',
+          saida: 'ALERTA: servico spooler parado. Erro no buffer de impressao da Doca 4.',
+          status: 'alerta',
+        },
+      ])
+    } else {
+      setHistoricoComandos((ant) => [
+        ...ant,
+        {
+          comando: 'sudo systemctl restart zebra-spooler',
+          saida: 'SUCESSO: servico reiniciado. Fila liberada. Etiquetas imprimindo.',
+          status: 'sucesso',
+        },
+      ])
+    }
+  }
 
   return (
     <div className="home-voc">
@@ -44,7 +82,7 @@ export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVoc
             </span>
             <span className="home-voc-marca-nome">{T.marca}</span>
           </p>
-          <span className="home-voc-badge-topo">Cockpit v2026</span>
+          <span className="home-voc-badge-topo">Cockpit Tático v2026</span>
         </div>
         <div className="home-voc-topo-acoes">
           <AlternadorTema variante="completo" className="alternador-tema-linha" />
@@ -52,16 +90,23 @@ export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVoc
       </header>
 
       <main id="home-voc-conteudo" className="home-voc-main">
-        {/* HERO SECTION: GRID TÁTICO COM TEASER DO COCKPIT */}
+        {/* HERO SECTION: GRID TÁTICO COM MINI-COCKPIT INTERATIVO */}
         <section className="home-voc-hero-grid" aria-labelledby="home-voc-titulo">
           <div className="home-voc-hero">
+            <div className="home-voc-pill-tag">
+              <span className="home-voc-pulse-dot" aria-hidden="true" />
+              <span>Simulador de Voo Operacional de TI</span>
+            </div>
+
+            <h1 id="home-voc-titulo" className="home-voc-titulo">
+              {T.titulo}
+            </h1>
+
             <p className="home-voc-contexto">
               <Icone nome="laboratorio" tamanho={16} />
               {T.contexto}
             </p>
-            <h1 id="home-voc-titulo" className="home-voc-titulo">
-              {T.titulo}
-            </h1>
+
             <p className="home-voc-lead">{T.lead}</p>
 
             {erro && (
@@ -95,43 +140,172 @@ export function HomeVocacional({ ocupado, erro, onComecar, onIrDireto }: HomeVoc
             </div>
           </div>
 
-          {/* TEASER DO COCKPIT OPERACIONAL DA AURORA LOGÍSTICA */}
-          <div className="home-voc-cockpit-preview panel" aria-hidden="true">
+          {/* MINI-CONSOLE INTERATIVO DO SIMULADOR (COCKPIT TEASER) */}
+          <div className="home-voc-cockpit-preview panel" role="region" aria-label="Console Operacional da Aurora Logística">
             <div className="home-voc-cockpit-header">
+              <div className="home-voc-cockpit-dots" aria-hidden="true">
+                <span className="cockpit-dot red" />
+                <span className="cockpit-dot yellow" />
+                <span className="cockpit-dot green" />
+              </div>
               <div className="home-voc-cockpit-status">
-                <span className="home-voc-pulse-dot" />
-                <span className="dado-mono">AURORA OPERACIONAL • CH-0001</span>
+                <span className="dado-mono">AURORA_OS // CONSOLE_v2.6</span>
               </div>
-              <div className="home-voc-cockpit-sla dado-mono">
-                <Icone nome="relogio" tamanho={16} /> SLA: 12:00
+              <div className="home-voc-cockpit-sla dado-mono" aria-label="Tempo de SLA restante: 11 minutos e 42 segundos">
+                <span className="home-voc-pulse-dot" aria-hidden="true" />
+                <Icone nome="relogio" tamanho={16} /> SLA: 11:42
               </div>
             </div>
 
-            <div className="home-voc-cockpit-ticket">
-              <div className="home-voc-cockpit-meta">
-                <span className="chip chip-p1">P1 Alta Prioridade</span>
-                <span className="home-voc-cockpit-local">Doca de Expedição • Terminal 04</span>
-              </div>
-              <p className="home-voc-cockpit-assunto">Impressora térmica Zebra parada no check-out de cargas</p>
+            {/* ABAS TÁTICAS DO CONSOLE */}
+            <div className="home-voc-cockpit-tabs" role="tablist" aria-label="Ferramentas operacionais do chamado">
+              <button
+                type="button"
+                role="tab"
+                id="tab-itsm"
+                aria-selected={abaAtiva === 'itsm'}
+                aria-controls="panel-itsm"
+                className={`home-voc-cockpit-tab ${abaAtiva === 'itsm' ? 'ativa' : ''}`}
+                onClick={() => setAbaAtiva('itsm')}
+              >
+                <Icone nome="chamado" tamanho={16} />
+                <span>Chamado #001</span>
+                <span className="tab-badge-alerta" aria-hidden="true">P1</span>
+              </button>
+
+              <button
+                type="button"
+                role="tab"
+                id="tab-terminal"
+                aria-selected={abaAtiva === 'terminal'}
+                aria-controls="panel-terminal"
+                className={`home-voc-cockpit-tab ${abaAtiva === 'terminal' ? 'ativa' : ''}`}
+                onClick={() => setAbaAtiva('terminal')}
+              >
+                <Icone nome="terminal" tamanho={16} />
+                <span>SimuDesk Shell</span>
+              </button>
+
+              <button
+                type="button"
+                role="tab"
+                id="tab-chat"
+                aria-selected={abaAtiva === 'chat'}
+                aria-controls="panel-chat"
+                className={`home-voc-cockpit-tab ${abaAtiva === 'chat' ? 'ativa' : ''}`}
+                onClick={() => setAbaAtiva('chat')}
+              >
+                <Icone nome="conversa" tamanho={16} />
+                <span>Comunicador</span>
+                <span className="tab-badge-novidade" aria-hidden="true">1</span>
+              </button>
             </div>
 
-            <div className="home-voc-cockpit-chat-preview">
-              <div className="home-voc-chat-msg">
-                <span className="home-voc-chat-avatar">RD</span>
-                <div className="home-voc-chat-corpo">
-                  <div className="home-voc-chat-topo">
-                    <strong>Roberto Dias</strong>
-                    <span className="home-voc-chat-hora">14:02</span>
+            {/* CORPO DO CONSOLE CONFORME ABA */}
+            <div className="home-voc-cockpit-conteudo">
+              {abaAtiva === 'itsm' && (
+                <div id="panel-itsm" role="tabpanel" aria-labelledby="tab-itsm" className="home-voc-tabpanel">
+                  <div className="home-voc-cockpit-ticket">
+                    <div className="home-voc-cockpit-meta">
+                      <span className="chip chip-p1">P1 Alta Prioridade</span>
+                      <span className="home-voc-cockpit-local">Doca de Expedição • Terminal 04</span>
+                    </div>
+                    <p className="home-voc-cockpit-assunto">Impressora térmica Zebra parada no check-out de cargas</p>
+                    <p className="home-voc-cockpit-detalhe">
+                      Três carretas aguardando impressão do romaneio fiscal para liberação na portaria.
+                    </p>
+                    <div className="home-voc-cockpit-acoes-inline">
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => setAbaAtiva('terminal')}
+                      >
+                        <Icone nome="terminal" tamanho={16} /> Abrir SimuDesk Shell
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => setAbaAtiva('chat')}
+                      >
+                        <Icone nome="conversa" tamanho={16} /> Falar com Roberto
+                      </button>
+                    </div>
                   </div>
-                  <p>O caminhão precisa sair em 15 minutos e as etiquetas pararam de imprimir. Pode me ajudar urgente?</p>
                 </div>
-              </div>
+              )}
+
+              {abaAtiva === 'terminal' && (
+                <div id="panel-terminal" role="tabpanel" aria-labelledby="tab-terminal" className="home-voc-tabpanel">
+                  <div className="home-voc-terminal-box dado-mono">
+                    <div className="home-voc-terminal-logs">
+                      {historicoComandos.map((h, i) => (
+                        <div key={i} className="home-voc-log-linha">
+                          <p className="cmd-prompt"><span className="prompt-simbolo">$</span> {h.comando}</p>
+                          <p className={`cmd-saida saida-${h.status}`}>{h.saida}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="home-voc-terminal-controles">
+                      <span className="terminal-dica">Comandos de teste:</span>
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm cmd-btn"
+                        onClick={() => executarComandoSimulado('status')}
+                      >
+                        status spooler
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm cmd-btn"
+                        onClick={() => executarComandoSimulado('reiniciar')}
+                      >
+                        reiniciar spooler
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {abaAtiva === 'chat' && (
+                <div id="panel-chat" role="tabpanel" aria-labelledby="tab-chat" className="home-voc-tabpanel">
+                  <div className="home-voc-cockpit-chat-preview">
+                    <div className="home-voc-chat-msg">
+                      <span className="home-voc-chat-avatar" aria-hidden="true">RD</span>
+                      <div className="home-voc-chat-corpo">
+                        <div className="home-voc-chat-topo">
+                          <strong>Roberto Dias</strong>
+                          <span className="home-voc-chat-hora">14:02</span>
+                        </div>
+                        <p>O caminhão precisa sair em 15 minutos e as etiquetas pararam de imprimir. Pode me ajudar urgente?</p>
+                      </div>
+                    </div>
+                    <div className="home-voc-chat-msg chat-msg-resposta">
+                      <span className="home-voc-chat-avatar avatar-operador" aria-hidden="true">TI</span>
+                      <div className="home-voc-chat-corpo">
+                        <div className="home-voc-chat-topo">
+                          <strong>Você (Operador N1)</strong>
+                          <span className="home-voc-chat-hora">14:03</span>
+                        </div>
+                        <p>Recebido, Roberto. Já abri a sessão no SimuDesk para diagnosticar o spooler da doca.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="home-voc-cockpit-footer">
               <span className="home-voc-cockpit-hint">
-                <Icone nome="terminal" tamanho={16} /> Console SimuDesk + Base KB-0108 conectados
+                <Icone nome="terminal" tamanho={16} /> Console SimuDesk e Base KB-0108 conectados
               </span>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm home-voc-btn-assumir"
+                disabled={ocupado}
+                onClick={onIrDireto}
+              >
+                Assumir chamado
+              </button>
             </div>
           </div>
         </section>
