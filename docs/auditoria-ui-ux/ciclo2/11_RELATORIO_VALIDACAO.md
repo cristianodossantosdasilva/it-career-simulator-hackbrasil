@@ -1,113 +1,125 @@
 # Ciclo 2, E7: relatório de validação
 
-Data: 2026-11-16. Branch ux-ciclo-2, HEAD 7f1cba1 (commits das etapas E1 a E6). Esta etapa só relata: não alterou código nem fez commit. Arquivos gravados: este relatório e a linha da E7 em 09_REGISTRO_PROGRESSO.md. Os resultados de medição ficam em src/frontend/test-results (ignorado pelo Git).
+Data: 2026-11-16. Branch ux-ciclo-2, HEAD 694d3c1 (commit da E6b). Esta etapa só relata: não alterou código e não fez commit. Arquivos gravados: este relatório e a linha da E7 em 09_REGISTRO_PROGRESSO.md. As medições ficam em src/frontend/test-results (ignorado pelo Git).
 
 ## 1. Veredito
 
-**Reprovado.** Os portões automáticos passam e não há regressão frente à linha de base (10_LINHA_DE_BASE.md). A reprovação vem de dois itens do limiar de alvos de 44 px (seção 4 do 07_PLANO_FINAL.md). Os dois já existiam na baseline e a E5 e a E6 não os trataram. A correção cabe numa etapa E6b pequena, em um único arquivo (src/frontend/src/index.css). Depois dela, a E7 precisa ser repetida inteira, porque a rodada do Playwright regenera os PNG.
+**Aprovado.** Todos os portões automáticos passam. Não há regressão frente à linha de base (10_LINHA_DE_BASE.md). Os limiares da seção 4 do 07_PLANO_FINAL.md são cumpridos. O único alvo abaixo de 44 px que resta são os 5 checkboxes do Caderno por tema e viewport, exceção aceita pelo usuário. Zoom em 200 por cento, leitor de tela e inspeção visual dos PNG continuam pendentes, sem bloquear a aprovação.
 
-## 2. Portões
+## 2. Rodada 1 (resumo)
+
+A rodada 1 reprovou a E7 por dois alvos abaixo de 44 px, sem regressão:
+
+- `button.botao-contexto` com 31 px de largura em 768 px, no laboratório.
+- `a.skip` (link Pular) com 20 px de altura. A medição da rodada 1 pegou o link fora da tela, sem foco. Com foco real, o alvo já mede 170 por 44 px depois da E6b.
+
+A E6b corrigiu os dois itens em `src/frontend/src/index.css`, e a correção do diagnóstico está no registro da E6b.
+
+## 3. Rodada 2: portões
 
 | Portão | Comando | Status | Contagem |
 |---|---|---|---|
-| Lint | npm.cmd run lint | aprovado | 0 avisos, 0 erros (62 arquivos, 116 regras) |
-| Vitest | npm.cmd test -- --run | aprovado | 109 de 109 testes em 13 arquivos |
-| Build | npm.cmd run build (tsc -b, vite build, verificação de segredos) | aprovado | 2127 módulos; verificação de segredos ok em 14 arquivos |
-| dotnet build (integração) | dotnet build src/backend/src/Simulador.Api | aprovado | 0 avisos, 0 erros |
-| Playwright | npx.cmd playwright test, uma rodada nos 5 projetos | aprovado | 43 de 43 em 4,3 min: chromium 11, mobile-375 8, tablet-768 8, desktop-1280 8, desktop-1440 8 |
-| Visual | e2e/visual.spec.ts nos 4 projetos visuais, 2 temas, 2 grupos | aprovado | 16 de 16 |
-| Contraste (medição) | e2e/contraste.spec.ts, mesma matriz | sem violação | 16 de 16 testes; 120 de 120 células medidas; 0 células não calculáveis |
-| Caractere E comercial | varredura do diff e de docs/auditoria-ui-ux/ciclo2 (28 arquivos) | aprovado | 0 ocorrências fora de operador lógico duplo; 29 linhas com operador lógico duplo, permitidas |
-| Formas passadas de sair | varredura do diff e de ciclo2 | aprovado | 0 |
-| Emojis | varredura do diff | aprovado | 0 |
-| style={{ | varredura dos tsx e ts do diff, sem testes | aprovado | 0 |
-| Limiares da seção 4 | tabela da seção 4 deste relatório | **reprovado** | 2 itens reais de alvo abaixo de 44 px |
+| Lint | `npm.cmd run lint` | aprovado | 0 avisos, 0 erros (62 arquivos, 116 regras) |
+| Vitest | `npm.cmd test -- --run` | aprovado | 109 de 109 testes em 13 arquivos |
+| Build | `npm.cmd run build` | aprovado | 2127 módulos; verificação de segredos ok em 14 arquivos |
+| dotnet build (integração) | `dotnet build src/backend/src/Simulador.Api` | aprovado | 0 avisos, 0 erros |
+| Playwright | `npx.cmd playwright test`, uma rodada, 5 projetos | aprovado | 43 de 43 em 3,8 min, 1 worker: chromium 11 (jornadas), mobile-375 8, tablet-768 8, desktop-1280 8, desktop-1440 8 |
+| Visual | `e2e/visual.spec.ts`, 4 projetos visuais, 2 temas, 2 grupos | aprovado | 16 de 16 |
+| Contraste | `e2e/contraste.spec.ts`, mesma matriz | aprovado | 16 de 16; 120 de 120 células medidas; 0 células não calculáveis; 2550 linhas com limiar, 0 falhas |
+| Alvos de 44 px | medição da spec | exceção aceita | 5 por tema e viewport, todos checkbox do Caderno (40 ocorrências no total) |
+| Rolagem horizontal | medição da spec, 4 viewports | aprovado | 0 células com rolagem |
+| Varredura: caractere E comercial | diff da branch e docs/auditoria-ui-ux/ciclo2 | aprovado | 0 ocorrências fora de operador lógico duplo |
+| Varredura: formas passadas de sair | mesmo escopo | aprovado | 0 |
+| Varredura: emojis | mesmo escopo | aprovado | 0 |
+| Varredura: `style={{` | mesmo escopo | aprovado | 0 em código; 5 em texto de documentação que cita o padrão |
 
-Escopo de projetos: a configuração do Playwright exclui as specs visual e contraste do projeto chromium (testIgnore). Por isso o chromium roda só as jornadas, e os outros 4 projetos rodam visual e contraste. A rodada cobriu os 5 projetos, cada um com o conjunto que a configuração define.
+Escopo das varreduras: 29 arquivos do `git diff --name-only main...ux-ciclo-2`, incluindo os 13 arquivos de docs/auditoria-ui-ux/ciclo2 (todos estão no diff).
 
-## 3. Comparação com a linha de base
+Ocorrências de execução. O Vitest foi executado duas vezes. A primeira terminou com código 1, causado pelo PowerShell, que tratou a saída de erro do npm como erro nativo. A segunda, com saída gravada em arquivo, terminou com código 0 e o mesmo resultado (109 de 109). Não houve falha de teste. O Playwright rodou uma única vez.
 
-Contagem de elementos distintos com limiar falho, por tema e viewport (linha de base → atual). A métrica é a mesma da baseline: elementos com atende igual a falso, por categoria.
+## 4. Comparação com a linha de base
 
-| Tema | Viewport | Texto | Container | Divisor | Controle | Foco | Hover (controle e divisor) |
-|---|---|---|---|---|---|---|---|
-| tactical | 375 | 1 → 0 | 19 → 0 | 0 → 0 | 12 → 0 | 0 → 0 | 5 → 0 |
-| tactical | 768 | 1 → 0 | 19 → 0 | 0 → 0 | 12 → 0 | 0 → 0 | 3 → 0 |
-| tactical | 1280 | 1 → 0 | 19 → 0 | 0 → 0 | 3 → 0 | 0 → 0 | 3 → 0 |
-| tactical | 1440 | 1 → 0 | 19 → 0 | 0 → 0 | 3 → 0 | 0 → 0 | 3 → 0 |
-| corporate | 375 | 0 → 0 | 19 → 0 | 2 → 0 | 12 → 0 | 0 → 0 | 8 → 0 |
-| corporate | 768 | 0 → 0 | 19 → 0 | 2 → 0 | 12 → 0 | 0 → 0 | 4 → 0 |
-| corporate | 1280 | 0 → 0 | 19 → 0 | 2 → 0 | 3 → 0 | 0 → 0 | 4 → 0 |
-| corporate | 1440 | 0 → 0 | 19 → 0 | 2 → 0 | 3 → 0 | 0 → 0 | 4 → 0 |
+Cada célula mostra linha de base → rodada 2, por tema e viewport. A linha de base é 10_linha_de_base.json.
 
-Métricas informativas (valores somados sobre as 15 células de cada tema e viewport):
+| Tema | Viewport | Texto | Container | Divisor | Controle | Foco | Hover | Alvos < 44 px | Texto < 12 px | Rolagem | Não calculáveis (info) | Aprovações axe (info) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tactical | 375 | 1 → 0 | 19 → 0 | 0 → 0 | 12 → 0 | 0 → 0 | 5 → 0 | 44 → 5 | 109 → 0 | 0 → 0 | 324 → 327 | 956 → 950 |
+| tactical | 768 | 1 → 0 | 19 → 0 | 0 → 0 | 12 → 0 | 0 → 0 | 3 → 0 | 71 → 5 | 34 → 0 | 0 → 0 | 292 → 295 | 969 → 963 |
+| tactical | 1280 | 1 → 0 | 19 → 0 | 0 → 0 | 3 → 0 | 0 → 0 | 3 → 0 | 53 → 5 | 58 → 0 | 0 → 0 | 292 → 295 | 978 → 972 |
+| tactical | 1440 | 1 → 0 | 19 → 0 | 0 → 0 | 3 → 0 | 0 → 0 | 3 → 0 | 53 → 5 | 58 → 0 | 0 → 0 | 291 → 294 | 1006 → 1000 |
+| corporate | 375 | 0 → 0 | 19 → 0 | 2 → 0 | 12 → 0 | 0 → 0 | 8 → 0 | 44 → 5 | 109 → 0 | 0 → 0 | 324 → 327 | 957 → 950 |
+| corporate | 768 | 0 → 0 | 19 → 0 | 2 → 0 | 12 → 0 | 0 → 0 | 4 → 0 | 71 → 5 | 34 → 0 | 0 → 0 | 292 → 295 | 970 → 963 |
+| corporate | 1280 | 0 → 0 | 19 → 0 | 2 → 0 | 3 → 0 | 0 → 0 | 4 → 0 | 53 → 5 | 58 → 0 | 0 → 0 | 292 → 295 | 979 → 972 |
+| corporate | 1440 | 0 → 0 | 19 → 0 | 2 → 0 | 3 → 0 | 0 → 0 | 4 → 0 | 53 → 5 | 58 → 0 | 0 → 0 | 291 → 294 | 1007 → 1000 |
 
-| Tema | Viewport | Alvos menores que 44 px | Textos menores que 12 px | Rolagem horizontal | Aprovações do axe (com hover) | Elementos não calculáveis |
-|---|---|---|---|---|---|---|
-| tactical | 375 | 44 → 13 | 109 → 0 | 0 → 0 | 956 → 950 | 324 → 320 |
-| tactical | 768 | 71 → 40 | 34 → 0 | 0 → 0 | 969 → 963 | 292 → 294 |
-| tactical | 1280 | 53 → 13 | 58 → 0 | 0 → 0 | 978 → 972 | 292 → 294 |
-| tactical | 1440 | 53 → 13 | 58 → 0 | 0 → 0 | 1006 → 1000 | 291 → 294 |
-| corporate | 375 | 44 → 13 | 109 → 0 | 0 → 0 | 957 → 950 | 324 → 320 |
-| corporate | 768 | 71 → 40 | 34 → 0 | 0 → 0 | 970 → 963 | 292 → 294 |
-| corporate | 1280 | 53 → 13 | 58 → 0 | 0 → 0 | 979 → 972 | 292 → 294 |
-| corporate | 1440 | 53 → 13 | 58 → 0 | 0 → 0 | 1007 → 1000 | 291 → 294 |
+Os números de contagem vêm do mesmo critério da linha de base: elementos com limiar falho, por categoria. Alvos menores que 44 px são informativos, e a coluna mostra só os 5 checkboxes aceitos.
 
-**Regressões: nenhuma.** Todas as categorias de contraste e contorno caíram a zero, e nenhuma linha atual falha sem existir na baseline (chave tema, viewport, tela, estado, categoria, interação e seletor).
+**Regressões: nenhuma.** Texto, container, divisor, controle, foco e hover estão em zero nos 4 viewports. Nenhuma linha atual falha sem existir na baseline.
 
-Variações que não são regressão:
+Variações informativas que não são regressão:
 
-- Aprovações do axe: 6 a 7 nós a menos por viewport. Por tela, a diferença é de ±2 nós em 32 das 120 células, sem violação. Causa provável: mudança de conteúdo das telas nas E2 a E4 (missão 0 recolhida, seleção inicial vazia, rótulos novos) e nos ajustes da E6.
-- Elementos não calculáveis: diferença de até 3 por viewport, pelo mesmo motivo.
+- Elementos não calculáveis: +3 por viewport. Não há limiar associado. A causa não foi verificada nesta rodada.
+- Aprovações do axe: 6 a 7 nós a menos por viewport, sem violação. Mesmo padrão da rodada 1, provavelmente pela mudança de conteúdo das telas nas E2 a E4 e E6.
 
-## 4. Limiares da seção 4 do plano
+Menores razões medidas (linha de base e rodada 2 iguais nos limiares):
 
-| Limiar | Menor medida, tactical | Menor medida, corporate | Situação |
-|---|---|---|---|
-| Texto 4,5:1 (axe, estático e hover, 4 viewports) | sem violação | sem violação | cumpre |
-| Controle 3:1 | 3,07 (button.lesson-item.active, 1280) | 4,34 (button.btn.btn-secondary.btn-sm, 1280); hover 4,76 | cumpre |
-| Foco 3:1 | 6,83 | 5,31 | cumpre |
-| Container 2,0:1 | 2,36 (li.step-box, 1280) | 2,06 (details.glossary-details, 1280) | cumpre |
-| Divisor (corporate 1,4:1; tactical 1,71 e 1,81) | 1,72 (surface) | 1,48 (surface) | cumpre |
-| Texto auxiliar 12 px | nenhum texto abaixo de 12 px | nenhum texto abaixo de 12 px | cumpre |
-| Alvos 44 px | 2 itens reais (achados 1 e 2) | 2 itens reais (achados 1 e 2) | **não cumpre** |
-| Rolagem horizontal em 375 px | 0 células | 0 células | cumpre |
+| Limiar | Menor medida, tactical | Menor medida, corporate |
+|---|---|---|
+| Controle 3:1 | 3,07 (button.lesson-item.active, Aulas, 1280 px; também button.btn-ghost.btn-sm no hover) | 4,34 (button.btn.btn-secondary.btn-sm, ITSM, 1280 px); hover 4,76 |
+| Foco 3:1 | 6,83 | 5,31 |
+| Container 2,0:1 | 2,36 (li.step-box, Missões, 1280 px) | 2,06 (details.glossary-details, Missões, 1280 px) |
+| Divisor | 1,72 (piso do plano para o tactical; medido 1,72) | 1,48 (div.missao-linha, Missões, 1280 px), limiar 1,4 |
 
-Os limiares de container e divisor e o de texto estão nos testes de tokens (tokensContraste.test.ts, 27 testes verdes). A spec de contraste mede os elementos reais e não afirma limiares. Por isso a leitura dos limiares vem do JSON gravado pela spec: nenhuma entrada tem atende igual a falso.
+## 5. Limiares da seção 4 do plano
 
-## 5. Falhas
+| Limiar | Situação | Observação |
+|---|---|---|
+| Texto 4,5:1 (axe, estático e hover, 4 viewports) | cumpre | 0 violações |
+| Controle e foco 3:1 | cumpre | menores razões acima |
+| Container 2,0:1 (border-strong sobre surface e canvas) | cumpre | 0 violações; sobre elevated é só informativo |
+| Divisor: corporate 1,4:1, tactical 1,72 | cumpre | tactical no piso de 1,72 do plano |
+| Texto auxiliar 12 px | cumpre | 0 texto abaixo de 12 px em todas as células |
+| Alvos 44 px | cumpre com exceção aceita | 5 checkboxes do Caderno, ver seção 7 |
+| Rolagem horizontal em 375 px | cumpre | 0 células com rolagem |
 
-Nenhum teste, comando ou build falhou. Não há erro a transcrever.
+## 6. Rolagem horizontal e laboratório
 
-## 6. Achados por prioridade
+Nenhuma célula tem rolagem horizontal em 375, 768, 1280 ou 1440 px. As telas do laboratório (Chat, ITSM, KB e SimuDesk) em ambos os temas têm largura de conteúdo igual à largura do viewport. Em 768 px, a largura é 768, sem rolagem.
 
-**P1: reprovam o limiar de alvo de 44 px**
+## 7. Exceções aceitas
 
-1. `button.botao-contexto`, 31 por 44 px (largura de 31 px), em 768 px. Aparece em 27 células: o botão de perfil da barra de contexto do laboratório (src/frontend/src/shell/MenuPerfil.tsx:50). Causa provável: a regra `min-width: var(--touch-target)` está dentro do bloco `@media (max-width: 767.98px)` (src/frontend/src/index.css:553), e por isso não vale em 768 px. Pré-existente: a baseline já registrava o mesmo tamanho (54 entradas de 31 por 44 px). A E6 só mediu 375 e 1440 px. Correção: mover a regra de largura mínima para a base, fora do bloco de largura.
-2. `a.skip` (link Pular), 146 por 20 px quando recebe foco, em 6 células de cada tema. Causa provável: `.skip:focus` (src/frontend/src/index.css:217) não define altura mínima. Pré-existente: a baseline tinha o mesmo tamanho. Correção: `min-height` de 44 px no foco.
+- Checkbox do Caderno (`input#td-0` a `input#td-4`, 20 por 20 px). O rótulo em volta mede 44 px e é a área de toque. O usuário aceitou essa exceção, que não conta como reprovação. A spec continua listando esses 5 checkboxes como alvos menores, apenas como informação.
+- `input[type=file]` da Credencial, medido como 1 por 44 px. É o input real, com classe sr-only. O rótulo visível "Selecionar arquivo JSON" mede 44 por 44 px e é o alvo de toque. Artefato de medição, que o helper ignora desde a E6b.
 
-**P2: decisão sua**
+## 8. Achados por prioridade
 
-3. `input[type=checkbox]` do Caderno, 20 por 20 px, 5 por célula. O rótulo ao redor mede 44 px e é a área de toque. A E6 registrou essa exceção. Se você aceitar, ela fica como exceção documentada. Se não aceitar, a caixa precisa ocupar a área de 44 px.
+**P1 (bloqueia): nenhum.**
 
-**P3: medição ou registro, sem ação obrigatória**
+**P2 (não bloqueia; acompanhar):**
 
-4. `input[type=file]` da Credencial, medido como 1 por 44 px. É o input real com classe sr-only. O rótulo visível do seletor mede 44 px. Artefato da medição.
-5. Textos sem acento vindos do backend (Nível Estagiario no topo do laboratório e critérios do Juiz 360). A E6 registrou como fora de escopo. Não foi reverificado nesta etapa.
+1. Inspeção visual dos PNG gerados depois da E6 e da E6b: não feita nesta rodada, porque o pedido proíbe abrir os PNG. Pontos a verificar, já listados nos registros da E6 e da E6b: título do laboratório na barra de contexto a 768 px (66 px contra 72 px antes, com reticências se o texto crescer), Credencial, Caderno e laboratório ITSM.
+2. Elementos não calculáveis: +3 por viewport frente à linha de base (ver seção 4). Métrica informativa, sem limiar.
 
-Correção proposta, em E6b (um arquivo, src/frontend/src/index.css, itens 1 e 2): mover a largura mínima de `.botao-contexto` para fora do bloco de largura e definir `min-height` de 44 px em `.skip:focus`. Depois, repetir a E7 inteira. A E8 só começa com a E7 aprovada.
+**P3 (fora do escopo; registrado):**
 
-## 7. Verificações manuais não bloqueantes, pendentes
+3. Textos sem acento vindos do backend: "Nível Estagiario" no topo do laboratório e critérios do Juiz 360 ("Consultou politica", "criterios"). Foram registrados na E6. Não foram reverificados nesta rodada, porque a E7 não altera src/backend.
+4. Botão desabilitado "Conectar na estação" no SimuDesk corporate aparece claro. Controle desabilitado é isento de contraste pela WCAG 1.4.3 e 1.4.11. Registrado na E6, sem ação.
+
+## 9. Verificações manuais não bloqueantes, pendentes
 
 - Zoom de 200 por cento e reflow (WCAG 1.4.4 e 1.4.10): não feito.
 - Leitor de tela em pelo menos uma tela de cada tema: não feito.
-- Inspeção visual dos PNG de depois da E6 (pendência já registrada na E6): não feita. Esta etapa não abriu nenhum PNG, pelo escopo do pedido.
+- Inspeção visual dos PNG depois da E6 e da E6b (achado P2, item 1): não feita, por instrução.
 
-## 8. PNG e JSON gerados (não abertos)
+## 10. PNG e JSON gerados (não abertos)
 
-- src/frontend/test-results/visual: 80 PNG. Nome: `{projeto}__{tema}__{tela}.png`. Projetos: mobile-375, tablet-768, desktop-1280, desktop-1440. Temas: corporate, tactical. Telas: missoes, aulas, caderno, mentor, credencial, laboratorio-itsm, laboratorio-chat, laboratorio-simudesk, laboratorio-kb, replay.
-- src/frontend/test-results/contraste: 16 JSON de medição (projeto, tema e grupo estudo ou laboratório).
+- `src/frontend/test-results/visual`: 80 PNG, gerados por esta rodada e mantidos sem apagar ou regenerar. Nome: `{projeto}__{tema}__{tela}.png`. Projetos: mobile-375, tablet-768, desktop-1280, desktop-1440. Temas: corporate, tactical. Telas: missoes, aulas, caderno, mentor, credencial, laboratorio-itsm, laboratorio-chat, laboratorio-simudesk, laboratorio-kb, replay.
+- `src/frontend/test-results/contraste`: 16 JSON de medição (4 projetos, 2 temas, 2 grupos: estudo e laboratório).
 
-## 9. Veredito final
+## 11. Veredito final
 
-Reprovado. Não há regressão. Dois alvos reais abaixo de 44 px (achados 1 e 2) impedem a aprovação. Próximos passos: E6b com os achados 1 e 2; decisão sua sobre o achado 3; E7 repetida; depois E8.
+**Aprovado.** Todos os portões passam, sem regressão e com o único alvo abaixo de 44 px sendo a exceção aceita pelo usuário. Próximos passos: aceite do usuário para seguir à E8 (fechamento). As verificações manuais e a inspeção visual dos PNG ficam como pendências não bloqueantes.
+
+## Rodada 1 (resumo)
+
+Veredito anterior: reprovado por 2 alvos abaixo de 44 px (`button.botao-contexto` em 768 px e `a.skip` com foco). Sem regressão. Corrigidos na E6b.

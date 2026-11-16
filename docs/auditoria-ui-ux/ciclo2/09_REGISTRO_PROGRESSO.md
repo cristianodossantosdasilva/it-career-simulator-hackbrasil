@@ -24,7 +24,7 @@ Observação sobre a decisão 1 a 5: o usuário respondeu "aprovado" ao plano fi
 | E5 | sim2-implementador | concluída (2 commits locais, sem push) | ver Registro, E5 |
 | E6 | sim2-implementador | concluída (2 commits locais, sem push) | ver Registro, E6 |
 | E6b | sim2-implementador | concluída (1 commit local, sem push) | ver Registro, E6b |
-| E7 | sim2-validador | reprovada na primeira rodada (2 alvos de 44 px pré-existentes; sem regressão; correção em E6b) | ver Registro, E7 |
+| E7 | sim2-validador | aprovada na rodada 2 (rodada 1 reprovada por 2 alvos de 44 px, corrigidos na E6b; sem regressão) | ver Registro, E7, rodada 2 |
 | E8 | sim2-fechamento | pendente | |
 
 ## Registro
@@ -209,3 +209,11 @@ Aulas (desktop-1440__corporate__aulas.png e desktop-1440__tactical__aulas.png) e
 - Não rodado, de propósito: suíte completa, Playwright completo, 1280 e 1440 na spec de contraste (a E7 repetida cobre). Medição manual de 1280 px (laboratório e link Pular) feita com a spec temporária: sem rolagem, botões de 122 a 171 por 44.
 - Pendências: aparência: o título do laboratório na barra de contexto a 768 px fica 6 px mais estreito (66 contra 72), com reticências se o texto crescer; revisar na inspeção visual da E7 (PNG de depois da E6 e da E6b ainda não abertos por esta sessão).
 - Próxima ação: repetir a E7 inteira por outro agente (lint, Vitest, build, dotnet build, Playwright nos 5 projetos, comparação com a linha de base), partindo do commit da E6b. Só então a E8.
+### E7, rodada 2 (2026-11-16)
+
+- Arquivos: docs/auditoria-ui-ux/ciclo2/11_RELATORIO_VALIDACAO.md (sobrescrito, com a rodada 1 resumida e a rodada 2 completa) e esta linha. Nenhum arquivo de código alterado, sem commit. Medições em src/frontend/test-results (ignorado pelo Git): 80 PNG e 16 JSON mantidos, sem apagar, regenerar ou abrir os PNG.
+- Verificações: branch ux-ciclo-2 em 694d3c1; portas 8080 e 5173 livres antes da rodada. npm.cmd run lint: 0 avisos e 0 erros (62 arquivos). npm.cmd test -- --run: 109 de 109 em 13 arquivos; rodado duas vezes, porque a primeira terminou com código 1 pelo tratamento do stderr do npm pelo PowerShell (sem falha de teste), e a segunda, com saída em arquivo, terminou com 0. npm.cmd run build: ok, 2127 módulos, verificação de segredos ok em 14 arquivos. dotnet build src/backend/src/Simulador.Api: 0 avisos e 0 erros. npx.cmd playwright test, uma rodada nos 5 projetos: 43 de 43 em 3,8 min (chromium 11, mobile-375 8, tablet-768 8, desktop-1280 8, desktop-1440 8; visual 16, contraste 16). Contraste: 120 de 120 células medidas, 2550 linhas com limiar, 0 falhas.
+- Resultado: sem regressão frente à linha de base. Alvos abaixo de 44 px: só os 5 checkboxes do Caderno por tema e viewport, exceção aceita pelo usuário. Rolagem horizontal: 0 nos 4 viewports, incluindo o laboratório a 768 px (largura de conteúdo 768). Varreduras nos 29 arquivos do diff (incluindo os 13 de docs/auditoria-ui-ux/ciclo2): caractere E comercial fora de operador lógico duplo 0; formas passadas de sair 0; emojis 0; style={{ em código 0 (5 ocorrências em texto de documentação que cita o padrão).
+- Achados: P2, inspeção visual dos PNG depois da E6 e da E6b não feita (pedido proíbe abrir os PNG); P2, elementos não calculáveis +3 por viewport frente à linha de base (informativo, causa não verificada); P3, textos sem acento vindos do backend, sem reverificação nesta rodada.
+- Veredito: aprovado. Pendências não bloqueantes: zoom de 200 por cento, leitor de tela e inspeção visual dos PNG.
+- Próxima ação: aceite do usuário para seguir à E8 (fechamento). A E8 só começa com esse aceite.
