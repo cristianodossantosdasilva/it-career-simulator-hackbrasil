@@ -19,7 +19,7 @@ Observação sobre a decisão 1 a 5: o usuário respondeu "aprovado" ao plano fi
 |---|---|---|---|
 | E1 | sim2-medicao | concluída (commit local, sem push) | ver Registro, E1 |
 | E2 | sim2-implementador | concluída (commit local, sem push) | ver Registro, E2 |
-| E3 | sim2-implementador | pendente | |
+| E3 | sim2-implementador | concluída (commit local, sem push) | ver Registro, E3 |
 | E4 | sim2-implementador | pendente | |
 | E5 | sim2-implementador | pendente | |
 | E6 | sim2-implementador | pendente | |
@@ -44,3 +44,13 @@ Observação sobre a decisão 1 a 5: o usuário respondeu "aprovado" ao plano fi
 - Desvios: (1) index.css nao estava na lista de arquivos da etapa, mas o estado indisponivel por classe exigia uma regra; foi uma unica regra com tokens existentes (text-secondary sobre bg-elevated, border-control). (2) O projeto mobile-375 so executa as specs visual e contraste (playwright.config.ts), entao "Feliz 1" nao existe nele; a cobertura de 375 px da jornada vem do teste W10 no chromium, que muda o viewport. (3) Enter no botao: o jsdom nao gera clique a partir de keydown, entao o teste dispara keydown e clique em sequencia, como o navegador faz; o Enter real fica coberto pela guarda no handler.
 - Pendencias: contraste da regra .btn-indisponivel nao medido no navegador (a medicao no navegador fica para a E5 e a E7; pelos tokens, text-secondary sobre bg-elevated passa de 4,5 nos dois temas); usuario com focus n1 salvo continua em n1 (decisao 4).
 - Proxima acao: E3 (progresso real das notas semeadas e rotulos Teoria, Fixacao e Pratica por extenso), partindo do commit local da E2.
+
+### E3, progresso real e rotulos (2026-11-16)
+
+- Arquivos: src/frontend/src/educacao/catalogoEducacional.ts (calcularProgressoNivel usa notaContaComoProgresso: mais de 20 caracteres e texto diferente do texto semeado de DEFAULT_PAGES do mesmo nivel, comparacao com trim e CRLF normalizado; esquema salvo e DEFAULT_PAGES intactos, sem duplicar a string); src/frontend/src/workstation/TabelaMissoes.tsx (rotulo "Teoria X%, Fixação X%, Prática X%", igual ao da Credencial); src/frontend/src/index.css (uma regra: .missao-progresso de font-size-xs, 11 px, para font-size-sm, 13 px); src/frontend/src/educacao/progressoNivel.test.tsx (novo, 9 testes); este registro.
+- Verificacoes: npm.cmd test -- --run src/educacao/progressoNivel.test.tsx src/App.test.tsx src/workstation/EstadoInicial.test.tsx: 32 de 32 verdes; npm.cmd run lint: 0 avisos e 0 erros; sem Playwright (a E4 captura). Varredura do caractere E comercial e das formas passadas de sair nas linhas adicionadas: zero.
+- Casos cobertos: estado limpo t 0, f 0 e p 0 nos 5 niveis; tabela com "Não iniciada" nos 5; semeado sem edicao nao conta; editado conta 20; igual ao semeado (inclusive com espacos e CRLF) nao conta; apagado, indefinido, 20 caracteres nao contam e 21 contam; dado legado (icone emoji, focus n1) carrega, recalcula e regrava; legado sem paginas nao quebra.
+- Desvios: (1) index.css nao estava na lista, mas o texto novo e mais longo e o 11 px da regra violava o minimo de 12 px computado; troca de um token existente por outro. (2) .missao-competencias tambem usa font-size-xs (11 px): fora do escopo, fica para a E6. (3) O texto "T 0%, F 20%, P 0%" so aparecia na tabela; nao havia teste nem spec que o citasse.
+- Risco residual: uma edicao minima do exemplo (mais de 20 caracteres e diferente do semeado) conta como progresso; nota que o aluno copia ou restaura para o texto semeado volta a contar zero. Dados salvos com uma versao antiga do texto semeado, se houver, contariam como edicao.
+- Pendencias: contraste do .missao-progresso (text-muted) no navegador fica para a E5 e a E7; legibilidade do rotulo longo em 375 px sera vista na captura da E4.
+- Proxima acao: E4 (Missao 0 depois do Primeiro Voo e antes das missoes), partindo do commit local da E3.

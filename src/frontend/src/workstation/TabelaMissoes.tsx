@@ -81,7 +81,7 @@ export function TabelaMissoes({
                 </p>
                 {iniciada && (
                   <p className="missao-progresso dado-mono">
-                    T {progresso.t}%, F {progresso.f}%, P {progresso.p}%
+                    Teoria {progresso.t}%, Fixação {progresso.f}%, Prática {progresso.p}%
                   </p>
                 )}
               </div>

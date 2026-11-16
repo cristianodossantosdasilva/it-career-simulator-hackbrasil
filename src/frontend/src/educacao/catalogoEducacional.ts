@@ -858,13 +858,26 @@ export function obterCardsParaHoje(estado: EstadoAcademia): FlashCardComNivel[] 
   return out
 }
 
+function normalizarNota(texto: string | undefined): string {
+  return (texto ?? '').replace(/\r\n/g, '\n').trim()
+}
+
+/** Nota do aluno conta como progresso so se tiver mais de 20 caracteres e diferir do texto semeado do nivel. */
+function notaContaComoProgresso(pagina: PaginaCaderno | undefined, id: NivelId): boolean {
+  if (!pagina) return false
+  const nota = normalizarNota(pagina.notes)
+  if (nota.length <= 20) return false
+  const semeada = DEFAULT_PAGES.find((x) => x.level === id && x.type === 'cornell')
+  return nota !== normalizarNota(semeada?.notes)
+}
+
 export function calcularProgressoNivel(estado: EstadoAcademia, id: NivelId) {
   const ls = LESSONS[id]
   const t = Math.round((ls.filter((l) => estado.lessonsDone.includes(l.id)).length / ls.length) * 100)
   const cs = CARDS[id]
   const rated = cs.filter((c) => Boolean(estado.cards[c.id])).length
   const pg = estado.pages.find((x) => x.level === id && x.type === 'cornell')
-  const hasNotes = Boolean(pg && (pg.notes ?? '').trim().length > 20)
+  const hasNotes = notaContaComoProgresso(pg, id)
   const f = Math.min(
     100,
     Math.round((rated / cs.length) * 50 + (estado.feynman.includes(id) ? 30 : 0) + (hasNotes ? 20 : 0)),

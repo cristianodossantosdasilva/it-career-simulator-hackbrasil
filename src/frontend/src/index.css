@@ -974,7 +974,7 @@ input[type="file"]::file-selector-button:hover { background: #1e293b; border-col
 .missao-estado { min-width: 0; }
 .missao-situacao { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--text-secondary); }
 .missao-situacao.concluida { color: var(--status-success-text); }
-.missao-progresso { margin-top: 2px; font-size: var(--font-size-xs); color: var(--text-muted); }
+.missao-progresso { margin-top: 2px; font-size: var(--font-size-sm); color: var(--text-muted); }
 .missao-acoes { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .missoes-lancamento {
   display: flex;
