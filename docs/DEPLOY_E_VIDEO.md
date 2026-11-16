@@ -26,7 +26,7 @@ Requisito do regulamento Hack Brasil 2026: aplicação acessível publicamente p
 ### Segurança e Variáveis de Ambiente
 
 - **Execução determinística sem custo de API:** `Dialogo:HabilitarLlm=false` vem desligado por padrão, garantindo respostas imediatas e zero dependência de cota externa durante a avaliação da banca.
-- **Variáveis principais do servidor:** `ConnectionStrings__Postgres`, `Sessao__TtlDias=30`, `ASPNETCORE_ENVIRONMENT=Production`, `Dialogo__HabilitarLlm=false`, `Demo__PermitirParametrosDeTeste=false` (habilitar `true` apenas se quiser permitir semente/causa explícita na demo pública sem alterar default de produção), `Curriculo__ChavePrivadaPem` e `Curriculo__KeyId` (assinatura ECDSA P-256).
+- **Variáveis principais do servidor:** `ConnectionStrings__Postgres`, `Sessao__TtlDias=30`, `ASPNETCORE_ENVIRONMENT=Production`, `Dialogo__HabilitarLlm=false`, `Demo__PermitirParametrosDeTeste` (default `true` para permitir semente fixa na demo pública do Hackathon; definir `false` em avaliações fechadas sem parâmetros explícitos), `Curriculo__ChavePrivadaPem` e `Curriculo__KeyId` (assinatura ECDSA P-256).
 - **Frontend (`Vercel`):** `VITE_API_BASE_URL` e opcionalmente `VITE_CURRICULO_PUBLIC_KEY_JWK`. Chaves privadas ou de IA nunca usam prefixo `VITE_` nem são incluídas no bundle frontend (verificado automaticamente em `npm run build` via `scripts/check-bundle-secrets.mjs`).
 
 ---

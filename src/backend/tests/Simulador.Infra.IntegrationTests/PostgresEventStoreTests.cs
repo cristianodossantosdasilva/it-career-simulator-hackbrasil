@@ -3,6 +3,8 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Npgsql;
 using Simulador.Avaliacao;
 using Simulador.Cenarios;
@@ -33,7 +35,7 @@ public sealed class PostgresEventStoreTests
 
         var (_, eventosPg) = await postgres.ObterSessaoAsync(sessao.Id);
         var (_, eventosMemoria) = await memoria.ObterSessaoAsync(sessao.Id);
-        Assert.Equal(JsonSerializer.Serialize(eventosMemoria), JsonSerializer.Serialize(eventosPg));
+        Assert.Equal(JcsCanonico.Serializar(eventosMemoria), JcsCanonico.Serializar(eventosPg));
         var catalogo = new CatalogoCenarios();
         var estadoPg = Projecao.Reconstruir(eventosPg, catalogo);
         var estadoMemoria = Projecao.Reconstruir(eventosMemoria, catalogo);
@@ -77,11 +79,11 @@ public sealed class PostgresEventStoreTests
         var store = new PostgresEventStore(connectionString);
         await store.InicializarSchemaAsync();
         using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
-            builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(new Dictionary<string, string?>
+            builder.ConfigureServices(services =>
             {
-                ["EventStore:Provedor"] = "Postgres",
-                ["ConnectionStrings:Postgres"] = connectionString
-            })));
+                services.RemoveAll<IEventStore>();
+                services.AddSingleton<IEventStore>(store);
+            }));
         using var client = factory.CreateClient();
         var create = await client.PostAsJsonAsync("/api/sessoes", new { cenarioId = "pasta-rede-inacessivel", versaoManifesto = "v1.1", causaForcada = "C1", semente = 801L });
         Assert.Equal(HttpStatusCode.Created, create.StatusCode);

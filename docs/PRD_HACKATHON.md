@@ -34,7 +34,7 @@ Em vez de promessas irreais ou cargas horárias superficiais, o estudo de caso i
 4. **Os 4 Motores Determinísticos funcionando de ponta a ponta:**
    - **Workstation Unificada:** Desktop corporativo no navegador com 4 apps integrados (**ITSM**, **Comunicador/Chat**, **SimuDesk Acesso Remoto**, **Intranet/KB**).
    - **Clientes Sintéticos e Tech Lead (Máquina de Estados e Sistema em 3 Atos):** Personas distintas com gatilho determinístico de liberação de acesso remoto e diálogo roteirizado sem dependência de chave externa.
-   - **Chaos Injector (Injeção de Falhas):** Cenários parametrizados por semente (`SplitMix64`) para impedir "receita decorada" (e trava de produção `Demo:PermitirParametrosDeTeste` desabilitada por padrão).
+   - **Chaos Injector (Injeção de Falhas):** Cenários parametrizados por semente (`SplitMix64`) para impedir "receita decorada" (e flag `Demo:PermitirParametrosDeTeste` configurada como `true` por padrão no modo demonstração do Hackathon e reversível para `false` em ambientes de prova fechada).
    - **Juiz 360º, Replay e Currículo Vivo:** Avaliação determinística por critérios binários observáveis na trilha de eventos (*Event Sourcing*) + linha do tempo navegável (**Caixa-Preta do Atendimento**) + **Currículo Vivo** verificável offline em `/verificar` por **JCS (RFC 8785 UTF-8) + SHA-256 + assinatura ECDSA P-256**.
 5. **Visão Futura Onda 4 (Simulador de Chamada em Vídeo com Agentes de IA):** Evolução pós-Hackathon onde o estudante atende clientes leigos, gestores sob pressão de SLA P1, ataques de engenharia social (*Vishing*) e entrevistas técnicas em chamada de vídeo e voz ao vivo dentro do cockpit, com o motor `.NET 10` mantendo autoridade exclusiva sobre o estado técnico.
 
