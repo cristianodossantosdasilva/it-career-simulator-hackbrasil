@@ -216,7 +216,7 @@ describe('IT Flight Simulator UI', () => {
 
     fireEvent.click(within(navPrincipal).getByRole('button', { name: 'Aulas' }))
     expect(within(navPrincipal).getByRole('button', { name: 'Aulas' })).toHaveAttribute('aria-current', 'page')
-    expect(screen.getByRole('heading', { name: /Rede, IP e DNS/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /O que faz o Suporte de TI/i })).toBeInTheDocument()
     expect((await axe.run(container)).violations).toEqual([])
 
     fireEvent.click(within(navPrincipal).getByRole('button', { name: 'Caderno' }))

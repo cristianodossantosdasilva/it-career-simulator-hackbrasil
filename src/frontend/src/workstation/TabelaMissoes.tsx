@@ -38,6 +38,7 @@ export function TabelaMissoes({
   onDecolar,
   onDemoRapida,
 }: TabelaMissoesProps) {
+  const temSelecao = cenarioSelecionado !== ''
   return (
     <section className="missoes" aria-labelledby="missoes-titulo">
       <div className="missoes-cabecalho">
@@ -111,10 +112,25 @@ export function TabelaMissoes({
           />
         </label>
         <div className="missoes-lancamento-acoes">
+          {!temSelecao && (
+            <p id="decolar-apoio" className="muted">
+              Escolha uma missão
+            </p>
+          )}
           <button type="button" className="btn btn-secondary" disabled={ocupado} onClick={onDemoRapida}>
             Demo rápida: Nível 2, C1
           </button>
-          <button type="button" className="btn btn-primary btn-lg" disabled={ocupado} onClick={onDecolar}>
+          <button
+            type="button"
+            className={`btn btn-lg ${temSelecao ? 'btn-primary' : 'btn-secondary btn-indisponivel'}`}
+            disabled={ocupado}
+            aria-disabled={temSelecao ? undefined : true}
+            aria-describedby={temSelecao ? undefined : 'decolar-apoio'}
+            onClick={() => {
+              if (!temSelecao) return
+              onDecolar()
+            }}
+          >
             {ocupado ? 'Preparando a Workstation...' : 'Decolar no Simulador'}
             {!ocupado && <Icone nome="avancar" />}
           </button>

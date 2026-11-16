@@ -70,7 +70,7 @@ export function TelaInicial({
   const shell = useShell()
   const [visao, setVisao] = useState<VisaoAcademia>(visaoInicial)
   const [credencialAberta, setCredencialAberta] = useState(false)
-  const [cenario, setCenario] = useState('pasta-rede-inacessivel')
+  const [cenario, setCenario] = useState('')
   const [semente, setSemente] = useState('')
   const [aulaAlvo, setAulaAlvo] = useState<{
     nivel: NivelId
@@ -217,7 +217,9 @@ export function TelaInicial({
             }))
           }
         }}
-        onEntrarLaboratorio={() => void onIniciar(cenario, sementeNumero)}
+        onEntrarLaboratorio={() =>
+          void onIniciar(cenario || nivelPorId(estadoAcademia.focus).cenarioId, sementeNumero)
+        }
         onMudarFoco={(nivelId) => {
           onAtualizarAcademia((prev) => ({ ...prev, focus: nivelId }))
           setCenario(nivelPorId(nivelId).cenarioId)
@@ -288,7 +290,10 @@ export function TelaInicial({
                 onSelecionar={selecionarNivel}
                 onAbrirAulas={(nivel) => abrirAula(nivel.id)}
                 onPraticar={praticar}
-                onDecolar={() => void onIniciar(cenario, sementeNumero)}
+                onDecolar={() => {
+                  if (!cenario) return
+                  void onIniciar(cenario, sementeNumero)
+                }}
                 onDemoRapida={() => void onIniciar('pasta-rede-inacessivel', 42, 'C1')}
               />
 

@@ -87,6 +87,10 @@ export interface EstadoAcademia {
   labsDone: NivelId[]
 }
 
+/**
+ * Correspondencia entre ids e rotulos exibidos (os ids ficam salvos no navegador, nao renomear):
+ * estagiario = Nivel 1, n1 = Nivel 2, n2 = Nivel 3, n3 = Nivel 4, esp = Nivel 4b.
+ */
 export const LEVELS: NivelEducacional[] = [
   {
     id: 'estagiario',
@@ -758,7 +762,7 @@ export function criarEstadoInicialAcademia(): EstadoAcademia {
     streak: 1,
     weekMin: 0,
     weekGoal: 90,
-    focus: 'n1',
+    focus: 'estagiario',
     lessonsDone: [],
     cards: {},
     pages: JSON.parse(JSON.stringify(DEFAULT_PAGES)) as PaginaCaderno[],

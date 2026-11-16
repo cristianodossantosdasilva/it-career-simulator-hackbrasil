@@ -18,7 +18,7 @@ Observação sobre a decisão 1 a 5: o usuário respondeu "aprovado" ao plano fi
 | Etapa | Agente | Status | Linha de registro |
 |---|---|---|---|
 | E1 | sim2-medicao | concluída (commit local, sem push) | ver Registro, E1 |
-| E2 | sim2-implementador | pendente | |
+| E2 | sim2-implementador | concluída (commit local, sem push) | ver Registro, E2 |
 | E3 | sim2-implementador | pendente | |
 | E4 | sim2-implementador | pendente | |
 | E5 | sim2-implementador | pendente | |
@@ -36,3 +36,11 @@ Observação sobre a decisão 1 a 5: o usuário respondeu "aprovado" ao plano fi
 - Observações: (1) o plano cita 5 projetos, mas o projeto chromium ignora as specs visuais, então a rodada tem 4 projetos de medição (mobile-375, tablet-768, desktop-1280, desktop-1440). (2) A matriz de tokens do tactical usa o piso 1,71 e 1,81 (em vez de 1,72 e 1,82) para o divisor sem regressão, porque 1,8196 arredonda para 1,82 e aparecia como falha falsa. (3) A coluna de contagem por viewport mostra mais violações de controle em 375 e 768 (12) do que em 1280 e 1440 (3), por causa de button.lab-guia-alternar, visível só nessas larguras. (4) Os 4 itens alheios continuam sem commit. (5) Zoom em 200 por cento e leitor de tela ficam para a E7.
 - Pendências: inspeção visual dos PNG do tactical e do corporate (E6); o teste de tokens que leia index.css (E5); decisão do agente da E5 sobre o menor deslocamento de border-strong e border-subtle do corporate.
 - Próxima ação: E2 (nenhuma missão pré-selecionada, focus inicial estagiario, botão Decolar com guarda), em sessão nova, partindo do commit local da E1.
+
+### E2, selecao inicial e focus (2026-11-16)
+
+- Arquivos: src/frontend/src/workstation/TelaInicial.tsx (cenario inicial vazio, guarda no onDecolar, entrada do laboratorio pela barra superior cai no cenario do nivel em foco quando nada foi escolhido); src/frontend/src/workstation/TabelaMissoes.tsx (aria-disabled, texto de apoio "Escolha uma missão" ligado por aria-describedby, guarda no clique); src/frontend/src/educacao/catalogoEducacional.ts (focus inicial estagiario, comentario com a tabela de ids e rotulos); src/frontend/src/index.css (regra .btn-indisponivel, so tokens existentes); src/frontend/src/App.test.tsx (a aba Aulas agora abre na primeira aula do Estagiario); src/frontend/src/workstation/EstadoInicial.test.tsx (novo, 7 testes); este registro.
+- Verificacoes: npm.cmd test -- --run src/App.test.tsx src/workstation/EstadoInicial.test.tsx: 23 de 23 verdes; npm.cmd run lint: 0 avisos e 0 erros; Playwright (portas 8080 e 5173 livres antes de cada execucao) jornadas.spec.ts "Feliz 1" no projeto chromium: verde; "W10" (375, 768 e 1280 px, teclado) no projeto chromium: verde.
+- Desvios: (1) index.css nao estava na lista de arquivos da etapa, mas o estado indisponivel por classe exigia uma regra; foi uma unica regra com tokens existentes (text-secondary sobre bg-elevated, border-control). (2) O projeto mobile-375 so executa as specs visual e contraste (playwright.config.ts), entao "Feliz 1" nao existe nele; a cobertura de 375 px da jornada vem do teste W10 no chromium, que muda o viewport. (3) Enter no botao: o jsdom nao gera clique a partir de keydown, entao o teste dispara keydown e clique em sequencia, como o navegador faz; o Enter real fica coberto pela guarda no handler.
+- Pendencias: contraste da regra .btn-indisponivel nao medido no navegador (a medicao no navegador fica para a E5 e a E7; pelos tokens, text-secondary sobre bg-elevated passa de 4,5 nos dois temas); usuario com focus n1 salvo continua em n1 (decisao 4).
+- Proxima acao: E3 (progresso real das notas semeadas e rotulos Teoria, Fixacao e Pratica por extenso), partindo do commit local da E2.
