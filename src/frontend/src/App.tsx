@@ -5,6 +5,14 @@ import { ChatApp } from './apps/ChatApp/ChatApp'
 import { IntranetApp } from './apps/IntranetApp/IntranetApp'
 import { ItsmApp } from './apps/ItsmApp/ItsmApp'
 import { SimuDeskApp } from './apps/SimuDeskApp/SimuDeskApp'
+import { BarraSuperior } from './educacao/BarraSuperior'
+import {
+  type EstadoAcademia,
+  carregarEstadoAcademia,
+  nivelPorCenarioId,
+  responderMentor,
+  salvarEstadoAcademia,
+} from './educacao/catalogoEducacional'
 import { ReplayView } from './replay/ReplayView'
 import { TelaInicial } from './workstation/TelaInicial'
 
@@ -18,11 +26,11 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { erro: Error | n
   render() {
     if (this.state.erro) {
       return (
-        <div className="start-screen">
-          <div className="start-card">
+        <div className="page">
+          <div className="edu-card card-b">
             <h2>Erro na Workstation</h2>
             <p className="alert-danger">{this.state.erro.message}</p>
-            <button type="button" className="btn-primary" onClick={() => this.setState({ erro: null })}>
+            <button type="button" className="btn btn-primary" onClick={() => this.setState({ erro: null })}>
               Recarregar Interface
             </button>
           </div>
@@ -117,9 +125,15 @@ function salvarSessaoId(id: string): string[] {
 
 function WorkstationInner() {
   const [tema, setTema] = useState<'light' | 'dark'>('light')
+  const [estadoAcademia, setEstadoAcademia] = useState<EstadoAcademia>(() => carregarEstadoAcademia())
   const [sessaoId, setSessaoId] = useState<string | null>(null)
   const [sessao, setSessao] = useState<SessaoProjecao | null>(null)
   const [aba, setAba] = useState<Aba>('itsm')
+  const [gaveta, setGaveta] = useState<'notas' | 'tutor' | null>(null)
+  const [tutorMsgs, setTutorMsgs] = useState<{ who: 'me' | 'ai'; text: string }[]>([
+    { who: 'ai', text: 'Estou aqui durante o atendimento. Clique em "O que faço agora?" ou pergunte algo.' },
+  ])
+  const [tutorInput, setTutorInput] = useState('')
   const [ocupado, setOcupado] = useState(false)
   const [aviso, setAviso] = useState<string | null>(null)
   const [replay, setReplay] = useState<ReplayResponse | null>(null)
@@ -137,6 +151,14 @@ function WorkstationInner() {
     document.documentElement.dataset.theme = tema
   }, [tema])
 
+  function atualizarEstadoAcademia(updater: (prev: EstadoAcademia) => EstadoAcademia) {
+    setEstadoAcademia((prev) => {
+      const next = updater(prev)
+      salvarEstadoAcademia(next)
+      return next
+    })
+  }
+
   function abrirArtigoKb(artigoId: string, origem: HTMLElement) {
     setKbRetornoLinkUri(
       origem.getAttribute('data-kb-uri') ?? origem.getAttribute('aria-label')?.replace(/^Consultar KB: /, '') ?? null,
@@ -152,7 +174,6 @@ function WorkstationInner() {
     setAba('replay')
     setArtigoKbSelecionado(null)
     requestAnimationFrame(() => {
-      // ReplayView é remontada ao voltar para a aba e restaura o foco pelo URI estável.
       linkKbOrigemRef.current = null
     })
   }
@@ -195,11 +216,19 @@ function WorkstationInner() {
       const criada = await apiClient.criarSessao({ cenarioId, semente, causaForcada })
       const proj = await apiClient.obterSessao(criada.sessaoId)
       const ids = salvarSessaoId(criada.sessaoId)
+      const nivel = nivelPorCenarioId(cenarioId)
+      atualizarEstadoAcademia((prev) => ({ ...prev, focus: nivel.id }))
       setSessaoId(criada.sessaoId)
       setSessao(proj)
       setReplay(null)
       setNivel1Passos({ politica: false, token: false, recusado: false })
       setHistoricoTerminal([])
+      setTutorMsgs([
+        {
+          who: 'ai',
+          text: `Turno iniciado em ${nivel.titulo}. Se travar, pergunte "O que faço agora?".`,
+        },
+      ])
       setAba('itsm')
       void atualizarResumoCarreira(ids)
     } catch (err) {
@@ -216,6 +245,17 @@ function WorkstationInner() {
     try {
       const res = await apiClient.executarAcao(sessaoId, tipo, sessao.ultimoSeq, dados)
       setSessao(res.projecao)
+      if (
+        res.projecao.chamados.length > 0 &&
+        res.projecao.chamados.every((c) => c.status === 'Resolvido' || c.status === 'Encerrado')
+      ) {
+        const lvl = nivelPorCenarioId(res.projecao.meta.cenarioId)
+        atualizarEstadoAcademia((prev) =>
+          prev.labsDone.includes(lvl.id)
+            ? prev
+            : { ...prev, labsDone: [...prev.labsDone, lvl.id], xp: prev.xp + 60, weekMin: prev.weekMin + 15 },
+        )
+      }
       for (const ev of res.eventos) {
         if (ev.tipo === 'AcaoRejeitada') {
           setAviso(`Acao rejeitada: ${String(ev.dados?.motivo ?? 'regra de negocio')}`)
@@ -305,48 +345,98 @@ function WorkstationInner() {
         onAtualizarCarreira={(nome) => void atualizarResumoCarreira(undefined, nome)}
         tema={tema}
         onAlternarTema={() => setTema((t) => (t === 'light' ? 'dark' : 'light'))}
+        estadoAcademia={estadoAcademia}
+        onAtualizarAcademia={atualizarEstadoAcademia}
       />
     )
   }
 
+  const nivelSessao = nivelPorCenarioId(sessao.meta.cenarioId)
+  const paginaNotasSessao = estadoAcademia.pages.find(
+    (p) => p.level === nivelSessao.id && p.type === 'cornell',
+  ) ?? {
+    id: `pg-${nivelSessao.id}`,
+    icon: nivelSessao.icon,
+    title: `${nivelSessao.nome} · Anotações`,
+    level: nivelSessao.id,
+    type: 'cornell' as const,
+    cues: '',
+    notes: '',
+    summary: '',
+  }
+  const dicaAtual = obterProximaDicaMissao(sessao, nivel1Passos)
+
+  function sairParaTelaInicial() {
+    setSessaoId(null)
+    setSessao(null)
+    setGaveta(null)
+    void atualizarResumoCarreira()
+  }
+
+  function atualizarNotasSessao(campo: 'cues' | 'notes', valor: string) {
+    atualizarEstadoAcademia((prev) => {
+      const existe = prev.pages.some((p) => p.id === paginaNotasSessao.id)
+      const pages = existe
+        ? prev.pages.map((p) => (p.id === paginaNotasSessao.id ? { ...p, [campo]: valor } : p))
+        : [...prev.pages, { ...paginaNotasSessao, [campo]: valor }]
+      return { ...prev, pages }
+    })
+  }
+
+  function perguntarTutorSessao(pergunta: string) {
+    const q = pergunta.trim()
+    if (!q) return
+    const ans =
+      /(agora|próximo|proximo|travei|passo)/i.test(q) ? `Próximo passo: ${dicaAtual}` : responderMentor(q)
+    setTutorMsgs((m) => [...m, { who: 'me', text: q }, { who: 'ai', text: ans }])
+    setTutorInput('')
+  }
+
   return (
     <div className="workstation">
-      <header className="topbar">
-        <div className="brand">
-          <span className="brand-logo">IT Flight Simulator</span>
-          <span className="badge badge-info">{sessao.meta.nivel}</span>
-          <span className="muted">Cenario: {sessao.meta.cenarioId}</span>
-        </div>
-
-        <div className="topbar-right">
-          <span className="badge badge-ok">Tempo Simulado: {sessao.meta.minutoSimulado}m</span>
-          <span className="badge">Seq #{sessao.ultimoSeq}</span>
-          <button
-            type="button"
-            className="btn-secondary"
-            aria-label={tema === 'light' ? 'Ativar tema escuro' : 'Ativar tema claro'}
-            onClick={() => setTema((t) => (t === 'light' ? 'dark' : 'light'))}
-          >
-            {tema === 'light' ? 'Tema Escuro' : 'Tema Claro'}
-          </button>
-          <button
-            type="button"
-            className="btn-secondary"
-            aria-label="Voltar para a Tela Inicial"
-            onClick={() => {
-              setSessaoId(null)
-              setSessao(null)
-              void atualizarResumoCarreira()
-            }}
-          >
-            ← Tela Inicial
-          </button>
-        </div>
-      </header>
+      <BarraSuperior
+        visaoAtual="lab"
+        estado={estadoAcademia}
+        tema={tema}
+        xpOficial={resumoCarreira ? Math.max(resumoCarreira.xpTotal, estadoAcademia.xp) : estadoAcademia.xp}
+        onAlternarTema={() => setTema((t) => (t === 'light' ? 'dark' : 'light'))}
+        onSelecionarVisao={sairParaTelaInicial}
+        slotDireitoSessao={
+          <>
+            <span className="nav-chip hide-sm">{sessao.meta.nivel} · {sessao.meta.cenarioId}</span>
+            <span className="nav-chip">Tempo Simulado: {sessao.meta.minutoSimulado}m</span>
+            <span className="nav-chip hide-sm">Seq #{sessao.ultimoSeq}</span>
+            <button
+              type="button"
+              className={`nav-btn ${gaveta === 'notas' ? 'solid' : ''}`}
+              aria-pressed={gaveta === 'notas'}
+              onClick={() => setGaveta((g) => (g === 'notas' ? null : 'notas'))}
+            >
+              📓 Minhas notas
+            </button>
+            <button
+              type="button"
+              className={`nav-btn ${gaveta === 'tutor' ? 'solid' : ''}`}
+              aria-pressed={gaveta === 'tutor'}
+              onClick={() => setGaveta((g) => (g === 'tutor' ? null : 'tutor'))}
+            >
+              🤖 Tutor IA
+            </button>
+            <button
+              type="button"
+              className="nav-btn"
+              aria-label="Voltar para a Tela Inicial"
+              onClick={sairParaTelaInicial}
+            >
+              ← Tela Inicial
+            </button>
+          </>
+        }
+      />
 
       <div className="mission-strip" role="status">
         <span>
-          <strong>Missao Atual:</strong> {obterProximaDicaMissao(sessao, nivel1Passos)}
+          <strong>Missao Atual:</strong> {dicaAtual}
         </span>
         <span className="muted">Aurora Logistica · Semente {sessao.meta.semente}</span>
       </div>
@@ -360,24 +450,44 @@ function WorkstationInner() {
         </div>
       )}
 
-      <div className="cockpit-body">
+      <div className={`cockpit-body ${gaveta ? 'with-drawer' : ''}`}>
         <aside className="app-dock" aria-label="Aplicativos da Workstation">
           <nav aria-label="Aplicativos da Workstation">
-            <button type="button" aria-current={aba === 'itsm' ? 'page' : undefined} className={`dock-btn ${aba === 'itsm' ? 'active' : ''}`} onClick={() => setAba('itsm')}>
+            <button
+              type="button"
+              aria-current={aba === 'itsm' ? 'page' : undefined}
+              className={`dock-btn ${aba === 'itsm' ? 'active' : ''}`}
+              onClick={() => setAba('itsm')}
+            >
               <span>ITSM / Chamados</span>
               <span className="badge">{sessao.chamados.length}</span>
             </button>
-            <button type="button" aria-current={aba === 'chat' ? 'page' : undefined} className={`dock-btn ${aba === 'chat' ? 'active' : ''}`} onClick={() => setAba('chat')}>
+            <button
+              type="button"
+              aria-current={aba === 'chat' ? 'page' : undefined}
+              className={`dock-btn ${aba === 'chat' ? 'active' : ''}`}
+              onClick={() => setAba('chat')}
+            >
               <span>Comunicador IA</span>
               <span className="badge">{sessao.dialogo.mensagens.length}</span>
             </button>
-            <button type="button" aria-current={aba === 'simudesk' ? 'page' : undefined} className={`dock-btn ${aba === 'simudesk' ? 'active' : ''}`} onClick={() => setAba('simudesk')}>
+            <button
+              type="button"
+              aria-current={aba === 'simudesk' ? 'page' : undefined}
+              className={`dock-btn ${aba === 'simudesk' ? 'active' : ''}`}
+              onClick={() => setAba('simudesk')}
+            >
               <span>SimuDesk Remoto</span>
               <span className={`badge ${sessao.dialogo.acessoRemotoLiberado ? 'badge-ok' : ''}`}>
                 {sessao.dialogo.acessoRemotoLiberado ? 'ON' : 'LOCK'}
               </span>
             </button>
-            <button type="button" aria-current={aba === 'kb' ? 'page' : undefined} className={`dock-btn ${aba === 'kb' ? 'active' : ''}`} onClick={() => setAba('kb')}>
+            <button
+              type="button"
+              aria-current={aba === 'kb' ? 'page' : undefined}
+              className={`dock-btn ${aba === 'kb' ? 'active' : ''}`}
+              onClick={() => setAba('kb')}
+            >
               <span>Intranet / KB</span>
               <span className="badge">KB</span>
             </button>
@@ -408,9 +518,108 @@ function WorkstationInner() {
               ocupado={ocupado}
             />
           )}
-          {aba === 'kb' && <IntranetApp key={artigoKbSelecionado ?? 'intranet'} artigoSelecionadoId={artigoKbSelecionado} onArtigoFechado={fecharArtigoKb} />}
-          {aba === 'replay' && <ReplayView replay={replay} onAtualizar={carregarReplay} ocupado={ocupado} onNavegaKb={abrirArtigoKb} kbRetornoLinkUri={kbRetornoLinkUri} />}
+          {aba === 'kb' && (
+            <IntranetApp
+              key={artigoKbSelecionado ?? 'intranet'}
+              artigoSelecionadoId={artigoKbSelecionado}
+              onArtigoFechado={fecharArtigoKb}
+            />
+          )}
+          {aba === 'replay' && (
+            <ReplayView
+              replay={replay}
+              onAtualizar={carregarReplay}
+              ocupado={ocupado}
+              onNavegaKb={abrirArtigoKb}
+              kbRetornoLinkUri={kbRetornoLinkUri}
+            />
+          )}
         </main>
+
+        {gaveta === 'notas' && (
+          <aside className="cockpit-drawer" aria-label="Minhas notas durante o atendimento">
+            <div className="row-between">
+              <h2 className="h3">📓 Minhas notas · {nivelSessao.nome}</h2>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setGaveta(null)}>
+                ✕
+              </button>
+            </div>
+            <p className="muted" style={{ marginTop: '4px' }}>
+              Método Cornell sincronizado ao seu Caderno de estudos.
+            </p>
+            <label className="block-label" htmlFor="ws-cues">
+              Perguntas-chave
+            </label>
+            <textarea
+              id="ws-cues"
+              className="block xs"
+              value={paginaNotasSessao.cues ?? ''}
+              onChange={(e) => atualizarNotasSessao('cues', e.target.value)}
+            />
+            <label className="block-label" htmlFor="ws-notes">
+              Anotações
+            </label>
+            <textarea
+              id="ws-notes"
+              className="block"
+              value={paginaNotasSessao.notes ?? ''}
+              onChange={(e) => atualizarNotasSessao('notes', e.target.value)}
+            />
+            <p className="muted saved">✓ Salvo automaticamente</p>
+          </aside>
+        )}
+
+        {gaveta === 'tutor' && (
+          <aside className="cockpit-drawer" aria-label="Tutor IA durante o atendimento">
+            <div className="row-between">
+              <h2 className="h3">🤖 Tutor IA</h2>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setGaveta(null)}>
+                ✕
+              </button>
+            </div>
+            <div className="chat short mt" aria-live="polite">
+              {tutorMsgs.map((m, i) => (
+                <div key={i} className={`bubble ${m.who}`}>
+                  {m.who === 'ai' && <div className="who">🤖 Tutor IA</div>}
+                  {m.text}
+                </div>
+              ))}
+            </div>
+            <div className="suggest mt">
+              <button type="button" onClick={() => perguntarTutorSessao('O que faço agora?')}>
+                O que faço agora?
+              </button>
+              <button type="button" onClick={() => perguntarTutorSessao('O que é DNS?')}>
+                O que é DNS?
+              </button>
+              <button type="button" onClick={() => perguntarTutorSessao('O que é engenharia social?')}>
+                Engenharia social
+              </button>
+            </div>
+            <form
+              className="row gap mt"
+              onSubmit={(e) => {
+                e.preventDefault()
+                perguntarTutorSessao(tutorInput)
+              }}
+            >
+              <label className="skip" htmlFor="ws-tutor-in">
+                Pergunta ao Tutor IA
+              </label>
+              <input
+                id="ws-tutor-in"
+                type="text"
+                className="text grow"
+                placeholder="Pergunte ao tutor..."
+                value={tutorInput}
+                onChange={(e) => setTutorInput(e.target.value)}
+              />
+              <button type="submit" className="btn btn-ai btn-sm">
+                Enviar
+              </button>
+            </form>
+          </aside>
+        )}
       </div>
     </div>
   )

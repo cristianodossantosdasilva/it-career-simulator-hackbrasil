@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import axe from 'axe-core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import vetoresJcs from '../../../docs/vetores-jcs-sha256.json'
@@ -80,15 +80,35 @@ describe('IT Flight Simulator UI', () => {
     )
 
     render(<App />)
-    await waitFor(() => {
-      expect(screen.getByText(/Analista Jr \(N1\)/i)).toBeInTheDocument()
+    const painelCarreira = await screen.findByRole('region', {
+      name: /Progressão de Carreira e Currículo Vivo/i,
     })
-    expect(screen.getByText(/150 XP/i)).toBeInTheDocument()
-    expect(screen.getByText('N4 OK')).toBeInTheDocument()
-    expect(screen.getByText('N4b Pendente')).toBeInTheDocument()
-    expect(screen.getByText(/1 sessao\(oes\) marcada\(s\) como nao confirmada/i)).toBeInTheDocument()
-    expect(screen.getByText(/deadbeef1234/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Exportar Curr[ií]culo Vivo \(JSON\)/i })).toBeInTheDocument()
+    expect(within(painelCarreira).getByText(/Analista Jr \(N1\)/i)).toBeInTheDocument()
+    expect(within(painelCarreira).getByText(/150 XP/i)).toBeInTheDocument()
+    expect(within(painelCarreira).getByText('N4 OK')).toBeInTheDocument()
+    expect(within(painelCarreira).getByText('N4b Pendente')).toBeInTheDocument()
+    expect(within(painelCarreira).getByText(/1 sessao\(oes\) marcada\(s\) como nao confirmada/i)).toBeInTheDocument()
+    expect(within(painelCarreira).getByText(/deadbeef1234/i)).toBeInTheDocument()
+    expect(
+      within(painelCarreira).getByRole('button', { name: /Exportar Curr[ií]culo Vivo \(JSON\)/i }),
+    ).toBeInTheDocument()
+  })
+
+  it('navega pelas abas Aulas, Caderno e Mentor IA do Prototipo v3 sem violacoes axe-core', async () => {
+    const { container } = render(<App />)
+    const navPrincipal = screen.getByRole('navigation', { name: /Navegação principal/i })
+
+    fireEvent.click(within(navPrincipal).getByRole('button', { name: /📖 Aulas/i }))
+    expect(screen.getByRole('heading', { name: /Rede, IP e DNS/i })).toBeInTheDocument()
+    expect((await axe.run(container)).violations).toEqual([])
+
+    fireEvent.click(within(navPrincipal).getByRole('button', { name: /📓 Caderno/i }))
+    expect(screen.getByRole('heading', { name: /Caderno de estudos/i })).toBeInTheDocument()
+    expect((await axe.run(container)).violations).toEqual([])
+
+    fireEvent.click(within(navPrincipal).getByRole('button', { name: /🤖 Mentor IA/i }))
+    expect(screen.getByRole('heading', { name: /Mentor IA/i })).toBeInTheDocument()
+    expect((await axe.run(container)).violations).toEqual([])
   })
 
   it('nao possui violacoes de acessibilidade (axe-core) na tela inicial', async () => {
