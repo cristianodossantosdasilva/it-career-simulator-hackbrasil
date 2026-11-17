@@ -849,6 +849,7 @@ input[type="file"]::file-selector-button:hover { background: var(--bg-hover); bo
 .dock-btn:hover:not(:disabled) { background: transparent; color: var(--text-primary); border-color: var(--border-control); }
 .dock-btn.active,
 .dock-btn.active:hover:not(:disabled) { background: var(--accent-surface); border-color: var(--accent-primary); color: var(--accent-text); }
+a.dock-btn { text-decoration: none; }
 .dock-contagem { font-size: var(--font-size-xs); color: var(--text-muted); }
 .dock-contagem.ok { color: var(--status-success-text); }
 .dock-btn.active .dock-contagem { color: inherit; }
