@@ -1,11 +1,9 @@
-import { useCallback, useEffect, useState } from 'react'
-import type { CarreiraResumoResponse } from '../api/types'
+import { useEffect, useState } from 'react'
 import { AulasView } from '../educacao/AulasView'
 import { BarraSuperior, type VisaoAcademia } from '../educacao/BarraSuperior'
 import { CadernoView } from '../educacao/CadernoView'
 import {
   GLOSSARIO_INICIANTE,
-  type EstadoAcademia,
   type NivelEducacional,
   type NivelId,
   calcularProgressoNivel,
@@ -15,23 +13,18 @@ import {
   primeiraAulaNivel,
 } from '../educacao/catalogoEducacional'
 import { MentorView } from '../educacao/MentorView'
+import { useAcademia } from '../jornada/contextosJornada'
 import { useShell } from '../shell/contextoShell'
 import { CredencialView } from './CredencialView'
 import { PainelPerfilExtra } from './PainelPerfilExtra'
 import { PrimeiroVoo } from './PrimeiroVoo'
 import { TabelaMissoes } from './TabelaMissoes'
-import { usePomodoro } from './usePomodoro'
 
 interface Props {
   onIniciar: (cenarioId: string, semente?: number, causaForcada?: string) => Promise<void>
   ocupado: boolean
   erro: string | null
-  resumoCarreira?: CarreiraResumoResponse | null
-  apelido?: string
-  onApelidoChange?: (valor: string) => void
-  onAtualizarCarreira?: (apelido?: string) => void
-  estadoAcademia: EstadoAcademia
-  onAtualizarAcademia: (updater: (prev: EstadoAcademia) => EstadoAcademia) => void
+
   /** Visao aberta ao montar (o shell usa ao voltar do laboratorio para Aulas, Caderno ou Mentor). */
   visaoInicial?: VisaoAcademia
 }
@@ -55,19 +48,18 @@ const ETAPAS_MISSAO_ZERO = [
   },
 ]
 
-export function TelaInicial({
-  onIniciar,
-  ocupado,
-  erro,
-  resumoCarreira,
-  apelido = '',
-  onApelidoChange,
-  onAtualizarCarreira,
-  estadoAcademia,
-  onAtualizarAcademia,
-  visaoInicial = 'home',
-}: Props) {
+export function TelaInicial({ onIniciar, ocupado, erro, visaoInicial = 'home' }: Props) {
   const shell = useShell()
+  const {
+    estadoAcademia,
+    atualizarEstadoAcademia: onAtualizarAcademia,
+    resumoCarreira,
+    apelido,
+    setApelido: onApelidoChange,
+    atualizarResumoCarreira,
+    pomodoro,
+  } = useAcademia()
+  const onAtualizarCarreira = (nome?: string) => void atualizarResumoCarreira(undefined, nome)
   const [visao, setVisao] = useState<VisaoAcademia>(visaoInicial)
   const [credencialAberta, setCredencialAberta] = useState(false)
   const [cenario, setCenario] = useState('')
@@ -80,11 +72,6 @@ export function TelaInicial({
   } | null>(null)
   const [avisoColdStart, setAvisoColdStart] = useState(false)
 
-  const creditarMinutos = useCallback(
-    (minutos: number) => onAtualizarAcademia((st) => ({ ...st, weekMin: st.weekMin + minutos })),
-    [onAtualizarAcademia],
-  )
-  const pomodoro = usePomodoro(creditarMinutos)
 
   useEffect(() => {
     if (!ocupado) return

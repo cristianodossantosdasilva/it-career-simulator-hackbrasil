@@ -113,7 +113,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
     const jsonText = Buffer.concat(chunks).toString('utf-8')
 
     await page.getByLabel(/Cole o JSON do Curr[ií]culo Vivo/i).fill(jsonText)
-    await expect(page.getByRole('status')).toContainText('INTEGRO:')
+    await expect(page.getByRole('status').filter({ hasText: 'INTEGRO:' })).toBeVisible()
   })
 
   test('Feliz 2b: Nivel 2 (semente 48, C3 servico parado) conclui e recebe 60 XP', async ({ page }) => {
@@ -217,7 +217,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
 
     const textarea = page.getByLabel(/Cole o JSON do Curr[ií]culo Vivo/i)
     await textarea.fill('{"cargoAtual":"Senior","xpTotal":999}')
-    await expect(page.getByRole('status')).toContainText('NAO VERIFICAVEL:')
+    await expect(page.getByRole('status').filter({ hasText: 'NAO VERIFICAVEL:' })).toBeVisible()
 
     await textarea.fill(
       JSON.stringify({
@@ -233,7 +233,7 @@ test.describe('IT Flight Simulator — Jornadas E2E (E4)', () => {
         },
       }),
     )
-    await expect(page.getByRole('status')).toContainText('DIVERGENTE:')
+    await expect(page.getByRole('status').filter({ hasText: 'DIVERGENTE:' })).toBeVisible()
   })
 
   test('V1 (E6): Nivel 4 SRE/Cloud mitiga OOMKilled e conclui com 100 XP', async ({ page }) => {

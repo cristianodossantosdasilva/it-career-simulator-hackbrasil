@@ -1,0 +1,331 @@
+import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { apiClient, ConflitoSeqError } from '../api/client'
+import type { CarreiraResumoResponse, ReplayResponse, SessaoProjecao } from '../api/types'
+import {
+  type EstadoAcademia,
+  carregarEstadoAcademia,
+  nivelPorCenarioId,
+  salvarEstadoAcademia,
+} from '../educacao/catalogoEducacional'
+import { usePomodoro } from '../workstation/usePomodoro'
+import {
+  type Aba,
+  ContextoAcademia,
+  ContextoVoo,
+  type MensagemTutor,
+  type ValorAcademia,
+  type ValorVoo,
+} from './contextosJornada'
+
+const STORAGE_SESSOES_KEY = 'itfs_jornada_sessoes'
+
+function carregarSessaoIdsSalvas(): string[] {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_SESSOES_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed.filter((x): x is string => typeof x === 'string') : []
+  } catch {
+    return []
+  }
+}
+
+function salvarSessaoId(id: string): string[] {
+  const atuais = carregarSessaoIdsSalvas()
+  const atualizados = atuais.includes(id) ? atuais : [...atuais, id]
+  try {
+    window.localStorage.setItem(STORAGE_SESSOES_KEY, JSON.stringify(atualizados))
+  } catch {
+    // ignore storage errors
+  }
+  return atualizados
+}
+
+/**
+ * Estado da Academia e do voo acima do Roteador, para que a sessão e o cronômetro continuem em
+ * memória quando a pessoa troca de página. A lógica veio de WorkstationInner e de TelaInicial sem mudança.
+ */
+export function ProvedorJornada({ children }: { children: ReactNode }) {
+  // Academia
+  const [estadoAcademia, setEstadoAcademia] = useState<EstadoAcademia>(() => carregarEstadoAcademia())
+  const [resumoCarreira, setResumoCarreira] = useState<CarreiraResumoResponse | null>(null)
+  const [apelido, setApelido] = useState('')
+
+  const atualizarEstadoAcademia = useCallback((updater: (prev: EstadoAcademia) => EstadoAcademia) => {
+    setEstadoAcademia((prev) => {
+      const next = updater(prev)
+      salvarEstadoAcademia(next)
+      return next
+    })
+  }, [])
+
+  const creditarMinutos = useCallback(
+    (minutos: number) => atualizarEstadoAcademia((st) => ({ ...st, weekMin: st.weekMin + minutos })),
+    [atualizarEstadoAcademia],
+  )
+  const pomodoro = usePomodoro(creditarMinutos)
+
+  // Voo
+  const [emLaboratorio, setEmLaboratorio] = useState(false)
+  const [sessaoId, setSessaoId] = useState<string | null>(null)
+  const [sessao, setSessao] = useState<SessaoProjecao | null>(null)
+  const [aba, setAba] = useState<Aba>('itsm')
+  const [gaveta, setGaveta] = useState<'notas' | 'tutor' | null>(null)
+  const [tutorMsgs, setTutorMsgs] = useState<MensagemTutor[]>([
+    { who: 'ai', text: 'Estou aqui durante o atendimento. Clique em "O que faço agora?" ou pergunte algo.' },
+  ])
+  const retomarLaboratorio = useCallback(() => setEmLaboratorio(true), [])
+  const [tutorInput, setTutorInput] = useState('')
+  const [ocupado, setOcupado] = useState(false)
+  const [aviso, setAviso] = useState<string | null>(null)
+  const [replay, setReplay] = useState<ReplayResponse | null>(null)
+  const [nivel1Passos, setNivel1Passos] = useState({ politica: false, token: false, recusado: false })
+  const [historicoTerminal, setHistoricoTerminal] = useState<
+    { cmd: string; saida: string; priv: string }[]
+  >([])
+  const [artigoKbSelecionado, setArtigoKbSelecionado] = useState<string | null>(null)
+  const [kbRetornoLinkUri, setKbRetornoLinkUri] = useState<string | null>(null)
+  const linkKbOrigemRef = useRef<HTMLElement | null>(null)
+  const kbOrigemItsmRef = useRef(false)
+
+  // Quem sai da Intranet sem fechar o artigo não volta ao ITSM numa consulta manual posterior.
+  useEffect(() => {
+    if (aba !== 'kb') kbOrigemItsmRef.current = false
+  }, [aba])
+
+  function abrirArtigoKb(artigoId: string, origem: HTMLElement) {
+    setKbRetornoLinkUri(
+      origem.getAttribute('data-kb-uri') ?? origem.getAttribute('aria-label')?.replace(/^Consultar KB: /, '') ?? null,
+    )
+    linkKbOrigemRef.current = origem
+    setArtigoKbSelecionado(artigoId)
+    setAba('kb')
+  }
+
+  /** Abre o artigo a partir do ITSM. Ao fechar o artigo, o aluno volta ao chamado. */
+  function abrirKbDoItsm(artigoId: string) {
+    setKbRetornoLinkUri(null)
+    linkKbOrigemRef.current = null
+    kbOrigemItsmRef.current = true
+    setArtigoKbSelecionado(artigoId)
+    setAba('kb')
+  }
+  function fecharArtigoKb() {
+    if (kbOrigemItsmRef.current) {
+      kbOrigemItsmRef.current = false
+      setArtigoKbSelecionado(null)
+      setAba('itsm')
+      return
+    }
+    const origem = linkKbOrigemRef.current
+    if (!origem) return
+    setAba('replay')
+    setArtigoKbSelecionado(null)
+    requestAnimationFrame(() => {
+      linkKbOrigemRef.current = null
+    })
+  }
+
+  async function atualizarResumoCarreira(ids?: string[], nome?: string) {
+    const lista = ids ?? carregarSessaoIdsSalvas()
+    if (lista.length === 0) {
+      setResumoCarreira(null)
+      return
+    }
+    try {
+      const resumo = await apiClient.obterResumoCarreira(lista, (nome ?? apelido).trim() || undefined)
+      setResumoCarreira(resumo)
+    } catch {
+      // backend pode estar reiniciando; nao bloqueia tela inicial
+    }
+  }
+
+  useEffect(() => {
+    let ativo = true
+    const lista = carregarSessaoIdsSalvas()
+    if (lista.length === 0) return
+    apiClient
+      .obterResumoCarreira(lista)
+      .then((resumo) => {
+        if (ativo) setResumoCarreira(resumo)
+      })
+      .catch(() => {
+        // backend pode estar reiniciando; nao bloqueia tela inicial
+      })
+    return () => {
+      ativo = false
+    }
+  }, [])
+
+  async function iniciarSessao(cenarioId: string, semente?: number, causaForcada?: string) {
+    setOcupado(true)
+    setAviso(null)
+    try {
+      const criada = await apiClient.criarSessao({ cenarioId, semente, causaForcada })
+      const proj = await apiClient.obterSessao(criada.sessaoId)
+      const ids = salvarSessaoId(criada.sessaoId)
+      const nivel = nivelPorCenarioId(cenarioId)
+      atualizarEstadoAcademia((prev) => ({ ...prev, focus: nivel.id }))
+      setSessaoId(criada.sessaoId)
+      setSessao(proj)
+      setEmLaboratorio(true)
+      setReplay(null)
+      setNivel1Passos({ politica: false, token: false, recusado: false })
+      setHistoricoTerminal([])
+      setTutorMsgs([
+        {
+          who: 'ai',
+          text: `Turno iniciado em ${nivel.titulo}. Se travar, pergunte "O que faço agora?".`,
+        },
+      ])
+      setAba('itsm')
+      void atualizarResumoCarreira(ids)
+    } catch (err) {
+      setAviso(err instanceof Error ? err.message : 'Erro ao iniciar sessao')
+    } finally {
+      setOcupado(false)
+    }
+  }
+
+  async function executarAcao(tipo: string, dados?: Record<string, unknown>) {
+    if (!sessaoId || !sessao) return
+    setOcupado(true)
+    setAviso(null)
+    try {
+      const res = await apiClient.executarAcao(sessaoId, tipo, sessao.ultimoSeq, dados)
+      setSessao(res.projecao)
+      if (
+        res.projecao.chamados.length > 0 &&
+        res.projecao.chamados.every((c) => c.status === 'Resolvido' || c.status === 'Encerrado')
+      ) {
+        const lvl = nivelPorCenarioId(res.projecao.meta.cenarioId)
+        atualizarEstadoAcademia((prev) =>
+          prev.labsDone.includes(lvl.id)
+            ? prev
+            : { ...prev, labsDone: [...prev.labsDone, lvl.id], xp: prev.xp + 60, weekMin: prev.weekMin + 15 },
+        )
+      }
+      for (const ev of res.eventos) {
+        if (ev.tipo === 'AcaoRejeitada') {
+          setAviso(`Acao rejeitada: ${String(ev.dados?.motivo ?? 'regra de negocio')}`)
+        } else if (ev.tipo === 'PistaSolicitada') {
+          setAviso(String(ev.dados?.texto ?? 'Pista registrada.'))
+        } else if (ev.tipo === 'DnsRegistroCorrigido') {
+          setAviso('N2 Virtual corrigiu o DNS! Eleve o privilegio e execute ipconfig /flushdns no SimuDesk.')
+        } else if (ev.tipo === 'AcessoPastaRestabelecido') {
+          setAviso('Pasta Financeiro restabelecida! Agora resolva o chamado no ITSM com nota pública.')
+        } else if (ev.tipo === 'PoliticaSegurancaConsultada') {
+          setNivel1Passos((p) => ({ ...p, politica: true }))
+          setAviso('Política KB-001 consultada: reset de senha exige validação de matrícula e ramal e token corporativo.')
+        } else if (ev.tipo === 'TokenSolicitado') {
+          setNivel1Passos((p) => ({ ...p, token: true }))
+          setAviso('Token corporativo verificado: solicitante NAO possui token valido (alerta de engenharia social!).')
+        } else if (ev.tipo === 'ResetRecusado') {
+          setNivel1Passos((p) => ({ ...p, recusado: true }))
+          setAviso('Reset fraudulento recusado com seguranca! Abra "Juiz 360º e Replay" para conferir sua avaliacao.')
+        } else if (ev.tipo === 'SenhaResetadaIndevidamente') {
+          setAviso('ALERTA: Senha resetada sem verificacao! Incidente de seguranca registrado.')
+        } else if (ev.tipo === 'ComandoExecutado' || ev.tipo === 'ComandoNaoSuportado') {
+          setHistoricoTerminal((prev) => [
+            ...prev,
+            {
+              cmd: String(ev.dados?.comando ?? ''),
+              saida: String(ev.dados?.saida ?? ''),
+              priv: String(ev.dados?.privilegio ?? sessao.estacao.privilegio),
+            },
+          ])
+        }
+      }
+    } catch (err) {
+      if (err instanceof ConflitoSeqError) {
+        const atual = await apiClient.obterSessao(sessaoId)
+        setSessao(atual)
+        setAviso(err.message)
+      } else {
+        setAviso(err instanceof Error ? err.message : 'Erro ao executar acao')
+      }
+    } finally {
+      setOcupado(false)
+    }
+  }
+
+  async function enviarChat(persona: 'cliente' | 'techlead', mensagem: string) {
+    if (!sessaoId || !sessao) return
+    setOcupado(true)
+    setAviso(null)
+    try {
+      const res = await apiClient.enviarChat(sessaoId, persona, mensagem, sessao.ultimoSeq)
+      setSessao(res.projecao)
+    } catch (err) {
+      if (err instanceof ConflitoSeqError) {
+        const atual = await apiClient.obterSessao(sessaoId)
+        setSessao(atual)
+        setAviso(err.message)
+      } else {
+        setAviso(err instanceof Error ? err.message : 'Erro no chat')
+      }
+    } finally {
+      setOcupado(false)
+    }
+  }
+
+  async function carregarReplay() {
+    if (!sessaoId) return
+    setOcupado(true)
+    try {
+      const r = await apiClient.obterReplay(sessaoId)
+      setReplay(r)
+    } catch (err) {
+      setAviso(err instanceof Error ? err.message : 'Erro ao carregar replay')
+    } finally {
+      setOcupado(false)
+    }
+  }
+
+  const valorAcademia: ValorAcademia = {
+    estadoAcademia,
+    atualizarEstadoAcademia,
+    resumoCarreira,
+    apelido,
+    setApelido,
+    atualizarResumoCarreira,
+    pomodoro,
+  }
+
+  const valorVoo: ValorVoo = {
+    sessaoId,
+    sessao,
+    emLaboratorio,
+    setEmLaboratorio,
+    retomarLaboratorio,
+    aba,
+    setAba,
+    gaveta,
+    setGaveta,
+    tutorMsgs,
+    setTutorMsgs,
+    tutorInput,
+    setTutorInput,
+    ocupado,
+    aviso,
+    setAviso,
+    replay,
+    nivel1Passos,
+    historicoTerminal,
+    artigoKbSelecionado,
+    kbRetornoLinkUri,
+    abrirArtigoKb,
+    abrirKbDoItsm,
+    fecharArtigoKb,
+    iniciarSessao,
+    executarAcao,
+    enviarChat,
+    carregarReplay,
+  }
+
+  return (
+    <ContextoAcademia.Provider value={valorAcademia}>
+      <ContextoVoo.Provider value={valorVoo}>{children}</ContextoVoo.Provider>
+    </ContextoAcademia.Provider>
+  )
+}
