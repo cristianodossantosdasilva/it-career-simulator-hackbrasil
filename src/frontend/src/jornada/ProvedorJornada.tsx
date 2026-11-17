@@ -16,6 +16,7 @@ import {
   type ValorAcademia,
   type ValorVoo,
 } from './contextosJornada'
+import { ProvedorArmazenamentoJornada } from './ProvedorArmazenamentoJornada'
 
 const STORAGE_SESSOES_KEY = 'itfs_jornada_sessoes'
 
@@ -42,10 +43,19 @@ function salvarSessaoId(id: string): string[] {
 }
 
 /**
- * Estado da Academia e do voo acima do Roteador, para que a sessão e o cronômetro continuem em
- * memória quando a pessoa troca de página. A lógica veio de WorkstationInner e de TelaInicial sem mudança.
+ * Estado da Academia, do voo e do Armazenamento_Local acima do Roteador, para que a sessão e o
+ * cronômetro continuem em memória quando a pessoa troca de página.
  */
-export function ProvedorJornada({ children }: { children: ReactNode }) {
+export function ProvedorJornada({ children, armazenamento }: { children: ReactNode; armazenamento?: Storage }) {
+  return (
+    <ProvedorArmazenamentoJornada armazenamento={armazenamento}>
+      <ProvedorAcademiaEVoo>{children}</ProvedorAcademiaEVoo>
+    </ProvedorArmazenamentoJornada>
+  )
+}
+
+/** A lógica da Academia e do voo veio de WorkstationInner e de TelaInicial sem mudança. */
+function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
   // Academia
   const [estadoAcademia, setEstadoAcademia] = useState<EstadoAcademia>(() => carregarEstadoAcademia())
   const [resumoCarreira, setResumoCarreira] = useState<CarreiraResumoResponse | null>(null)
