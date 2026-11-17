@@ -22,6 +22,35 @@ export class ConflitoSeqError extends Error {
   }
 }
 
+/** 404 (sessao_nao_encontrada) ou 410 (sessao_expirada): a sessão não existe mais no servidor. */
+export class SessaoIndisponivelError extends Error {
+  readonly status: 404 | 410
+  constructor(status: 404 | 410) {
+    super(
+      status === 410
+        ? 'Sessao expirada (TTL de 30 dias atingido). Inicie uma nova sessao.'
+        : 'Esta sessão não está mais disponível no servidor.',
+    )
+    this.status = status
+  }
+}
+
+/** Falha final de rede depois das tentativas: fetch recusado ou 502, 503 e 504 repetidos. */
+export class ErroDeRede extends Error {
+  constructor(causa: unknown) {
+    super(causa instanceof Error ? causa.message : 'Falha de rede ao falar com o servidor.', { cause: causa })
+  }
+}
+
+export type ClasseFalha = 'sessao-indisponivel' | 'rede' | 'conflito' | 'outro'
+
+export function classificarFalha(erro: unknown): ClasseFalha {
+  if (erro instanceof SessaoIndisponivelError) return 'sessao-indisponivel'
+  if (erro instanceof ErroDeRede) return 'rede'
+  if (erro instanceof ConflitoSeqError) return 'conflito'
+  return 'outro'
+}
+
 async function fetchComRetry(url: string, init?: RequestInit, tentativas = 3): Promise<Response> {
   let ultimoErro: unknown
   for (let i = 0; i < tentativas; i++) {
@@ -34,7 +63,7 @@ async function fetchComRetry(url: string, init?: RequestInit, tentativas = 3): P
     }
     await new Promise((r) => setTimeout(r, 400 * 2 ** i))
   }
-  throw ultimoErro
+  throw new ErroDeRede(ultimoErro)
 }
 
 async function getComRetry(url: string, tentativas = 3): Promise<Response> {
@@ -58,8 +87,8 @@ async function extrairErro(resp: Response): Promise<never> {
   if (resp.status === 409 && typeof ultimoSeq === 'number') {
     throw new ConflitoSeqError(ultimoSeq)
   }
-  if (resp.status === 410) {
-    throw new Error('Sessao expirada (TTL de 30 dias atingido). Inicie uma nova sessao.')
+  if (resp.status === 404 || resp.status === 410) {
+    throw new SessaoIndisponivelError(resp.status)
   }
   const msg = (data.detail as string) || (data.mensagem as string) || `Erro HTTP ${resp.status}`
   throw new Error(msg)

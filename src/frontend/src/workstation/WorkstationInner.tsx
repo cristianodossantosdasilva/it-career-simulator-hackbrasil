@@ -5,6 +5,7 @@ import { ItsmApp } from '../apps/ItsmApp/ItsmApp'
 import { SimuDeskApp } from '../apps/SimuDeskApp/SimuDeskApp'
 import { BarraSuperior, type VisaoAcademia } from '../educacao/BarraSuperior'
 import { nivelPorCenarioId, responderMentor } from '../educacao/catalogoEducacional'
+import { ehIdMissao } from '../jornada/catalogos/catalogoRotas'
 import { useAcademia, useVoo } from '../jornada/contextosJornada'
 import { obterProximaDicaMissao } from '../lab/dicaMissao'
 import { MissionGuide } from '../lab/MissionGuide'
@@ -44,15 +45,23 @@ export function WorkstationInner() {
     abrirArtigoKb,
     abrirKbDoItsm,
     fecharArtigoKb,
-    iniciarSessao,
+    abrirVoo,
     executarAcao,
     enviarChat,
     carregarReplay,
   } = useVoo()
   const [visaoAcademia, setVisaoAcademia] = useState<VisaoAcademia>('home')
 
+  // A Tela Inicial sempre abriu um turno novo. A Cabine por rota da fase 2 retoma o voo ativo.
+  async function iniciarTurnoNovo(cenarioId: string, semente?: number, causaForcada?: string) {
+    if (!ehIdMissao(cenarioId)) {
+      setAviso(`Cenário fora do catálogo de rotas: ${cenarioId}`)
+      return
+    }
+    await abrirVoo(cenarioId, { semente, causa: causaForcada, nova: true })
+  }
   if (!sessaoId || !sessao || !emLaboratorio) {
-    return <TelaInicial visaoInicial={visaoAcademia} onIniciar={iniciarSessao} ocupado={ocupado} erro={aviso} />
+    return <TelaInicial visaoInicial={visaoAcademia} onIniciar={iniciarTurnoNovo} ocupado={ocupado} erro={aviso} />
   }
   const nivelSessao = nivelPorCenarioId(sessao.meta.cenarioId)
   const paginaNotasSessao = estadoAcademia.pages.find(

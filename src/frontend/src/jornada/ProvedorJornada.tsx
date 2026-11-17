@@ -1,6 +1,6 @@
-import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
-import { apiClient, ConflitoSeqError } from '../api/client'
-import type { CarreiraResumoResponse, ReplayResponse, SessaoProjecao } from '../api/types'
+import { type ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { apiClient, classificarFalha, ConflitoSeqError } from '../api/client'
+import type { CarreiraResumoResponse, CriarSessaoRequest, ReplayResponse, SessaoProjecao } from '../api/types'
 import {
   type EstadoAcademia,
   carregarEstadoAcademia,
@@ -13,9 +13,15 @@ import {
   ContextoAcademia,
   ContextoVoo,
   type MensagemTutor,
+  type OpcoesAberturaVoo,
+  type ResultadoAberturaVoo,
   type ValorAcademia,
   type ValorVoo,
 } from './contextosJornada'
+import { type RegistroDeVoo, criarRegistro } from './armazenamento/registrosVoo'
+import { decidirInicioCabine } from './cabine/decidirInicioCabine'
+import type { IdMissao } from './catalogos/catalogoRotas'
+import { useArmazenamentoJornada } from './contextoArmazenamentoJornada'
 import { ProvedorArmazenamentoJornada } from './ProvedorArmazenamentoJornada'
 
 const STORAGE_SESSOES_KEY = 'itfs_jornada_sessoes'
@@ -167,34 +173,130 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  async function iniciarSessao(cenarioId: string, semente?: number, causaForcada?: string) {
+  const [registroRecente, setRegistroRecente] = useState<RegistroDeVoo | null>(null)
+  const [falhaRegistro, setFalhaRegistro] = useState(false)
+  /** Sessão em memória lida fora do ciclo de renderização, para a decisão de abertura da Cabine. */
+  const sessaoAtualRef = useRef<SessaoProjecao | null>(null)
+  const sessaoIdAtualRef = useRef<string | null>(null)
+  function definirSessao(id: string, proj: SessaoProjecao) {
+    sessaoIdAtualRef.current = id
+    sessaoAtualRef.current = proj
+    setSessaoId(id)
+    setSessao(proj)
+  }
+  function atualizarProjecao(proj: SessaoProjecao) {
+    sessaoAtualRef.current = proj
+    setSessao(proj)
+  }
+
+  /** Estado de cabine novo para um turno que acabou de abrir, como em iniciarSessao antes da jornada. */
+  function prepararTurno(id: string, proj: SessaoProjecao, cenarioId: string) {
+    const nivel = nivelPorCenarioId(cenarioId)
+    atualizarEstadoAcademia((prev) => ({ ...prev, focus: nivel.id }))
+    definirSessao(id, proj)
+    setEmLaboratorio(true)
+    setReplay(null)
+    setRegistroRecente(null)
+    setFalhaRegistro(false)
+    setNivel1Passos({ politica: false, token: false, recusado: false })
+    setHistoricoTerminal([])
+    setTutorMsgs([
+      {
+        who: 'ai',
+        text: `Turno iniciado em ${nivel.titulo}. Se travar, pergunte "O que faço agora?".`,
+      },
+    ])
+    setAba('itsm')
+  }
+
+  const armazenamentoJornada = useArmazenamentoJornada()
+  const aberturasEmAndamento = useRef(new Map<IdMissao, Promise<ResultadoAberturaVoo>>())
+
+  async function executarAbertura(missao: IdMissao, opcoes: OpcoesAberturaVoo): Promise<ResultadoAberturaVoo> {
+    const atual = sessaoAtualRef.current
+    const decisao = decidirInicioCabine(
+      missao,
+      atual ? { cenarioId: atual.meta.cenarioId } : null,
+      armazenamentoJornada.lerVoosAtivosAtuais(),
+      opcoes.nova,
+    )
+    if (decisao.tipo === 'usar-memoria' && sessaoIdAtualRef.current) {
+      setEmLaboratorio(true)
+      return { tipo: 'pronto', sessaoId: sessaoIdAtualRef.current, retomada: true }
+    }
     setOcupado(true)
     setAviso(null)
     try {
-      const criada = await apiClient.criarSessao({ cenarioId, semente, causaForcada })
+      if (decisao.tipo === 'retomar') {
+        const proj = await apiClient.obterSessao(decisao.sessaoId)
+        prepararTurno(decisao.sessaoId, proj, missao)
+        return { tipo: 'pronto', sessaoId: decisao.sessaoId, retomada: true }
+      }
+      // Sem semente nem Causa, o corpo leva só o identificador da Missão.
+      const pedido: CriarSessaoRequest = { cenarioId: missao }
+      if (opcoes.semente !== undefined) pedido.semente = opcoes.semente
+      if (opcoes.causa !== undefined) pedido.causaForcada = opcoes.causa
+      const criada = await apiClient.criarSessao(pedido)
       const proj = await apiClient.obterSessao(criada.sessaoId)
       const ids = salvarSessaoId(criada.sessaoId)
-      const nivel = nivelPorCenarioId(cenarioId)
-      atualizarEstadoAcademia((prev) => ({ ...prev, focus: nivel.id }))
-      setSessaoId(criada.sessaoId)
-      setSessao(proj)
-      setEmLaboratorio(true)
-      setReplay(null)
-      setNivel1Passos({ politica: false, token: false, recusado: false })
-      setHistoricoTerminal([])
-      setTutorMsgs([
-        {
-          who: 'ai',
-          text: `Turno iniciado em ${nivel.titulo}. Se travar, pergunte "O que faço agora?".`,
-        },
-      ])
-      setAba('itsm')
+      armazenamentoJornada.registrarVooAtivo(missao, criada.sessaoId)
+      prepararTurno(criada.sessaoId, proj, missao)
       void atualizarResumoCarreira(ids)
+      return { tipo: 'pronto', sessaoId: criada.sessaoId, retomada: false }
     } catch (err) {
-      setAviso(err instanceof Error ? err.message : 'Erro ao iniciar sessao')
+      const mensagem = err instanceof Error ? err.message : 'Erro ao iniciar sessao'
+      const classe = classificarFalha(err)
+      if (classe === 'sessao-indisponivel' && decisao.tipo === 'retomar') {
+        return { tipo: 'sessao-indisponivel', sessaoId: decisao.sessaoId }
+      }
+      setAviso(mensagem)
+      return classe === 'rede' ? { tipo: 'rede', mensagem } : { tipo: 'erro', mensagem }
     } finally {
       setOcupado(false)
     }
+  }
+
+  /**
+   * Abre o voo da missão: usa a sessão em memória, retoma a registrada ou cria outra. Uma promessa
+   * em andamento por missão evita que a dupla execução de efeitos do StrictMode crie duas sessões.
+   */
+  const executarAberturaRef = useRef(executarAbertura)
+  // Efeito de layout: roda antes dos efeitos comuns das páginas, que chamam abrirVoo ao montar.
+  useLayoutEffect(() => {
+    executarAberturaRef.current = executarAbertura
+  })
+  // Identidade estável, para que a página possa pôr abrirVoo na lista de dependências do efeito.
+  const abrirVoo = useCallback((missao: IdMissao, opcoes: OpcoesAberturaVoo): Promise<ResultadoAberturaVoo> => {
+    const emAndamento = aberturasEmAndamento.current.get(missao)
+    if (emAndamento) return emAndamento
+    const promessa = executarAberturaRef.current(missao, opcoes).finally(() => {
+      aberturasEmAndamento.current.delete(missao)
+    })
+    aberturasEmAndamento.current.set(missao, promessa)
+    return promessa
+  }, [])
+
+  /**
+   * Único caminho que grava Registro_de_Voo: consulta a avaliação do Juiz 360º e grava só com
+   * `concluida: true`. Falha não bloqueia o turno e pode ser tentada de novo.
+   */
+  async function registrarVooConcluido(id: string, proj: SessaoProjecao) {
+    try {
+      const avaliacao = await apiClient.obterAvaliacao(id)
+      setFalhaRegistro(false)
+      const registro = criarRegistro(id, proj, avaliacao, new Date())
+      if (!registro) return
+      armazenamentoJornada.registrarVoo(registro)
+      setRegistroRecente(registro)
+    } catch {
+      setFalhaRegistro(true)
+    }
+  }
+
+  async function tentarRegistrarDeNovo() {
+    const id = sessaoIdAtualRef.current
+    const proj = sessaoAtualRef.current
+    if (id && proj) await registrarVooConcluido(id, proj)
   }
 
   async function executarAcao(tipo: string, dados?: Record<string, unknown>) {
@@ -203,7 +305,7 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
     setAviso(null)
     try {
       const res = await apiClient.executarAcao(sessaoId, tipo, sessao.ultimoSeq, dados)
-      setSessao(res.projecao)
+      atualizarProjecao(res.projecao)
       if (
         res.projecao.chamados.length > 0 &&
         res.projecao.chamados.every((c) => c.status === 'Resolvido' || c.status === 'Encerrado')
@@ -214,6 +316,7 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
             ? prev
             : { ...prev, labsDone: [...prev.labsDone, lvl.id], xp: prev.xp + 60, weekMin: prev.weekMin + 15 },
         )
+        void registrarVooConcluido(sessaoId, res.projecao)
       }
       for (const ev of res.eventos) {
         if (ev.tipo === 'AcaoRejeitada') {
@@ -249,7 +352,7 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
     } catch (err) {
       if (err instanceof ConflitoSeqError) {
         const atual = await apiClient.obterSessao(sessaoId)
-        setSessao(atual)
+        atualizarProjecao(atual)
         setAviso(err.message)
       } else {
         setAviso(err instanceof Error ? err.message : 'Erro ao executar acao')
@@ -265,11 +368,11 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
     setAviso(null)
     try {
       const res = await apiClient.enviarChat(sessaoId, persona, mensagem, sessao.ultimoSeq)
-      setSessao(res.projecao)
+      atualizarProjecao(res.projecao)
     } catch (err) {
       if (err instanceof ConflitoSeqError) {
         const atual = await apiClient.obterSessao(sessaoId)
-        setSessao(atual)
+        atualizarProjecao(atual)
         setAviso(err.message)
       } else {
         setAviso(err instanceof Error ? err.message : 'Erro no chat')
@@ -327,7 +430,10 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
     abrirArtigoKb,
     abrirKbDoItsm,
     fecharArtigoKb,
-    iniciarSessao,
+    abrirVoo,
+    registroRecente,
+    falhaRegistro,
+    tentarRegistrarDeNovo,
     executarAcao,
     enviarChat,
     carregarReplay,
