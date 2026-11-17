@@ -3,7 +3,7 @@ import { ChatApp } from '../apps/ChatApp/ChatApp'
 import { IntranetApp } from '../apps/IntranetApp/IntranetApp'
 import { ItsmApp } from '../apps/ItsmApp/ItsmApp'
 import { SimuDeskApp } from '../apps/SimuDeskApp/SimuDeskApp'
-import { BarraSuperior, type VisaoAcademia } from '../educacao/BarraSuperior'
+import { BarraSuperiorTransicao, type VisaoAcademia } from './BarraSuperiorTransicao'
 import { nivelPorCenarioId, responderMentor } from '../educacao/catalogoEducacional'
 import { ehIdMissao } from '../jornada/catalogos/catalogoRotas'
 import { useAcademia, useVoo } from '../jornada/contextosJornada'
@@ -115,7 +115,7 @@ export function WorkstationInner() {
 
   return (
     <div className="workstation">
-      <BarraSuperior
+      <BarraSuperiorTransicao
         visaoAtual="lab"
         estado={estadoAcademia}
         xpOficial={resumoCarreira ? Math.max(resumoCarreira.xpTotal, estadoAcademia.xp) : estadoAcademia.xp}

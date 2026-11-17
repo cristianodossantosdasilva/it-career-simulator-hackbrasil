@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { AulasView } from '../educacao/AulasView'
-import { BarraSuperior, type VisaoAcademia } from '../educacao/BarraSuperior'
+import { BarraSuperiorTransicao, type VisaoAcademia } from './BarraSuperiorTransicao'
 import { CadernoView } from '../educacao/CadernoView'
 import {
   GLOSSARIO_INICIANTE,
@@ -187,7 +187,7 @@ export function TelaInicial({ onIniciar, ocupado, erro, visaoInicial = 'home' }:
         Pular para o conteúdo
       </a>
 
-      <BarraSuperior
+      <BarraSuperiorTransicao
         visaoAtual={visao}
         estado={estadoAcademia}
         xpOficial={xpExibido}
