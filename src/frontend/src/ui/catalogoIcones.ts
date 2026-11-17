@@ -6,9 +6,11 @@ import {
   Backpack,
   BookOpen,
   Briefcase,
+  CalendarClock,
   CalendarDays,
   Check,
   ChevronDown,
+  CircleCheck,
   CircleUser,
   Clock,
   Cloud,
@@ -19,6 +21,7 @@ import {
   Gauge,
   GraduationCap,
   Headset,
+  Hourglass,
   Info,
   Layers,
   Library,
@@ -98,6 +101,9 @@ export const ICONES = {
   adicionar: Plus,
   feynman: GraduationCap,
   alerta: TriangleAlert,
+  'status-disponivel': CircleCheck,
+  'status-preparacao': Hourglass,
+  'status-futuro': CalendarClock,
 } satisfies Record<string, LucideIcon>
 
 export type NomeIcone = keyof typeof ICONES

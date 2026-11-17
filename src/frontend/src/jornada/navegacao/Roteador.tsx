@@ -1,0 +1,68 @@
+import { Component, type ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { ContextoAnuncioJornada, type ValorAnuncioJornada } from './anuncioJornada'
+import { MolduraPagina } from './MolduraPagina'
+import { obterLocalAtual, reescreverEndereco, useLocalAtual } from './navegador'
+import { RegiaoAnuncioJornada } from './RegiaoAnuncioJornada'
+import { NOME_PAGINA, type RotaResolvida, caminhoCanonico, resolverEndereco } from './rotas'
+import { useTituloEFoco } from './useTituloEFoco'
+
+class LimiteErroPagina extends Component<{ children: ReactNode }, { erro: Error | null }> {
+  state = { erro: null as Error | null }
+  static getDerivedStateFromError(erro: Error) {
+    return { erro }
+  }
+  render() {
+    if (this.state.erro) {
+      return (
+        <div className="page">
+          <div className="edu-card card-b" role="alert">
+            <h2>Erro nesta página</h2>
+            <p className="alert-danger">{this.state.erro.message}</p>
+            <button type="button" className="btn btn-primary" onClick={() => this.setState({ erro: null })}>
+              Tentar de novo
+            </button>
+          </div>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
+interface PropsRoteador {
+  renderizarPagina: (rota: RotaResolvida) => ReactNode
+  /**
+   * Envolve a página em MolduraPagina (link de salto e `main#conteudo-pagina`). Na fase 1 a árvore
+   * atual já tem o próprio `main`, então o App desliga a moldura para não mudar a página.
+   */
+  comMoldura?: boolean
+}
+
+/**
+ * Lê o endereço atual, resolve a página e a renderiza dentro de um limite de erro reiniciado a cada
+ * navegação. A região viva fica fora desse limite para continuar montada entre páginas.
+ */
+export function Roteador({ renderizarPagina, comMoldura = true }: PropsRoteador) {
+  const local = useLocalAtual()
+  const rota = useMemo(() => resolverEndereco(local.caminho, local.busca), [local.caminho, local.busca])
+  useTituloEFoco(NOME_PAGINA[rota.pagina], local)
+
+  useEffect(() => {
+    const canonico = caminhoCanonico(local.caminho)
+    if (canonico !== local.caminho) reescreverEndereco(`${canonico}${local.busca}`)
+  }, [local.caminho, local.busca])
+
+  const [anuncio, setAnuncio] = useState<{ texto: string; chave: number } | null>(null)
+  const anunciar = useCallback((texto: string) => setAnuncio({ texto, chave: obterLocalAtual().chave }), [])
+  const valorAnuncio = useMemo<ValorAnuncioJornada>(() => ({ anunciar }), [anunciar])
+  const textoAnuncio = anuncio && local.chave - anuncio.chave <= 1 ? anuncio.texto : ''
+
+  const pagina = <LimiteErroPagina key={local.chave}>{renderizarPagina(rota)}</LimiteErroPagina>
+
+  return (
+    <ContextoAnuncioJornada.Provider value={valorAnuncio}>
+      <RegiaoAnuncioJornada texto={textoAnuncio} />
+      {comMoldura ? <MolduraPagina>{pagina}</MolduraPagina> : pagina}
+    </ContextoAnuncioJornada.Provider>
+  )
+}

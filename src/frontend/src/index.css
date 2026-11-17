@@ -238,6 +238,8 @@ a:focus-visible, [tabindex]:focus-visible {
   outline-offset: var(--focus-ring-offset);
 }
 
+/* Foco programático no h1 depois de trocar de página: :focus-visible não ativa após clique de mouse. */
+#conteudo-pagina h1:focus { outline: var(--focus-ring-width) solid var(--focus-ring); outline-offset: var(--focus-ring-offset); }
 /* Botões utilitários */
 .btn { font-weight: var(--font-weight-semibold); border-radius: var(--radius-md); border: 1px solid transparent; padding: 0 16px; min-height: var(--touch-target); text-decoration: none; }
 .btn-primary { background: var(--accent-primary); border-color: var(--accent-primary); color: var(--accent-contrast); }
