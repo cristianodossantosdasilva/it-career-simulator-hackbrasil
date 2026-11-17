@@ -754,6 +754,26 @@ export const GLOSSARIO_INICIANTE = [
   },
 ]
 
+/** Roteiro da Missão 0: o que fazer dentro do chamado depois que ele estiver aberto. */
+export const ETAPAS_MISSAO_ZERO = [
+  {
+    titulo: 'Leia o chamado no ITSM',
+    texto: 'Clique em Assumir chamado e confira quem pediu ajuda e qual é a urgência (SLA).',
+  },
+  {
+    titulo: 'Valide identidade no Chat',
+    texto: 'Antes de mexer no computador ou resetar senha, confirme matrícula e ramal com segurança.',
+  },
+  {
+    titulo: 'Investigue antes de alterar',
+    texto: 'Use o SimuDesk para observar pistas reais antes de trocar qualquer configuração.',
+  },
+  {
+    titulo: 'Registre nota e veja a Caixa-Preta',
+    texto: 'Documente o que fez em linguagem clara e abra o Replay para conferir acertos e melhorias.',
+  },
+]
+
 const ACADEMIA_STORAGE_KEY = 'itfs_academia_v3'
 
 export function criarEstadoInicialAcademia(): EstadoAcademia {

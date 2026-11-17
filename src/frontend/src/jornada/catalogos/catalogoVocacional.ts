@@ -189,3 +189,10 @@ export function rotuloDaResposta(pergunta: IdPerguntaCheckIn, opcaoId: string): 
   const alvo = ROTEIRO_CHECKIN.perguntas.find((item) => item.id === pergunta)
   return alvo?.opcoes.find((opcao) => opcao.id === opcaoId)?.rotulo ?? null
 }
+
+/** Convite_Copiloto: bloco informativo do Plano de voo, sem formulário e sem envio de dados. */
+export const CONVITE_COPILOTO = {
+  titulo: 'Seja copiloto do projeto',
+  texto:
+    'O IT Flight Simulator procura pessoas que queiram ajudar a escrever cenários, revisar textos e testar missões. Este convite é só informativo: não há formulário e nada sai deste navegador.',
+} as const

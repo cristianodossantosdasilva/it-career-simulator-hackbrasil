@@ -3,6 +3,7 @@ import { AulasView } from '../educacao/AulasView'
 import { BarraSuperiorTransicao, type VisaoAcademia } from './BarraSuperiorTransicao'
 import { CadernoView } from '../educacao/CadernoView'
 import {
+  ETAPAS_MISSAO_ZERO,
   GLOSSARIO_INICIANTE,
   type NivelEducacional,
   type NivelId,
@@ -29,24 +30,6 @@ interface Props {
   visaoInicial?: VisaoAcademia
 }
 
-const ETAPAS_MISSAO_ZERO = [
-  {
-    titulo: 'Leia o chamado no ITSM',
-    texto: 'Clique em Assumir chamado e confira quem pediu ajuda e qual é a urgência (SLA).',
-  },
-  {
-    titulo: 'Valide identidade no Chat',
-    texto: 'Antes de mexer no computador ou resetar senha, confirme matrícula e ramal com segurança.',
-  },
-  {
-    titulo: 'Investigue antes de alterar',
-    texto: 'Use o SimuDesk para observar pistas reais antes de trocar qualquer configuração.',
-  },
-  {
-    titulo: 'Registre nota e veja a Caixa-Preta',
-    texto: 'Documente o que fez em linguagem clara e abra o Replay para conferir acertos e melhorias.',
-  },
-]
 
 export function TelaInicial({ onIniciar, ocupado, erro, visaoInicial = 'home' }: Props) {
   const shell = useShell()
