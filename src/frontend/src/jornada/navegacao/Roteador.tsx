@@ -1,7 +1,9 @@
 import { Component, type ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { useArmazenamentoJornada } from '../contextoArmazenamentoJornada'
 import { ContextoAnuncioJornada, type ValorAnuncioJornada } from './anuncioJornada'
 import { MolduraPagina } from './MolduraPagina'
-import { obterLocalAtual, reescreverEndereco, useLocalAtual } from './navegador'
+import { navegar, obterLocalAtual, reescreverEndereco, useLocalAtual } from './navegador'
+import { type DecisaoPortao, decidirPortao } from './portoes'
 import { RegiaoAnuncioJornada } from './RegiaoAnuncioJornada'
 import { NOME_PAGINA, type RotaResolvida, caminhoCanonico, resolverEndereco } from './rotas'
 import { useTituloEFoco } from './useTituloEFoco'
@@ -30,7 +32,8 @@ class LimiteErroPagina extends Component<{ children: ReactNode }, { erro: Error 
 }
 
 interface PropsRoteador {
-  renderizarPagina: (rota: RotaResolvida) => ReactNode
+  /** Recebe a decisão do portão: os avisos de missão em preparação e de escala bloqueada ficam com a página. */
+  renderizarPagina: (rota: RotaResolvida, portao: DecisaoPortao) => ReactNode
   /**
    * Envolve a página em MolduraPagina (link de salto e `main#conteudo-pagina`). Na fase 1 a árvore
    * atual já tem o próprio `main`, então o App desliga a moldura para não mudar a página.
@@ -45,7 +48,15 @@ interface PropsRoteador {
 export function Roteador({ renderizarPagina, comMoldura = true }: PropsRoteador) {
   const local = useLocalAtual()
   const rota = useMemo(() => resolverEndereco(local.caminho, local.busca), [local.caminho, local.busca])
+  const { cartao, registros } = useArmazenamentoJornada()
+  const portao = useMemo(() => decidirPortao(rota, cartao, registros), [rota, cartao, registros])
   useTituloEFoco(NOME_PAGINA[rota.pagina], local)
+
+  // Portão sem cartão: substitui a entrada do histórico, então voltar não reabre a página negada.
+  const destinoPortao = portao.tipo === 'redirecionar' ? portao.para : null
+  useEffect(() => {
+    if (destinoPortao) navegar(destinoPortao, { substituir: true })
+  }, [destinoPortao])
 
   useEffect(() => {
     const canonico = caminhoCanonico(local.caminho)
@@ -57,7 +68,9 @@ export function Roteador({ renderizarPagina, comMoldura = true }: PropsRoteador)
   const valorAnuncio = useMemo<ValorAnuncioJornada>(() => ({ anunciar }), [anunciar])
   const textoAnuncio = anuncio && local.chave - anuncio.chave <= 1 ? anuncio.texto : ''
 
-  const pagina = <LimiteErroPagina key={local.chave}>{renderizarPagina(rota)}</LimiteErroPagina>
+  const pagina = (
+    <LimiteErroPagina key={local.chave}>{destinoPortao ? null : renderizarPagina(rota, portao)}</LimiteErroPagina>
+  )
 
   return (
     <ContextoAnuncioJornada.Provider value={valorAnuncio}>

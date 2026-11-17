@@ -1,6 +1,9 @@
 import '@testing-library/jest-dom/vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { CARTAO_DE_TESTE, criarArmazenamentoFalso } from '../../testes/armazenamentoFalso'
+import { CHAVE_CARTAO_EMBARQUE, serializarCartao } from '../armazenamento/cartaoEmbarque'
+import { ProvedorArmazenamentoJornada } from '../ProvedorArmazenamentoJornada'
 import { useAnuncioJornada } from './anuncioJornada'
 import { LinkInterno } from './LinkInterno'
 import { navegar, reiniciarLocalAtual } from './navegador'
@@ -40,7 +43,13 @@ function PaginaDeTeste({ rota }: { rota: RotaResolvida }) {
 }
 
 function renderizar() {
-  return render(<Roteador renderizarPagina={(rota) => <PaginaDeTeste rota={rota} />} />)
+  // Cartão semeado: o Plano de voo, destino do anúncio, passa pelo portão de cartão.
+  const armazenamento = criarArmazenamentoFalso({ [CHAVE_CARTAO_EMBARQUE]: serializarCartao(CARTAO_DE_TESTE) })
+  return render(
+    <ProvedorArmazenamentoJornada armazenamento={armazenamento}>
+      <Roteador renderizarPagina={(rota) => <PaginaDeTeste rota={rota} />} />
+    </ProvedorArmazenamentoJornada>,
+  )
 }
 
 beforeEach(() => {
