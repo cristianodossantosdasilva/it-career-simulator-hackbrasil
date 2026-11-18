@@ -20,8 +20,8 @@ import type { Aba } from '../contextosJornada'
 const FERRAMENTAS: readonly Aba[] = ['itsm', 'chat', 'simudesk', 'kb']
 
 /**
- * Turno de atendimento da Cabine: guia da missão, aplicativos e gavetas de notas e do Comandante. As
- * telas são as de WorkstationInner. O motor decide todo estado: aqui só saem ações do participante.
+ * Turno de atendimento da Cabine: guia da missão, aplicativos e gavetas de notas e do Comandante. O
+ * motor decide todo estado: aqui só saem ações do participante.
  */
 export function TurnoDaCabine() {
   const { estadoAcademia, atualizarEstadoAcademia } = useAcademia()

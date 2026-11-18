@@ -2,8 +2,8 @@ import { Icone } from '../../ui/Icone'
 import { useVoo } from '../contextosJornada'
 
 /**
- * Dados do turno e botões das gavetas, no cabeçalho da Cabine. Vieram do slot direito da barra de
- * contexto de WorkstationInner. Voltar para a tela inicial virou o menu: a sessão continua em memória.
+ * Dados do turno e botões das gavetas, no cabeçalho da Cabine. Sair da Cabine é pelo menu: a sessão
+ * continua em memória.
  */
 export function DadosDaSessao() {
   const { sessao, gaveta, setGaveta } = useVoo()

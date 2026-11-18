@@ -262,7 +262,6 @@ a:focus-visible, [tabindex]:focus-visible {
 button.chip { min-height: 38px; cursor: pointer; }
 
 /* ===== Shell unico: rail (desktop), barra inferior (celular) e barra de contexto ===== */
-.academia-shell { display: flex; flex-direction: column; min-height: 100vh; width: 100%; }
 .app-shell {
   min-height: 100vh;
   min-height: 100dvh;
@@ -938,8 +937,6 @@ a.dock-btn { text-decoration: none; }
 }
 
 /* ===== Home: Primeiro Voo, missoes, perfil e credencial ===== */
-.page-avisos { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-4); }
-.page-avisos .alert-danger { margin-bottom: 0; }
 
 .primeiro-voo {
   display: grid;
@@ -977,69 +974,6 @@ a.dock-btn { text-decoration: none; }
 .fluxo-estado { display: inline-flex; align-items: center; gap: var(--space-1); margin-top: var(--space-1); font-size: var(--font-size-sm); color: var(--text-muted); }
 .fluxo-estado.concluido { color: var(--status-success-text); }
 
-.missoes { background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); }
-.missoes-cabecalho { padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--border-subtle); }
-.missoes-lista { display: flex; flex-direction: column; }
-.missao-linha {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 150px auto;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-2) var(--space-4);
-  border-top: 1px solid var(--border-subtle);
-}
-.missao-linha:first-child { border-top: 0; }
-.missao-escolha {
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: var(--space-3);
-  width: 100%;
-  min-height: var(--touch-target);
-  padding: var(--space-3);
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
-  color: inherit;
-  text-align: left;
-}
-.missao-escolha:hover:not(:disabled) { background: transparent; border-color: var(--border-control); }
-.missao-escolha.selected,
-.missao-escolha.selected:hover:not(:disabled) { background: var(--bg-elevated); border-color: var(--accent-primary); box-shadow: inset 3px 0 0 var(--accent-primary); }
-.missao-numero {
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--border-strong);
-  border-radius: 50%;
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-}
-.missao-escolha.selected .missao-numero { background: var(--accent-primary); border-color: var(--accent-primary); color: var(--accent-contrast); }
-.missao-texto { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.missao-texto > span { display: block; }
-.missao-cargo { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--text-secondary); }
-.missao-titulo { font-weight: var(--font-weight-semibold); color: var(--text-primary); }
-.missao-desc { font-size: var(--font-size-sm); color: var(--text-secondary); }
-.missao-competencias { font-size: var(--font-size-xs); color: var(--text-muted); }
-.missao-estado { min-width: 0; }
-.missao-situacao { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--text-secondary); }
-.missao-situacao.concluida { color: var(--status-success-text); }
-.missao-progresso { margin-top: 2px; font-size: var(--font-size-sm); color: var(--text-muted); }
-.missao-acoes { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.missoes-lancamento {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding: var(--space-4) var(--space-5);
-  border-top: 1px solid var(--border-subtle);
-}
-.missoes-lancamento .field-stack { flex: 0 1 280px; }
-.missoes-lancamento-acoes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 
 ol.steps-grid { margin-bottom: 0; padding: 0; list-style: none; }
 
@@ -1077,16 +1011,12 @@ ol.steps-grid { margin-bottom: 0; padding: 0; list-style: none; }
 @media (max-width: 1023.98px) {
   .primeiro-voo { grid-template-columns: minmax(0, 1fr); gap: var(--space-5); padding: var(--space-5); }
   .fluxo { padding: var(--space-4) 0 0; border-top: 1px solid var(--border-subtle); border-left: 0; }
-  .missao-linha { grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
-  .missao-estado, .missao-acoes { padding-left: var(--space-3); }
   .credencial-grade { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 479.98px) {
   .primeiro-voo { padding: var(--space-4); }
   .primeiro-voo-titulo { font-size: var(--font-size-xl); }
-  .primeiro-voo-acoes .btn, .missoes-lancamento-acoes .btn { width: 100%; }
-  .missoes-lancamento { padding: var(--space-4); }
-  .missoes-lancamento .field-stack { flex: 1 1 100%; }
+  .primeiro-voo-acoes .btn { width: 100%; }
 }
 
 .panel { background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 12px; padding: 1.15rem; box-shadow: var(--shadow-card); min-width: 0; }

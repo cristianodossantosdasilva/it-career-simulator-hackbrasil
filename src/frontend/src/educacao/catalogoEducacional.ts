@@ -906,10 +906,6 @@ export function calcularProgressoNivel(estado: EstadoAcademia, id: NivelId) {
   return { t, f, p }
 }
 
-export function primeiraAulaNivel(estado: EstadoAcademia, id: NivelId): string {
-  const ls = LESSONS[id]
-  return (ls.find((l) => !estado.lessonsDone.includes(l.id)) ?? ls[0]).id
-}
 
 export function obterProximaAcao(estado: EstadoAcademia) {
   for (const L of LEVELS) {

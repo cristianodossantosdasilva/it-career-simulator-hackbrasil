@@ -60,7 +60,7 @@ export function ProvedorJornada({ children, armazenamento }: { children: ReactNo
   )
 }
 
-/** A lógica da Academia e do voo veio de WorkstationInner e de TelaInicial sem mudança. */
+/** Estado da Academia e do voo em memória, compartilhado pelas páginas por rota. */
 function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
   // Academia
   const [estadoAcademia, setEstadoAcademia] = useState<EstadoAcademia>(() => carregarEstadoAcademia())
