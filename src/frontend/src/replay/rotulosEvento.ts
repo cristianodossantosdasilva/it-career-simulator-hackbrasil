@@ -48,6 +48,28 @@ const EVENTOS: Record<string, RotuloEvento> = {
   AcessoPastaRestabelecido: { rotulo: 'Acesso à pasta restabelecido', origem: 'simudesk' },
   DnsRegistroCorrigido: { rotulo: 'Registro DNS corrigido', origem: 'simudesk' },
   FirewallDesativado: { rotulo: 'Firewall desativado', origem: 'simudesk', risco: true },
+  // Reset e desbloqueio de conta (reset-senha-desbloqueio).
+  TitularContatado: { rotulo: 'Titular contatada pelo ramal cadastrado', origem: 'simudesk' },
+  AcaoSensivelSemVerificacao: { rotulo: 'Ação sensível sem identidade verificada', origem: 'seguranca', risco: true },
+  AcaoDesnecessariaRegistrada: { rotulo: 'Ação desnecessária registrada', origem: 'simudesk' },
+  OrigemBloqueioIdentificada: { rotulo: 'Origem do bloqueio identificada', origem: 'simudesk' },
+  SenhaTemporariaDefinida: { rotulo: 'Senha temporária definida', origem: 'simudesk' },
+  ContaDesbloqueada: { rotulo: 'Conta desbloqueada', origem: 'simudesk' },
+  ContaBloqueadaNovamente: { rotulo: 'Conta bloqueada de novo', origem: 'simudesk', risco: true },
+  SenhaTrocadaPelaPessoa: { rotulo: 'Senha trocada pela própria titular', origem: 'simudesk' },
+  OrientacaoRegistrada: { rotulo: 'Orientação à titular registrada', origem: 'simudesk' },
+  AcessoContaRestabelecido: { rotulo: 'Acesso da conta restabelecido', origem: 'simudesk' },
+  // Pedido de mapeamento de unidade de rede (pasta-rede-inacessivel).
+  UnidadeRedeMapeada: { rotulo: 'Unidade de rede mapeada', origem: 'simudesk' },
+  // Backup e restauração (falha-backup-restore).
+  RepositorioExpandido: { rotulo: 'Repositório de backup expandido', origem: 'simudesk' },
+  BackupConcluido: { rotulo: 'Backup concluído', origem: 'simudesk' },
+  PastaFinanceiroRestaurada: { rotulo: 'Pasta Financeiro restaurada', origem: 'simudesk' },
+  // Falha de fornecedor externo (incidente-massivo).
+  EvidenciaExternaConfirmada: { rotulo: 'Evidência da falha externa confirmada', origem: 'simudesk' },
+  AreaAcionada: { rotulo: 'Área ou fornecedor acionado', origem: 'simudesk' },
+  AcompanhamentoRegistrado: { rotulo: 'Acompanhamento do fornecedor registrado', origem: 'simudesk' },
+  ServicoExternoRestabelecido: { rotulo: 'Serviço externo restabelecido', origem: 'simudesk' },
   AcaoRejeitada: { rotulo: 'Ação rejeitada pelo motor', origem: 'sistema' },
 }
 

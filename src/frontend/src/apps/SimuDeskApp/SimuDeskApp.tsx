@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import type { SessaoProjecao } from '../../api/types'
 import { TEXTOS_WORKSTATION } from '../../textos/workstation'
+import { semAcessoRemoto, servicoExterno } from '../../lab/estadoDoCenario'
 import { Icone } from '../../ui/Icone'
 
 const T = TEXTOS_WORKSTATION.simudesk
@@ -97,12 +98,49 @@ function descreverAmbiente(cenarioId: string): string {
     case 'diagnostico-sql-readonly':
       return 'Console SQL do banco de pedidos, somente leitura'
     case 'incidente-massivo':
-      return 'Estação Windows do financeiro, com o serviço AuroraGateway'
+      return 'Estação Windows do financeiro, com serviços internos e acesso a fornecedores'
+    case 'reset-senha-desbloqueio':
+      return 'Console do diretório da Aurora, com contas e ramais'
+    case 'falha-backup-restore':
+      return 'Servidor de backup do Financeiro, com repositório e job diário'
     default:
       return 'Estação Windows corporativa'
   }
 }
 
+function descreverConsole(cenarioId: string): { rotulo: string; host: string } {
+  switch (cenarioId) {
+    case 'reset-senha-desbloqueio':
+      return { rotulo: T.consoleDiretorio, host: 'dc.aurora.local' }
+    case 'falha-backup-restore':
+      return { rotulo: T.consoleBackup, host: 'bkp-repo.aurora.local' }
+    default:
+      return { rotulo: T.estacaoRemota, host: 'EST-FIN-042' }
+  }
+}
+/**
+ * Argumento que o botão de comando já preenche. Só o que o chamado ou o próprio comando mostram: a pessoa
+ * do chamado e o host do diagnóstico. Nada que indique a Causa ou a ação corretiva.
+ */
+function comandoSugerido(cenarioId: string, cmd: string): string {
+  if (cmd === 'nslookup' || cmd === 'ping') return `${cmd} fileserver.aurora.local`
+  if (cenarioId === 'reset-senha-desbloqueio' && cmd !== 'discar') return `${cmd} fernanda.lima`
+  return cmd
+}
+function placeholderDoTerminal(cenarioId: string): string {
+  switch (cenarioId) {
+    case 'sre-cloud-latencia':
+      return 'Ex: kubectl get pods, kubectl logs...'
+    case 'diagnostico-sql-readonly':
+      return 'Ex: SELECT * FROM pedidos LIMIT 10'
+    case 'reset-senha-desbloqueio':
+      return 'Ex: diretorio, net user...'
+    case 'falha-backup-restore':
+      return 'Ex: backup status, backup log...'
+    default:
+      return 'Ex: whoami /groups, nslookup...'
+  }
+}
 function SrePainelCluster({ cluster, elevado, ocupado, onAcao }: { cluster: ClusterState; elevado: boolean; ocupado: boolean; onAcao: (tipo: string, dados?: Record<string, unknown>) => Promise<void> }) {
   const poolCritico = cluster.pgbouncerPool.ativas > 90 || cluster.pgbouncerPool.espera > 20
   const tlsCritico = !cluster.ingressTls.valido
@@ -213,7 +251,7 @@ function SqlPainelSchema({ schema }: { schema: TableSchema[] }) {
 }
 
 export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocupado }: Props) {
-  const [conectado, setConectado] = useState(false)
+  const [conectadoPeloAluno, setConectado] = useState(false)
   const [idInput, setIdInput] = useState('')
   const [pinInput, setPinInput] = useState('')
   const [comando, setComando] = useState('')
@@ -227,6 +265,14 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
 
   const elevado = sessao.estacao.privilegio === 'Elevado'
   const cenarioId = sessao.meta.cenarioId
+  // Sem acesso remoto (reset-senha-desbloqueio), o console do diretório já abre conectado.
+  const conectado = conectadoPeloAluno || semAcessoRemoto(cenarioId)
+  const alvo = descreverConsole(cenarioId)
+  const externo = servicoExterno(sessao)
+  // Nenhum comando do console do diretório exige prompt elevado.
+  const exigeElevacao = cenarioId !== 'reset-senha-desbloqueio'
+  // O botão de grupo só faz sentido para a pasta do Financeiro; reset e backup não usam grupos.
+  const oferecePastaFinanceiro = cenarioId !== 'reset-senha-desbloqueio' && cenarioId !== 'falha-backup-restore'
   const isSreCenario = cenarioId === 'sre-cloud-latencia'
   const isSqlCenario = cenarioId === 'diagnostico-sql-readonly'
 
@@ -295,13 +341,13 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
   }
 
   return (
-    <section className="panel simudesk" aria-label="Estação remota EST-FIN-042">
+    <section className="panel simudesk" aria-label={`${alvo.rotulo} ${alvo.host}`}>
       <header className="simudesk-topo">
         <div className="simudesk-host">
           <h2>
             <Icone nome="remoto" tamanho={20} />
             <span>
-              Estação remota <span className="dado-mono">EST-FIN-042</span>
+              {alvo.rotulo} <span className="dado-mono">{alvo.host}</span>
             </span>
           </h2>
           <dl className="simudesk-meta">
@@ -322,7 +368,19 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
                   <Estado estado={elevado ? 'atencao' : 'neutro'}>
                     Contexto: {elevado ? 'prompt elevado (admin)' : T.usuarioPadrao}
                   </Estado>
-                  {cenarioId === 'incidente-massivo' ? (
+                  {cenarioId === 'reset-senha-desbloqueio' ? (
+                    <Estado estado={sessao.estacao.compartilhamentoAcessivel ? 'ok' : 'perigo'}>
+                      {T.acessoDaConta(sessao.estacao.compartilhamentoAcessivel)}
+                    </Estado>
+                  ) : cenarioId === 'falha-backup-restore' ? (
+                    <Estado estado={sessao.estacao.compartilhamentoAcessivel ? 'ok' : 'perigo'}>
+                      {T.backupFinanceiro(sessao.estacao.compartilhamentoAcessivel)}
+                    </Estado>
+                  ) : cenarioId === 'incidente-massivo' && externo ? (
+                    <Estado estado={externo.status === 'Restabelecido' ? 'ok' : 'perigo'}>
+                      {externo.nome}: {externo.status}
+                    </Estado>
+                  ) : cenarioId === 'incidente-massivo' ? (
                     <Estado
                       estado={sessao.estacao.servicos.some((s) => s.nome === 'AuroraGateway' && s.status === 'Running') ? 'ok' : 'perigo'}
                     >
@@ -343,21 +401,23 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
               </dd>
             </div>
           </dl>
-          {!elevado && (
+          {!elevado && exigeElevacao && (
             <span id="simudesk-requer-admin" className="simudesk-aviso">
               {T.requerPromptElevado}
             </span>
           )}
         </div>
         <div className="actions-bar simudesk-acoes">
-          <button
-            type="button"
-            className="btn-neutro"
-            disabled={ocupado}
-            onClick={() => onAcao(elevado ? 'estacao.reduzir_privilegio' : 'estacao.elevar_privilegio')}
-          >
-            {elevado ? 'Voltar para usuário padrão' : T.elevarPrivilegio}
-          </button>
+          {exigeElevacao && (
+            <button
+              type="button"
+              className="btn-neutro"
+              disabled={ocupado}
+              onClick={() => onAcao(elevado ? 'estacao.reduzir_privilegio' : 'estacao.elevar_privilegio')}
+            >
+              {elevado ? 'Voltar para usuário padrão' : T.elevarPrivilegio}
+            </button>
+          )}
           <button type="button" aria-pressed={subAba === 'terminal'} className={subAba === 'terminal' ? 'btn-primary' : ''} onClick={() => setSubAba('terminal')}>
             {T.terminal}
           </button>
@@ -370,7 +430,7 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
       {subAba === 'terminal' ? (
         <div className="terminal-shell" data-theme="tactical">
           <div className="terminal-header">
-            <span className="dado-mono">simudesk@EST-FIN-042 ({elevado ? 'admin elevado' : 'usuário'})</span>
+            <span className="dado-mono">simudesk@{alvo.host} ({elevado ? 'admin elevado' : 'usuário'})</span>
             <button type="button" className="btn-comando" disabled={ocupado} onClick={() => onAcao('estacao.ler_logs')}>
               {T.lerLogs}
             </button>
@@ -399,7 +459,7 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
                 key={cmd}
                 type="button"
                 className="btn-comando"
-                onClick={() => sugerirComando(cmd === 'nslookup' || cmd === 'ping' ? `${cmd} fileserver.aurora.local` : cmd)}
+                onClick={() => sugerirComando(comandoSugerido(cenarioId, cmd))}
               >
                 {cmd}
               </button>
@@ -435,7 +495,7 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
               ref={comandoInputRef}
               aria-label="Comando do terminal"
               aria-describedby="terminal-dica"
-              placeholder={isSreCenario ? 'Ex: kubectl get pods, kubectl logs...' : isSqlCenario ? 'Ex: SELECT * FROM pedidos LIMIT 10' : 'Ex: whoami /groups, nslookup...'}
+              placeholder={placeholderDoTerminal(cenarioId)}
               value={comando}
               onChange={(e) => setComando(e.target.value)}
             />
@@ -459,21 +519,23 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
                 <strong>{u}:</strong> <span>{grupos.join(', ')}</span>
               </div>
             ))}
-            <button
-              type="button"
-              className="btn-neutro"
-              disabled={ocupado || !elevado}
-              aria-describedby={!elevado ? 'simudesk-requer-admin' : undefined}
-              aria-label="Adicionar maria.souza ao grupo GRP_FINANCEIRO_PASTA"
-              onClick={() =>
-                onAcao('estacao.adicionar_usuario_grupo', {
-                  usuario: 'maria.souza',
-                  grupo: 'GRP_FINANCEIRO_PASTA',
-                })
-              }
-            >
-              Adicionar maria.souza em GRP_FINANCEIRO_PASTA
-            </button>
+            {oferecePastaFinanceiro && (
+              <button
+                type="button"
+                className="btn-neutro"
+                disabled={ocupado || !elevado}
+                aria-describedby={!elevado ? 'simudesk-requer-admin' : undefined}
+                aria-label="Adicionar maria.souza ao grupo GRP_FINANCEIRO_PASTA"
+                onClick={() =>
+                  onAcao('estacao.adicionar_usuario_grupo', {
+                    usuario: 'maria.souza',
+                    grupo: 'GRP_FINANCEIRO_PASTA',
+                  })
+                }
+              >
+                Adicionar maria.souza em GRP_FINANCEIRO_PASTA
+              </button>
+            )}
             {Object.values(sessao.estacao.gruposPorUsuario).every((grupos) => grupos.length === 0) && <p className="muted">{T.semGrupos}</p>}
           </div>
 
@@ -484,7 +546,7 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
                 <span>
                   {s.nome}: <strong>{s.status}</strong>
                 </span>
-                {s.status !== 'Running' && (
+                {s.status === 'Stopped' && (
                   <button
                     type="button"
                     className="btn-neutro"

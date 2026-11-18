@@ -1,4 +1,5 @@
 import type { SessaoProjecao } from '../api/types'
+import { chamadoFechado, incidenteMassivoRestabelecido } from './estadoDoCenario'
 
 export type FerramentaLab = 'itsm' | 'chat' | 'simudesk'
 
@@ -38,7 +39,6 @@ function primeiroChamado(ctx: ContextoRoteiro) {
   return ctx.sessao.chamados[0]
 }
 
-const chamadoFechado = (status: string | undefined) => status === 'Resolvido' || status === 'Encerrado'
 
 const assumirChamado: PassoRoteiro = {
   id: 'assumir',
@@ -64,6 +64,52 @@ const resolverChamado: PassoRoteiro = {
   concluido: (ctx) => chamadoFechado(primeiroChamado(ctx)?.status),
 }
 
+const roteiroResetSenha: Roteiro = {
+  objetivo:
+    'Uma pessoa não consegue usar a conta. Confirme quem pede e quem é a dona da conta, entenda o estado dela e use a menor ação que resolve.',
+  passos: [
+    assumirChamado,
+    {
+      id: 'identidade-titular',
+      titulo: 'Confirmar a identidade da dona da conta',
+      detalhe:
+        'Quem pede nem sempre é a dona da conta. Use o ramal do diretório e valide matrícula e ramal no Comunicador.',
+      ferramenta: 'chat',
+      concluido: (ctx) => ctx.sessao.dialogo.identidadeValidada,
+    },
+    {
+      id: 'agir-no-console',
+      titulo: 'Consultar a conta e agir no console',
+      detalhe: 'No SimuDesk, veja o estado da conta e escolha a menor ação que resolve o sintoma.',
+      ferramenta: 'simudesk',
+      concluido: (ctx) => ctx.sessao.estacao.compartilhamentoAcessivel,
+    },
+    {
+      ...resolverChamado,
+      detalhe: 'Registre o que foi feito e por que foi a menor ação, em linguagem clara para quem pediu.',
+    },
+  ],
+}
+const roteiroBackup: Roteiro = {
+  objetivo:
+    'O backup do Financeiro falhou ou a pasta não abre. Diagnostique pelo log, compare repositório e cadeia e só então corrija.',
+  passos: [
+    assumirChamado,
+    validarIdentidade,
+    {
+      id: 'corrigir-backup',
+      titulo: 'Diagnosticar e corrigir no SimuDesk',
+      detalhe:
+        'Comece pelo estado do job e pelo log. Operações de backup exigem privilégio elevado e apagar pontos de restauração não é atalho.',
+      ferramenta: 'simudesk',
+      concluido: (ctx) => ctx.sessao.estacao.compartilhamentoAcessivel,
+    },
+    {
+      ...resolverChamado,
+      detalhe: 'Confirme com o dono da pasta e registre o que foi feito, em linguagem clara.',
+    },
+  ],
+}
 const ROTEIROS: Record<string, Roteiro> = {
   'triagem-engenharia-social': {
     objetivo: 'Um suposto diretor pede reset de senha sem token. Proteja a empresa seguindo a política.',
@@ -120,16 +166,15 @@ const ROTEIROS: Record<string, Roteiro> = {
       validarIdentidade,
       {
         id: 'servico',
-        titulo: 'Restaurar o serviço AuroraGateway',
-        detalhe: 'Investigue logs e serviços no SimuDesk antes de alterar.',
+        titulo: 'Investigar e restabelecer o serviço afetado',
+        detalhe: 'Reúna evidências com os comandos do SimuDesk antes de alterar ou acionar alguém.',
         ferramenta: 'simudesk',
-        concluido: (ctx) =>
-          ctx.sessao.estacao.servicos.some((s) => s.nome === 'AuroraGateway' && s.status === 'Running'),
+        concluido: (ctx) => incidenteMassivoRestabelecido(ctx.sessao),
       },
       {
         id: 'causa-raiz',
-        titulo: 'Registrar a causa raiz e resolver em lote',
-        detalhe: 'Descreva a causa no Problema e resolva os chamados vinculados.',
+        titulo: 'Comunicar, registrar a causa raiz e resolver em lote',
+        detalhe: 'Informe os solicitantes com nota pública, descreva a causa no Problema e resolva os chamados vinculados.',
         ferramenta: 'itsm',
         concluido: (ctx) => ctx.sessao.problemas.some((p) => p.resolvido),
       },
@@ -154,6 +199,8 @@ const ROTEIROS: Record<string, Roteiro> = {
       },
     ],
   },
+  'reset-senha-desbloqueio': roteiroResetSenha,
+  'falha-backup-restore': roteiroBackup,
   'diagnostico-sql-readonly': {
     objetivo: 'Auditoria de dados com acesso somente leitura. Consulte, sem escrever, e conclua o diagnóstico.',
     passos: [
@@ -169,14 +216,19 @@ const ROTEIROS: Record<string, Roteiro> = {
 }
 
 const ROTEIRO_PADRAO: Roteiro = {
-  objetivo: 'Uma pasta de rede ficou inacessível. Valide a identidade, investigue e corrija a causa raiz.',
+  objetivo:
+    'Uma pasta de rede ficou inacessível, ou o chamado pede um acesso. Valide a identidade, investigue e atenda o que o chamado exige.',
   passos: [
-    assumirChamado,
+    {
+      ...assumirChamado,
+      detalhe:
+        'Abra o chamado na fila do ITSM, confira solicitante, urgência e SLA e classifique: incidente ou solicitação de serviço.',
+    },
     validarIdentidade,
     {
       id: 'corrigir',
-      titulo: 'Diagnosticar e corrigir a causa raiz',
-      detalhe: 'Investigue no SimuDesk antes de alterar qualquer configuração.',
+      titulo: 'Diagnosticar e corrigir no SimuDesk',
+      detalhe: 'Investigue no SimuDesk antes de alterar qualquer configuração e atenda o que o chamado pede.',
       ferramenta: 'simudesk',
       concluido: (ctx) => ctx.sessao.estacao.compartilhamentoAcessivel,
     },

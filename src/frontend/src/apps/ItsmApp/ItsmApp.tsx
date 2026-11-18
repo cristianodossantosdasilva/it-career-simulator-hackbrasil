@@ -37,6 +37,8 @@ function chamadoEncerrado(c: ChamadoDto) {
   return c.status === 'Resolvido' || c.status === 'Encerrado'
 }
 
+/** Nota pública da resolução em lote quando a pessoa não escreve a dela: serve a qualquer causa do incidente. */
+const NOTA_LOTE_PADRAO = 'Serviço restabelecido e chamados vinculados normalizados.'
 export function ItsmApp({ sessao, onAcao, ocupado, onAbrirKb }: Props) {
   const [selecionadoId, setSelecionadoId] = useState<string>(sessao.chamados[0]?.id ?? 'CH-0001')
   const [categoria, setCategoria] = useState('Acesso a Rede')
@@ -45,7 +47,8 @@ export function ItsmApp({ sessao, onAcao, ocupado, onAbrirKb }: Props) {
   const [notaTexto, setNotaTexto] = useState('')
   const [notaTipo, setNotaTipo] = useState<'Interna' | 'Publica'>('Interna')
   const [notaResolucao, setNotaResolucao] = useState('')
-  const [tituloProblema, setTituloProblema] = useState('Queda ERP apos atualizacao')
+  const [tituloProblema, setTituloProblema] = useState('Falha simultanea em varios chamados')
+  const [notaLote, setNotaLote] = useState('')
   const [causaRaiz, setCausaRaiz] = useState('')
 
   const chamado: ChamadoDto | undefined =
@@ -396,7 +399,7 @@ export function ItsmApp({ sessao, onAcao, ocupado, onAbrirKb }: Props) {
                       </div>
                       <div className="form-row">
                         <input
-                          placeholder="Causa raiz (ex: AuroraGateway parou após atualização)"
+                          placeholder="Causa raiz (componente afetado e o que provocou a falha)"
                           value={causaRaiz}
                           onChange={(e) => setCausaRaiz(e.target.value)}
                         />
@@ -410,6 +413,14 @@ export function ItsmApp({ sessao, onAcao, ocupado, onAbrirKb }: Props) {
                         </button>
                       </div>
                       {!p.resolvido && (
+                        <input
+                          aria-label="Nota pública da resolução em lote"
+                          placeholder={NOTA_LOTE_PADRAO}
+                          value={notaLote}
+                          onChange={(e) => setNotaLote(e.target.value)}
+                        />
+                      )}
+                      {!p.resolvido && (
                         <button
                           type="button"
                           className="btn-primary"
@@ -417,7 +428,7 @@ export function ItsmApp({ sessao, onAcao, ocupado, onAbrirKb }: Props) {
                           onClick={() =>
                             onAcao('itsm.resolver_problema', {
                               problemaId: p.id,
-                              notaPublica: 'Servico AuroraGateway restaurado e ERP normalizado.',
+                              notaPublica: notaLote.trim() || NOTA_LOTE_PADRAO,
                             })
                           }
                         >

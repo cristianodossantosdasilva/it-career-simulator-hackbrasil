@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { SessaoProjecao } from '../../api/types'
 import { TEXTOS_WORKSTATION } from '../../textos/workstation'
+import { primeiroNomeDoCliente, semAcessoRemoto } from '../../lab/estadoDoCenario'
 import { Icone, type NomeIcone } from '../../ui/Icone'
 
 const T = TEXTOS_WORKSTATION.chat
@@ -20,10 +21,20 @@ export function ChatApp({ sessao, onChat, onAcao, ocupado }: Props) {
   const [tentouValidar, setTentouValidar] = useState(false)
   const cenario = sessao.meta.cenarioId
   const solicitante = sessao.chamados[0]?.solicitante ?? 'Maria'
+  const nomeCliente = primeiroNomeDoCliente(sessao)
+  const consoleDireto = semAcessoRemoto(cenario)
   const perguntasRapidas = cenario === 'sre-cloud-latencia'
     ? persona === 'cliente'
       ? ['Quando a lentidão começou?', 'O que acontece com os pedidos?', 'Há impacto para Operações?']
       : ['Como comparar pods e reinícios?', 'O que observar no pool e no TLS?', 'Como estruturar o post-mortem?']
+    : cenario === 'reset-senha-desbloqueio'
+      ? persona === 'cliente'
+        ? ['Qual erro aparece?', 'Quando começou?', 'Pode informar matrícula e ramal?']
+        : ['Como confirmo quem é a dona da conta?', 'Qual é a menor ação que resolve?', 'O que registrar no chamado?']
+    : cenario === 'falha-backup-restore'
+      ? persona === 'cliente'
+        ? ['O que o fechamento precisa hoje?', 'Quando a pasta abriu pela última vez?', 'Pode informar matrícula e ramal?']
+        : ['Por onde começo o diagnóstico do job?', 'Como comparar repositório e cópias?', 'O que preservar antes de restaurar?']
     : cenario === 'diagnostico-sql-readonly'
       ? persona === 'cliente'
         ? ['Qual relatório diverge?', 'Há registros de auditoria?', 'Posso investigar em modo somente leitura?']
@@ -35,7 +46,7 @@ export function ChatApp({ sessao, onChat, onAcao, ocupado }: Props) {
   const liberado = sessao.dialogo.acessoRemotoLiberado
   const confirmada = liberado || sessao.dialogo.identidadeValidada
   const estadoVerificacao: { icone: NomeIcone; estado: 'ok' | 'neutro' | 'atencao'; rotulo: string; texto: string } = confirmada
-    ? { icone: 'verificar', estado: 'ok', rotulo: 'Verificada', texto: 'Identidade confirmada; o acesso remoto está liberado.' }
+    ? { icone: 'verificar', estado: 'ok', rotulo: 'Verificada', texto: liberado ? 'Identidade confirmada; o acesso remoto está liberado.' : 'Identidade da titular confirmada; as ações sensíveis estão liberadas no console.' }
     : tentouValidar
       ? { icone: 'alerta', estado: 'atencao', rotulo: 'Não confirmada', texto: 'Identidade ainda não confirmada. Confira matrícula e ramal e tente novamente.' }
       : { icone: 'relogio', estado: 'neutro', rotulo: 'Pendente', texto: 'Aguardando triagem do chamado e validação de matrícula e ramal.' }
@@ -52,7 +63,7 @@ export function ChatApp({ sessao, onChat, onAcao, ocupado }: Props) {
               className={persona === 'cliente' ? 'btn-primary' : ''}
               onClick={() => setPersona('cliente')}
             >
-              {T.clienteMaria}
+              {nomeCliente === 'Maria' ? T.clienteMaria : T.cliente(nomeCliente)}
             </button>
             <button
               type="button"
@@ -77,7 +88,7 @@ export function ChatApp({ sessao, onChat, onAcao, ocupado }: Props) {
             sessao.dialogo.mensagens.map((m) => (
               <div key={m.seq} className={`chat-msg msg-${m.remetente}`}>
                 <span className="chat-sender">
-                  {m.remetente === 'analista' ? 'Você' : m.remetente === 'techlead' ? 'Tech Lead' : 'Maria'}
+                  {m.remetente === 'analista' ? 'Você' : m.remetente === 'techlead' ? 'Tech Lead' : nomeCliente}
                   <span className="chat-minuto dado-mono">minuto {m.minutoSimulado}</span>
                 </span>
                 <p>{m.conteudo}</p>
@@ -145,6 +156,11 @@ export function ChatApp({ sessao, onChat, onAcao, ocupado }: Props) {
               <div>ID SimuDesk: <code>{sessao.dialogo.idAcessoRemoto}</code></div>
               <div>PIN: <code>{sessao.dialogo.pinAcessoRemoto}</code></div>
             </div>
+          ) : sessao.dialogo.identidadeValidada ? (
+            <div className="alert-success" role="status">
+              <strong>{T.identidadeVerificada}</strong>
+              <div>As ações sensíveis estão liberadas no console do SimuDesk.</div>
+            </div>
           ) : (
             <>
               <p role="status" aria-live="polite" className="chat-verificacao-texto">
@@ -159,14 +175,18 @@ export function ChatApp({ sessao, onChat, onAcao, ocupado }: Props) {
                   await onAcao('dialogo.verificar_identidade', { matricula, ramal })
                 }}
               >
-                <p className="muted">Assuma o chamado no ITSM e valide matrícula e ramal da usuária para liberar o acesso remoto.</p>
+                <p className="muted">
+                  {consoleDireto
+                    ? 'Assuma o chamado no ITSM e valide matrícula e ramal da titular da conta para liberar as ações sensíveis no console.'
+                    : 'Assuma o chamado no ITSM e valide matrícula e ramal da usuária para liberar o acesso remoto.'}
+                </p>
                 <label>
                   Matrícula
-                  <input aria-label="Matrícula da usuária" autoComplete="off" placeholder="Ex: AUR-1042" value={matricula} onChange={(e) => setMatricula(e.target.value)} />
+                  <input aria-label="Matrícula da usuária" autoComplete="off" placeholder={consoleDireto ? 'Matrícula da titular' : 'Ex: AUR-1042'} value={matricula} onChange={(e) => setMatricula(e.target.value)} />
                 </label>
                 <label>
                   Ramal
-                  <input aria-label="Ramal da usuária" inputMode="numeric" autoComplete="off" placeholder="Ex: 2042" value={ramal} onChange={(e) => setRamal(e.target.value)} />
+                  <input aria-label="Ramal da usuária" inputMode="numeric" autoComplete="off" placeholder={consoleDireto ? 'Ramal do diretório' : 'Ex: 2042'} value={ramal} onChange={(e) => setRamal(e.target.value)} />
                 </label>
                 <button type="submit" className="btn-primary" disabled={ocupado || !matricula.trim() || !ramal.trim()}>
                   {T.validarIdentidade}
