@@ -3,7 +3,7 @@ import { CHAVE_CARTAO_EMBARQUE, serializarCartao } from '../src/jornada/armazena
 import { CARTAO_DE_TESTE } from '../src/testes/armazenamentoFalso'
 
 const CHAVE_VOOS_ATIVOS = 'itfs_voos_ativos'
-const MISSAO_LIBERADA_SEM_REGISTROS = 'pasta-rede-inacessivel'
+const MISSAO_LIBERADA_SEM_REGISTROS = 'reset-senha-desbloqueio'
 
 /** Semeia o Cartão_de_Embarque antes de cada carga da página, sem sobrescrever o que a aplicação gravou. */
 async function semearCartao(page: Page) {
@@ -173,11 +173,11 @@ test.describe('Navegação por endereços', () => {
     expect(criacoes()).toBe(0)
   })
 
-  test('/cabine/reset-senha-desbloqueio mostra o aviso de preparação e não cria sessão', async ({ page }) => {
+  test('/cabine/pasta-rede-inacessivel sem o registro da Help Desk N1 mostra o aviso da escala e não cria sessão', async ({ page }) => {
     const criacoes = contarCriacoesDeSessao(page)
-    await page.goto('/cabine/reset-senha-desbloqueio')
+    await page.goto('/cabine/pasta-rede-inacessivel')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Cabine')
-    await expect(page.getByText('Este cenário ainda está em preparação no simulador.')).toBeVisible()
+    await expect(page.getByText(/A escala Service Desk N1 Jr ainda não está liberada/)).toBeVisible()
     expect(criacoes()).toBe(0)
   })
 })

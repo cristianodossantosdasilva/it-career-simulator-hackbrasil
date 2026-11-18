@@ -133,10 +133,9 @@ test.describe('Modo de demonstração', () => {
     await expect(
       cartaoDaMissao(page, 'sre-cloud-latencia').getByRole('link', { name: /Embarcar/ }),
     ).toHaveAttribute('href', '/cabine/sre-cloud-latencia')
-    const preparacao = cartaoDaMissao(page, 'falha-backup-restore')
-    await expect(preparacao.getByText('Em preparação', { exact: true })).toBeVisible()
-    await expect(preparacao.getByRole('link', { name: /Embarcar/ })).toHaveCount(0)
-    await expect(preparacao.getByRole('button', { name: /Embarcar/ })).toHaveCount(0)
+    const backup = cartaoDaMissao(page, 'falha-backup-restore')
+    await expect(backup.getByText('Em preparação', { exact: true })).toHaveCount(0)
+    await expect(backup.getByRole('link', { name: /Embarcar/ })).toHaveAttribute('href', '/cabine/falha-backup-restore')
 
     await page.reload()
     await expect(page.getByRole('switch', { name: NOME_CONTROLE })).toHaveAttribute('aria-checked', 'true')
