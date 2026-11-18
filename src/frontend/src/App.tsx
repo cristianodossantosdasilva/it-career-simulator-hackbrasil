@@ -30,20 +30,14 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { erro: Error | n
   }
 }
 
-/** AppShell com a densidade e o atalho de retomada derivados do voo em memória. */
+/** AppShell com a densidade derivada do voo em memória. */
 function CascaJornada({ children }: { children: ReactNode }) {
-  const { sessaoId, sessao, retomarLaboratorio } = useVoo()
+  const { sessaoId, sessao } = useVoo()
   const local = useLocalAtual()
   const sessaoAtiva = Boolean(sessaoId && sessao)
   const naCabine = local.caminho.startsWith('/cabine/')
   return (
-    <AppShell
-      densidade={sessaoAtiva && naCabine ? 'operacional' : 'editorial'}
-      sessaoAtiva={sessaoAtiva}
-      onRetomarLaboratorio={retomarLaboratorio}
-    >
-      {children}
-    </AppShell>
+    <AppShell densidade={sessaoAtiva && naCabine ? 'operacional' : 'editorial'}>{children}</AppShell>
   )
 }
 

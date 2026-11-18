@@ -1,6 +1,6 @@
 import { type ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { apiClient, classificarFalha, ConflitoSeqError } from '../api/client'
-import type { CarreiraResumoResponse, CriarSessaoRequest, ReplayResponse, SessaoProjecao } from '../api/types'
+import type { CarreiraResumoResponse, CriarSessaoRequest, SessaoProjecao } from '../api/types'
 import {
   type EstadoAcademia,
   carregarEstadoAcademia,
@@ -12,7 +12,6 @@ import {
   type Aba,
   ContextoAcademia,
   ContextoVoo,
-  type MensagemTutor,
   type OpcoesAberturaVoo,
   type ResultadoAberturaVoo,
   type ValorAcademia,
@@ -82,26 +81,17 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
   const pomodoro = usePomodoro(creditarMinutos)
 
   // Voo
-  const [emLaboratorio, setEmLaboratorio] = useState(false)
   const [sessaoId, setSessaoId] = useState<string | null>(null)
   const [sessao, setSessao] = useState<SessaoProjecao | null>(null)
   const [aba, setAba] = useState<Aba>('itsm')
   const [gaveta, setGaveta] = useState<'notas' | 'tutor' | null>(null)
-  const [tutorMsgs, setTutorMsgs] = useState<MensagemTutor[]>([
-    { who: 'ai', text: 'Estou aqui durante o atendimento. Clique em "O que faço agora?" ou pergunte algo.' },
-  ])
-  const retomarLaboratorio = useCallback(() => setEmLaboratorio(true), [])
-  const [tutorInput, setTutorInput] = useState('')
   const [ocupado, setOcupado] = useState(false)
   const [aviso, setAviso] = useState<string | null>(null)
-  const [replay, setReplay] = useState<ReplayResponse | null>(null)
   const [nivel1Passos, setNivel1Passos] = useState({ politica: false, token: false, recusado: false })
   const [historicoTerminal, setHistoricoTerminal] = useState<
     { cmd: string; saida: string; priv: string }[]
   >([])
   const [artigoKbSelecionado, setArtigoKbSelecionado] = useState<string | null>(null)
-  const [kbRetornoLinkUri, setKbRetornoLinkUri] = useState<string | null>(null)
-  const linkKbOrigemRef = useRef<HTMLElement | null>(null)
   const kbOrigemItsmRef = useRef(false)
 
   // Quem sai da Intranet sem fechar o artigo não volta ao ITSM numa consulta manual posterior.
@@ -109,37 +99,18 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
     if (aba !== 'kb') kbOrigemItsmRef.current = false
   }, [aba])
 
-  function abrirArtigoKb(artigoId: string, origem: HTMLElement) {
-    setKbRetornoLinkUri(
-      origem.getAttribute('data-kb-uri') ?? origem.getAttribute('aria-label')?.replace(/^Consultar KB: /, '') ?? null,
-    )
-    linkKbOrigemRef.current = origem
-    setArtigoKbSelecionado(artigoId)
-    setAba('kb')
-  }
 
   /** Abre o artigo a partir do ITSM. Ao fechar o artigo, o aluno volta ao chamado. */
   function abrirKbDoItsm(artigoId: string) {
-    setKbRetornoLinkUri(null)
-    linkKbOrigemRef.current = null
     kbOrigemItsmRef.current = true
     setArtigoKbSelecionado(artigoId)
     setAba('kb')
   }
   function fecharArtigoKb() {
-    if (kbOrigemItsmRef.current) {
-      kbOrigemItsmRef.current = false
-      setArtigoKbSelecionado(null)
-      setAba('itsm')
-      return
-    }
-    const origem = linkKbOrigemRef.current
-    if (!origem) return
-    setAba('replay')
+    if (!kbOrigemItsmRef.current) return
+    kbOrigemItsmRef.current = false
     setArtigoKbSelecionado(null)
-    requestAnimationFrame(() => {
-      linkKbOrigemRef.current = null
-    })
+    setAba('itsm')
   }
 
   async function atualizarResumoCarreira(ids?: string[], nome?: string) {
@@ -194,18 +165,10 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
     const nivel = nivelPorCenarioId(cenarioId)
     atualizarEstadoAcademia((prev) => ({ ...prev, focus: nivel.id }))
     definirSessao(id, proj)
-    setEmLaboratorio(true)
-    setReplay(null)
     setRegistroRecente(null)
     setFalhaRegistro(false)
     setNivel1Passos({ politica: false, token: false, recusado: false })
     setHistoricoTerminal([])
-    setTutorMsgs([
-      {
-        who: 'ai',
-        text: `Turno iniciado em ${nivel.titulo}. Se travar, pergunte "O que faço agora?".`,
-      },
-    ])
     setAba('itsm')
   }
 
@@ -221,7 +184,6 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
       opcoes.nova,
     )
     if (decisao.tipo === 'usar-memoria' && sessaoIdAtualRef.current) {
-      setEmLaboratorio(true)
       return { tipo: 'pronto', sessaoId: sessaoIdAtualRef.current, retomada: true }
     }
     setOcupado(true)
@@ -382,18 +344,6 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
     }
   }
 
-  async function carregarReplay() {
-    if (!sessaoId) return
-    setOcupado(true)
-    try {
-      const r = await apiClient.obterReplay(sessaoId)
-      setReplay(r)
-    } catch (err) {
-      setAviso(err instanceof Error ? err.message : 'Erro ao carregar replay')
-    } finally {
-      setOcupado(false)
-    }
-  }
 
   const valorAcademia: ValorAcademia = {
     estadoAcademia,
@@ -408,26 +358,16 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
   const valorVoo: ValorVoo = {
     sessaoId,
     sessao,
-    emLaboratorio,
-    setEmLaboratorio,
-    retomarLaboratorio,
     aba,
     setAba,
     gaveta,
     setGaveta,
-    tutorMsgs,
-    setTutorMsgs,
-    tutorInput,
-    setTutorInput,
     ocupado,
     aviso,
     setAviso,
-    replay,
     nivel1Passos,
     historicoTerminal,
     artigoKbSelecionado,
-    kbRetornoLinkUri,
-    abrirArtigoKb,
     abrirKbDoItsm,
     fecharArtigoKb,
     abrirVoo,
@@ -436,7 +376,6 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
     tentarRegistrarDeNovo,
     executarAcao,
     enviarChat,
-    carregarReplay,
   }
 
   return (
