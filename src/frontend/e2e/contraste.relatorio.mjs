@@ -386,7 +386,7 @@ if (notasMotivo.length > 0) {
 }
 
 md += '## 4. Violações medidas\n\n'
-md += 'Cada grupo reúne elementos com o mesmo tema, seletor, par de cores e razão. O arquivo LINHA_DE_BASE_TEMAS.json traz todas as linhas, uma por elemento distinto, tela, estado, tema e viewport.\n\n'
+md += 'Cada grupo reúne elementos com o mesmo tema, seletor, par de cores e razão. O arquivo LINHA_DE_BASE_TEMAS.json (cerca de 8 MB, gerado localmente por este script e fora do Git) traz todas as linhas, uma por elemento distinto, tela, estado, tema e viewport.\n\n'
 md += tabelaViolacoes('4.1 Texto (axe)', violTexto) + '\n'
 md += tabelaViolacoes('4.2 Contorno de container', violContainer) + '\n'
 md += tabelaViolacoes('4.3 Divisor', violDivisor) + '\n'

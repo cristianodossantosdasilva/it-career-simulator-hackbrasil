@@ -21,3 +21,6 @@ __pycache__/
 # Playwright
 test-results/
 playwright-report/
+
+# Medicao completa de contraste dos temas (gerada por e2e/contraste.relatorio.mjs)
+docs/auditoria-ui-ux/temas/*.json

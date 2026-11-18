@@ -2,7 +2,7 @@
 
 Documento lido por pessoas e por ferramentas de IA (Lovable, Google Stitch, Figma, Kiro). Escopo: aparência e interação. Regras de domínio e de arquitetura ficam em `AGENTS.md`.
 
-Estado em 2026-11-16, baseado na `main` (commit 19bbb18). Quando este arquivo divergir de `src/frontend/src/index.css`, o código vale e este arquivo deve ser corrigido.
+Estado em 2026-11-20, na branch `jornada-de-voo`. Quando este arquivo divergir de `src/frontend/src/index.css`, o código vale e este arquivo deve ser corrigido.
 
 ## 1. Produto em uma frase
 
@@ -46,33 +46,61 @@ A identidade atual (tokens da seção 5) é a linha de base. Uma proposta nova e
 Fonte de verdade: `src/frontend/src/index.css`.
 
 ### Temas e alto contraste
-
-O produto tem quatro temas e um modo de alto contraste, escolhidos pela pessoa e guardados no navegador:
-
-| Tema | Aparência | Nome atual no CSS |
+O produto tem quatro temas e um modo de alto contraste, escolhidos pela pessoa no painel Aparência da barra de contexto e guardados no navegador:
+| Tema | Esquema | Aparência |
 |---|---|---|
-| `operacao` | escuro, padrão | `tactical` |
-| `corporativo` | claro | `corporate` |
-| `editorial` | definido pela spec `temas-selecionaveis` | ainda não existe no CSS |
-| `acolhedor` | definido pela spec `temas-selecionaveis` | ainda não existe no CSS |
-
-- O tema vai no atributo `data-theme` do elemento `html` e fica na chave `itfs_tema` do armazenamento local.
-- O alto contraste é independente do tema. Vai no atributo `data-contraste` do elemento `html` e fica na chave `itfs_contraste`.
-- Estado atual do código: o CSS ainda usa só `corporate` e `tactical`, e a página abre em `tactical`. A renomeação para `operacao` e `corporativo`, a criação de `editorial` e `acolhedor` e o atributo `data-contraste` são feitos pela spec `temas-selecionaveis`. Até lá, as tabelas de cor abaixo valem para os temas `corporativo` (hoje `corporate`) e `operacao` (hoje `tactical`).
+| `operacao` | escuro, padrão do produto | Painel de operação: azul noturno, contornos sóbrios, tipografia compacta |
+| `corporativo` | claro | Escritório: neutros frios, acento azul petróleo, contornos de contêiner visíveis |
+| `editorial` | escuro | Leitura: fundo grafite quente, acento âmbar, títulos de 48 px, espaços de composição maiores, cantos de 2, 4 e 8 px, pesos mais leves |
+| `acolhedor` | claro | Acolhimento: fundo creme, acento verde profundo, cantos de 6, 10 e 12 px, texto-base de 15 px |
+- O tema vai no atributo `data-theme` do elemento `html` e fica na chave `itfs_tema` do armazenamento local. A classe `dark` acompanha o esquema escuro.
+- O alto contraste é independente do tema. Vai no atributo `data-contraste` (valor `alto`) do elemento `html` e fica na chave `itfs_contraste`. Há um conjunto para o esquema claro e outro para o escuro.
+- Um script inline no `head` aplica tema e contraste antes da primeira pintura. Sem preferência salva, vale o esquema do navegador (claro abre `corporativo`, escuro abre `operacao`); sem esquema declarado, abre `operacao`.
+- O terminal do SimuDesk é sempre escuro: o elemento marcado com `data-superficie="terminal"` usa as cores de `operacao` em qualquer tema e o conjunto escuro de alto contraste quando o modo está ligado.
+- Aparência nunca entra em requisição à API nem em evento do motor. O motor determinístico não conhece tema nem contraste.
 - Não confundir o tema `editorial` com a densidade editorial (`data-density`), que é outro mecanismo.
-- Os valores de cor de `editorial`, `acolhedor` e do alto contraste entram neste arquivo quando a spec for entregue. Todos devem cumprir a seção 3.
-
+### Configuração do cliente
+Uma implantação B2B pode limitar os temas. O arquivo-fonte é opcional e não existe no repositório por padrão: `src/frontend/config/tema-cliente.json`. O build lê o arquivo, higieniza e embute o resultado em um bloco JSON no `head` do `index.html` (`itfs-config-cliente`), antes do script inicial. O mesmo conteúdo, só com os três campos conhecidos, é publicado em `/config/tema-cliente.json`.
+```json
+{
+  "temasPermitidos": ["corporativo", "acolhedor"],
+  "temaPadrao": "corporativo",
+  "travado": false
+}
+```
+| Campo | Tipo | Obrigatório | Efeito |
+|---|---|---|---|
+| `temasPermitidos` | lista de textos | não | Temas oferecidos, na ordem informada. Fora do catálogo ou repetido é descartado com aviso. Lista vazia libera o catálogo inteiro |
+| `temaPadrao` | texto | não | Tema inicial. Precisa estar em `temasPermitidos`; senão é substituído, com aviso |
+| `travado` | booleano | não | Com `true` e `temaPadrao` válido, a pessoa não troca o tema e o painel mostra "Definido pela empresa cliente". O alto contraste continua disponível |
+- Campo desconhecido é ignorado e só o nome aparece no console, com o prefixo `[Aparência]`. Sem o arquivo, nenhum aviso aparece.
+- Trocar o arquivo publicado sem refazer o build não tem efeito: a fonte é o bloco do `index.html`.
+- Nunca colocar segredo, chave ou dado de pessoa nesse arquivo. A verificação `check-bundle-secrets.mjs` varre o `dist` inteiro no build.
 ### Tipografia e espaço
-
 - Fontes: Inter para interface, JetBrains Mono para terminal, comandos e dados técnicos.
-- Escala: 12, 13, 14, 16, 18, 22, 28 e 36 px (`--font-size-xs` até `--font-size-3xl`).
+- Escala base: 12, 13, 14, 16, 18, 22, 28 e 36 px (`--font-size-xs` até `--font-size-3xl`). `editorial` amplia os títulos (até 48 px) e `acolhedor` usa 15 px de texto-base.
 - Pesos: 400, 500, 600 e 700.
 - Linha: 1.25 (títulos), 1.45 (interface), 1.7 (leitura). Medida de leitura: 68ch.
-- Espaço: 4, 8, 12, 16, 20, 24, 32, 40 e 48 px (`--space-1` até `--space-12`).
-- Raio: 4, 8 e 12 px.
-
-### Cor, tema corporativo (hoje `corporate`, claro)
-
+- Espaço: 4, 8, 12, 16, 20, 24, 32, 40 e 48 px (`--space-1` até `--space-12`). Os espaços de composição variam por tema.
+- Raio: 4, 8 e 12 px em `operacao` e `corporativo`; 2, 4 e 8 px em `editorial`; 6, 10 e 12 px em `acolhedor`.
+### Cor, tema operacao (escuro, padrão)
+| Papel | Token | Valor |
+|---|---|---|
+| Fundo da página | `--bg-canvas` | #0B1120 |
+| Superfície | `--bg-surface` | #0F172A |
+| Elevado | `--bg-elevated` | #1E293B |
+| Texto principal | `--text-primary` | #F8FAFC |
+| Texto secundário | `--text-secondary` | #94A3B8 |
+| Texto discreto | `--text-muted` | #8E9DB2 |
+| Contorno de contêiner | `--border-strong` | #717C8C |
+| Contorno de controle | `--border-control` | #858E99 |
+| Ação principal | `--accent-primary` | #0EA5E9 |
+| Texto de destaque | `--accent-text` | #7DD3FC |
+| Foco | `--focus-ring` | #38BDF8 |
+| Sucesso, texto | `--status-success-text` | #34D399 |
+| Alerta, texto | `--status-warning-text` | #FBBF24 |
+| Perigo, texto | `--status-danger-text` | #F87171 |
+### Cor, tema corporativo (claro)
 | Papel | Token | Valor |
 |---|---|---|
 | Fundo da página | `--bg-canvas` | #F8FAFC |
@@ -81,28 +109,86 @@ O produto tem quatro temas e um modo de alto contraste, escolhidos pela pessoa e
 | Texto principal | `--text-primary` | #0F172A |
 | Texto secundário | `--text-secondary` | #475569 |
 | Texto discreto | `--text-muted` | #586980 |
+| Contorno de contêiner | `--border-strong` | #7A8595 |
+| Contorno de controle | `--border-control` | #64748B |
 | Ação principal | `--accent-primary` | #0B6E8A |
+| Texto de destaque | `--accent-text` | #0B6E8A |
+| Foco | `--focus-ring` | #0B6E8A |
 | Sucesso, texto | `--status-success-text` | #047857 |
 | Alerta, texto | `--status-warning-text` | #B45309 |
 | Perigo, texto | `--status-danger-text` | #B91C1C |
-
-### Cor, tema operacao (hoje `tactical`, escuro, padrão)
-
+### Cor, tema editorial (escuro)
 | Papel | Token | Valor |
 |---|---|---|
-| Fundo da página | `--bg-canvas` | #0B1120 |
-| Superfície | `--bg-surface` | #0F172A |
-| Elevado | `--bg-elevated` | #1E293B |
-| Texto principal | `--text-primary` | #F8FAFC |
-| Texto secundário | `--text-secondary` | #94A3B8 |
-| Ação principal | `--accent-primary` | #0EA5E9 |
-| Texto de destaque | `--accent-text` | #7DD3FC |
-| Sucesso, texto | `--status-success-text` | #34D399 |
-| Alerta, texto | `--status-warning-text` | #FBBF24 |
-| Perigo, texto | `--status-danger-text` | #F87171 |
-
+| Fundo da página | `--bg-canvas` | #141414 |
+| Superfície | `--bg-surface` | #1C1B1A |
+| Elevado | `--bg-elevated` | #262523 |
+| Texto principal | `--text-primary` | #F5F2EB |
+| Texto secundário | `--text-secondary` | #C9C2B6 |
+| Texto discreto | `--text-muted` | #ADA597 |
+| Contorno de contêiner | `--border-strong` | #7A7772 |
+| Contorno de controle | `--border-control` | #8A8681 |
+| Ação principal | `--accent-primary` | #E3A857 |
+| Texto de destaque | `--accent-text` | #F0C27F |
+| Foco | `--focus-ring` | #F0C27F |
+| Sucesso, texto | `--status-success-text` | #6FD3A8 |
+| Alerta, texto | `--status-warning-text` | #F2C46B |
+| Perigo, texto | `--status-danger-text` | #F59A93 |
+### Cor, tema acolhedor (claro)
+| Papel | Token | Valor |
+|---|---|---|
+| Fundo da página | `--bg-canvas` | #FBF8F3 |
+| Superfície | `--bg-surface` | #FFFFFF |
+| Elevado | `--bg-elevated` | #F4EFE7 |
+| Texto principal | `--text-primary` | #2A2420 |
+| Texto secundário | `--text-secondary` | #574E45 |
+| Texto discreto | `--text-muted` | #6A6056 |
+| Contorno de contêiner | `--border-strong` | #887F71 |
+| Contorno de controle | `--border-control` | #7A6F60 |
+| Ação principal | `--accent-primary` | #1F6F68 |
+| Texto de destaque | `--accent-text` | #1A5F59 |
+| Foco | `--focus-ring` | #1F6F68 |
+| Sucesso, texto | `--status-success-text` | #1E6B41 |
+| Alerta, texto | `--status-warning-text` | #8F5207 |
+| Perigo, texto | `--status-danger-text` | #A3322A |
+### Cor, alto contraste claro
+Vale sobre `corporativo` e `acolhedor`.
+| Papel | Token | Valor |
+|---|---|---|
+| Fundo da página | `--bg-canvas` | #FFFFFF |
+| Superfície | `--bg-surface` | #FFFFFF |
+| Elevado | `--bg-elevated` | #F2F2F2 |
+| Texto principal | `--text-primary` | #000000 |
+| Texto secundário | `--text-secondary` | #1A1A1A |
+| Texto discreto | `--text-muted` | #333333 |
+| Contorno de contêiner | `--border-strong` | #4D4D4D |
+| Contorno de controle | `--border-control` | #000000 |
+| Ação principal | `--accent-primary` | #004A80 |
+| Texto de destaque | `--accent-text` | #003E6B |
+| Foco | `--focus-ring` | #000000 |
+| Sucesso, texto | `--status-success-text` | #00552A |
+| Alerta, texto | `--status-warning-text` | #6B3900 |
+| Perigo, texto | `--status-danger-text` | #8F0000 |
+### Cor, alto contraste escuro
+Vale sobre `operacao` e `editorial` e sobre o terminal do SimuDesk.
+| Papel | Token | Valor |
+|---|---|---|
+| Fundo da página | `--bg-canvas` | #000000 |
+| Superfície | `--bg-surface` | #000000 |
+| Elevado | `--bg-elevated` | #141414 |
+| Texto principal | `--text-primary` | #FFFFFF |
+| Texto secundário | `--text-secondary` | #EDEDED |
+| Texto discreto | `--text-muted` | #D6D6D6 |
+| Contorno de contêiner | `--border-strong` | #B3B3B3 |
+| Contorno de controle | `--border-control` | #FFFFFF |
+| Ação principal | `--accent-primary` | #8FD3FF |
+| Texto de destaque | `--accent-text` | #A6DCFF |
+| Foco | `--focus-ring` | #FFD24D |
+| Sucesso, texto | `--status-success-text` | #7DEBAF |
+| Alerta, texto | `--status-warning-text` | #FFD470 |
+| Perigo, texto | `--status-danger-text` | #FFA8A8 |
 Lista completa, incluindo superfícies de estado, bordas e sombras: ver `index.css`.
-
+Limiares verificados pela spec de contraste (`e2e/contraste.spec.ts`) e pelo teste de tokens: texto 4,5 para 1 (7 para 1 no alto contraste), controle e foco 3 para 1, contorno de contêiner 2 para 1 e divisor 1,4 para 1 (em `operacao` com contraste padrão, sem regressão do piso 1,71 e 1,81).
 ## 6. Como uma ferramenta externa deve entregar
 
 Regra central: nenhum valor de cor, espaço, raio ou sombra aparece direto em componente. Tudo passa por token.
