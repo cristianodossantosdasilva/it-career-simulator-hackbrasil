@@ -346,12 +346,14 @@ test.describe('Regras de layout e acessibilidade', () => {
           }
           for (const el of Array.from(document.querySelectorAll('button, a[href], input:not([type=hidden]), select, textarea, summary'))) {
             const r = el.getBoundingClientRect()
-            if (r.width === 0 || r.height === 0 || dentroDeRolagem(el)) continue
+            // O link Pular fica fora da tela até receber foco, por projeto.
+            if (r.width === 0 || r.height === 0 || el.matches('a.skip') || dentroDeRolagem(el)) continue
             if (r.left < -0.5 || r.right > largura + 0.5) achados.push(`controle fora da janela: ${descrever(el)} (${Math.round(r.left)} a ${Math.round(r.right)})`)
           }
           for (const el of Array.from(document.querySelectorAll('body *'))) {
             const cs = getComputedStyle(el)
-            if (cs.overflowX !== 'hidden' || cs.display === 'none') continue
+            // Texto só para leitor de tela (caixa de 1 px) não é texto cortado.
+            if (cs.overflowX !== 'hidden' || cs.display === 'none' || el.clientWidth <= 1) continue
             const temTexto = Array.from(el.childNodes).some((no) => no.nodeType === Node.TEXT_NODE && (no.textContent ?? '').trim() !== '')
             if (temTexto && el.scrollWidth > el.clientWidth + 1) achados.push(`texto cortado: ${descrever(el)} (${el.scrollWidth} contra ${el.clientWidth})`)
           }
