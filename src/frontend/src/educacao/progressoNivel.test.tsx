@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom/vitest'
-import { cleanup, render, screen, within } from '@testing-library/react'
+import { cleanup, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
-import { App } from '../App'
+import { abrirAplicacao, irPeloMenu, limparNavegador } from '../testes/abrirAplicacao'
 import {
   DEFAULT_PAGES,
   LEVELS,
@@ -14,7 +14,7 @@ import {
 
 afterEach(() => {
   cleanup()
-  window.localStorage.clear()
+  limparNavegador()
 })
 
 const NOTA_SEMEADA = DEFAULT_PAGES.find((p) => p.level === 'estagiario' && p.type === 'cornell')?.notes ?? ''
@@ -36,13 +36,13 @@ describe('Progresso por nivel sem notas semeadas', () => {
     })
   })
 
-  it('a tabela de missoes mostra Nao iniciada nos 5 niveis e nenhum progresso parcial', () => {
-    render(<App />)
-    const lista = screen.getByRole('radiogroup', { name: /Escolha o nível da simulação/i }).parentElement as HTMLElement
-    expect(within(lista).getAllByText('Não iniciada')).toHaveLength(5)
-    expect(within(lista).queryByText(/Fixação \d+%/)).not.toBeInTheDocument()
+  it('o Brevê mostra Teoria 0%, Fixação 0% e Prática 0% nos 5 niveis, sem progresso parcial', () => {
+    abrirAplicacao('/')
+    irPeloMenu('Brevê')
+    const rotulos = screen.getAllByText('Teoria 0%, Fixação 0%, Prática 0%')
+    expect(rotulos).toHaveLength(5)
+    expect(within(document.body).queryByText(/Fixação 20%/)).not.toBeInTheDocument()
   })
-
   it('a pagina semeada de cada nivel Cornell tem texto longo o bastante para o teste ser significativo', () => {
     expect(NOTA_SEMEADA.trim().length).toBeGreaterThan(20)
     const semeadasDoN1 = DEFAULT_PAGES.find((p) => p.level === 'n1' && p.type === 'cornell')

@@ -5,13 +5,15 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import vetoresJcs from '../../../docs/vetores-jcs-sha256.json'
 import { App } from './App'
 import { IntranetApp } from './apps/IntranetApp/IntranetApp'
+import { textosDaMissao } from './jornada/componentes/textosDaMissao'
+import { abrirAplicacao, irPeloMenu, limparNavegador, menuPrincipal } from './testes/abrirAplicacao'
 import { Icone } from './ui/Icone'
 import { canonicalizarJcs, sha256Hex, verificarCurriculoVivoJson } from './utils/jcs'
 import { razaoContraste } from './utils/contraste'
 
 afterEach(() => {
   cleanup()
-  window.localStorage.clear()
+  limparNavegador()
   vi.restoreAllMocks()
 })
 
@@ -21,15 +23,14 @@ describe('IT Flight Simulator UI', () => {
     expect(razaoContraste('#777777', '#777777')).toBeCloseTo(1, 4)
   })
 
-  it('shell tem uma unica navegacao principal com 6 destinos sem emoji e alterna o tema persistido', () => {
-    render(<App />)
+  it('shell tem uma unica navegacao principal por links, sem Cabine sem voo ativo, e alterna o tema persistido', () => {
+    abrirAplicacao('/')
     const navs = screen.getAllByRole('navigation', { name: /Navegação principal/i })
     expect(navs).toHaveLength(1)
-    const destinos = within(navs[0]).getAllByRole('button').map((b) => b.textContent?.trim())
-    expect(destinos).toEqual(['Missões', 'Aulas', 'Laboratório', 'Caderno', 'Mentor', 'Credencial'])
-    expect(within(navs[0]).getByRole('button', { name: 'Missões' })).toHaveAttribute('aria-current', 'page')
+    const destinos = within(navs[0]).getAllByRole('link').map((link) => link.textContent?.trim())
+    expect(destinos).toEqual(['Início', 'Plano de voo', 'Brevê', 'Hangar', 'Aulas', 'Caderno', 'Comandante'])
+    expect(within(navs[0]).getByRole('link', { name: 'Início' })).toHaveAttribute('aria-current', 'page')
     expect(navs[0].textContent).not.toMatch(/\p{Extended_Pictographic}/u)
-
     expect(document.documentElement.dataset.theme).toBe('tactical')
     expect(document.documentElement.classList.contains('dark')).toBe(true)
     const grupoTema = screen.getByRole('group', { name: 'Tema da interface' })
@@ -41,6 +42,14 @@ describe('IT Flight Simulator UI', () => {
     expect(window.localStorage.getItem('itfs_theme')).toBe('corporate')
     fireEvent.click(within(grupoTema).getByRole('button', { name: /Cockpit Tático/i }))
     expect(document.documentElement.dataset.theme).toBe('tactical')
+  })
+
+  it('a pagina tem um unico main e o link de salto aponta para ele', () => {
+    const { container } = abrirAplicacao('/plano-de-voo')
+    expect(container.querySelectorAll('main')).toHaveLength(1)
+    expect(screen.getByRole('link', { name: 'Pular para o conteúdo' })).toHaveAttribute('href', '#conteudo-pagina')
+    expect(screen.getByRole('main')).toHaveAttribute('id', 'conteudo-pagina')
+    expect(within(screen.getByRole('main')).getAllByRole('heading', { level: 1 })).toHaveLength(1)
   })
 
   it('menu de perfil abre o progresso, fecha com Escape e devolve o foco', async () => {
@@ -66,6 +75,7 @@ describe('IT Flight Simulator UI', () => {
     expect(screen.getByTestId('decorativo')).toHaveAttribute('aria-hidden', 'true')
     expect(screen.getByRole('img', { name: 'Credencial verificada' })).toBeInTheDocument()
   })
+
   it('Intranet troca o artigo selecionado e move o foco para o novo titulo', async () => {
     const { rerender } = render(<IntranetApp key="KB-001" artigoSelecionadoId="KB-001" />)
     await waitFor(() => expect(screen.getByRole('heading', { name: /KB-001.*Politica de Verificacao/i })).toHaveFocus())
@@ -73,22 +83,19 @@ describe('IT Flight Simulator UI', () => {
     await waitFor(() => expect(screen.getByRole('heading', { name: /KB-002.*Verificacao de Identidade/i })).toHaveFocus())
   })
 
-  it('renderiza tela inicial com 5 niveis, Missao 0 e permite selecionar nivel', () => {
-    render(<App />)
-    expect(screen.getByRole('heading', { name: /IT Flight Simulator/i })).toBeInTheDocument()
+  it('Plano de voo mostra as escalas, a Missao 0 e as missoes, sem escolha livre de nivel', () => {
+    abrirAplicacao('/plano-de-voo')
+    expect(screen.getByRole('heading', { level: 1, name: 'Plano de voo' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /Missão 0/i })).toBeInTheDocument()
-    expect(screen.getByText(/Triagem e Defesa contra Engenharia Social/i)).toBeInTheDocument()
-    expect(screen.getByText(/Pasta de Rede Inacessível/i)).toBeInTheDocument()
-    expect(screen.getByText(/Incidente Massivo e Problema ITIL/i)).toBeInTheDocument()
-
-    const nivel1 = screen.getByRole('radio', { name: /Triagem e Defesa contra Engenharia Social/i })
-    fireEvent.click(nivel1)
-    expect(nivel1.className).toContain('selected')
-    expect(nivel1).toHaveAttribute('aria-checked', 'true')
+    for (const missao of ['triagem-engenharia-social', 'pasta-rede-inacessivel', 'incidente-massivo'] as const) {
+      expect(screen.getByRole('heading', { name: textosDaMissao(missao).titulo })).toBeInTheDocument()
+    }
+    expect(screen.queryAllByRole('radio')).toHaveLength(0)
+    expect(screen.queryByRole('button', { name: /Decolar no Simulador/i })).not.toBeInTheDocument()
   })
 
-  it('home tem o Primeiro Voo como objeto central e guarda Pomodoro, meta e plano no menu de perfil', async () => {
-    const { container } = render(<App />)
+  it('Plano de voo tem o Primeiro Voo como objeto central e guarda Pomodoro, meta e plano no menu de perfil', async () => {
+    const { container } = abrirAplicacao('/plano-de-voo')
     expect(screen.getByRole('heading', { name: 'Iniciar primeiro voo', level: 2 })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Iniciar primeiro voo' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Estudar antes' })).toBeInTheDocument()
@@ -101,7 +108,6 @@ describe('IT Flight Simulator UI', () => {
     expect(screen.queryByText(/Timer de foco/i)).not.toBeInTheDocument()
     expect(screen.queryByText(/Meta semanal/i)).not.toBeInTheDocument()
     expect(container.textContent).not.toMatch(/\p{Extended_Pictographic}/u)
-
     fireEvent.click(screen.getByRole('button', { name: /Perfil/i }))
     const painel = screen.getByRole('region', { name: 'Seu progresso' })
     expect(within(painel).getByText('Meta semanal')).toBeInTheDocument()
@@ -111,17 +117,19 @@ describe('IT Flight Simulator UI', () => {
     expect((await axe.run(container)).violations).toEqual([])
   })
 
-  it('Credencial abre como destino, mostra o verificador e volta para as missoes', () => {
-    render(<App />)
-    const navPrincipal = screen.getByRole('navigation', { name: /Navegação principal/i })
-    fireEvent.click(within(navPrincipal).getByRole('button', { name: 'Credencial' }))
-    expect(within(navPrincipal).getByRole('button', { name: 'Credencial' })).toHaveAttribute('aria-current', 'page')
-    expect(within(navPrincipal).getByRole('button', { name: 'Missões' })).not.toHaveAttribute('aria-current')
+  it('Brevê abre pelo menu, mostra o verificador e volta ao Início', () => {
+    abrirAplicacao('/')
+    irPeloMenu('Brevê')
+    expect(window.location.pathname).toBe('/breve')
+    expect(within(menuPrincipal()).getByRole('link', { name: 'Brevê' })).toHaveAttribute('aria-current', 'page')
+    expect(within(menuPrincipal()).getByRole('link', { name: 'Início' })).not.toHaveAttribute('aria-current')
     expect(screen.getByRole('region', { name: /Verificador local de Currículo Vivo/i })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: /IT Flight Simulator/i })).not.toBeInTheDocument()
-    fireEvent.click(within(navPrincipal).getByRole('button', { name: 'Missões' }))
-    expect(screen.getByRole('heading', { name: /IT Flight Simulator/i })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { level: 1, name: 'Início' })).not.toBeInTheDocument()
+    irPeloMenu('Início')
+    expect(window.location.pathname).toBe('/')
+    expect(screen.getByRole('heading', { level: 1, name: 'Início' })).toBeInTheDocument()
   })
+
   it('carrega resumo de carreira a partir do localStorage e exibe integridade SHA-256', async () => {
     window.localStorage.setItem('itfs_jornada_sessoes', JSON.stringify(['sessao-1', 'sessao-expirada']))
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
@@ -152,11 +160,9 @@ describe('IT Flight Simulator UI', () => {
         { status: 200, headers: { 'Content-Type': 'application/json' } },
       ),
     )
-
-    render(<App />)
-    const navPrincipal = screen.getByRole('navigation', { name: /Navegação principal/i })
-    fireEvent.click(within(navPrincipal).getByRole('button', { name: 'Credencial' }))
-    expect(screen.getByRole('heading', { name: 'Credencial', level: 1 })).toBeInTheDocument()
+    abrirAplicacao('/')
+    irPeloMenu('Brevê')
+    expect(screen.getByRole('heading', { name: 'Credencial', level: 2 })).toBeInTheDocument()
     const painelCarreira = await screen.findByRole('region', {
       name: /Progressão de Carreira e Currículo Vivo/i,
     })
@@ -171,21 +177,20 @@ describe('IT Flight Simulator UI', () => {
     ).toBeInTheDocument()
   })
 
-  it('navega pelos destinos Aulas, Caderno e Mentor do shell sem violacoes axe-core', async () => {
-    const { container } = render(<App />)
-    const navPrincipal = screen.getByRole('navigation', { name: /Navegação principal/i })
-
-    fireEvent.click(within(navPrincipal).getByRole('button', { name: 'Aulas' }))
-    expect(within(navPrincipal).getByRole('button', { name: 'Aulas' })).toHaveAttribute('aria-current', 'page')
+  it('navega pelos destinos Aulas, Caderno e Treino sem violacoes axe-core', async () => {
+    const { container } = abrirAplicacao('/')
+    irPeloMenu('Aulas')
+    expect(within(menuPrincipal()).getByRole('link', { name: 'Aulas' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('heading', { level: 1, name: 'Aulas' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /O que faz o Suporte de TI/i })).toBeInTheDocument()
     expect((await axe.run(container)).violations).toEqual([])
-
-    fireEvent.click(within(navPrincipal).getByRole('button', { name: 'Caderno' }))
+    irPeloMenu('Caderno')
     expect(screen.getByRole('heading', { name: /Caderno de estudos/i })).toBeInTheDocument()
     expect((await axe.run(container)).violations).toEqual([])
-
-    fireEvent.click(within(navPrincipal).getByRole('button', { name: 'Mentor' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Mentor' })).toBeInTheDocument()
+    irPeloMenu('Aulas')
+    fireEvent.click(screen.getByRole('link', { name: 'Treino de explicação' }))
+    expect(window.location.pathname).toBe('/aulas/treino')
+    expect(screen.getByRole('heading', { level: 1, name: 'Treino de explicação' })).toBeInTheDocument()
     expect((await axe.run(container)).violations).toEqual([])
   })
 
@@ -194,7 +199,6 @@ describe('IT Flight Simulator UI', () => {
     const results = await axe.run(container)
     expect(results.violations).toEqual([])
   })
-
   it('vetores compartilhados JCS RFC 8785 + SHA-256 batem com o backend C#', async () => {
     for (const vetor of vetoresJcs) {
       const jcs = canonicalizarJcs(vetor.entrada)
