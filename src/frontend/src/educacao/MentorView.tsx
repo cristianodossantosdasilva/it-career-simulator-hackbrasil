@@ -20,9 +20,12 @@ import {
 interface MentorViewProps {
   estado: EstadoAcademia
   onAtualizarEstado: (updater: (prev: EstadoAcademia) => EstadoAcademia) => void
+  /** Nível do título. A página Treino tem o próprio h1 e passa 2. */
+  nivelTitulo?: 1 | 2
 }
 
-export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
+export function MentorView({ estado, onAtualizarEstado, nivelTitulo = 1 }: MentorViewProps) {
+  const Titulo = nivelTitulo === 2 ? 'h2' : 'h1'
   const [aba, setAba] = useState<'ask' | 'fey' | 'pitch'>('ask')
   const [inputChat, setInputChat] = useState('')
   const [pendenteQuiz, setPendenteQuiz] = useState<FlashCard | null>(null)
@@ -171,7 +174,7 @@ export function MentorView({ estado, onAtualizarEstado }: MentorViewProps) {
   return (
     <div className="page">
       <div className="page-head">
-        <h1 className="h1">Mentor</h1>
+        <Titulo className={nivelTitulo === 2 ? 'h2' : 'h1'}>Mentor</Titulo>
         <p className="lead">Respostas guiadas pelo conteúdo da trilha.</p>
         <p className="nota-transparencia">
           <Icone nome="info" tamanho={16} />

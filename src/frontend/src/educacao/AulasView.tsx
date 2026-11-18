@@ -19,6 +19,8 @@ interface AulasViewProps {
   onAtualizarEstado: (updater: (prev: EstadoAcademia) => EstadoAcademia) => void
   onIrParaCaderno: (paginaId: string) => void
   onIniciarLaboratorio: (cenarioId: string) => void
+  /** Nível do título da aula. As páginas da jornada têm o próprio h1 e passam 2. */
+  nivelTitulo?: 1 | 2
 }
 
 export function AulasView({
@@ -29,7 +31,9 @@ export function AulasView({
   onAtualizarEstado,
   onIrParaCaderno,
   onIniciarLaboratorio,
+  nivelTitulo = 1,
 }: AulasViewProps) {
+  const Titulo = nivelTitulo === 2 ? 'h2' : 'h1'
   const L = nivelPorId(nivel)
   const ls = LESSONS[nivel]
   const cs = CARDS[nivel]
@@ -229,7 +233,7 @@ export function AulasView({
                   Cartão {(cardIdx % cs.length) + 1} de {cs.length}
                 </span>
               </p>
-              <h1 className="lesson-title">Flashcards de {L.nome}</h1>
+              <Titulo className="lesson-title">Flashcards de {L.nome}</Titulo>
               <p className="muted">
                 Leia a pergunta, responda de cabeça e só depois vire o cartão. Avalie com honestidade para agendar a revisão.
               </p>
@@ -312,9 +316,9 @@ export function AulasView({
                   )}
                 </p>
 
-                <h1 id="lesson-title" className="lesson-title">
+                <Titulo id="lesson-title" className="lesson-title">
                   {aulaAtual.title}
-                </h1>
+                </Titulo>
 
                 <div className="analogy">
                   <span className="analogy-ic">
