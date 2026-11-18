@@ -261,6 +261,25 @@ export const KB_CATALOGO: ArtigoKb[] = [
     conteudo:
       'Reset, desbloqueio e troca de senha resolvem problemas diferentes. Antes de qualquer um, confirme a identidade da titular e leia o estado da conta no console. Senha esquecida pede reset com senha temporaria e troca obrigatoria. Conta bloqueada pede identificar de onde vem as tentativas antes de desbloquear, senao ela bloqueia de novo. Senha vencida pode ser trocada pela propria titular pelo autoatendimento. Escolha a menor acao que resolve o sintoma: a acao desnecessaria fica registrada na trilha do atendimento.',
   },
+  // === N2: Fornecedor externo (cenarios por escala) ===
+  {
+    id: 'KB-028',
+    uri: 'kb://itil/falha-de-fornecedor',
+    titulo: 'Falha de Fornecedor Externo',
+    categoria: 'ITIL',
+    nivel: ['N2'],
+    conteudo:
+      'Quando varios chamados apontam para um servico contratado de terceiros, primeiro reuna os chamados num Problema e obtenha evidencia de que a falha esta fora da empresa, por exemplo a pagina de status do fornecedor ou a consulta publica do registro do dominio. Com a evidencia, aja pelo papel de coordenador: acione o fornecedor e as areas internas que a causa envolve, como o financeiro quando ha pendencia de pagamento. Reiniciar servicos locais nao corrige uma falha externa. Acompanhe o fornecedor ate ele confirmar a normalizacao e so entao resolva os chamados.',
+  },
+  {
+    id: 'KB-029',
+    uri: 'kb://itil/comunicacao-de-incidente',
+    titulo: 'Comunicacao de Incidente aos Solicitantes',
+    categoria: 'ITIL',
+    nivel: ['N2'],
+    conteudo:
+      'Durante um incidente com muitos solicitantes, registre uma nota publica antes de resolver os chamados: diga o que esta afetado, o que ja foi verificado, quem foi acionado e quando havera nova informacao. A nota publica evita chamados repetidos e deixa o historico claro. Depois do restabelecimento, a resolucao em lote pode reaproveitar a mesma comunicacao com o resultado final.',
+  },
   // === N3-B: Data Center e Backup (cenarios por escala) ===
   {
     id: 'KB-030',

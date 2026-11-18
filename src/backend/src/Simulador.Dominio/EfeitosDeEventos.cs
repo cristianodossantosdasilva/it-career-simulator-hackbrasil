@@ -37,6 +37,19 @@ internal static class EfeitosDeEventos
                 return (DefinirStatusServico(estacao, "JobBackupFinanceiro", "Succeeded") with { CompartilhamentoAcessivel = true }, dialogo);
             case "PastaFinanceiroRestaurada":
                 return (DefinirStatusServico(estacao, "PastaFinanceiro", "Restaurada") with { CompartilhamentoAcessivel = true }, dialogo);
+            case "AreaAcionada":
+            {
+                // Acionar uma area que a Causa nao usa (sem servico Area* no estado) so fica registrado.
+                var nome = "Area" + dados.GetValueOrDefault("area")?.ToString();
+                return (StatusServico(estacao, nome) is null ? estacao : DefinirStatusServico(estacao, nome, "Acionada"), dialogo);
+            }
+            case "ServicoExternoRestabelecido":
+            {
+                var servico = dados.GetValueOrDefault("servico")?.ToString();
+                return (string.IsNullOrWhiteSpace(servico)
+                    ? estacao
+                    : DefinirStatusServico(estacao, servico, "Restabelecido") with { CompartilhamentoAcessivel = true }, dialogo);
+            }
             default:
                 return (estacao, dialogo);
         }

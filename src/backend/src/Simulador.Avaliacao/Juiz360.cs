@@ -43,6 +43,8 @@ public static partial class Juiz360
         return estado.Meta.CenarioId switch
         {
             "triagem-engenharia-social" => AvaliarNivel1(estado, eventos),
+            // PATCH_MASSIVO (e qualquer Causa desconhecida, por compatibilidade) segue em AvaliarNivel3.
+            "incidente-massivo" when estado.Meta.Causa is "EMAIL_PROVEDOR" or "DOMINIO_SUSPENSO" => AvaliarIncidenteExterno(estado, eventos),
             "incidente-massivo" => AvaliarNivel3(estado, eventos),
             "sre-cloud-latencia" => AvaliarNivel4Sre(estado, eventos),
             "diagnostico-sql-readonly" => AvaliarNivel4bSql(estado, eventos),

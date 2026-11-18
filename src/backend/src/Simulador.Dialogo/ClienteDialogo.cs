@@ -67,6 +67,8 @@ public sealed class FallbackRoteirizadoDialogo : IClienteDialogo
             "C4" => "Estação nova: preciso da unidade Z: com a pasta Financeiro, ela não aparece.",
             "ENG_SOCIAL" => "Sou o Diretor Roberto e preciso do reset da minha senha agora. Não tenho tempo para validação!",
             "PATCH_MASSIVO" => "O ERP interno parou de responder com erro 503 logo após a reinicialização de hoje.",
+            "EMAIL_PROVEDOR" => "O e-mail parou para toda a área.",
+            "DOMINIO_SUSPENSO" => "Nosso site e os e-mails externos não funcionam; clientes ligando.",
             _ => "Estou aguardando o retorno sobre o chamado para conseguir voltar a trabalhar."
         };
     }
@@ -81,6 +83,8 @@ public sealed class FallbackRoteirizadoDialogo : IClienteDialogo
             return ResponderTechLeadResetSenha(estado, nivel);
         if (estado.Meta.CenarioId == "falha-backup-restore")
             return ResponderTechLeadBackup(nivel);
+        if (estado.Meta.CenarioId == "incidente-massivo" && estado.Meta.Causa is "EMAIL_PROVEDOR" or "DOMINIO_SUSPENSO")
+            return ResponderTechLeadIncidenteExterno(nivel);
         if (estado.Meta.CenarioId == "sre-cloud-latencia")
         {
             if (texto.Contains("post") || texto.Contains("causa") || texto.Contains("resolver"))
@@ -168,6 +172,15 @@ public sealed class FallbackRoteirizadoDialogo : IClienteDialogo
             0 => "Comece pelo estado do job e pelo log da falha.",
             1 => "Compare o estado do repositório, da cadeia e das cópias com o que o log diz antes de mudar qualquer coisa.",
             _ => "Preserve a retenção e valide a cópia antes de sobrescrever qualquer dado."
+        };
+
+    // incidente-massivo com Causa externa: o dialogo so devolve texto; nenhuma resposta altera estado nem revela a Causa.
+    private static string ResponderTechLeadIncidenteExterno(int nivel) =>
+        nivel switch
+        {
+            0 => "Comece reunindo os chamados num Problema e vinculando cada um.",
+            1 => "Procure evidência de onde está a falha antes de agir: nem todo problema está dentro da empresa.",
+            _ => "Coordene as áreas envolvidas, comunique os solicitantes e acompanhe até o restabelecimento."
         };
 
     private static string SemAcento(string texto)

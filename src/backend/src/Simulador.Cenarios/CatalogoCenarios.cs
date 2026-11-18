@@ -29,7 +29,7 @@ public sealed partial class CatalogoCenarios : ICatalogoCenarios
         {
             "pasta-rede-inacessivel" => CriarPastaRede(versaoManifesto, causaForcada, semente),
             "triagem-engenharia-social" => CriarTriagemSeguranca(versaoManifesto),
-            "incidente-massivo" => CriarIncidenteMassivo(versaoManifesto),
+            "incidente-massivo" => CriarIncidenteMassivo(versaoManifesto, causaForcada, semente),
             "sre-cloud-latencia" => CriarSreCloud(versaoManifesto, causaForcada, semente),
             "diagnostico-sql-readonly" => CriarSqlReadOnly(versaoManifesto),
             "reset-senha-desbloqueio" => CriarResetSenha(versaoManifesto, causaForcada, semente),
@@ -150,7 +150,8 @@ public sealed partial class CatalogoCenarios : ICatalogoCenarios
             "Workstation");
     }
 
-    private static DefinicaoCenario CriarIncidenteMassivo(string versao)
+    // PATCH_MASSIVO: Definicao original de incidente-massivo, sem mudanca.
+    private static DefinicaoCenario CriarIncidentePatchMassivo(string versao)
     {
         var estacao = new EstadoEstacao(
             PrivilegioTerminal.UsuarioPadrao,

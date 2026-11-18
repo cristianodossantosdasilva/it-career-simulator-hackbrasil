@@ -346,4 +346,41 @@ public class PropriedadesCenariosPorEscalaTests
         Assert.Equal(a.CurriculoVivo.HashAuditoriaSha256, b.CurriculoVivo.HashAuditoriaSha256);
         Assert.Equal(causa == "CADEIA_CORROMPIDA" ? 7 : 6, a.Criterios.Count);
         Assert.All(a.Criterios, c => Assert.Contains(c.LinkKb!, Simulador.Avaliacao.KbCatalogo.UriParaId.Keys));
-    }}
+    }
+
+    private const string CenarioIncidente = "incidente-massivo";
+
+    private static void AssertReconstrucaoIgual(SessaoDeTeste s)
+    {
+        var rec = s.Reconstruir();
+        Assert.Equal(JsonSerializer.Serialize(s.Estado.Estacao), JsonSerializer.Serialize(rec.Estacao));
+        Assert.Equal(JsonSerializer.Serialize(s.Estado.Dialogo), JsonSerializer.Serialize(rec.Dialogo));
+        Assert.Equal(JsonSerializer.Serialize(s.Estado.Meta), JsonSerializer.Serialize(rec.Meta));
+        Assert.Equal(s.Avaliar().CurriculoVivo.HashAuditoriaSha256,
+            Simulador.Avaliacao.Juiz360.Avaliar(rec, s.Eventos).CurriculoVivo.HashAuditoriaSha256);
+    }
+
+    // Feature: cenarios-por-escala, Property 1: Reconstrucao equivalente (EMAIL_PROVEDOR)
+    // Validates: Requirements 15.2, 15.3
+    [Theory]
+    [MemberData(nameof(Sementes50))]
+    public void Propriedade1_ReconstrucaoEquivalente_EmailProvedor(long semente)
+    {
+        var s = SessaoDeTeste.Iniciar(CenarioIncidente, Versao, "EMAIL_PROVEDOR", semente);
+        IncidenteExternoTests.FluxoCorretoEmail(s);
+        s.Aplicar("dialogo.pedir_pista");
+        AssertReconstrucaoIgual(s);
+    }
+
+    // Feature: cenarios-por-escala, Property 8: Sorteio legado inalterado (incidente-massivo antes da ativacao)
+    // Validates: Requirement 16.3
+    [Theory]
+    [MemberData(nameof(Sementes200Sequenciais))]
+    public void Propriedade8_SorteioDeIncidenteMassivo_AteAAtivacaoDevolveSempreOPatchMassivo(long semente)
+    {
+        var obtido = new CatalogoCenarios().Obter(CenarioIncidente, Versao, null, semente);
+        Assert.Equal("PATCH_MASSIVO", obtido.Causa);
+        Assert.Single(obtido.EstacaoInicial.Servicos);
+        Assert.Equal("AuroraGateway", obtido.EstacaoInicial.Servicos[0].Nome);
+    }
+}

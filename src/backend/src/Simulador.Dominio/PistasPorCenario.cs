@@ -26,6 +26,13 @@ internal static class PistasPorCenario
         "Pista 3: Operacoes de backup exigem privilegio elevado. Confirme com o dono da pasta antes de resolver o chamado."
     ];
 
+    private static readonly string[] IncidenteExterno =
+    [
+        "Pista 1: Reuna os chamados num Problema e reuna evidencia de onde a falha esta antes de agir.",
+        "Pista 2: Se a evidencia aponta para fora da empresa, o seu papel e acionar quem pode resolver e manter todos informados.",
+        "Pista 3: Comunique o impacto aos solicitantes, acompanhe ate o restabelecimento e so entao resolva em lote."
+    ];
+
     internal static string Obter(string cenarioId, string causa, int indice)
     {
         if (indice < 0 || indice >= Maximo)
@@ -34,6 +41,7 @@ internal static class PistasPorCenario
         {
             "reset-senha-desbloqueio" => ResetSenha[indice],
             "falha-backup-restore" => BackupRestore[indice],
+            "incidente-massivo" when causa is "EMAIL_PROVEDOR" or "DOMINIO_SUSPENSO" => IncidenteExterno[indice],
             _ => Padrao[indice]
         };
     }

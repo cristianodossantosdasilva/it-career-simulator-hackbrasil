@@ -139,4 +139,34 @@ public class CenariosPorEscalaApiTests : IClassFixture<WebApplicationFactory<Pro
         var id = corpo.GetProperty("sessaoId").GetString()!;
         var replay = await _client.GetFromJsonAsync<JsonElement>($"/api/sessoes/{id}/replay");
         Assert.Equal(JsonValueKind.Null, replay.GetProperty("meta").GetProperty("causa").ValueKind);
-    }}
+    }
+
+    [Fact]
+    public async Task IncidenteMassivo_EmailProvedorForcada_CriaSessaoOcultandoACausa()
+    {
+        var resp = await _client.PostAsJsonAsync("/api/sessoes", new { cenarioId = "incidente-massivo", causaForcada = "EMAIL_PROVEDOR", semente = 42 });
+        Assert.Equal(HttpStatusCode.Created, resp.StatusCode);
+        var corpo = await resp.Content.ReadFromJsonAsync<JsonElement>();
+        var id = corpo.GetProperty("sessaoId").GetString()!;
+        var replay = await _client.GetFromJsonAsync<JsonElement>($"/api/sessoes/{id}/replay");
+        Assert.Equal("v0.1-hackathon", replay.GetProperty("meta").GetProperty("versaoManifesto").GetString());
+        Assert.Equal(JsonValueKind.Null, replay.GetProperty("meta").GetProperty("causa").ValueKind);
+        var projecao = await _client.GetFromJsonAsync<JsonElement>($"/api/sessoes/{id}");
+        var servicos = projecao.GetProperty("estacao").GetProperty("servicos").EnumerateArray()
+            .Select(x => x.GetProperty("nome").GetString()).ToArray();
+        Assert.Contains("ProvedorEmail", servicos);
+    }
+
+    [Fact]
+    public async Task IncidenteMassivo_ApelidoGatewayGravaPatchMassivoEFluxoDeSelecaoContinua()
+    {
+        var resp = await _client.PostAsJsonAsync("/api/sessoes", new { cenarioId = "incidente-massivo", causaForcada = "GATEWAY", semente = 7 });
+        Assert.Equal(HttpStatusCode.Created, resp.StatusCode);
+        var corpo = await resp.Content.ReadFromJsonAsync<JsonElement>();
+        var id = corpo.GetProperty("sessaoId").GetString()!;
+        var projecao = await _client.GetFromJsonAsync<JsonElement>($"/api/sessoes/{id}");
+        var servicos = projecao.GetProperty("estacao").GetProperty("servicos").EnumerateArray()
+            .Select(x => x.GetProperty("nome").GetString()!).ToArray();
+        Assert.Equal(new[] { "AuroraGateway" }, servicos);
+    }
+}

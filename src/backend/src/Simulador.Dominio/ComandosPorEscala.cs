@@ -19,6 +19,7 @@ internal static class ComandosPorEscala
             "reset-senha-desbloqueio" => ExecutarResetSenha(estado, texto, cenario),
             "pasta-rede-inacessivel" => ExecutarPastaRede(estado, texto, cenario),
             "falha-backup-restore" => ExecutarBackup(estado, texto, cenario),
+            "incidente-massivo" => ExecutarIncidenteExterno(estado, texto, cenario),
             _ => null
         };
     }
@@ -415,4 +416,100 @@ internal static class ComandosPorEscala
                 : Resultado(estado, "Restauracao falhou: cadeia incremental corrompida no ponto 14."),
             _ => throw new InvalidOperationException($"Causa sem regra de restauracao: {cenario.Causa}")
         };
-    }}
+    }
+
+    // ---------------------------------------------------------------- incidente-massivo (Causas externas)
+
+    private const string UrlStatusProvedor = "https://status.provedor-email.example";
+    private const string DominioPublicoFicticio = "aurora-logistica.example";
+
+    /// <summary>
+    /// Comandos das Causas externas (EMAIL_PROVEDOR e DOMINIO_SUSPENSO). PATCH_MASSIVO e os comandos
+    /// genericos (sc query, ping, nslookup) seguem o fluxo generico: devolve null.
+    /// </summary>
+    private static ResultadoComandoEscala? ExecutarIncidenteExterno(EstadoSessao estado, string comando, DefinicaoCenario cenario)
+    {
+        var email = cenario.Causa == "EMAIL_PROVEDOR";
+        if (!email && cenario.Causa != "DOMINIO_SUSPENSO") return null;
+
+        var lower = comando.ToLowerInvariant();
+        string? prefixo = null;
+        foreach (var p in new[] { "curl -i", "whois", "acionar", "acompanhar" })
+            if (lower.StartsWith(p, StringComparison.Ordinal)) { prefixo = p; break; }
+        if (prefixo is null) return null;
+
+        // "curl -ix", "whoisx": o prefixo declarado casou so por texto e nao e um comando do cenario.
+        if (comando.Length > prefixo.Length && !char.IsWhiteSpace(comando[prefixo.Length]))
+            return Resultado(estado, $"'{comando}' nao faz parte dos comandos declarados para este cenario.");
+        var arg = Argumento(comando, prefixo);
+
+        switch (prefixo)
+        {
+            case "curl -i" when email:
+                if (!string.Equals(arg.TrimEnd('/'), UrlStatusProvedor, StringComparison.OrdinalIgnoreCase))
+                    return Resultado(estado, "curl: (6) Could not resolve host");
+                return Resultado(estado,
+                    "HTTP/1.1 503 Service Unavailable | Incidente no provedor: falha regional de entrega SMTP (aberto 08:40).",
+                    Ev("EvidenciaExternaConfirmada", ("fonte", "status-provedor")));
+
+            case "whois" when !email:
+                if (arg.Length == 0) return Resultado(estado, "Uso: whois <dominio>");
+                if (!string.Equals(arg, DominioPublicoFicticio, StringComparison.OrdinalIgnoreCase))
+                    return Resultado(estado, "Dominio nao encontrado.");
+                return Resultado(estado,
+                    $"Dominio: {DominioPublicoFicticio} | Registrador: Registro Exemplo Ltda | " +
+                    "Status: clientHold (suspenso por inadimplencia da fatura) | Expira: 2027-03-01.",
+                    Ev("EvidenciaExternaConfirmada", ("fonte", "whois")));
+
+            case "acionar":
+                return AcionarArea(estado, cenario, arg);
+
+            case "acompanhar":
+                return AcompanharFornecedor(estado, cenario, arg);
+
+            default:
+                // curl -i em DOMINIO_SUSPENSO e whois em EMAIL_PROVEDOR nao estao declarados nessas Causas.
+                return Resultado(estado, $"'{comando}' nao faz parte dos comandos declarados para este cenario.");
+        }
+    }
+
+    private static ResultadoComandoEscala AcionarArea(EstadoSessao estado, DefinicaoCenario cenario, string arg)
+    {
+        var email = cenario.Causa == "EMAIL_PROVEDOR";
+        var fornecedor = string.Equals(arg, "fornecedor", StringComparison.OrdinalIgnoreCase);
+        var financeiro = string.Equals(arg, "financeiro", StringComparison.OrdinalIgnoreCase);
+        if (!fornecedor && !financeiro) return Resultado(estado, "Uso: acionar fornecedor|financeiro");
+
+        var area = fornecedor ? "Fornecedor" : "Financeiro";
+        // Repetir o acionamento de uma area que ja foi acionada nao gera Evento novo.
+        if (EfeitosDeEventos.StatusServico(estado.Estacao, "Area" + area) == "Acionada")
+            return Resultado(estado, fornecedor ? "Fornecedor ja foi acionado (protocolo FOR-0001)." : "Financeiro ja foi acionado.");
+
+        var evento = Ev("AreaAcionada", ("area", area));
+        if (fornecedor) return Resultado(estado, "Fornecedor acionado (protocolo FOR-0001).", evento);
+        return Resultado(estado,
+            email
+                ? "Financeiro acionado, mas esta area nao participa desta causa."
+                : "Financeiro acionado: pagamento da fatura do registrador em andamento.",
+            evento);
+    }
+
+    private static ResultadoComandoEscala AcompanharFornecedor(EstadoSessao estado, DefinicaoCenario cenario, string arg)
+    {
+        if (!string.Equals(arg, "fornecedor", StringComparison.OrdinalIgnoreCase))
+            return Resultado(estado, "Uso: acompanhar fornecedor");
+
+        var email = cenario.Causa == "EMAIL_PROVEDOR";
+        var servico = email ? "ProvedorEmail" : "DominioPublico";
+        if (EfeitosDeEventos.StatusServico(estado.Estacao, servico) == "Restabelecido")
+            return Resultado(estado, "O servico ja foi restabelecido; nada a acompanhar.");
+        if (EfeitosDeEventos.StatusServico(estado.Estacao, "AreaFornecedor") != "Acionada")
+            return Resultado(estado, "O fornecedor ainda nao foi acionado.");
+        if (!email && EfeitosDeEventos.StatusServico(estado.Estacao, "AreaFinanceiro") != "Acionada")
+            return Resultado(estado, "Falta acionar: Financeiro.");
+
+        return Resultado(estado, "Fornecedor confirma a normalizacao. Servico restabelecido.",
+            Ev("AcompanhamentoRegistrado", ("area", "Fornecedor")),
+            Ev("ServicoExternoRestabelecido", ("servico", servico)));
+    }
+}

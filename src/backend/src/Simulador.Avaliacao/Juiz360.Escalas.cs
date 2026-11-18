@@ -236,4 +236,112 @@ public static partial class Juiz360
             xp,
             new CurriculoVivo(estado.Meta.Nivel, xp, competencias, CalcularHashTrilha(eventos)),
             $"{atendidos}/{criterios.Count} criterios atendidos | XP: {xp}");
-    }}
+    }
+
+    // ------------------------------------------------------------------ incidente-massivo: Causas externas
+
+    private static RelatorioAvaliacao AvaliarIncidenteExterno(EstadoSessao estado, IReadOnlyList<EnvelopeEvento> eventos)
+    {
+        var criterios = new List<CriterioAvaliacao>();
+        var dominio = estado.Meta.Causa == "DOMINIO_SUSPENSO";
+
+        var prbCriado = eventos.FirstOrDefault(e => e.Tipo == "ProblemaCriado");
+        var primeiraResolucao = eventos.FirstOrDefault(e => e.Tipo is "ChamadoResolvido" or "ProblemaResolvidoEmLote");
+        var f1 = prbCriado is not null && (primeiraResolucao is null || prbCriado.Seq < primeiraResolucao.Seq);
+        criterios.Add(new("F1", "Problema ITIL criado antes de resolver chamados", f1, prbCriado?.Seq,
+            f1 ? "Problema criado antes de resolver chamados individuais." : "Chamados resolvidos sem criar Problema ITIL.",
+            "Em incidentes massivos, crie um Problema para correlacionar chamados antes de resolve-los.",
+            "kb://itil/gestao-problemas"));
+
+        var vinculos = eventos.Where(e => e.Tipo == "ChamadoVinculadoAProblema").ToArray();
+        var f2 = vinculos.Length >= 3;
+        criterios.Add(new("F2", "Todos os 3 chamados vinculados ao Problema", f2, vinculos.LastOrDefault()?.Seq,
+            f2 ? "Todos os chamados foram vinculados ao Problema." : $"Apenas {vinculos.Length}/3 chamados vinculados.",
+            "Vincule todos os chamados relacionados ao Problema para rastreabilidade.",
+            "kb://itil/vinculacao-problema"));
+
+        var evidencia = eventos.FirstOrDefault(e => e.Tipo == "EvidenciaExternaConfirmada");
+        var primeiroAcionamento = eventos.FirstOrDefault(e => e.Tipo == "AreaAcionada");
+        var f3 = evidencia is not null && (primeiroAcionamento is null || evidencia.Seq < primeiroAcionamento.Seq);
+        criterios.Add(new("F3", "Confirmou a falha externa por evidencia antes de acionar", f3, evidencia?.Seq,
+            f3 ? "Evidencia da falha externa obtida antes de acionar qualquer area." : "Area acionada sem evidencia previa de que a falha esta fora da empresa, ou evidencia nunca obtida.",
+            dominio
+                ? "Consulte o registro do dominio (whois) para confirmar o status antes de acionar o fornecedor e o financeiro."
+                : "Consulte a pagina de status do provedor (curl -i) para confirmar a falha antes de acionar o fornecedor.",
+            "kb://itil/falha-de-fornecedor"));
+
+        bool Acionada(string area) => eventos.Any(e => e.Tipo == "AreaAcionada" && Dado(e, "area") == area);
+        var f4 = Acionada("Fornecedor") && (!dominio || Acionada("Financeiro"));
+        criterios.Add(new("F4", "Acionou as areas da causa", f4, eventos.LastOrDefault(e => e.Tipo == "AreaAcionada")?.Seq,
+            f4 ? "As areas responsaveis foram acionadas." : "Nem todas as areas responsaveis pela causa foram acionadas.",
+            dominio
+                ? "Uma falha de dominio por inadimplencia pede acionar o fornecedor (registrador) e o financeiro (pagamento)."
+                : "Uma falha do provedor de e-mail pede acionar o fornecedor.",
+            "kb://itil/falha-de-fornecedor"));
+
+        var lote = eventos.FirstOrDefault(e => e.Tipo == "ProblemaResolvidoEmLote");
+        var notaPublica = eventos.FirstOrDefault(e => e.Tipo == "NotaChamadoAdicionada" && Dado(e, "tipo") == nameof(TipoNota.Publica) &&
+                                                         (lote is null || e.Seq < lote.Seq));
+        var f5 = notaPublica is not null && lote is not null;
+        criterios.Add(new("F5", "Comunicou o incidente aos solicitantes com nota publica antes de resolver em lote", f5, notaPublica?.Seq,
+            f5 ? "Nota publica registrada antes da resolucao em lote." : "Nenhuma nota publica foi registrada antes de resolver em lote.",
+            "Informe os solicitantes em nota publica sobre o impacto e o que esta sendo feito antes de encerrar.",
+            "kb://itil/comunicacao-de-incidente"));
+
+        var acompanhamento = eventos.FirstOrDefault(e => e.Tipo == "AcompanhamentoRegistrado");
+        var restabelecido = eventos.FirstOrDefault(e => e.Tipo == "ServicoExternoRestabelecido");
+        var f6 = acompanhamento is not null && restabelecido is not null;
+        criterios.Add(new("F6", "Acompanhou o fornecedor ate o restabelecimento", f6, restabelecido?.Seq ?? acompanhamento?.Seq,
+            f6 ? "Fornecedor acompanhado ate o restabelecimento do servico." : "O fornecedor nao foi acompanhado ate o restabelecimento.",
+            "Depois de acionar, acompanhe o fornecedor ate ele confirmar a normalizacao (acompanhar fornecedor).",
+            "kb://itil/falha-de-fornecedor"));
+
+        var crEv = eventos.LastOrDefault(e => e.Tipo == "CausaRaizRegistrada");
+        var crNorm = Normalizar(crEv is null ? "" : Dado(crEv, "causaRaiz") ?? "");
+        var f7 = crEv is not null && (dominio
+            ? crNorm.Contains("dominio", StringComparison.Ordinal) && crNorm.Contains("registrador", StringComparison.Ordinal) &&
+              new[] { "fatura", "inadimpl", "pagamento" }.Any(t => crNorm.Contains(t, StringComparison.Ordinal))
+            : crNorm.Contains("provedor", StringComparison.Ordinal) || crNorm.Contains("fornecedor", StringComparison.Ordinal));
+        criterios.Add(new("F7", "Causa raiz registra a origem externa", f7, crEv?.Seq,
+            f7 ? "Causa raiz registrada aponta a origem externa." : "A causa raiz nao aponta a origem externa.",
+            dominio
+                ? "Registre a causa raiz com o dominio, o registrador e o motivo (fatura, inadimplencia ou pagamento)."
+                : "Registre a causa raiz apontando o provedor ou o fornecedor externo.",
+            "kb://itil/analise-causa-raiz"));
+
+        // F8: o reinicio local e a ativacao de servicos nao resolvem uma falha externa; a Acao_Prejudicial tambem conta.
+        var internoOuPrejudicial = eventos.FirstOrDefault(e => e.Tipo is "ServicoReiniciado" or "ServicoIniciado" or "AcaoPrejudicialRegistrada");
+        var f8 = internoOuPrejudicial is null;
+        criterios.Add(new("F8", "Nao tentou consertar internamente nem agiu de forma prejudicial", f8, internoOuPrejudicial?.Seq,
+            f8 ? "Nenhuma tentativa de correcao interna nem acao prejudicial." : "Houve tentativa de corrigir internamente uma falha que esta fora da empresa, ou acao prejudicial.",
+            "Reiniciar servicos locais nao resolve uma falha do fornecedor. Acione quem pode resolver.",
+            "kb://seguranca/contencao-incidentes"));
+
+        var todosNoSla = estado.Itsm.Chamados.All(c => !c.SlaVencido);
+        var f9 = lote is not null && restabelecido is not null && lote.Seq > restabelecido.Seq && todosNoSla;
+        criterios.Add(new("F9", "Resolveu em lote depois do restabelecimento, dentro do SLA", f9, lote?.Seq,
+            f9 ? "Chamados resolvidos em lote apos o restabelecimento e dentro do SLA."
+                : "Resolucao em lote antes do restabelecimento, ausente ou fora do SLA.",
+            "Resolva em lote somente depois que o fornecedor confirmar o restabelecimento e dentro do SLA.",
+            "kb://itil/resolucao-lote"));
+
+        var atendidos = criterios.Count(c => c.Atendido);
+        var xp = Math.Max(0, atendidos * 10 + (f9 ? 10 : 0));
+
+        var competencias = new List<string>();
+        if (f3 && f4 && f5 && f6) competencias.Add("Gestao de Fornecedores e Comunicacao de Incidentes");
+        if (f1 && f2 && f9) competencias.Add("Gestao de Problemas ITIL");
+        if (f7) competencias.Add("Analise de Causa Raiz (RCA)");
+
+        var concluida = estado.Itsm.Problemas.Any(p => p.Resolvido);
+        // IncidenteSeguranca so por Acao_Prejudicial: tentar reiniciar um servico local reprova F8, mas nao e incidente de seguranca.
+        var incidenteSeguranca = eventos.Any(e => e.Tipo == "AcaoPrejudicialRegistrada");
+        return new RelatorioAvaliacao(
+            concluida,
+            criterios,
+            incidenteSeguranca,
+            xp,
+            new CurriculoVivo(estado.Meta.Nivel, xp, competencias, CalcularHashTrilha(eventos)),
+            $"{atendidos}/{criterios.Count} criterios atendidos | XP: {xp}");
+    }
+}
