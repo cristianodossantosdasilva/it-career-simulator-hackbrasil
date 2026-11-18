@@ -71,7 +71,7 @@ public class IncidenteExternoTests
     {
         var s = Nova("EMAIL_PROVEDOR");
         Assert.Equal("EMAIL_PROVEDOR", s.Estado.Meta.Causa);
-        Assert.Equal("Analista Pleno (N2)", s.Estado.Meta.Nivel);
+        Assert.Equal("N2 Pleno", s.Estado.Meta.Nivel);
         Assert.Equal("Running", Status(s.Estado, "AuroraGateway"));
         Assert.Equal("Indisponivel", Status(s.Estado, "ProvedorEmail"));
         Assert.Equal("Pendente", Status(s.Estado, "AreaFornecedor"));
@@ -395,7 +395,7 @@ public class IncidenteExternoTests
     {
         var s = Nova("DOMINIO_SUSPENSO");
         Assert.Equal("DOMINIO_SUSPENSO", s.Estado.Meta.Causa);
-        Assert.Equal("Analista Pleno (N2)", s.Estado.Meta.Nivel);
+        Assert.Equal("N2 Pleno", s.Estado.Meta.Nivel);
         Assert.Equal("Running", Status(s.Estado, "AuroraGateway"));
         Assert.Equal("Suspenso", Status(s.Estado, "DominioPublico"));
         Assert.Equal("Pendente", Status(s.Estado, "AreaFornecedor"));

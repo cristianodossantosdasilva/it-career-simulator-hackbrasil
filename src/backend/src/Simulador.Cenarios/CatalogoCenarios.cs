@@ -109,7 +109,7 @@ public sealed partial class CatalogoCenarios : ICatalogoCenarios
         return new DefinicaoCenario(
             "pasta-rede-inacessivel",
             versao,
-            "Analista Jr (N1)",
+            "Service Desk N1 Jr",
             causa,
             estacao,
             fila,
@@ -138,7 +138,7 @@ public sealed partial class CatalogoCenarios : ICatalogoCenarios
         return new DefinicaoCenario(
             "triagem-engenharia-social",
             versao,
-            "Estagiario",
+            "N3-C Segurança e Dados",
             "ENG_SOCIAL",
             estacao,
             [
@@ -176,7 +176,7 @@ public sealed partial class CatalogoCenarios : ICatalogoCenarios
         return new DefinicaoCenario(
             "incidente-massivo",
             versao,
-            "Analista Pleno (N2)",
+            "N2 Pleno",
             "PATCH_MASSIVO",
             estacao,
             [
@@ -239,7 +239,7 @@ public sealed partial class CatalogoCenarios : ICatalogoCenarios
         return new DefinicaoCenario(
             "sre-cloud-latencia",
             versao,
-            "Engenheiro SRE / Cloud (N3)",
+            "N3-A Redes e Nuvem",
             causa,
             estacao,
             [
@@ -274,7 +274,7 @@ public sealed partial class CatalogoCenarios : ICatalogoCenarios
         return new DefinicaoCenario(
             "diagnostico-sql-readonly",
             versao,
-            "Analista de Dados / DBA Jr (N3b)",
+            "N3-C Segurança e Dados",
             "DIVERGENCIA_PAGAMENTOS",
             estacao,
             [

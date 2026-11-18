@@ -61,7 +61,7 @@ public sealed partial class CatalogoCenarios
         return new DefinicaoCenario(
             "falha-backup-restore",
             versao,
-            "Especialista Data Center e Backup (N3-B)",
+            "N3-B Data Center e Backup",
             causa,
             estacao,
             fila,

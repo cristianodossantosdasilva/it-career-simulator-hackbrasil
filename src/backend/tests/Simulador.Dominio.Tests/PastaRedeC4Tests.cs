@@ -181,8 +181,20 @@ public class PastaRedeC4Tests
         [("incidente-massivo", "v0.1-hackathon", "DOMINIO_SUSPENSO")] = "e5a89381d82e116347eece8a4b2b35539b3e80a0e4bc577c00185e1b9a02206e"
     };
 
-    private static string HashDaDefinicao(DefinicaoCenario d) =>
-        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d)))).ToLowerInvariant();
+    // Os hashes acima foram medidos com o rotulo de nivel da escada anterior. O rotulo passou a ser o nome da escala
+    // do Catalogo de Rotas; o hash e conferido com o rotulo antigo para continuar provando que o restante da Definicao
+    // (estacao, fila, causa, sorteio) nao mudou.
+    private static readonly Dictionary<string, string> RotuloAnteriorDoNivel = new()
+    {
+        ["Service Desk N1 Jr"] = "Analista Jr (N1)",
+        ["N2 Pleno"] = "Analista Pleno (N2)"
+    };
+
+    private static string HashDaDefinicao(DefinicaoCenario d)
+    {
+        var comRotuloAntigo = d with { Nivel = RotuloAnteriorDoNivel.GetValueOrDefault(d.Nivel, d.Nivel) };
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(comRotuloAntigo)))).ToLowerInvariant();
+    }
 
     [Fact]
     public void CausaForcada_AposAAtivacao_DevolveADefinicaoDeAntesParaAsSementes0a199()

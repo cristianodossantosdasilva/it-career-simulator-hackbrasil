@@ -14,24 +14,24 @@
   {
     "nome": "curriculo_nucleo_v1",
     "entrada": {
-      "xpTotal": 150,
-      "cargoAtual": "Analista Jr (N1)",
+      "xpTotal": 90,
+      "cargoAtual": "Help Desk N1",
       "competencias": [
-        "Defesa contra Engenharia Social"
+        "Verificacao de Identidade"
       ],
       "sessoesConfirmadas": [
         {
-          "xp": 60,
-          "nivel": "Estagiario",
+          "xp": 90,
+          "nivel": "Help Desk N1",
           "concluida": true,
-          "cenarioId": "triagem-engenharia-social",
+          "cenarioId": "reset-senha-desbloqueio",
           "sessaoId": "00000000-0000-0000-0000-000000000001",
           "hashSessao": "abc"
         }
       ]
     },
-    "jcs": "{\"cargoAtual\":\"Analista Jr (N1)\",\"competencias\":[\"Defesa contra Engenharia Social\"],\"sessoesConfirmadas\":[{\"cenarioId\":\"triagem-engenharia-social\",\"concluida\":true,\"hashSessao\":\"abc\",\"nivel\":\"Estagiario\",\"sessaoId\":\"00000000-0000-0000-0000-000000000001\",\"xp\":60}],\"xpTotal\":150}",
-    "sha256": "8ba6c2b8df136a192c6684b5508b93a985b6ce995ce1bb4d5d3e6fc299e067a3"
+    "jcs": "{\"cargoAtual\":\"Help Desk N1\",\"competencias\":[\"Verificacao de Identidade\"],\"sessoesConfirmadas\":[{\"cenarioId\":\"reset-senha-desbloqueio\",\"concluida\":true,\"hashSessao\":\"abc\",\"nivel\":\"Help Desk N1\",\"sessaoId\":\"00000000-0000-0000-0000-000000000001\",\"xp\":90}],\"xpTotal\":90}",
+    "sha256": "854f225b10894d1dafc6e8c1dc6ecbe11ca5c1b13d35e7976728a92bf867916a"
   },
   {
     "nome": "array_e_nulos",
@@ -56,9 +56,9 @@
         "Observabilidade e Logs",
         "Simulação Prática 1º Dia"
       ],
-      "cargoAtual": "Técnico de Suporte Júnior (N1)"
+      "cargoAtual": "N3 Sênior"
     },
-    "jcs": "{\"cargoAtual\":\"Técnico de Suporte Júnior (N1)\",\"competencias\":[\"Conformidade e Governança\",\"Observabilidade e Logs\",\"Simulação Prática 1º Dia\"],\"xpTotal\":210}",
-    "sha256": "268b7c9578edd1c0ae262c7ad6e33a291f82c2e7fd0347bf135a60f2c0e6180a"
+    "jcs": "{\"cargoAtual\":\"N3 Sênior\",\"competencias\":[\"Conformidade e Governança\",\"Observabilidade e Logs\",\"Simulação Prática 1º Dia\"],\"xpTotal\":210}",
+    "sha256": "19b85539c2ff499953861ed3050dd1a804ae9584b19c5c3331588f0f0b4d3e1c"
   }
 ]

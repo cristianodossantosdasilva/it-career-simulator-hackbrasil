@@ -350,9 +350,11 @@ app.MapGet("/api/sessoes/{id:guid}/replay", async (
             seq = e.Seq,
             tipo = e.Tipo,
             minutoSimulado = e.MinutoSimulado,
-            payload = !relatorio.Concluida && e.Tipo == "SessaoIniciada"
-                ? e.Dados.Where(kv => !string.Equals(kv.Key, "causa", StringComparison.OrdinalIgnoreCase))
-                    .ToDictionary(kv => kv.Key, kv => kv.Value)
+            // SessaoIniciada gravada antes do alinhamento das escalas traz o rotulo antigo em "nivel". O evento fica
+            // intacto no Postgres (append-only, e o hash da trilha o le); a leitura devolve o nome da projecao.
+            payload = e.Tipo == "SessaoIniciada"
+                ? e.Dados.Where(kv => relatorio.Concluida || !string.Equals(kv.Key, "causa", StringComparison.OrdinalIgnoreCase))
+                    .ToDictionary(kv => kv.Key, kv => string.Equals(kv.Key, "nivel", StringComparison.Ordinal) ? estado.Meta.Nivel : kv.Value)
                 : e.Dados,
             criterios = criteriosPorSeq.TryGetValue(e.Seq, out var cs) ? cs : []
         }),
@@ -380,11 +382,13 @@ app.MapPost("/api/carreira/resumo", async (
     var sessoesNaoConfirmadas = new List<Guid>();
     var xpPorCenario = new Dictionary<string, int>(StringComparer.Ordinal);
     var competencias = new HashSet<string>(StringComparer.Ordinal);
-    var concluiuN1 = false;
-    var concluiuN2 = false;
-    var concluiuN3 = false;
-    var concluiuN4 = false;
-    var concluiuN4b = false;
+    var concluiuHelpDeskN1 = false;
+    var concluiuServiceDeskN1Jr = false;
+    var concluiuN2Pleno = false;
+    var concluiuN3ARedesNuvem = false;
+    var concluiuN3BDataCenterBackup = false;
+    var concluiuN3CTriagem = false;
+    var concluiuN3CSql = false;
 
     foreach (var id in ids)
     {
@@ -405,22 +409,30 @@ app.MapPost("/api/carreira/resumo", async (
                 competencias.Add(comp);
         }
 
-        if (meta.CenarioId == "triagem-engenharia-social" && av.Concluida && !av.IncidenteSeguranca)
-            concluiuN1 = true;
+        // Promocoes por escala do Catalogo de Rotas. Help Desk N1, Service Desk N1 Jr e N2 Pleno seguem a regra
+        // que ja valia para a escala correspondente; as quatro missoes da N3 Senior exigem todos os criterios.
+        if (meta.CenarioId == "reset-senha-desbloqueio" && av.Concluida && !av.IncidenteSeguranca)
+            concluiuHelpDeskN1 = true;
         if (meta.CenarioId == "pasta-rede-inacessivel" && av.Concluida && av.Criterios.FirstOrDefault(c => c.Id == "J2")?.Atendido == true)
-            concluiuN2 = true;
+            concluiuServiceDeskN1Jr = true;
         if (meta.CenarioId == "incidente-massivo" && av.Concluida)
-            concluiuN3 = true;
+            concluiuN2Pleno = true;
         if (meta.CenarioId == "sre-cloud-latencia" && av.Concluida && !av.IncidenteSeguranca && av.Criterios.All(c => c.Atendido))
-            concluiuN4 = true;
+            concluiuN3ARedesNuvem = true;
+        if (meta.CenarioId == "falha-backup-restore" && av.Concluida && !av.IncidenteSeguranca && av.Criterios.All(c => c.Atendido))
+            concluiuN3BDataCenterBackup = true;
+        if (meta.CenarioId == "triagem-engenharia-social" && av.Concluida && !av.IncidenteSeguranca)
+            concluiuN3CTriagem = true;
         if (meta.CenarioId == "diagnostico-sql-readonly" && av.Concluida && !av.IncidenteSeguranca && av.Criterios.All(c => c.Atendido))
-            concluiuN4b = true;
+            concluiuN3CSql = true;
 
         sessoesConfirmadas.Add(new
         {
             sessaoId = id,
             cenarioId = meta.CenarioId,
-            nivel = meta.Nivel,
+            // O nome da escala vem da projecao (catalogo atual), nao do meta gravado no Postgres: sessoes antigas
+            // ainda dentro do prazo de 30 dias guardam o rotulo da escada anterior e passam a sair com o nome novo.
+            nivel = estado.Meta.Nivel,
             concluida = av.Concluida,
             xp = av.XpTotal,
             hashSessao = av.CurriculoVivo.HashAuditoriaSha256
@@ -428,11 +440,15 @@ app.MapPost("/api/carreira/resumo", async (
     }
 
     var xpTotal = xpPorCenario.Values.Sum();
-    var cargoAtual = (concluiuN1 && concluiuN2 && concluiuN3) ? "Analista Pleno (N2) - Jornada Concluida"
-        : concluiuN3 ? "Analista Pleno (N2)"
-        : concluiuN2 ? "Analista Pleno (N2)"
-        : concluiuN1 ? "Analista Jr (N1)"
-        : "Estagiario";
+    var concluiuAlgumaN3 = concluiuN3ARedesNuvem || concluiuN3BDataCenterBackup || concluiuN3CTriagem || concluiuN3CSql;
+    var jornadaCompleta = concluiuHelpDeskN1 && concluiuServiceDeskN1Jr && concluiuN2Pleno
+        && concluiuN3ARedesNuvem && concluiuN3BDataCenterBackup && concluiuN3CTriagem && concluiuN3CSql;
+    var cargoAtual = jornadaCompleta ? "N3 Sênior - Jornada Concluída"
+        : concluiuAlgumaN3 ? "N3 Sênior"
+        : concluiuN2Pleno ? "N2 Pleno"
+        : concluiuServiceDeskN1Jr ? "Service Desk N1 Jr"
+        : concluiuHelpDeskN1 ? "Help Desk N1"
+        : "Sem escala concluída";
 
     var nucleo = new
     {
@@ -450,7 +466,16 @@ app.MapPost("/api/carreira/resumo", async (
         apelido = string.IsNullOrWhiteSpace(body?.Apelido) ? null : body.Apelido.Trim(),
         cargoAtual,
         xpTotal,
-        promocoes = new { nivel1Concluido = concluiuN1, nivel2Concluido = concluiuN2, nivel3Concluido = concluiuN3, nivel4Concluido = concluiuN4, nivel4bConcluido = concluiuN4b },
+        promocoes = new
+        {
+            helpDeskN1Concluido = concluiuHelpDeskN1,
+            serviceDeskN1JrConcluido = concluiuServiceDeskN1Jr,
+            n2PlenoConcluido = concluiuN2Pleno,
+            n3ARedesNuvemConcluido = concluiuN3ARedesNuvem,
+            n3BDataCenterBackupConcluido = concluiuN3BDataCenterBackup,
+            n3CTriagemConcluido = concluiuN3CTriagem,
+            n3CSqlConcluido = concluiuN3CSql
+        },
         competencias = nucleo.competencias,
         sessoesConfirmadas,
         sessoesNaoConfirmadas,

@@ -2,16 +2,21 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
 using Simulador.Cenarios;
+using Simulador.Dominio;
+using Simulador.Infra;
 
 namespace Simulador.Api.Tests;
 
 public class CenariosPorEscalaApiTests : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly HttpClient _client;
+    private readonly WebApplicationFactory<Program> _factory;
 
     public CenariosPorEscalaApiTests(WebApplicationFactory<Program> factory)
     {
+        _factory = factory;
         _client = factory.CreateClient();
     }
 
@@ -68,7 +73,9 @@ public class CenariosPorEscalaApiTests : IClassFixture<WebApplicationFactory<Pro
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
         var corpo = await resp.Content.ReadFromJsonAsync<JsonElement>();
         Assert.Equal(90, corpo.GetProperty("xpTotal").GetInt32());
-        Assert.Equal("Estagiario", corpo.GetProperty("cargoAtual").GetString());
+        Assert.Equal("Help Desk N1", corpo.GetProperty("cargoAtual").GetString());
+        Assert.True(corpo.GetProperty("promocoes").GetProperty("helpDeskN1Concluido").GetBoolean());
+        Assert.Equal("Help Desk N1", corpo.GetProperty("sessoesConfirmadas")[0].GetProperty("nivel").GetString());
     }
 
     [Fact]
@@ -168,5 +175,37 @@ public class CenariosPorEscalaApiTests : IClassFixture<WebApplicationFactory<Pro
         var servicos = projecao.GetProperty("estacao").GetProperty("servicos").EnumerateArray()
             .Select(x => x.GetProperty("nome").GetString()!).ToArray();
         Assert.Equal(new[] { "AuroraGateway" }, servicos);
+    }
+
+    /// <summary>
+    /// Sessao gravada antes do alinhamento das escalas (prazo de 30 dias no Postgres): o meta e o evento SessaoIniciada
+    /// guardam o rotulo antigo. O evento nao e reescrito; a leitura devolve o nome da escala atual.
+    /// </summary>
+    [Fact]
+    public async Task SessaoLegada_ComRotuloAntigo_SaiComNomeDaEscalaNaLeituraSemReescreverOEvento()
+    {
+        var catalogo = new CatalogoCenarios();
+        var cenario = catalogo.Obter("pasta-rede-inacessivel", "v1.1", null, 7);
+        var inicio = Motor.Iniciar(cenario, 7);
+        var legados = inicio.Eventos.Select(e => e.Tipo == "SessaoIniciada"
+            ? e with { Dados = e.Dados.ToDictionary(kv => kv.Key, kv => kv.Key == "nivel" ? "Analista Jr (N1)" : kv.Value) }
+            : e).ToList();
+        Assert.Equal("Analista Jr (N1)", legados.First(e => e.Tipo == "SessaoIniciada").Dados["nivel"]);
+        var sessaoId = Guid.NewGuid();
+        var agora = DateTimeOffset.UtcNow;
+        var store = _factory.Services.GetRequiredService<IEventStore>();
+        await store.CriarSessaoAsync(new RegistroSessao(sessaoId, 7, cenario.CenarioId, cenario.Causa, "Analista Jr (N1)", cenario.VersaoManifesto, agora, agora.AddDays(30)), legados);
+
+        var replay = await _client.GetFromJsonAsync<JsonElement>($"/api/sessoes/{sessaoId}/replay");
+        Assert.Equal("Service Desk N1 Jr", replay.GetProperty("meta").GetProperty("nivel").GetString());
+        var inicial = replay.GetProperty("eventos").EnumerateArray().First(e => e.GetProperty("tipo").GetString() == "SessaoIniciada");
+        Assert.Equal("Service Desk N1 Jr", inicial.GetProperty("payload").GetProperty("nivel").GetString());
+
+        var resp = await _client.PostAsJsonAsync("/api/carreira/resumo", new { sessaoIds = new[] { sessaoId } });
+        var corpo = await resp.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Service Desk N1 Jr", corpo.GetProperty("sessoesConfirmadas")[0].GetProperty("nivel").GetString());
+
+        var (_, eventosGravados) = await store.ObterSessaoAsync(sessaoId);
+        Assert.Equal("Analista Jr (N1)", eventosGravados.First(e => e.Tipo == "SessaoIniciada").Dados["nivel"]);
     }
 }

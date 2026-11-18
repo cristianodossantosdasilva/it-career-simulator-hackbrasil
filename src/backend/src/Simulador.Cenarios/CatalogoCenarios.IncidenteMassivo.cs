@@ -92,7 +92,7 @@ public sealed partial class CatalogoCenarios
         return new DefinicaoCenario(
             "incidente-massivo",
             versao,
-            "Analista Pleno (N2)",
+            "N2 Pleno",
             causa,
             estacao,
             fila,

@@ -82,7 +82,7 @@ public sealed partial class CatalogoCenarios
         return new DefinicaoCenario(
             "reset-senha-desbloqueio",
             versao,
-            "Help Desk (N1)",
+            "Help Desk N1",
             causa,
             estacao,
             fila,

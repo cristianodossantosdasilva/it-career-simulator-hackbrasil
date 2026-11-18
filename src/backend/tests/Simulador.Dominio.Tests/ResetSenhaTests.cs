@@ -48,7 +48,7 @@ public class ResetSenhaTests
     {
         var s = Nova("SENHA_ESQUECIDA", porTerceiro: false);
         Assert.Equal("SENHA_ESQUECIDA", s.Estado.Meta.Causa);
-        Assert.Equal("Help Desk (N1)", s.Estado.Meta.Nivel);
+        Assert.Equal("Help Desk N1", s.Estado.Meta.Nivel);
         Assert.Equal("AUR-2087", s.Cenario.Titular!.Matricula);
         Assert.Equal(3, s.Estado.Itsm.Chamados.Count);
         Assert.Equal("Fernanda Lima", s.Estado.Itsm.Chamados[0].Solicitante);

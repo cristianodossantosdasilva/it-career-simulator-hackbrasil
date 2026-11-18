@@ -41,7 +41,7 @@ public class BackupRestoreTests
     {
         var s = Nova("REPOSITORIO_CHEIO");
         Assert.Equal("REPOSITORIO_CHEIO", s.Estado.Meta.Causa);
-        Assert.Equal("Especialista Data Center e Backup (N3-B)", s.Estado.Meta.Nivel);
+        Assert.Equal("N3-B Data Center e Backup", s.Estado.Meta.Nivel);
         Assert.Equal("Failed", Status(s.Estado, "JobBackupFinanceiro"));
         Assert.Equal("Online", Status(s.Estado, "RepositorioBackup"));
         Assert.Equal("Disponivel", Status(s.Estado, "PastaFinanceiro"));
