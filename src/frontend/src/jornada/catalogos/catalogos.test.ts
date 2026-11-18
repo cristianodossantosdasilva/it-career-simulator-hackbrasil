@@ -9,6 +9,8 @@ import {
   missoesDaEscala,
   rotaPorId,
 } from './catalogoRotas'
+import { AVISO_CERTIFICACOES, CATALOGO_CERTIFICACOES } from './catalogoCertificacoes'
+import { CATALOGO_PARCEIROS } from './catalogoParceiros'
 import { APRESENTACAO_STATUS } from './status'
 
 const ROTAS: readonly Rota[] = CATALOGO_ROTAS
@@ -126,6 +128,64 @@ describe('Catálogo de rotas', () => {
 
   it('não usa E comercial nem emoji nos textos do catálogo e dos status', () => {
     const textos = JSON.stringify([CATALOGO_ROTAS, APRESENTACAO_STATUS])
+    expect(textos).not.toContain('&')
+    expect(textos).not.toMatch(/\p{Extended_Pictographic}/u)
+  })
+})
+
+const TERMOS_PROIBIDOS_EM_CERTIFICACAO = ['oficial', 'parceiro', 'equivalente', 'credenciado', 'certificado pelo']
+const EMPRESAS_REAIS = ['senai', 'microsoft', 'google', 'amazon', 'aws', 'cisco', 'oracle', 'ibm', 'linkedin', 'totvs']
+
+describe('Catálogo de certificações', () => {
+  it('dá a cada item um status do catálogo e uma escala existente na rota', () => {
+    const escalas = new Set(suporte.escalas.map((escala) => escala.id))
+    expect(new Set(CATALOGO_CERTIFICACOES.map((item) => item.id)).size).toBe(CATALOGO_CERTIFICACOES.length)
+    for (const item of CATALOGO_CERTIFICACOES) {
+      expect(Object.keys(APRESENTACAO_STATUS), item.id).toContain(item.status)
+      expect(rotaPorId(item.rotaId), item.id).not.toBeNull()
+      expect(item.escalaIds.length, item.id).toBeGreaterThan(0)
+      for (const escala of item.escalaIds) expect(escalas.has(escala), `${item.id}: ${escala}`).toBe(true)
+    }
+  })
+  it('atribui os status e as escalas do design', () => {
+    expect(CATALOGO_CERTIFICACOES.map((item) => [item.nome, item.escalaIds, item.status])).toEqual([
+      ['CompTIA A+', ['help-desk-n1'], 'disponivel'],
+      ['ITIL 4 Foundation', ['service-desk-n1-jr', 'n2-pleno'], 'disponivel'],
+      ['CompTIA Network+', ['service-desk-n1-jr'], 'em-preparacao'],
+      ['CompTIA Security+', ['n3-senior'], 'futuro'],
+      ['Fundamentos de nuvem de provedores públicos (referência genérica)', ['n3-senior'], 'futuro'],
+    ])
+  })
+  it('não usa oficial, parceiro, equivalente, credenciado nem certificado pelo nos itens', () => {
+    const textos = CATALOGO_CERTIFICACOES.map((item) => `${item.nome} ${item.descricao}`.toLowerCase())
+    for (const texto of textos) {
+      for (const termo of TERMOS_PROIBIDOS_EM_CERTIFICACAO) expect(texto, termo).not.toContain(termo)
+    }
+  })
+  it('traz o aviso fixo de que não há parceria, equivalência nem emissão', () => {
+    expect(AVISO_CERTIFICACOES).toContain('não tem parceria')
+    expect(AVISO_CERTIFICACOES).toContain('não equivale')
+    expect(AVISO_CERTIFICACOES).toContain('não emite certificado')
+  })
+})
+
+describe('Catálogo de parceiros', () => {
+  it('tem os 3 itens genéricos, todos com status futuro e sem campo de nome', () => {
+    expect(CATALOGO_PARCEIROS.map((item) => item.tipo)).toEqual(['ensino', 'empregador', 'comunidade'])
+    for (const item of CATALOGO_PARCEIROS) {
+      expect(item.status, item.id).toBe('futuro')
+      expect(Object.keys(item).sort()).toEqual(['descricao', 'id', 'status', 'tipo'])
+    }
+  })
+  it('não cita nome de empresa real nem a marca SENAI', () => {
+    const texto = JSON.stringify(CATALOGO_PARCEIROS).toLowerCase()
+    for (const nome of EMPRESAS_REAIS) expect(texto, nome).not.toMatch(new RegExp(`\\b${nome}\\b`))
+  })
+})
+
+describe('Textos dos catálogos de certificações e parceiros', () => {
+  it('não usam E comercial nem emoji', () => {
+    const textos = JSON.stringify([CATALOGO_CERTIFICACOES, AVISO_CERTIFICACOES, CATALOGO_PARCEIROS])
     expect(textos).not.toContain('&')
     expect(textos).not.toMatch(/\p{Extended_Pictographic}/u)
   })
