@@ -37,7 +37,7 @@ function criarChamado(sobrescrever: Partial<ChamadoDto> = {}): ChamadoDto {
 
 function criarSessao(chamado: Partial<ChamadoDto> = {}, cenarioId = 'triagem-engenharia-social'): SessaoProjecao {
   return {
-    carreira: { cargoAtual: 'Estagiário', xpTotal: 0, missoesConcluidas: [] },
+    carreira: { cargoAtual: 'Sem escala concluída', xpTotal: 0, missoesConcluidas: [] },
     chamados: [criarChamado(chamado)],
     problemas: [],
     estacao: {

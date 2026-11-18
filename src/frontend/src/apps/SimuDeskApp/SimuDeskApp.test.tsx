@@ -77,8 +77,8 @@ describe('SimuDeskApp W18', () => {
   })
 
   it.each([
-    ['N4', 'sre-cloud-latencia', ['Painel de Cluster Kubernetes', 'Pool PgBouncer', 'Ingress TLS', T.regiaoSreMitigacao], T.comandosSre],
-    ['N4b', 'diagnostico-sql-readonly', ['Modo somente leitura', T.regiaoSchema, 'Consultas sugeridas'], T.consultasSql],
+    ['N3-A', 'sre-cloud-latencia', ['Painel de Cluster Kubernetes', 'Pool PgBouncer', 'Ingress TLS', T.regiaoSreMitigacao], T.comandosSre],
+    ['N3-C SQL', 'diagnostico-sql-readonly', ['Modo somente leitura', T.regiaoSchema, 'Consultas sugeridas'], T.consultasSql],
   ])('não tem violações axe-core no cenário %s (%s) com painéis montados', async (_nivel, cenarioId, regioes, toolbar) => {
     const sessaoCenario = { ...sessao, meta: { ...sessao.meta, cenarioId } } as SessaoProjecao
     const { container } = render(<SimuDeskApp {...baseProps} sessao={sessaoCenario} />)

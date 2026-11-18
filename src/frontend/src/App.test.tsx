@@ -168,15 +168,15 @@ describe('IT Flight Simulator UI', () => {
       new Response(
         JSON.stringify({
           apelido: null,
-          cargoAtual: 'Analista Jr (N1)',
+          cargoAtual: 'N3 Sênior',
           xpTotal: 150,
-          promocoes: { nivel1Concluido: true, nivel2Concluido: false, nivel3Concluido: false, nivel4Concluido: true, nivel4bConcluido: false },
+          promocoes: { helpDeskN1Concluido: true, serviceDeskN1JrConcluido: false, n2PlenoConcluido: false, n3ARedesNuvemConcluido: true, n3BDataCenterBackupConcluido: false, n3CTriagemConcluido: false, n3CSqlConcluido: false },
           competencias: ['Triagem e Seguranca'],
           sessoesConfirmadas: [
             {
               sessaoId: 'sessao-1',
-              cenarioId: 'triagem-engenharia-social',
-              nivel: 'N1',
+              cenarioId: 'reset-senha-desbloqueio',
+              nivel: 'Help Desk N1',
               concluida: true,
               xp: 150,
               hashSessao: 'abc',
@@ -198,7 +198,7 @@ describe('IT Flight Simulator UI', () => {
     const painelCarreira = await screen.findByRole('region', {
       name: /Progressão de Carreira e Currículo Vivo/i,
     })
-    expect(within(painelCarreira).getByText(/Analista Jr \(N1\)/i)).toBeInTheDocument()
+    expect(within(painelCarreira).getByText(/N3 Sênior/i)).toBeInTheDocument()
     expect(within(painelCarreira).getByText(/150 XP/i)).toBeInTheDocument()
     expect(within(painelCarreira).getByText('Incidente Cloud e Kubernetes (Simulador) OK')).toBeInTheDocument()
     expect(within(painelCarreira).getByText('Auditoria SQL Somente Leitura Pendente')).toBeInTheDocument()
@@ -252,7 +252,7 @@ describe('IT Flight Simulator UI', () => {
     const r1 = await verificarCurriculoVivoJson(integroJson)
     expect(r1.status).toBe('integro')
 
-    const r2 = await verificarCurriculoVivoJson(integroJson.replace('"xpTotal":150', '"xpTotal":999'))
+    const r2 = await verificarCurriculoVivoJson(integroJson.replace('"xpTotal":90', '"xpTotal":999'))
     expect(r2.status).toBe('divergente')
 
     const r3 = await verificarCurriculoVivoJson('{json-invalido')
@@ -263,12 +263,12 @@ describe('IT Flight Simulator UI', () => {
     const vetor = vetoresJcs.find((v) => v.nome === 'curriculo_nucleo_v1')!
     const exportado = {
       ...vetor.entrada,
-      promocoes: { nivel4Concluido: true, nivel4bConcluido: false },
+      promocoes: { n3ARedesNuvemConcluido: true, n3CSqlConcluido: false },
       apelido: 'Codex',
       integridade: { hash: vetor.sha256, algoritmo: 'SHA-256/JCS-RFC8785' },
     }
     expect((await verificarCurriculoVivoJson(JSON.stringify(exportado))).status).toBe('integro')
-    exportado.promocoes.nivel4Concluido = false
+    exportado.promocoes.n3ARedesNuvemConcluido = false
     exportado.apelido = 'Outra pessoa'
     expect((await verificarCurriculoVivoJson(JSON.stringify(exportado))).status).toBe('integro')
     expect(canonicalizarJcs(vetor.entrada)).toBe(vetor.jcs)

@@ -286,10 +286,10 @@ test.describe('IT Flight Simulator: jornadas E2E', () => {
     await expect(page.getByRole('status').filter({ hasText: 'NAO VERIFICAVEL:' })).toBeVisible()
     await textarea.fill(
       JSON.stringify({
-        cargoAtual: 'Estagiario (Adulterado)',
+        cargoAtual: 'N3 Sênior (Adulterado)',
         xpTotal: 9999,
         competencias: [],
-        promocoes: { nivel1Concluido: true, nivel2Concluido: false, nivel3Concluido: false },
+        promocoes: { helpDeskN1Concluido: true, serviceDeskN1JrConcluido: false, n2PlenoConcluido: false },
         sessoesConfirmadas: [],
         sessoesNaoConfirmadas: [],
         integridade: {
@@ -381,7 +381,7 @@ test.describe('IT Flight Simulator: jornadas E2E', () => {
     await expect(page.getByText('XP: 80')).toBeVisible()
   })
 
-  test('Negativa N4b: bloqueia DROP TABLE e UNION com tentativa de injecao', async ({ page }) => {
+  test('Negativa N3-C SQL: bloqueia DROP TABLE e UNION com tentativa de injecao', async ({ page }) => {
     await embarcar(page, 'diagnostico-sql-readonly', { modo: true })
     await page.getByRole('button', { name: T.itsm.assumirChamado }).click()
     await page.getByRole('button', { name: T.itsm.salvarClassificacao }).click()

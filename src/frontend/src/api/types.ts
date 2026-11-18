@@ -143,11 +143,13 @@ export interface CarreiraResumoResponse {
   cargoAtual: string
   xpTotal: number
   promocoes: {
-    nivel1Concluido: boolean
-    nivel2Concluido: boolean
-    nivel3Concluido: boolean
-    nivel4Concluido: boolean
-    nivel4bConcluido: boolean
+    helpDeskN1Concluido: boolean
+    serviceDeskN1JrConcluido: boolean
+    n2PlenoConcluido: boolean
+    n3ARedesNuvemConcluido: boolean
+    n3BDataCenterBackupConcluido: boolean
+    n3CTriagemConcluido: boolean
+    n3CSqlConcluido: boolean
   }
   competencias: string[]
   sessoesConfirmadas: {

@@ -84,11 +84,13 @@ export function CredencialView({
 
   const promocoes: [IdMissao, boolean][] = resumoCarreira
     ? [
-        ['triagem-engenharia-social', resumoCarreira.promocoes.nivel1Concluido],
-        ['pasta-rede-inacessivel', resumoCarreira.promocoes.nivel2Concluido],
-        ['incidente-massivo', resumoCarreira.promocoes.nivel3Concluido],
-        ['sre-cloud-latencia', resumoCarreira.promocoes.nivel4Concluido],
-        ['diagnostico-sql-readonly', resumoCarreira.promocoes.nivel4bConcluido],
+        ['reset-senha-desbloqueio', resumoCarreira.promocoes.helpDeskN1Concluido],
+        ['pasta-rede-inacessivel', resumoCarreira.promocoes.serviceDeskN1JrConcluido],
+        ['incidente-massivo', resumoCarreira.promocoes.n2PlenoConcluido],
+        ['sre-cloud-latencia', resumoCarreira.promocoes.n3ARedesNuvemConcluido],
+        ['falha-backup-restore', resumoCarreira.promocoes.n3BDataCenterBackupConcluido],
+        ['triagem-engenharia-social', resumoCarreira.promocoes.n3CTriagemConcluido],
+        ['diagnostico-sql-readonly', resumoCarreira.promocoes.n3CSqlConcluido],
       ]
     : []
 

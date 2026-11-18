@@ -12,7 +12,7 @@ afterEach(cleanup)
 
 const sessao = ({} as SessaoProjecao)
 Object.assign(sessao, {
-  carreira: { cargoAtual: 'Analista Jr', xpTotal: 0, missoesConcluidas: [] }, chamados: [{ id: 'CH-0001', solicitante: 'Maria Souza' }], problemas: [], estacao: {},
+  carreira: { cargoAtual: 'Help Desk N1', xpTotal: 0, missoesConcluidas: [] }, chamados: [{ id: 'CH-0001', solicitante: 'Maria Souza' }], problemas: [], estacao: {},
   dialogo: {
     acessoRemotoLiberado: false, idAcessoRemoto: null, pinAcessoRemoto: null, identidadeValidada: false,
     pistasSolicitadas: 0, usuarioConfirmouFuncionamento: false,
@@ -22,7 +22,7 @@ Object.assign(sessao, {
       { seq: 3, remetente: 'techlead', conteudo: 'Confirme primeiro a conexão de rede.', minutoSimulado: 3 },
     ],
   },
-  meta: { cenarioId: 'demo', semente: 1, nivel: 'N1', versaoManifesto: '1', minutoSimulado: 3, ultimoSeq: 3 }, ultimoSeq: 3,
+  meta: { cenarioId: 'demo', semente: 1, nivel: 'Help Desk N1', versaoManifesto: '1', minutoSimulado: 3, ultimoSeq: 3 }, ultimoSeq: 3,
 })
 
 describe('ChatApp W22', () => {

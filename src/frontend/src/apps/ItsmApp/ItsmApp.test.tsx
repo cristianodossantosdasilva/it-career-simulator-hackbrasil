@@ -12,12 +12,12 @@ const T = TEXTOS_WORKSTATION.itsm
 
 const sessao = ({} as SessaoProjecao)
 Object.assign(sessao, {
-  carreira: { cargoAtual: 'Analista Jr', xpTotal: 0, missoesConcluidas: [] },
+  carreira: { cargoAtual: 'Help Desk N1', xpTotal: 0, missoesConcluidas: [] },
   chamados: [
     { id: 'CH-0001', titulo: 'Acesso à rede indisponível', descricao: 'A usuária não consegue acessar a pasta compartilhada.', solicitante: 'Maria Silva', status: 'EmAtendimento', categoria: 'Acesso a Rede', urgencia: 'Alta', impacto: 'Medio', prioridade: 'P2', abertoEmMinuto: 0, slaAlvoMinuto: 30, resolvidoEmMinuto: null, slaVencido: true, responsavel: 'Analista', nivelAtendimento: 'N1', problemaId: null, notas: [{ seq: 1, tipo: 'Interna', autor: 'Analista', texto: 'Conexão validada; investigando permissões.', minutoSimulado: 4 }] },
     { id: 'CH-0002', titulo: 'Impressora sem resposta', descricao: 'A impressora do setor está indisponível.', solicitante: 'João Souza', status: 'Novo', categoria: null, urgencia: null, impacto: null, prioridade: 'P3', abertoEmMinuto: 1, slaAlvoMinuto: 60, resolvidoEmMinuto: null, slaVencido: false, responsavel: null, nivelAtendimento: null, problemaId: null, notas: [] },
   ],
-  problemas: [], estacao: {}, dialogo: {}, meta: { cenarioId: 'demo', semente: 1, nivel: 'N1', versaoManifesto: '1', minutoSimulado: 4, ultimoSeq: 1 }, ultimoSeq: 1,
+  problemas: [], estacao: {}, dialogo: {}, meta: { cenarioId: 'demo', semente: 1, nivel: 'Help Desk N1', versaoManifesto: '1', minutoSimulado: 4, ultimoSeq: 1 }, ultimoSeq: 1,
 })
 
 const sessaoTriagem = { ...sessao, meta: { ...sessao.meta, cenarioId: 'triagem-engenharia-social' } } as SessaoProjecao
