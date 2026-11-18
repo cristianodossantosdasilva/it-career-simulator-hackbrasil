@@ -200,6 +200,41 @@ describe('abrirVoo', () => {
     await waitFor(() => expect(voo?.registroRecente?.sessaoId).toBe('sessao-nova'))
   })
 
+  it('atualiza o resumo da carreira sozinho depois de gravar o Registro_de_Voo, e só nesse caso', async () => {
+    const chamadas = simularApi({ missao: 'sre-cloud-latencia', avaliacao: AVALIACAO_CONCLUIDA })
+    const armazenamento = criarArmazenamentoFalso()
+    let voo: ValorVoo | null = null
+    const resultados = montar('sre-cloud-latencia', armazenamento, (v) => (voo = v))
+    await waitFor(() => expect(resultados.length).toBeGreaterThan(0))
+    const resumos = () => chamadas.filter((c) => c.url.includes('/api/carreira/resumo'))
+    // A abertura do voo já pede o resumo uma vez.
+    await waitFor(() => expect(resumos()).toHaveLength(1))
+    await act(async () => {
+      await voo?.executarAcao('itsm.resolver', { nota: 'ok' })
+    })
+    await waitFor(() => expect(lerRegistros(armazenamento)).toHaveLength(1))
+    await waitFor(() => expect(resumos()).toHaveLength(2))
+    const ultima = resumos()[1]
+    expect(ultima.metodo).toBe('POST')
+    expect(JSON.parse(ultima.corpo ?? '{}').sessaoIds).toEqual(['sessao-nova'])
+    // O pedido vem depois da avaliação que autorizou a gravação.
+    const indiceAvaliacao = chamadas.findIndex((c) => c.url.endsWith('/avaliacao'))
+    expect(chamadas.indexOf(ultima)).toBeGreaterThan(indiceAvaliacao)
+  })
+
+  it('não pede o resumo de novo quando a avaliação não está concluída', async () => {
+    const chamadas = simularApi({ missao: 'pasta-rede-inacessivel' })
+    const armazenamento = criarArmazenamentoFalso()
+    let voo: ValorVoo | null = null
+    const resultados = montar('pasta-rede-inacessivel', armazenamento, (v) => (voo = v))
+    await waitFor(() => expect(resultados.length).toBeGreaterThan(0))
+    await act(async () => {
+      await voo?.executarAcao('itsm.resolver')
+    })
+    await waitFor(() => expect(chamadas.some((c) => c.url.endsWith('/avaliacao'))).toBe(true))
+    expect(chamadas.filter((c) => c.url.includes('/api/carreira/resumo'))).toHaveLength(1)
+  })
+
   it('não grava registro quando a avaliação não está concluída', async () => {
     const chamadas = simularApi({ missao: 'pasta-rede-inacessivel' })
     const armazenamento = criarArmazenamentoFalso()

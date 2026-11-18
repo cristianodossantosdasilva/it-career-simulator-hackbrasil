@@ -250,6 +250,8 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
       if (!registro) return
       armazenamentoJornada.registrarVoo(registro)
       setRegistroRecente(registro)
+      // O resumo da carreira acompanha o voo concluído sem o aluno precisar pedir. Só a Cabine chega aqui.
+      void atualizarResumoCarreira()
     } catch {
       setFalhaRegistro(true)
     }
