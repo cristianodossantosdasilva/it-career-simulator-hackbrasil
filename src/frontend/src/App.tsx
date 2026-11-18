@@ -1,9 +1,11 @@
 import { Component, type ReactNode } from 'react'
+import { BarraDaJornada } from './jornada/BarraDaJornada'
 import { useVoo } from './jornada/contextosJornada'
+import { useLocalAtual } from './jornada/navegacao/navegador'
 import { Roteador } from './jornada/navegacao/Roteador'
+import { renderizarPaginaJornada } from './jornada/paginas/renderizarPaginaJornada'
 import { ProvedorJornada } from './jornada/ProvedorJornada'
 import { AppShell } from './shell/AppShell'
-import { WorkstationInner } from './workstation/WorkstationInner'
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { erro: Error | null }> {
   state = { erro: null as Error | null }
@@ -30,11 +32,13 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { erro: Error | n
 
 /** AppShell com a densidade e o atalho de retomada derivados do voo em memória. */
 function CascaJornada({ children }: { children: ReactNode }) {
-  const { sessaoId, sessao, emLaboratorio, retomarLaboratorio } = useVoo()
+  const { sessaoId, sessao, retomarLaboratorio } = useVoo()
+  const local = useLocalAtual()
   const sessaoAtiva = Boolean(sessaoId && sessao)
+  const naCabine = local.caminho.startsWith('/cabine/')
   return (
     <AppShell
-      densidade={sessaoAtiva && emLaboratorio ? 'operacional' : 'editorial'}
+      densidade={sessaoAtiva && naCabine ? 'operacional' : 'editorial'}
       sessaoAtiva={sessaoAtiva}
       onRetomarLaboratorio={retomarLaboratorio}
     >
@@ -48,8 +52,10 @@ export function App() {
     <ErrorBoundary>
       <ProvedorJornada>
         <CascaJornada>
-          {/* Fase 1: todo endereço mostra a árvore atual, que já tem o próprio main. */}
-          <Roteador comMoldura={false} renderizarPagina={() => <WorkstationInner />} />
+          <Roteador
+            barra={(rota) => <BarraDaJornada pagina={rota.pagina} />}
+            renderizarPagina={renderizarPaginaJornada}
+          />
         </CascaJornada>
       </ProvedorJornada>
     </ErrorBoundary>

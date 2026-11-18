@@ -34,18 +34,17 @@ class LimiteErroPagina extends Component<{ children: ReactNode }, { erro: Error 
 interface PropsRoteador {
   /** Recebe a decisão do portão: os avisos de missão em preparação e de escala bloqueada ficam com a página. */
   renderizarPagina: (rota: RotaResolvida, portao: DecisaoPortao) => ReactNode
-  /**
-   * Envolve a página em MolduraPagina (link de salto e `main#conteudo-pagina`). Na fase 1 a árvore
-   * atual já tem o próprio `main`, então o App desliga a moldura para não mudar a página.
-   */
+  /** Envolve a página em MolduraPagina (link de salto e `main#conteudo-pagina`). A página não declara outro `main`. */
   comMoldura?: boolean
+  /** Barra de navegação da moldura, fora do limite de erro, para continuar montada se a página falhar. */
+  barra?: (rota: RotaResolvida) => ReactNode
 }
 
 /**
  * Lê o endereço atual, resolve a página e a renderiza dentro de um limite de erro reiniciado a cada
  * navegação. A região viva fica fora desse limite para continuar montada entre páginas.
  */
-export function Roteador({ renderizarPagina, comMoldura = true }: PropsRoteador) {
+export function Roteador({ renderizarPagina, comMoldura = true, barra }: PropsRoteador) {
   const local = useLocalAtual()
   const rota = useMemo(() => resolverEndereco(local.caminho, local.busca), [local.caminho, local.busca])
   const { cartao, registros } = useArmazenamentoJornada()
@@ -75,7 +74,8 @@ export function Roteador({ renderizarPagina, comMoldura = true }: PropsRoteador)
   return (
     <ContextoAnuncioJornada.Provider value={valorAnuncio}>
       <RegiaoAnuncioJornada texto={textoAnuncio} />
-      {comMoldura ? <MolduraPagina>{pagina}</MolduraPagina> : pagina}
+      {comMoldura ? <MolduraPagina barra={barra?.(rota)}>{pagina}</MolduraPagina> : pagina}
     </ContextoAnuncioJornada.Provider>
   )
 }
+
