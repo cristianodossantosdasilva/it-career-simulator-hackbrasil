@@ -1,47 +1,24 @@
 /* =====================================================================
-   Tokens do design system (etapa 2 do redesign)
-   Perfis tematicos no atributo data-theme do elemento html:
-   tactical  = Cockpit Tatico (escuro, padrao)
-   corporate = Console Corporativo (claro)
-   Contraste medido em App.test.tsx com utils/contraste.ts.
+   Tokens do design system
+   Quatro perfis tematicos no atributo data-theme do elemento html:
+   operacao    = Operacao (escuro, padrao do produto e do terminal)
+   corporativo = Corporativo (claro)
+   editorial   = Editorial (escuro, titulos grandes e mais espaco)
+   acolhedor   = Acolhedor (claro, creme, cantos maiores)
+   O modo de alto contraste (data-contraste="alto") troca so as cores.
+   Cada bloco de tema declara os 63 nomes do contrato e nada mais.
+   Cores so existem dentro destes blocos. Contraste medido por
+   tokensContraste.test.ts e por e2e/contraste.spec.ts.
+   Limites: texto 4,5 (7 no alto contraste); contorno, controle,
+   divisor e foco 3 para 1 (4,5 no alto contraste).
    ===================================================================== */
 
+/* Tokens estruturais: iguais em todos os temas, fora do contrato. */
 :root {
-  /* Tipografia */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.8125rem;
-  --font-size-base: 0.875rem;
-  --font-size-md: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.375rem;
-  --font-size-2xl: 1.75rem;
-  --font-size-3xl: 2.25rem;
-  --font-weight-regular: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
   --line-height-tight: 1.25;
   --line-height-ui: 1.45;
   --line-height-read: 1.7;
   --measure: 68ch;
-
-  /* Espacamento em grade de 4 px */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  --space-12: 48px;
-
-  /* Raios (tres niveis) */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
 
   /* Foco e alvos */
   --focus-ring-width: 2px;
@@ -64,66 +41,18 @@
   --row-height: 48px;
   --cell-padding-y: var(--space-3);
 }
-
-/* TEMA CONSOLE CORPORATIVO (claro, auditoria B2B) */
-:root,
-[data-theme='corporate'] {
-  color-scheme: light;
-  --bg-canvas: #F8FAFC;
-  --bg-surface: #FFFFFF;
-  --bg-elevated: #F1F5F9;
-  --bg-hover: #E2E8F0;
-  --border-subtle: #CBD5E1;
-  --border-strong: #A5B2C4;
-  --border-control: #64748B;
-  --text-primary: #0F172A;
-  --text-secondary: #475569;
-  /* #64748B do briefing fica em 4.34:1 sobre --bg-elevated. #586980 mantem 4.55:1 sobre --bg-hover, o pior caso. */
-  --text-muted: #586980;
-  --accent-primary: #0B6E8A;
-  --accent-hover: #085368;
-  --accent-surface: #E0F2FE;
-  --accent-text: #0B6E8A;
-  --accent-contrast: #FFFFFF;
-  --accent-solid: #0B6E8A;
-  --status-success: #059669;
-  --status-warning: #D97706;
-  --status-danger: #DC2626;
-  /* Variantes para texto: os tons acima ficam abaixo de 4.5:1 sobre fundo claro. */
-  --status-success-text: #047857;
-  --status-warning-text: #B45309;
-  --status-danger-text: #B91C1C;
-  --status-success-surface: #ECFDF5;
-  --status-warning-surface: #FFFBEB;
-  --status-danger-surface: #FEF2F2;
-  --status-warning-border: #FCD34D;
-  --status-success-solid: #047857;
-  --status-warning-solid: #B45309;
-  --status-danger-solid: #B91C1C;
-  --focus-ring: #0B6E8A;
-  --glow-accent: none;
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
-  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
-  --shadow-overlay: 0 16px 40px rgba(15, 23, 42, 0.18);
-  --overlay-scrim: rgba(15, 23, 42, 0.55);
-  --nav: #0F172A;
-  --nav-2: #1E3A5F;
-}
-
-/* TEMA COCKPIT TATICO (escuro, padrao do aluno) */
-[data-theme='tactical'],
-.dark {
-  color-scheme: dark;
+/* TEMA OPERACAO (escuro, padrao do produto e do terminal) */
+[data-theme='operacao'],
+[data-superficie='terminal'] {
   --bg-canvas: #0B1120;
   --bg-surface: #0F172A;
   --bg-elevated: #1E293B;
   --bg-hover: #273449;
-  --border-subtle: #334155;
-  --border-strong: #475569;
-  --border-control: #64748B;
+  --border-subtle: #677588;
+  --border-strong: #717C8C;
+  --border-control: #858E99;
   --text-primary: #F8FAFC;
   --text-secondary: #94A3B8;
-  /* #64748B do briefing fica entre 3.07:1 e 3.96:1 nas superficies escuras. #8E9DB2 mantem 4.55:1 sobre --bg-hover, o pior caso. */
   --text-muted: #8E9DB2;
   --accent-primary: #0EA5E9;
   --accent-hover: #38BDF8;
@@ -145,24 +74,334 @@
   --status-warning-solid: #B45309;
   --status-danger-solid: #B91C1C;
   --focus-ring: #38BDF8;
-  --glow-accent: 0 0 0 1px rgba(14, 165, 233, 0.35), 0 0 12px rgba(14, 165, 233, 0.22);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
-  --shadow-overlay: 0 24px 60px rgba(0, 0, 0, 0.6);
-  --overlay-scrim: rgba(2, 6, 23, 0.7);
+  --overlay-scrim: #020617B3;
   --nav: #0F172A;
   --nav-2: #1E293B;
+  --glow-accent: 0 0 0 1px #0EA5E959, 0 0 12px #0EA5E938;
+  --shadow-sm: 0 1px 2px #00000066;
+  --shadow-md: 0 8px 24px #00000073;
+  --shadow-overlay: 0 24px 60px #00000099;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.8125rem;
+  --font-size-base: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.375rem;
+  --font-size-2xl: 1.75rem;
+  --font-size-3xl: 2.25rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+/* TEMA CORPORATIVO (claro, auditoria B2B) */
+[data-theme='corporativo'] {
+  --bg-canvas: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #F1F5F9;
+  --bg-hover: #E2E8F0;
+  --border-subtle: #7D8D9F;
+  --border-strong: #7A8595;
+  --border-control: #64748B;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #586980;
+  --accent-primary: #0B6E8A;
+  --accent-hover: #085368;
+  --accent-surface: #E0F2FE;
+  --accent-text: #0B6E8A;
+  --accent-contrast: #FFFFFF;
+  --accent-solid: #0B6E8A;
+  --status-success: #059669;
+  --status-warning: #D97706;
+  --status-danger: #DC2626;
+  --status-success-text: #047857;
+  --status-warning-text: #B45309;
+  --status-danger-text: #B91C1C;
+  --status-success-surface: #ECFDF5;
+  --status-warning-surface: #FFFBEB;
+  --status-danger-surface: #FEF2F2;
+  --status-warning-border: #FCD34D;
+  --status-success-solid: #047857;
+  --status-warning-solid: #B45309;
+  --status-danger-solid: #B91C1C;
+  --focus-ring: #0B6E8A;
+  --overlay-scrim: #0F172A8C;
+  --nav: #0F172A;
+  --nav-2: #1E3A5F;
+  --glow-accent: none;
+  --shadow-sm: 0 1px 2px #0F172A0F;
+  --shadow-md: 0 4px 12px #0F172A14;
+  --shadow-overlay: 0 16px 40px #0F172A2E;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.8125rem;
+  --font-size-base: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.375rem;
+  --font-size-2xl: 1.75rem;
+  --font-size-3xl: 2.25rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+/* TEMA EDITORIAL (escuro, grafite quente, titulos grandes e mais espaco) */
+[data-theme='editorial'] {
+  --bg-canvas: #141414;
+  --bg-surface: #1C1B1A;
+  --bg-elevated: #262523;
+  --bg-hover: #302E2B;
+  --border-subtle: #73706B;
+  --border-strong: #7A7772;
+  --border-control: #8A8681;
+  --text-primary: #F5F2EB;
+  --text-secondary: #C9C2B6;
+  --text-muted: #ADA597;
+  --accent-primary: #E3A857;
+  --accent-hover: #EDBE7C;
+  --accent-surface: #3A2C17;
+  --accent-text: #F0C27F;
+  --accent-contrast: #141414;
+  --accent-solid: #8A5A12;
+  --status-success: #34A37A;
+  --status-warning: #D99A2B;
+  --status-danger: #E0625A;
+  --status-success-text: #6FD3A8;
+  --status-warning-text: #F2C46B;
+  --status-danger-text: #F59A93;
+  --status-success-surface: #10261D;
+  --status-warning-surface: #2B2210;
+  --status-danger-surface: #2E1715;
+  --status-warning-border: #7A5C1F;
+  --status-success-solid: #047857;
+  --status-warning-solid: #A15C07;
+  --status-danger-solid: #B42318;
+  --focus-ring: #F0C27F;
+  --overlay-scrim: #0A0A0AB3;
+  --nav: #141414;
+  --nav-2: #262523;
+  --glow-accent: none;
+  --shadow-sm: 0 1px 2px #00000066;
+  --shadow-md: 0 8px 24px #00000073;
+  --shadow-overlay: 0 24px 60px #00000099;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-md: 1.125rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.625rem;
+  --font-size-2xl: 2.25rem;
+  --font-size-3xl: 3rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 500;
+  --font-weight-bold: 600;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 20px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-8: 40px;
+  --space-10: 56px;
+  --space-12: 64px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+}
+
+/* TEMA ACOLHEDOR (claro, creme, cantos maiores) */
+[data-theme='acolhedor'] {
+  --bg-canvas: #FBF8F3;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #F4EFE7;
+  --bg-hover: #EAE3D8;
+  --border-subtle: #938673;
+  --border-strong: #887F71;
+  --border-control: #7A6F60;
+  --text-primary: #2A2420;
+  --text-secondary: #574E45;
+  --text-muted: #6A6056;
+  --accent-primary: #1F6F68;
+  --accent-hover: #17544F;
+  --accent-surface: #E3F1EE;
+  --accent-text: #1A5F59;
+  --accent-contrast: #FFFFFF;
+  --accent-solid: #1F6F68;
+  --status-success: #2E8B57;
+  --status-warning: #C77C12;
+  --status-danger: #C8473D;
+  --status-success-text: #1E6B41;
+  --status-warning-text: #8F5207;
+  --status-danger-text: #A3322A;
+  --status-success-surface: #EAF6EE;
+  --status-warning-surface: #FDF3E1;
+  --status-danger-surface: #FCEDEB;
+  --status-warning-border: #E8C27A;
+  --status-success-solid: #1E6B41;
+  --status-warning-solid: #8F5207;
+  --status-danger-solid: #A3322A;
+  --focus-ring: #1F6F68;
+  --overlay-scrim: #2A24208C;
+  --nav: #2A2420;
+  --nav-2: #3D4F4C;
+  --glow-accent: none;
+  --shadow-sm: 0 1px 3px #2A24200F;
+  --shadow-md: 0 6px 16px #2A242014;
+  --shadow-overlay: 0 16px 40px #2A24202E;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 0.9375rem;
+  --font-size-md: 1.0625rem;
+  --font-size-lg: 1.1875rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 1.875rem;
+  --font-size-3xl: 2.375rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 28px;
+  --space-8: 36px;
+  --space-10: 44px;
+  --space-12: 56px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+}
+
+/* ALTO CONTRASTE claro: vale quando data-contraste e alto e o esquema do tema e claro. So cores. */
+html[data-contraste='alto']:not(.dark) {
+  --bg-canvas: #FFFFFF;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #F2F2F2;
+  --bg-hover: #E6E6E6;
+  --border-subtle: #6E6E6E;
+  --border-strong: #4D4D4D;
+  --border-control: #000000;
+  --text-primary: #000000;
+  --text-secondary: #1A1A1A;
+  --text-muted: #333333;
+  --accent-primary: #004A80;
+  --accent-hover: #00335A;
+  --accent-surface: #E0EEFA;
+  --accent-text: #003E6B;
+  --accent-contrast: #FFFFFF;
+  --accent-solid: #004A80;
+  --status-success: #00602F;
+  --status-warning: #7A4100;
+  --status-danger: #9E0000;
+  --status-success-text: #00552A;
+  --status-warning-text: #6B3900;
+  --status-danger-text: #8F0000;
+  --status-success-surface: #E8F5EC;
+  --status-warning-surface: #FFF4E0;
+  --status-danger-surface: #FDECEC;
+  --status-warning-border: #7A4100;
+  --status-success-solid: #00552A;
+  --status-warning-solid: #6B3900;
+  --status-danger-solid: #8F0000;
+  --focus-ring: #000000;
+  --overlay-scrim: #000000B3;
+  --nav: #000000;
+  --nav-2: #1A1A1A;
+}
+
+/* ALTO CONTRASTE escuro: esquema escuro e terminal do SimuDesk. So cores. */
+html[data-contraste='alto'].dark,
+html[data-contraste='alto'] [data-superficie='terminal'] {
+  --bg-canvas: #000000;
+  --bg-surface: #000000;
+  --bg-elevated: #141414;
+  --bg-hover: #262626;
+  --border-subtle: #8C8C8C;
+  --border-strong: #B3B3B3;
+  --border-control: #FFFFFF;
+  --text-primary: #FFFFFF;
+  --text-secondary: #EDEDED;
+  --text-muted: #D6D6D6;
+  --accent-primary: #8FD3FF;
+  --accent-hover: #B8E3FF;
+  --accent-surface: #002A47;
+  --accent-text: #A6DCFF;
+  --accent-contrast: #000000;
+  --accent-solid: #004A80;
+  --status-success: #5CE39A;
+  --status-warning: #FFC94D;
+  --status-danger: #FF8F8F;
+  --status-success-text: #7DEBAF;
+  --status-warning-text: #FFD470;
+  --status-danger-text: #FFA8A8;
+  --status-success-surface: #002914;
+  --status-warning-surface: #2B1E00;
+  --status-danger-surface: #330000;
+  --status-warning-border: #FFC94D;
+  --status-success-solid: #00552A;
+  --status-warning-solid: #6B3900;
+  --status-danger-solid: #8F0000;
+  --focus-ring: #FFD24D;
+  --overlay-scrim: #000000CC;
+  --nav: #000000;
+  --nav-2: #141414;
+}
+
+/* Esquema de cor nativo (barras de rolagem, campos), fora dos blocos de token. */
+html.dark,
+[data-superficie='terminal'] {
+  color-scheme: dark;
+}
+html:not(.dark) {
+  color-scheme: light;
 }
 
 [data-density='operacional'] {
   --row-height: 40px;
   --cell-padding-y: var(--space-2);
 }
-
 /* Aliases temporarios dos nomes antigos. As etapas 3 a 6 trocam o uso direto e a etapa 6 remove.
    O ciclo de quatro cores (teoria, fixacao, pratica, dominio) converge para acento e estado. */
 :root,
-[data-theme] {
+[data-superficie='terminal'] {
   --bg-topbar: var(--bg-surface);
   --track: var(--border-subtle);
   --border: var(--border-subtle);
@@ -171,7 +410,6 @@
   --accent-strong: var(--accent-text);
   --primary: var(--accent-primary);
   --primary-hover: var(--accent-hover);
-  --nav-text: #E2E8F0;
   --theory: var(--accent-text);
   --theory-bg: var(--accent-surface);
   --theory-solid: var(--accent-solid);
@@ -196,6 +434,7 @@
 }
 
 
+
 * { box-sizing: border-box; }
 html, body, #root { width: 100%; min-width: 0; margin: 0; }
 body {
@@ -214,7 +453,7 @@ p { margin: 0; }
 code { font-family: var(--mono); font-size: max(0.88em, var(--font-size-xs)); }
 
 .skip { position: absolute; left: -9999px; }
-.skip:focus { left: 12px; top: 12px; z-index: 99; display: inline-flex; align-items: center; min-height: var(--touch-target); background: #fff; color: #000; padding: 8px 12px; border-radius: 6px; }
+.skip:focus { left: 12px; top: 12px; z-index: 99; display: inline-flex; align-items: center; min-height: var(--touch-target); background: var(--text-primary); color: var(--bg-canvas); padding: 8px 12px; border-radius: 6px; }
 
 button, input, select, textarea {
   font: inherit;
@@ -248,7 +487,7 @@ a:focus-visible, [tabindex]:focus-visible {
 .btn-secondary:hover:not(:disabled) { background: var(--bg-hover); border-color: var(--accent-primary); color: var(--text-primary); }
 .btn-ghost { background: transparent; border-color: transparent; color: var(--theory); font-weight: 700; padding: 0 10px; }
 .btn-ghost:hover:not(:disabled) { background: var(--theory-bg); border-color: var(--theory-solid); }
-/* Botao invertido: texto primario como fundo e canvas como texto, 17.06:1 no corporate e 18:1 no tactical. */
+/* Botao invertido: texto primario como fundo e canvas como texto, mais de 14:1 em todos os temas. */
 .btn-white { background: var(--text-primary); border-color: var(--text-primary); color: var(--bg-canvas); font-weight: 800; }
 .btn-white:hover:not(:disabled) { background: var(--bg-hover); border-color: var(--bg-hover); color: var(--text-primary); }
 .btn-sm { min-height: var(--touch-target); padding: 0 12px; font-size: 0.88rem; }
@@ -598,9 +837,9 @@ a.nav-item { display: inline-flex; align-items: center; justify-content: center;
 .page-head { margin-bottom: 18px; }
 /* Mantida ate as etapas 3 e 4 trocarem o uso: sentence case, sem caixa alta nem espacamento extra. */
 .eyebrow { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--text-muted); margin-bottom: var(--space-1); }
-.h1 { font-size: 1.75rem; font-weight: 800; color: var(--text-primary); }
-.h2 { font-size: 1.2rem; font-weight: 800; color: var(--text-primary); }
-.h3 { font-size: 1rem; font-weight: 800; color: var(--text-primary); }
+.h1 { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--text-primary); }
+.h2 { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--text-primary); }
+.h3 { font-size: var(--font-size-md); font-weight: var(--font-weight-bold); color: var(--text-primary); }
 .lead { color: var(--text-secondary); margin-top: 6px; max-width: 82ch; font-size: 0.96rem; }
 .muted { color: var(--text-muted); font-size: 0.86rem; }
 .d-block { display: block; }
@@ -612,7 +851,7 @@ a.nav-item { display: inline-flex; align-items: center; justify-content: center;
 .stack { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 .stack-xs { display: flex; flex-direction: column; gap: 6px; }
 
-.edu-card { background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 12px; box-shadow: var(--shadow-card); min-width: 0; }
+.edu-card { background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); min-width: 0; }
 .card-b { padding: 20px; }
 .card-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
 
@@ -630,9 +869,8 @@ a.nav-item { display: inline-flex; align-items: center; justify-content: center;
 .mini-top { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 4px; }
 
 .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(195px, 1fr)); gap: 10px; margin-top: 12px; }
-.step-box { background: var(--bg-elevated); border: 1px solid var(--border-strong); border-radius: 10px; padding: 12px; font-size: 0.86rem; color: var(--text-secondary); }
-.step-box strong { display: block; color: var(--accent-strong); margin-bottom: 4px; }
-[data-theme='tactical'] .step-box strong { color: var(--accent); }
+.step-box { background: var(--bg-elevated); border: 1px solid var(--border-strong); border-radius: var(--radius-md); padding: var(--space-3); font-size: 0.86rem; color: var(--text-secondary); }
+.step-box strong { display: block; color: var(--accent-strong); margin-bottom: var(--space-1); }
 
 /* Hoje / Meta / Pomodoro / Todo */
 
@@ -652,13 +890,13 @@ a.nav-item { display: inline-flex; align-items: center; justify-content: center;
 .lesson-item:hover { background: var(--bg-elevated); }
 .lesson-item.active { background: var(--theory-bg); border-color: var(--theory-solid); }
 .lesson-item.active-fix { background: var(--fix-bg); border-color: var(--fix-solid); }
-/* text-muted sobre accent-surface mede 3.03:1 no tactical. O par accent-text sobre accent-surface passa nos dois temas. */
+/* text-muted sobre accent-surface mede menos de 4,5:1 no tema operacao. O par accent-text sobre accent-surface passa em todos os temas. */
 .lesson-item.active .muted, .lesson-item.active-fix .muted { color: var(--accent-text); }
 .tick { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--border-bright); display: grid; place-items: center; font-size: 0.82rem; font-weight: 800; flex: 0 0 auto; background: var(--bg-surface); }
-.done .tick { background: var(--mastery-solid); border-color: var(--mastery-solid); color: #ffffff; }
+.done .tick { background: var(--status-success-surface); border-color: var(--status-success-text); color: var(--status-success-text); }
 .tick.fix { border-color: var(--fix-solid); }
 .divider { border: 0; border-top: 1px solid var(--border); margin: 14px 0; }
-.lesson-title { font-size: 1.65rem; font-weight: 800; margin: 12px 0 16px; color: var(--text-primary); }
+.lesson-title { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin: var(--space-3) 0 var(--space-4); color: var(--text-primary); }
 .lesson-p { font-size: 1rem; line-height: 1.7; margin: 12px 0; max-width: var(--measure); color: var(--text-secondary); }
 .analogy { display: flex; gap: 14px; padding: 16px 18px; border-radius: var(--radius-md); background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-left: 3px solid var(--accent-primary); }
 .analogy-ic { display: inline-flex; color: var(--accent-text); flex: 0 0 auto; }
@@ -721,7 +959,7 @@ select.text.sm { width: auto; min-height: 40px; }
 .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 18px; overflow-x: auto; }
 .tab { flex: 0 0 auto; padding: 10px 16px; border: 0; border-radius: 8px 8px 0 0; background: transparent; border-bottom: 3px solid transparent; font-weight: 800; color: var(--text-secondary); white-space: nowrap; min-height: 48px; }
 .tab.active { color: var(--fix); border-bottom-color: var(--fix-solid); background: var(--fix-bg); }
-.chat { display: flex; flex-direction: column; gap: 12px; height: 400px; overflow-y: auto; padding: 16px; background: var(--bg-elevated); border-radius: 12px; border: 1px solid var(--border-strong); }
+.chat { display: flex; flex-direction: column; gap: var(--space-3); height: 400px; overflow-y: auto; padding: var(--space-4); background: var(--bg-elevated); border-radius: var(--radius-lg); border: 1px solid var(--border-strong); }
 .chat.short { height: 280px; }
 .bubble { max-width: 86%; padding: 10px 14px; border-radius: 14px; white-space: pre-line; }
 .bubble .who { font-size: 0.8rem; font-weight: 800; margin-bottom: 2px; }
@@ -781,7 +1019,7 @@ label.f { display: flex; flex-direction: column; gap: 6px; font-weight: 700; fon
 input[type="file"]::file-selector-button { font: inherit; color: var(--text-primary); background: var(--bg-elevated); border: 1px solid var(--border-control); border-radius: 8px; padding: 0.35rem 0.65rem; margin-right: 0.6rem; cursor: pointer; }
 input[type="file"]::file-selector-button:hover { background: var(--bg-hover); border-color: var(--accent-primary); }
 
-.glossary-details { background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 10px; padding: 0.85rem 1rem; box-shadow: var(--shadow-card); }
+.glossary-details { background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); box-shadow: var(--shadow-card); }
 .glossary-details summary { cursor: pointer; font-weight: 700; color: var(--text-primary); min-height: var(--touch-target); }
 .glossary-details summary:not(.missao-zero-resumo) { padding-block: 0.7rem; }
 .glossary-details .missao-zero-resumo { min-height: var(--touch-target); }
@@ -1019,10 +1257,10 @@ ol.steps-grid { margin-bottom: 0; padding: 0; list-style: none; }
   .primeiro-voo-acoes .btn { width: 100%; }
 }
 
-.panel { background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 12px; padding: 1.15rem; box-shadow: var(--shadow-card); min-width: 0; }
-.panel h2 { margin: 0 0 0.5rem; font-size: 1.1rem; color: var(--text-primary); }
-.card-section { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 0.95rem; margin-top: 0.9rem; min-width: 0; }
-.card-section h3 { margin: 0 0 0.5rem; font-size: 0.96rem; color: var(--text-primary); }
+.panel { background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); padding: var(--space-5); box-shadow: var(--shadow-card); min-width: 0; }
+.panel h2 { margin: 0 0 var(--space-2); font-size: var(--font-size-lg); color: var(--text-primary); }
+.card-section { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-4); margin-top: var(--space-3); min-width: 0; }
+.card-section h3 { margin: 0 0 var(--space-2); font-size: var(--font-size-md); color: var(--text-primary); }
 
 .row-between { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
 .actions-bar { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
@@ -1054,7 +1292,7 @@ ol.steps-grid { margin-bottom: 0; padding: 0; list-style: none; }
 }
 @media (max-width: 640px) {
   .workspace-main { padding: 0.65rem; }
-  .panel { padding: 0.85rem; }
+  .panel { padding: var(--space-3); }
   .row-between { align-items: stretch; }
   .row-between > input { width: 100%; }
   .form-grid, .panels-grid, .steps-grid, .glossary-grid, .scope-grid { grid-template-columns: minmax(0, 1fr); }
