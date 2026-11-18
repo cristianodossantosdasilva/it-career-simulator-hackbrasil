@@ -1,6 +1,6 @@
-import { type ReactNode, useEffect, useMemo, useState } from 'react'
-import { ContextoShell, type DensidadeShell, type ValorShell } from './contextoShell'
-import { type TemaShell, aplicarTema, carregarTema, salvarTema } from './tema'
+import type { ReactNode } from 'react'
+
+export type DensidadeShell = 'editorial' | 'operacional'
 
 interface AppShellProps {
   children: ReactNode
@@ -8,27 +8,14 @@ interface AppShellProps {
 }
 
 /**
- * Casca unica da Academia e da Workstation. Guarda o tema, expoe o contexto do shell e reserva
- * o espaco do rail (desktop) e da barra inferior (celular). A navegacao fica em BarraSuperior.
+ * Casca unica da Academia e da Workstation. Reserva o espaco do rail (desktop) e da barra inferior
+ * (celular). A navegacao fica em BarraSuperior. A aparencia nao passa por aqui: ela vive no armazem
+ * de src/tema, que o script inicial e o BotaoAparencia usam.
  */
 export function AppShell({ children, densidade = 'editorial' }: AppShellProps) {
-  const [tema, setTema] = useState<TemaShell>(carregarTema)
-
-  useEffect(() => {
-    aplicarTema(tema)
-    salvarTema(tema)
-  }, [tema])
-
-  const valor = useMemo<ValorShell>(
-    () => ({ tema, definirTema: setTema }),
-    [tema],
-  )
-
   return (
-    <ContextoShell.Provider value={valor}>
-      <div className="app-shell" data-density={densidade}>
-        {children}
-      </div>
-    </ContextoShell.Provider>
+    <div className="app-shell" data-density={densidade}>
+      {children}
+    </div>
   )
 }

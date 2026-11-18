@@ -1,7 +1,6 @@
 import { type ReactNode, useEffect, useId, useRef, useState } from 'react'
 import { LEVELS, type EstadoAcademia, type NivelId, obterPatente } from '../educacao/catalogoEducacional'
 import { Icone } from '../ui/Icone'
-import { AlternadorTema } from './AlternadorTema'
 
 export interface ApiMenuPerfil {
   fechar: () => void
@@ -110,8 +109,6 @@ export function MenuPerfil({ estado, xpTotal, onMudarFoco, onAbrirCurriculo, chi
               Credencial
             </button>
           )}
-
-          <AlternadorTema variante="completo" className="so-mobile" />
         </div>
       )}
     </div>

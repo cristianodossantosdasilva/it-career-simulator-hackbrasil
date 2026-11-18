@@ -556,8 +556,7 @@ button.chip { min-height: 38px; cursor: pointer; }
   align-items: center;
   gap: var(--space-1);
 }
-.nav-item,
-.alternador-tema-opcao {
+.nav-item {
   position: relative;
   width: var(--touch-target);
   height: var(--touch-target);
@@ -568,8 +567,7 @@ button.chip { min-height: 38px; cursor: pointer; }
   background: transparent;
   color: var(--text-secondary);
 }
-.nav-item:hover:not(:disabled),
-.alternador-tema-opcao:hover:not(:disabled) {
+.nav-item:hover:not(:disabled) {
   background: var(--bg-hover);
   border-color: transparent;
   color: var(--text-primary);
@@ -597,8 +595,7 @@ a.nav-item { display: inline-flex; align-items: center; justify-content: center;
 .nav-mais[hidden] { display: none; }
 
 /* O rotulo do item e o nome acessivel. No desktop ele aparece como dica ao passar o mouse ou focar. */
-.nav-item-rotulo,
-.alternador-tema .dica {
+.nav-item-rotulo {
   position: absolute;
   left: calc(100% + var(--space-2));
   top: 50%;
@@ -616,37 +613,10 @@ a.nav-item { display: inline-flex; align-items: center; justify-content: center;
   transition: opacity var(--duration-fast) var(--easing-standard), transform var(--duration-fast) var(--easing-standard);
 }
 .nav-item:hover .nav-item-rotulo,
-.nav-item:focus-visible .nav-item-rotulo,
-.alternador-tema-opcao:hover .dica,
-.alternador-tema-opcao:focus-visible .dica {
+.nav-item:focus-visible .nav-item-rotulo {
   opacity: 1;
   transform: translate(0, -50%);
 }
-
-.shell-rail-rodape {
-  width: 100%;
-  margin-top: auto;
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--border-subtle);
-  display: flex;
-  justify-content: center;
-}
-.alternador-tema { display: flex; gap: var(--space-1); }
-.alternador-tema-compacto { flex-direction: column; }
-.alternador-tema-opcao[aria-pressed='true'] {
-  background: var(--accent-surface);
-  border-color: var(--accent-primary);
-  color: var(--accent-text);
-}
-.alternador-tema-completo { flex-direction: column; width: 100%; }
-.alternador-tema-completo .alternador-tema-opcao {
-  width: 100%;
-  justify-content: flex-start;
-  gap: var(--space-2);
-  padding: 0 var(--space-3);
-  border-color: var(--border-subtle);
-}
-.alternador-tema-texto { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); }
 
 .barra-contexto {
   position: sticky;
@@ -730,6 +700,53 @@ a.nav-item { display: inline-flex; align-items: center; justify-content: center;
 .menu-perfil-dados dd { margin: 0; font-weight: var(--font-weight-semibold); color: var(--text-primary); overflow-wrap: anywhere; }
 .menu-perfil-campo { display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--text-secondary); }
 .menu-perfil-campo select { width: 100%; }
+.aparencia { position: relative; }
+.painel-aparencia {
+  position: absolute;
+  right: 0;
+  top: calc(100% + var(--space-1));
+  z-index: var(--z-menu);
+  width: min(320px, calc(100vw - 2 * var(--space-4)));
+  max-height: calc(100dvh - var(--context-bar-height) - var(--space-8));
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-overlay);
+}
+.seletor-tema { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; margin: 0; padding: 0; border: 0; }
+.seletor-tema-titulo { margin-bottom: var(--space-2); padding: 0; font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--text-secondary); }
+.opcao-tema {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+.opcao-tema:hover { background: var(--bg-hover); }
+.opcao-tema:has(input:checked) { background: var(--accent-surface); border-color: var(--accent-primary); }
+.opcao-tema-nome { font-weight: var(--font-weight-semibold); overflow-wrap: anywhere; }
+.opcao-tema-esquema { color: var(--text-secondary); }
+.opcao-tema:has(input:checked) .opcao-tema-esquema { color: var(--text-primary); }
+.opcao-tema .icone { color: var(--accent-text); }
+.opcao-tema input,
+.controle-contraste input { flex: none; width: 20px; height: 20px; min-height: 0; margin: 0; padding: 0; accent-color: var(--accent-primary); }
+.controle-contraste { display: flex; align-items: center; gap: var(--space-2); min-height: var(--touch-target); font-size: var(--font-size-sm); color: var(--text-primary); cursor: pointer; }
+.tema-definido { display: flex; align-items: flex-start; gap: var(--space-2); margin: 0; font-size: var(--font-size-sm); color: var(--text-primary); }
+.tema-definido p { margin: 0; }
+.tema-definido-nome { font-weight: var(--font-weight-semibold); }
+.tema-definido-origem { color: var(--text-secondary); }
 
 @media (min-width: 768px) {
   .so-mobile { display: none !important; }
@@ -764,7 +781,6 @@ a.nav-item { display: inline-flex; align-items: center; justify-content: center;
     border-top: 1px solid var(--border-subtle);
   }
   .shell-rail-marca,
-  .shell-rail-rodape { display: none; }
   .nav-principal-lista { flex-direction: row; align-items: stretch; height: 100%; gap: 0; }
   .nav-principal-lista > li { flex: 1 1 0; min-width: 0; display: flex; }
   .nav-item {
@@ -805,8 +821,7 @@ a.nav-item { display: inline-flex; align-items: center; justify-content: center;
   }
   .nav-mais .nav-item-rotulo { font-size: var(--font-size-base); }
   .nav-mais .nav-item.active::before { left: 0; right: auto; top: 10px; bottom: 10px; width: 2px; height: auto; }
-  .nav-mais-tema { padding-top: var(--space-2); border-top: 1px solid var(--border-subtle); }
-  .nav-item-rotulo {
+    .nav-item-rotulo {
     position: static;
     padding: 0;
     background: transparent;
@@ -829,6 +844,11 @@ a.nav-item { display: inline-flex; align-items: center; justify-content: center;
     max-height: calc(100dvh - var(--context-bar-height) - var(--bottom-bar-height) - var(--space-4));
   }
   .botao-contexto { padding: 0 var(--space-2); }
+  .aparencia { position: static; }
+  .painel-aparencia {
+    right: var(--space-2);
+    max-height: calc(100dvh - var(--context-bar-height) - var(--bottom-bar-height) - var(--space-4));
+  }
 }
 
 

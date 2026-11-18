@@ -428,7 +428,7 @@ export function SimuDeskApp({ sessao, historicoTerminal, onComando, onAcao, ocup
       </header>
 
       {subAba === 'terminal' ? (
-        <div className="terminal-shell" data-theme="tactical">
+        <div className="terminal-shell" data-superficie="terminal">
           <div className="terminal-header">
             <span className="dado-mono">simudesk@{alvo.host} ({elevado ? 'admin elevado' : 'usuário'})</span>
             <button type="button" className="btn-comando" disabled={ocupado} onClick={() => onAcao('estacao.ler_logs')}>

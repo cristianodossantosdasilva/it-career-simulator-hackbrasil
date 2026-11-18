@@ -8,9 +8,10 @@ import '@fontsource/jetbrains-mono/latin-400.css'
 import '@fontsource/jetbrains-mono/latin-500.css'
 import './index.css'
 import App from './App.tsx'
-import { aplicarTema, carregarTema } from './shell/tema'
+import { obterArmazemAparencia } from './tema/armazemAparencia'
 
-aplicarTema(carregarTema())
+// Cria o armazem antes do primeiro render: ele so le o que o script inicial deixou no html.
+obterArmazemAparencia()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -4,7 +4,7 @@ import type { IdMissao } from '../jornada/catalogos/catalogoRotas'
 import { IndicadorModoDemonstracao } from '../jornada/demonstracao/IndicadorModoDemonstracao'
 import { LinkInterno } from '../jornada/navegacao/LinkInterno'
 import { type IdPagina, NOME_PAGINA } from '../jornada/navegacao/rotas'
-import { AlternadorTema } from '../shell/AlternadorTema'
+import { BotaoAparencia } from '../shell/BotaoAparencia'
 import { type ApiMenuPerfil, MenuPerfil } from '../shell/MenuPerfil'
 import { Icone } from '../ui/Icone'
 import type { EstadoAcademia, NivelId } from './catalogoEducacional'
@@ -150,16 +150,10 @@ export function BarraSuperior({
                     <LinkDoMenu {...v} aoSeguir={() => setMaisAberto(false)} />
                   </li>
                 ))}
-                <li className="nav-mais-tema">
-                  <AlternadorTema variante="completo" />
-                </li>
               </ul>
             </li>
           </ul>
         </nav>
-        <div className="shell-rail-rodape">
-          <AlternadorTema />
-        </div>
       </div>
       <header className="barra-contexto">
         <p className="barra-contexto-trilha">
@@ -172,6 +166,7 @@ export function BarraSuperior({
         <div className="barra-contexto-acoes">
           {modoDemonstracao && <IndicadorModoDemonstracao />}
           {slotDireitoSessao}
+          <BotaoAparencia />
           <MenuPerfil
             estado={estado}
             xpTotal={xpTotal}

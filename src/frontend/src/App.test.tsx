@@ -1,10 +1,12 @@
 import '@testing-library/jest-dom/vitest'
-import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import axe from 'axe-core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import vetoresJcs from '../../../docs/vetores-jcs-sha256.json'
 import { App } from './App'
 import { IntranetApp } from './apps/IntranetApp/IntranetApp'
+import { obterArmazemAparencia } from './tema/armazemAparencia'
+import { CATALOGO_TEMAS } from './tema/catalogo'
 import { textosDaMissao } from './jornada/componentes/textosDaMissao'
 import { abrirAplicacao, irPeloMenu, limparNavegador, menuPrincipal } from './testes/abrirAplicacao'
 import { Icone } from './ui/Icone'
@@ -23,7 +25,7 @@ describe('IT Flight Simulator UI', () => {
     expect(razaoContraste('#777777', '#777777')).toBeCloseTo(1, 4)
   })
 
-  it('shell tem uma unica navegacao principal por links, sem Cabine sem voo ativo, e alterna o tema persistido', () => {
+  it('shell tem uma unica navegacao principal por links, sem Cabine sem voo ativo, e troca o tema pelo botao Aparencia', () => {
     abrirAplicacao('/')
     const navs = screen.getAllByRole('navigation', { name: /Navegação principal/i })
     expect(navs).toHaveLength(1)
@@ -31,17 +33,47 @@ describe('IT Flight Simulator UI', () => {
     expect(destinos).toEqual(['Início', 'Plano de voo', 'Brevê', 'Hangar', 'Aulas', 'Caderno', 'Comandante'])
     expect(within(navs[0]).getByRole('link', { name: 'Início' })).toHaveAttribute('aria-current', 'page')
     expect(navs[0].textContent).not.toMatch(/\p{Extended_Pictographic}/u)
-    expect(document.documentElement.dataset.theme).toBe('tactical')
+    expect(document.documentElement.dataset.theme).toBe('operacao')
     expect(document.documentElement.classList.contains('dark')).toBe(true)
-    const grupoTema = screen.getByRole('group', { name: 'Tema da interface' })
-    const corporativo = within(grupoTema).getByRole('button', { name: /Console Corporativo/i })
+    expect(screen.queryByRole('group', { name: 'Tema da interface' })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Aparência' }))
+    const grupoTema = screen.getByRole('group', { name: 'Tema' })
+    const corporativo = within(grupoTema).getByRole('radio', { name: /Corporativo/ })
     fireEvent.click(corporativo)
-    expect(corporativo).toHaveAttribute('aria-pressed', 'true')
-    expect(document.documentElement.dataset.theme).toBe('corporate')
+    expect(corporativo).toBeChecked()
+    expect(document.documentElement.dataset.theme).toBe('corporativo')
     expect(document.documentElement.classList.contains('dark')).toBe(false)
-    expect(window.localStorage.getItem('itfs_theme')).toBe('corporate')
-    fireEvent.click(within(grupoTema).getByRole('button', { name: /Cockpit Tático/i }))
-    expect(document.documentElement.dataset.theme).toBe('tactical')
+    expect(window.localStorage.getItem('itfs_tema')).toBe('corporativo')
+    fireEvent.click(within(grupoTema).getByRole('radio', { name: /Operação/ }))
+    expect(document.documentElement.dataset.theme).toBe('operacao')
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
+  })
+
+  it('a estrutura da pagina e igual em todos os temas e navegar nao muda os atributos do html', () => {
+    const { container } = abrirAplicacao('/')
+    const armazem = obterArmazemAparencia()
+    const estruturas = CATALOGO_TEMAS.map((tema) => {
+      act(() => {
+        armazem.escolherTema(tema.id)
+      })
+      return container.querySelector('#root, .app-shell')?.parentElement?.innerHTML ?? container.innerHTML
+    })
+    expect(new Set(estruturas).size).toBe(1)
+    act(() => {
+      armazem.escolherTema('editorial')
+      armazem.definirContraste(true)
+    })
+    const antes = document.documentElement.outerHTML.slice(0, document.documentElement.outerHTML.indexOf('>') + 1)
+    irPeloMenu('Plano de voo')
+    irPeloMenu('Início')
+    const depois = document.documentElement.outerHTML.slice(0, document.documentElement.outerHTML.indexOf('>') + 1)
+    expect(depois).toBe(antes)
+    expect(depois).toContain('data-theme="editorial"')
+    expect(depois).toContain('data-contraste="alto"')
+    act(() => {
+      armazem.definirContraste(false)
+      armazem.escolherTema('operacao')
+    })
   })
 
   it('a pagina tem um unico main e o link de salto aponta para ele', () => {

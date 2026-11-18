@@ -71,7 +71,8 @@ describe('BarraSuperior por links', () => {
     const links = within(lista as HTMLElement).getAllByRole('link')
     expect(links.map((l) => l.textContent)).toEqual(['Hangar', 'Aulas', 'Caderno', 'Comandante'])
     expect(links[0]).toHaveFocus()
-    expect(within(lista as HTMLElement).getByRole('group', { name: 'Tema da interface' })).toBeInTheDocument()
+    expect(within(lista as HTMLElement).queryByRole('group', { name: 'Tema da interface' })).not.toBeInTheDocument()
+    expect(within(document.querySelector('.barra-contexto') as HTMLElement).getByRole('button', { name: 'Aparência' })).toBeInTheDocument()
 
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(mais).toHaveAttribute('aria-expanded', 'false')
