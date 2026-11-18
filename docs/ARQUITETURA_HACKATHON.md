@@ -6,7 +6,7 @@ A aplicação adota uma arquitetura de **Simulação Web Determinística + Camad
 - **O Motor Determinístico é a única autoridade** sobre o estado da estação simulada, privilégios, acesso remoto, SLA e avaliação.
 - **O Diálogo (`Simulador.Dialogo`) não lê nem altera o estado diretamente**, não inventa saídas de terminal e não atribui notas arbitrárias: ele apenas conduz a interação a partir dos fatos liberados pelo motor. Esse princípio permanece inviolável na **Onda 4** com o módulo de **Chamada em Vídeo e Voz ao Vivo com Agentes de IA**.
 - **Estado reconstruível por eventos (*Event Sourcing* leve):** toda ação do usuário no laboratório gera eventos imutáveis (*append-only*), permitindo **Replay exato (Caixa-Preta + Debrief Didático)** na interface e auditoria determinística pelo **Juiz 360º**.
-- **Arquitetura Aditiva de Não-Regressão:** a interface educacional implementada no MVP (**Tema Claro Educacional com alternância para modo escuro, Missão 0 guiada em 4 passos, Glossário rápido, Matriz transparente de Escopo MVP vs. Roadmap e verificação assimétrica ECDSA P-256**) e os módulos futuros (*Aulas com SM-2, 8 Laboratórios Dedicados UC1 a UC8, Centro de Simulados, Caderno estilo Notion/Cornell e Mentor IA*) preservam os contratos REST sem quebrar os seletores, **69 testes `xUnit`** (mais integração `PostgreSQL 17` no CI), **25 testes `Vitest + axe-core`** e **11 jornadas E2E `Playwright`**.
+- **Arquitetura Aditiva de Não-Regressão:** a interface educacional implementada no MVP (**Tema Claro Educacional com alternância para modo escuro, Missão 0 guiada em 4 passos, Glossário rápido, Matriz transparente de Escopo MVP vs. Roadmap e verificação assimétrica ECDSA P-256**) e os módulos futuros (*Aulas com SM-2, 8 Laboratórios Dedicados UC1 a UC8, Centro de Simulados, Caderno estilo Notion/Cornell e Mentor IA*) preservam os contratos REST sem quebrar os seletores, as suítes `xUnit` (mais integração `PostgreSQL 17` no CI), `Vitest + axe-core` e `Playwright` (contagens medidas no [README](../README.md#como-testar) e no CI).
 
 ---
 
@@ -61,10 +61,10 @@ src/
 │   │   ├── Simulador.Dialogo/        # IClienteDialogo (roteirizado / híbrido 80-20 / futuro Gateway Live Vídeo)
 │   │   ├── Simulador.Infra/          # PostgreSQL (sessões, eventos append-only e expurgo >2d) + InMemoryEventStore
 │   │   └── Simulador.Api/            # API REST + /health/* + CORS + UseForwardedHeaders + rate limit por IP real
-│   └── tests/                        # 69 testes xUnit (50 Dominio + 19 Api) + Simulador.Infra.IntegrationTests (CI)
+│   └── tests/                        # testes xUnit (contagem no README) + Simulador.Infra.IntegrationTests (CI)
 └── frontend/
     ├── vercel.json                   # Headers de segurança HTTP (X-Content-Type-Options, X-Frame-Options, Referrer-Policy) + fallback SPA
-    ├── e2e/                          # Suíte Playwright (11 jornadas ponta a ponta em 375/768/1280px)
+    ├── e2e/                          # Suíte Playwright (jornadas e telas em 375/768/1280/1440px; contagem no README)
     ├── scripts/                      # check-bundle-secrets.mjs (garante zero segredos no build)
     └── src/
         ├── api/                      # Cliente HTTP e contratos tipados
@@ -130,6 +130,6 @@ O estado de cada sessão é dividido em subsistemas independentes e auditáveis 
 
 ## 7. Estratégia de Deploy, Segurança e Custos
 
-- **Containerização e CI:** `Dockerfile` para backend `.NET 10` e frontend `React/Vite` (Nginx), `docker-compose.yml` para execução local (`PostgreSQL 17` + Backend + Frontend) e workflow [GitHub Actions CI](../.github/workflows/ci.yml) validando `xUnit`, integração `PostgreSQL 17`, `oxlint`, `Vitest` e build.
+- **Containerização e CI:** `Dockerfile` para backend `.NET 10` e frontend `React/Vite` (Nginx), `docker-compose.yml` para execução local (`PostgreSQL 17` + Backend + Frontend) e workflow [GitHub Actions CI](../.github/workflows/ci.yml) validando `xUnit`, integração `PostgreSQL 17`, `oxlint`, `Vitest`, build e `Playwright`.
 - **Hospedagem Oficial (MVP):** Frontend público no Vercel em `https://it-flight-simulator-hackbrasil.vercel.app` (`src/frontend/vercel.json` com headers de segurança HTTP e rewrite SPA), backend `.NET 10` na Render (`it-flight-simulator-api`, via `render.yaml`) e `PostgreSQL 17` gerenciado no Neon (`vitru-agent-gateway` preventivamente suspenso na Render com backup versionado para preservar 100% da cota gratuita durante a avaliação).
 - **Custo:** o hackathon roda a custo zero, porque toda a simulação opera em motor de estado leve, sem VMs individuais na nuvem. O modelo de negócio é tratado fora do repositório público.

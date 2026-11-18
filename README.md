@@ -68,7 +68,7 @@ A tabela completa, com comandos, eventos e critérios do Juiz 360º de cada caus
 
 Quem avalia não precisa fazer o Check-in completo. O atalho **Experimentar**, na página Início, leva ao Check-in rápido e depois à Cabine com a missão de demonstração (`pasta-rede-inacessivel`). O modo também pode ser ligado e desligado no Plano de voo.
 
-O modo de demonstração fica isolado: não grava Registro de Voo e usa uma chave própria no navegador (`itfs_modo_demonstracao`). Os dados são sintéticos e as sessões são anônimas.
+O modo libera as escalas e não conta como voo concluído. Ele não cria Registro de Voo por si só, mas um voo concluído grava Registro de Voo, com o modo ligado ou não. O modo usa uma chave própria no navegador (`itfs_modo_demonstracao`). Os dados são sintéticos e as sessões são anônimas.
 
 ## Arquitetura
 
@@ -101,9 +101,10 @@ dotnet run --project src/backend/src/Simulador.Api --urls http://localhost:8080
 
 # Frontend (porta 5173)
 cd src/frontend
-npm.cmd install
-npm.cmd run dev
+npm install
+npm run dev
 ```
+No Windows, `npm.cmd` e `npx.cmd` funcionam no lugar de `npm` e `npx`, inclusive quando o PowerShell bloqueia scripts. O mesmo vale para os comandos de teste abaixo.
 
 Com Docker: `docker compose up --build` sobe PostgreSQL 17, backend e frontend. Sem banco, o backend usa o provedor em memória.
 
@@ -115,9 +116,9 @@ Verificações de saúde: `GET /health/live` e `GET /health/ready`. Limite de 12
 dotnet test src/backend/Simulador.slnx
 
 cd src/frontend
-npm.cmd run lint
-npm.cmd test -- --run
-npm.cmd run build
+npm run lint
+npm test -- --run
+npm run build
 ```
 
 Contagens medidas em **2026-11-18**, branch `jornada-de-voo`:
@@ -125,7 +126,7 @@ Contagens medidas em **2026-11-18**, branch `jornada-de-voo`:
 | Suíte | Resultado |
 | --- | --- |
 | `dotnet test src/backend/Simulador.slnx` | 2344 testes aprovados, 0 falhas (`Simulador.Dominio.Tests` 2316 e `Simulador.Api.Tests` 28) |
-| `npm.cmd test -- --run` em `src/frontend` | 385 testes aprovados em 49 arquivos, 0 falhas |
+| `npm test -- --run` em `src/frontend` | 385 testes aprovados em 49 arquivos, 0 falhas |
 
 `Simulador.Infra.IntegrationTests` roda no CI contra PostgreSQL 17 e não entrou nessa medição local. Os testes de ponta a ponta (Playwright) ficam em `src/frontend/e2e`.
 
@@ -139,6 +140,8 @@ Contagens medidas em **2026-11-18**, branch `jornada-de-voo`:
 - [Cronograma](docs/CRONOGRAMA_HACKATHON.md)
 - [Deploy e roteiro de vídeo](docs/DEPLOY_E_VIDEO.md)
 - [Sistema de design](docs/design/DESIGN.md)
+
+As pastas `docs/auditoria-*` e `docs/rfc` são registro histórico do processo de desenvolvimento (auditorias, propostas e discussões). Não descrevem o estado atual do produto; a referência é o código e os documentos listados acima.
 
 ## Conformidade
 

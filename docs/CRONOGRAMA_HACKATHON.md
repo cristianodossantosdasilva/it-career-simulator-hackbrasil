@@ -18,7 +18,7 @@
 ### Sprint 1 — Motor Determinístico, API Base e Cenários Core (14/nov a 18/nov) — *Concluída*
 - **14–15/nov:** Bootstrap da solução `.NET 10` + `React 19/TS/Vite` + `docker-compose.yml` (PostgreSQL 17). Implementação de `Simulador.Dominio` (subsistemas + eventos imutáveis) e `Simulador.Itsm`.
 - **15/nov (Concluído):** Auditoria independente de código e negócio (3 IAs), implantação do **Tema Claro Educacional** (AWS Skill Builder + alternância Escuro), **Missão 0 guiada**, **Glossário rápido**, **Matriz transparente MVP vs. Roadmap**, **Debrief da Caixa-Preta**, migração sincronizada de **zero E comercial**, **JCS RFC 8785 UTF-8 + assinatura ECDSA P-256**, hardening da API (`UseForwardedHeaders`, limites `32 KB`/`16 KB`, `Demo:PermitirParametrosDeTeste`, expurgo `> 2 dias`), headers `vercel.json`, `LICENSE` inicial sob MIT e workflow CI. Em 18/nov, a `LICENSE` passou a ser proprietária (todos os direitos reservados, com permissão para jurados e organizadores lerem, executarem e testarem); as versões publicadas antes dessa troca seguem regidas pela MIT.
-- **16–17/nov:** Consolidação e revisão final dos cenários-chefe no backend (`triagem-engenharia-social`, `pasta-rede-inacessivel` C1/C2/C3, `incidente-massivo`, `sre-cloud-latencia` e `diagnostico-sql-readonly`) com cobertura atual de **69 testes `xUnit`** na solução + suíte de integração PostgreSQL.
+- **16–17/nov:** Consolidação e revisão final dos cenários-chefe no backend (`triagem-engenharia-social`, `pasta-rede-inacessivel` C1/C2/C3, `incidente-massivo`, `sre-cloud-latencia` e `diagnostico-sql-readonly`) com cobertura de testes `xUnit` na solução (contagem atual no [README](../README.md#como-testar)) + suíte de integração PostgreSQL.
 - **18–20/nov:** Publicação e validação integral no pipeline Neon + Render (`it-flight-simulator-api`, com `vitru-agent-gateway` suspenso preventivamente) + Vercel (`https://it-flight-simulator-hackbrasil.vercel.app`) sem barreira de login.
 
 ### Sprint 2 — Refino de Fluxos, Estabilidade Pública e Higiene Final (21/nov a 24/nov)
@@ -26,7 +26,7 @@
 - **23–24/nov:** Validação integral de `Simulador.Avaliacao` (`Juiz 360º`), `ReplayView` (**Debrief Didático da Caixa-Preta**), `Currículo Vivo` (**JCS RFC 8785 UTF-8 + SHA-256 + ECDSA P-256**) e Verificador Offline `/verificar` em navegador sem rede.
 
 ### Sprint 3 — Regressão Zero, Acessibilidade, Gravação e Entregáveis (25/nov a 30/nov)
-- **25/nov:** Execução completa final de `dotnet test` (**69 casos** na solução + integração PostgreSQL CI), `npm.cmd test -- --run` (**25 casos Vitest + `axe-core`**), `oxlint`, `check-bundle-secrets.mjs` e suíte `Playwright` (**11 jornadas E2E** nos viewports `375px`, `768px` e `1280px`).
+- **25/nov:** Execução completa final de `dotnet test` (contagem no README, mais integração PostgreSQL CI), `npm test -- --run` (contagem no README, com `axe-core`), `oxlint`, `check-bundle-secrets.mjs` e suíte `Playwright` (jornadas E2E nos viewports `375px`, `768px`, `1280px` e `1440px`).
 - **26–27/nov:** Deploy em produção (Neon Free + Render + Vercel), testes públicos sem login e checagem de estabilidade/latência.
 - **28/nov:** Congelamento de novas funcionalidades, revisão final da documentação e gravação do vídeo de até 3 minutos demonstrando do zero absoluto ao N3.
 - **29/nov:** Buffer para correções críticas e regressão final.

@@ -71,7 +71,7 @@ Preparar tudo antes de subir ao palco. Testar os planos A, B e C no mesmo notebo
 | --- | --- |
 | Demo pública lenta ou fora (servidor acordando) | Abrir `/health/live` da API 10 minutos antes. Se estiver lento no palco, seguir para o plano B. |
 | Wi-Fi do local ruim | Trocar para o roteador do celular (compartilhar internet) e recarregar. Testar antes a conexão com o celular no local. |
-| Rede indisponível | **Plano B1: execução local.** Backend e frontend rodando no notebook (`dotnet run --project src/backend/src/Simulador.Api --urls http://localhost:8080` e `npm.cmd run dev` em `src/frontend`), com o provedor em memória, sem banco. Preparar e testar na véspera, com tudo já compilado e as dependências instaladas. |
+| Rede indisponível | **Plano B1: execução local.** Backend e frontend rodando no notebook (`dotnet run --project src/backend/src/Simulador.Api --urls http://localhost:8080` e `npm run dev` em `src/frontend` (`npm.cmd` no Windows)), com o provedor em memória, sem banco. Preparar e testar na véspera, com tudo já compilado e as dependências instaladas. |
 | Execução local falhou | **Plano B2: vídeo gravado.** O vídeo de 3 minutos, no notebook e num pendrive, sem depender de streaming. Falar por cima, em vez de ler a legenda. |
 | Tudo falhou | **Plano B3: capturas de tela.** Sequência de imagens em PDF: Início, Check-in, Plano de voo, Cabine, Caixa-preta, Brevê. Contar a história com elas. |
 

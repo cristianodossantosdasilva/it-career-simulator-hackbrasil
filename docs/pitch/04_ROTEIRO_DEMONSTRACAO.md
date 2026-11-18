@@ -21,7 +21,7 @@ O modo pode ser ligado e desligado no Plano de voo, no controle **Liberar todas 
 
 ## Passo 2. Missão de demonstração: `pasta-rede-inacessivel`
 
-Escala Service Desk N1 Jr. A causa varia por semente (C1 a C4). Para repetir: Plano de voo, **Opções avançadas para teste**, **Demo rápida: semente 42, causa disponível**.
+Escala Service Desk N1 Jr. A causa varia por semente (C1 a C4). Para repetir: Plano de voo, **Opções avançadas para teste**, **Demo rápida: semente 42, causa disponível**. A semente 42 gera a causa C2.
 
 1. No ITSM, assumir o chamado e classificar.
 2. No Comunicador, validar a identidade da Maria (`AUR-1042`). Sem isso o acesso remoto não abre.
@@ -66,7 +66,7 @@ O que a banca vê: a regra de segurança está no motor, não numa frase do diá
 2. Usar o **Verificador offline** com o JSON do Currículo Vivo (verificação por JCS RFC 8785, SHA-256 e ECDSA P-256, no navegador, sem rede).
 3. Alterar um caractere do JSON e verificar de novo: a adulteração é detectada.
 
-Atenção: o Registro de Voo só aparece para um voo concluído. O modo de demonstração, por si só, não cria registro. Antes da apresentação, concluir um voo no mesmo navegador e conferir o Brevê. Se o README e o guia de vídeo divergirem sobre este ponto, vale o que a demo mostrar no ensaio.
+Atenção: o Registro de Voo só aparece para um voo concluído. O modo de demonstração, por si só, não cria registro. Antes da apresentação, concluir um voo no mesmo navegador e conferir o Brevê. O voo concluído grava o Registro com o modo ligado ou desligado.
 
 ## Passo 6. Hangar
 
@@ -78,7 +78,7 @@ Atenção: o Registro de Voo só aparece para um voo concluído. O modo de demon
 
 | Cenário | Semente | Resultado |
 | --- | --- | --- |
-| `pasta-rede-inacessivel` | 42 (Demo rápida) | Causa disponível do catálogo, a primeira da lista. |
+| `pasta-rede-inacessivel` | 42 (Demo rápida) | Causa C2 (o DNS aponta para `10.10.99.250`). Confirmar no ensaio antes da banca. |
 | `reset-senha-desbloqueio` | 3 | `SENHA_ESQUECIDA`, pedido por terceiro. |
 | `reset-senha-desbloqueio` | 42 | `CONTA_BLOQUEADA`, pedido por terceiro. |
 | `reset-senha-desbloqueio` | 7 | `SENHA_ESQUECIDA`, pedido direto da titular, para comparar. |

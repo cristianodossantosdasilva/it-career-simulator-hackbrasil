@@ -80,5 +80,5 @@ Em vez de promessas irreais ou cargas horárias superficiais, o estudo de caso i
 
 - **Código autoral para o Hackathon:** Todo o código (backend, motor, ITSM, cenários, frontend) foi escrito especificamente neste repositório público para o Hack Brasil 2026.
 - **100% Dados Sintéticos:** Nenhuma coleta de dados pessoais reais; empresa fictícia (*Aurora Logística*), usuários sintéticos e sessões anônimas com TTL automático (expurgo de sessões expiradas `> 2 dias`).
-- **Acessibilidade (WCAG AA):** Navegação por teclado, foco visível, semântica ARIA e contraste maior ou igual a `4.5:1` (em Tema Claro e Tema Escuro) validados automaticamente (`axe-core`, **25 testes Vitest**, **69 testes xUnit** + integração PostgreSQL CI e **11 jornadas E2E Playwright**).
+- **Acessibilidade (WCAG AA):** Navegação por teclado, foco visível, semântica ARIA e contraste maior ou igual a `4.5:1` (em Tema Claro e Tema Escuro) validados automaticamente (`axe-core`, testes Vitest, xUnit e integração PostgreSQL no CI, e jornadas E2E Playwright; contagens medidas no [README](../README.md#como-testar) e no CI).
 - **Disponibilidade e custo zero no hackathon:** execução determinística habilitada por padrão (`Dialogo:HabilitarLlm=false`), sem custo de IA externa e com disponibilidade integral para a banca. O modelo de negócio é tratado fora do repositório público.

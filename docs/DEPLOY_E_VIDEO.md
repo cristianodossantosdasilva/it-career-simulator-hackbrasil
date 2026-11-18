@@ -87,7 +87,7 @@ Para o texto de submissão e o README, fora do vídeo:
 
 1. Abrir a demo pública e acionar "Experimentar um voo agora".
 2. No Check-in rápido, conferir as respostas padrão e acionar "Confirmar e embarcar". A Cabine de `pasta-rede-inacessivel` abre com o modo de demonstração ativo.
-3. Concluir o chamado e abrir a Caixa-preta pelo link do aviso.
+3. Concluir o chamado e abrir a Caixa-preta pelo link do aviso. O modo de demonstração não cria Registro de Voo por si só, mas um voo concluído grava Registro de Voo (visível no Brevê), com o modo ligado ou não.
 4. Ir ao Plano de voo: N2 Pleno e N3 Sênior já estão liberadas para embarque.
 5. Para ver os portões funcionando, desativar o controle no Plano de voo: as escalas voltam a seguir os voos concluídos.
 
@@ -97,8 +97,8 @@ Os números mudam a cada commit. A referência é o CI; no dia da gravação, le
 
 | Suíte | Resultado | Comando |
 | :--- | :--- | :--- |
-| xUnit (.NET 10) | 69 aprovados (50 de domínio e 19 de API), 0 falhas | `dotnet test src/backend/Simulador.slnx` |
-| Vitest, jsdom e axe-core | 345 aprovados em 48 arquivos, 0 falhas | `npm.cmd test -- --run` em `src/frontend` |
-| Playwright | 99 aprovados e 6 ignorados por desenho, 0 falhas, em 5 projetos (chromium 37, mobile-375 16, tablet-768 15, desktop-1280 16, desktop-1440 15) | `npx.cmd playwright test --project=<projeto>` |
+| xUnit (.NET 10) | Contagem atual no README (2344 aprovados em 18/nov/2026) e no CI, 0 falhas | `dotnet test src/backend/Simulador.slnx` |
+| Vitest, jsdom e axe-core | Contagem atual no README (385 aprovados em 49 arquivos em 18/nov/2026) e no CI, 0 falhas | `npm test -- --run` em `src/frontend` (`npm.cmd` no Windows) |
+| Playwright | 99 aprovados e 6 ignorados por desenho, 0 falhas, em 5 projetos (chromium 37, mobile-375 16, tablet-768 15, desktop-1280 16, desktop-1440 15) | `npx playwright test --project=<projeto>` (`npx.cmd` no Windows) |
 
 Os 6 testes ignorados são os que só fazem sentido em uma largura (celular de 375 px e zoom no desktop-1280). Os testes de integração com PostgreSQL rodam só no CI.
