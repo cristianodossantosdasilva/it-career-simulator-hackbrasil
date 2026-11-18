@@ -5,12 +5,14 @@ import { ItsmApp } from '../../apps/ItsmApp/ItsmApp'
 import { SimuDeskApp } from '../../apps/SimuDeskApp/SimuDeskApp'
 import { nivelPorCenarioId } from '../../educacao/catalogoEducacional'
 import { obterProximaDicaMissao } from '../../lab/dicaMissao'
+import { semAcessoRemoto } from '../../lab/estadoDoCenario'
 import { MissionGuide } from '../../lab/MissionGuide'
 import { roteiroDoCenario } from '../../lab/roteiros'
 import { SplitLabWorkspace } from '../../lab/SplitLabWorkspace'
 import { Icone } from '../../ui/Icone'
 import { PainelComandante } from '../comandante/PainelComandante'
 import { AvisoHonesto } from '../componentes/AvisoHonesto'
+import { textosDaMissao } from '../componentes/textosDaMissao'
 import { useAcademia, useVoo } from '../contextosJornada'
 import { LinkInterno } from '../navegacao/LinkInterno'
 import { navegar } from '../navegacao/navegador'
@@ -48,14 +50,21 @@ export function TurnoDaCabine() {
   } = useVoo()
   if (!sessaoId || !sessao) return null
 
-  const nivelSessao = nivelPorCenarioId(sessao.meta.cenarioId)
-  const paginaNotasSessao = estadoAcademia.pages.find(
-    (pagina) => pagina.level === nivelSessao.id && pagina.type === 'cornell',
+  const cenarioDaSessao = sessao.meta.cenarioId
+  // Missões sem módulo de aulas (nivelPorCenarioId devolve null) usam o título do catálogo de rotas e
+  // guardam as notas numa página própria, sem nível, em vez de cair no primeiro módulo.
+  const nivelSessao = nivelPorCenarioId(cenarioDaSessao)
+  const textosMissao = textosDaMissao(cenarioDaSessao)
+  const nomeDasNotas = nivelSessao?.nome ?? textosMissao.titulo
+  const paginaNotasSessao = estadoAcademia.pages.find((pagina) =>
+    nivelSessao
+      ? pagina.level === nivelSessao.id && pagina.type === 'cornell'
+      : pagina.level === null && pagina.id === `pg-${cenarioDaSessao}`,
   ) ?? {
-    id: `pg-${nivelSessao.id}`,
-    icon: nivelSessao.icon,
-    title: `${nivelSessao.nome}: Anotações`,
-    level: nivelSessao.id,
+    id: `pg-${nivelSessao?.id ?? cenarioDaSessao}`,
+    icon: nivelSessao?.icon ?? 'notas',
+    title: `${nomeDasNotas}: Anotações`,
+    level: nivelSessao?.id ?? null,
     type: 'cornell' as const,
     cues: '',
     notes: '',
@@ -121,7 +130,7 @@ export function TurnoDaCabine() {
             cenarioId={sessao.meta.cenarioId}
             contexto={contextoRoteiro}
             proximoPasso={dicaAtual}
-            tituloMissao={nivelSessao.titulo}
+            tituloMissao={textosMissao.titulo}
             onAbrirFerramenta={(ferramenta) => setAba(ferramenta)}
             onAbrirCaixaPreta={() => navegar(enderecoCaixaPreta)}
           />
@@ -145,8 +154,8 @@ export function TurnoDaCabine() {
                 'simudesk',
                 'remoto',
                 'SimuDesk Remoto',
-                <span className={`dock-contagem ${sessao.dialogo.acessoRemotoLiberado ? 'ok' : ''}`}>
-                  {sessao.dialogo.acessoRemotoLiberado ? 'Liberado' : 'Bloqueado'}
+                <span className={`dock-contagem ${sessao.dialogo.acessoRemotoLiberado || semAcessoRemoto(cenarioDaSessao) ? 'ok' : ''}`}>
+                  {semAcessoRemoto(cenarioDaSessao) ? 'Console' : sessao.dialogo.acessoRemotoLiberado ? 'Liberado' : 'Bloqueado'}
                 </span>,
               )}
               {botaoDaFerramenta('kb', 'base', 'Intranet / KB')}
@@ -185,7 +194,7 @@ export function TurnoDaCabine() {
           gaveta === 'notas' ? (
             <aside className="cockpit-drawer" aria-label="Minhas notas durante o atendimento">
               <div className="row-between">
-                <h2 className="h3">Minhas notas: {nivelSessao.nome}</h2>
+                <h2 className="h3">Minhas notas: {nomeDasNotas}</h2>
                 <button
                   type="button"
                   className="btn btn-ghost btn-sm"

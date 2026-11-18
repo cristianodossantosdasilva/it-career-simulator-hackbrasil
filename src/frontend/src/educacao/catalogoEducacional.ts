@@ -112,8 +112,8 @@ export const LEVELS: NivelEducacional[] = [
     nome: 'Analista Jr (N1)',
     titulo: 'Pasta de Rede Inacessível (Simulador de Causas)',
     sub: 'Redes, usuários e acesso remoto',
-    desc: '3 causas sorteadas por semente (Grupo AD, DNS ou Serviço parado). Valide identidade, conecte no SimuDesk e resolva.',
-    competencias: 'AD, DNS, Serviços, SimuDesk',
+    desc: '4 causas sorteadas por semente (Grupo AD, DNS, Serviço parado ou pedido de mapeamento de unidade). Valide identidade, conecte no SimuDesk e atenda o chamado.',
+    competencias: 'AD, DNS, Serviços, Solicitações, SimuDesk',
   },
   {
     id: 'n2',
@@ -123,8 +123,8 @@ export const LEVELS: NivelEducacional[] = [
     nome: 'Analista Pleno (N2)',
     titulo: 'Incidente Massivo e Problema ITIL',
     sub: 'ITIL, incidentes em massa e logs',
-    desc: '3 chamados simultâneos após atualização. Crie um Problema ITIL, investigue logs, restaure o AuroraGateway e resolva em lote.',
-    competencias: 'Problema ITIL, Causa Raiz, Logs',
+    desc: '3 chamados simultâneos, com 3 causas sorteadas por semente (serviço parado após atualização, falha do provedor de e-mail ou domínio suspenso). Crie um Problema ITIL, investigue, comunique os solicitantes e resolva em lote.',
+    competencias: 'Problema ITIL, Causa Raiz, Logs, Fornecedores',
   },
   {
     id: 'n3',
@@ -849,8 +849,13 @@ export function nivelPorId(id: NivelId): NivelEducacional {
   return LEVELS.find((l) => l.id === id) ?? LEVELS[0]
 }
 
-export function nivelPorCenarioId(cenarioId: string): NivelEducacional {
-  return LEVELS.find((l) => l.cenarioId === cenarioId) ?? LEVELS[0]
+/**
+ * Nível de aulas do cenário, ou null quando o cenário não tem módulo próprio (reset-senha-desbloqueio e
+ * falha-backup-restore). Sem nível, quem chama não deve assumir o primeiro módulo: título e descrição da
+ * Missão vêm do catálogo de rotas.
+ */
+export function nivelPorCenarioId(cenarioId: string): NivelEducacional | null {
+  return LEVELS.find((l) => l.cenarioId === cenarioId) ?? null
 }
 
 export function aulaPorId(id: string): { lesson: MicroAula; level: NivelId } | null {

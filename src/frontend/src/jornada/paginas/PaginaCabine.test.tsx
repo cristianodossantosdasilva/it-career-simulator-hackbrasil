@@ -146,6 +146,15 @@ describe('Página Cabine', () => {
     expect(criacoes(chamadas)).toHaveLength(1)
   })
 
+  it('reset-senha-desbloqueio usa o título do catálogo nas notas e no guia, sem cair no módulo Estagiário', async () => {
+    simularApi({ missao: 'reset-senha-desbloqueio' })
+    montar('reset-senha-desbloqueio', '', { [CHAVE_REGISTROS_VOO]: serializarRegistros([]) })
+    await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
+    fireEvent.click(screen.getByRole('button', { name: /Minhas notas/ }))
+    expect(await screen.findByRole('heading', { name: 'Minhas notas: Reset de senha e desbloqueio de conta' })).toBeInTheDocument()
+    expect(document.body.textContent).not.toContain('Triagem e Defesa contra Engenharia Social')
+    expect(document.body.textContent).not.toContain('Minhas notas: Estagiário')
+  })
   it('a gaveta do Comandante usa o papel Copiloto', async () => {
     simularApi({ missao: 'pasta-rede-inacessivel' })
     montar('pasta-rede-inacessivel')

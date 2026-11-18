@@ -162,8 +162,9 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
 
   /** Estado de cabine novo para um turno que acabou de abrir, como em iniciarSessao antes da jornada. */
   function prepararTurno(id: string, proj: SessaoProjecao, cenarioId: string) {
+    // Missão sem módulo de aulas (nivel nulo) mantém o foco de estudo que o aluno já tinha.
     const nivel = nivelPorCenarioId(cenarioId)
-    atualizarEstadoAcademia((prev) => ({ ...prev, focus: nivel.id }))
+    if (nivel) atualizarEstadoAcademia((prev) => ({ ...prev, focus: nivel.id }))
     definirSessao(id, proj)
     setRegistroRecente(null)
     setFalhaRegistro(false)
@@ -274,12 +275,15 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
         res.projecao.chamados.length > 0 &&
         res.projecao.chamados.every((c) => c.status === 'Resolvido' || c.status === 'Encerrado')
       ) {
+        // Só os cenários com módulo de aulas contam no progresso da Academia.
         const lvl = nivelPorCenarioId(res.projecao.meta.cenarioId)
-        atualizarEstadoAcademia((prev) =>
-          prev.labsDone.includes(lvl.id)
-            ? prev
-            : { ...prev, labsDone: [...prev.labsDone, lvl.id], xp: prev.xp + 60, weekMin: prev.weekMin + 15 },
-        )
+        if (lvl) {
+          atualizarEstadoAcademia((prev) =>
+            prev.labsDone.includes(lvl.id)
+              ? prev
+              : { ...prev, labsDone: [...prev.labsDone, lvl.id], xp: prev.xp + 60, weekMin: prev.weekMin + 15 },
+          )
+        }
         void registrarVooConcluido(sessaoId, res.projecao)
       }
       for (const ev of res.eventos) {
