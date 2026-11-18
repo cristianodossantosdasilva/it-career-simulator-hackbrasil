@@ -46,6 +46,7 @@ public static partial class Juiz360
             "incidente-massivo" => AvaliarNivel3(estado, eventos),
             "sre-cloud-latencia" => AvaliarNivel4Sre(estado, eventos),
             "diagnostico-sql-readonly" => AvaliarNivel4bSql(estado, eventos),
+            "reset-senha-desbloqueio" => AvaliarResetSenha(estado, eventos),
             _ => AvaliarNivel2(estado, eventos)
         };
     }

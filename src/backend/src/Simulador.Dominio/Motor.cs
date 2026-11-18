@@ -626,6 +626,15 @@ public static class Motor
             }
             case "seguranca.resetar_senha":
             {
+                if (cenario.Titular is not null)
+                {
+                    // Atalho do painel: mesma regra do comando redefinir-senha, sem ComandoExecutado.
+                    var atalho = ComandosPorEscala.RedefinirSenha(novo, cenario);
+                    novo = atalho.NovoEstado;
+                    foreach (var ev in atalho.Eventos)
+                        gerados.Add(new(++seqAtual, ev.Tipo, ev.Dados, minutoDestino));
+                    break;
+                }
                 gerados.Add(new(++seqAtual, "SenhaResetadaIndevidamente", new Dictionary<string, object?>
                 {
                     ["usuario"] = cenario.UsuarioAlvo

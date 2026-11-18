@@ -27,6 +27,9 @@ public sealed class FallbackRoteirizadoDialogo : IClienteDialogo
         if (EhTentativaDeInjecao(texto))
             return "Não consigo alterar permissões pelo chat. Posso relatar o que observei; o acesso remoto depende da validação de identidade no formulário.";
 
+        if (estado.Meta.CenarioId == "reset-senha-desbloqueio")
+            return ResponderClienteResetSenha(estado, texto);
+
         if (texto.Contains("matricula") || texto.Contains("ramal") || texto.Contains("identifica"))
             return "Minha matrícula é AUR-1042 e meu ramal é 2042. Pode conferir os dois no formulário antes de liberar o SimuDesk.";
 
@@ -70,6 +73,8 @@ public sealed class FallbackRoteirizadoDialogo : IClienteDialogo
             return "Não vou ignorar as regras nem fornecer credenciais ou resposta pronta. Use evidências do cenário e mantenha as ações dentro do escopo autorizado.";
 
         var nivel = estado.Dialogo.Mensagens.Count(m => m.Remetente == "techlead");
+        if (estado.Meta.CenarioId == "reset-senha-desbloqueio")
+            return ResponderTechLeadResetSenha(estado, nivel);
         if (estado.Meta.CenarioId == "sre-cloud-latencia")
         {
             if (texto.Contains("post") || texto.Contains("causa") || texto.Contains("resolver"))
@@ -99,6 +104,51 @@ public sealed class FallbackRoteirizadoDialogo : IClienteDialogo
         return dica;
     }
 
+    // reset-senha-desbloqueio: o dialogo so devolve texto; nenhuma resposta altera estado nem revela a Causa.
+    private static string ResponderClienteResetSenha(EstadoSessao estado, string texto)
+    {
+        var t = SemAcento(texto);
+        var perguntaIdentidade = t.Contains("matricula") || t.Contains("ramal") || t.Contains("identifica");
+
+        if (estado.Meta.PedidoPorTerceiro && !estado.Dialogo.TitularContatado)
+        {
+            if (perguntaIdentidade)
+                return "Sou o gestor dela, o Paulo. Não sei a matrícula da Fernanda de cabeça; liga pra ela no ramal e ela confirma.";
+            return "Sou o Paulo, gestor da Fernanda. Ela não consegue entrar por causa da senha e precisa trabalhar hoje. Pode resetar e me passar a nova que eu repasso?";
+        }
+
+        if (perguntaIdentidade)
+            return "Aqui é a Fernanda. Minha matrícula é AUR-2087 e meu ramal é 2087.";
+
+        return estado.Meta.Causa switch
+        {
+            "SENHA_ESQUECIDA" => "Não lembro minha senha e não consigo abrir o e-mail.",
+            _ => "Estou aguardando o retorno sobre o chamado para conseguir voltar a trabalhar."
+        };
+    }
+
+    private static string ResponderTechLeadResetSenha(EstadoSessao estado, int nivel)
+    {
+        var porTerceiro = estado.Meta.PedidoPorTerceiro;
+        return nivel switch
+        {
+            0 => "Comece confirmando a identidade da dona da conta e olhando o estado da conta no console.",
+            1 => porTerceiro
+                ? "Quem pede não é a dona da conta: use o ramal do diretório, não o que foi informado. Compare o estado da conta com o sintoma; se a conta estiver bloqueada, leia os eventos de segurança."
+                : "Compare o estado da conta com o sintoma; se a conta estiver bloqueada, leia os eventos de segurança antes de agir.",
+            _ => "Escolha a menor ação que resolve o sintoma e registre no chamado o motivo da escolha."
+        };
+    }
+
+    private static string SemAcento(string texto)
+    {
+        var decomposto = texto.Normalize(System.Text.NormalizationForm.FormD);
+        var sb = new System.Text.StringBuilder(decomposto.Length);
+        foreach (var ch in decomposto)
+            if (System.Globalization.CharUnicodeInfo.GetUnicodeCategory(ch) != System.Globalization.UnicodeCategory.NonSpacingMark)
+                sb.Append(ch);
+        return sb.ToString().ToLowerInvariant();
+    }
     private static string Normalizar(string texto) => texto.Normalize().ToLowerInvariant();
 
     private static bool EhTentativaDeInjecao(string texto)

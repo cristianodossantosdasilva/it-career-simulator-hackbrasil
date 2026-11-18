@@ -13,8 +13,29 @@ internal static class EfeitosDeEventos
         string tipo,
         IReadOnlyDictionary<string, object?> dados)
     {
-        return (estacao, dialogo);
+        switch (tipo)
+        {
+            case "TitularContatado":
+                return (estacao, dialogo with { TitularContatado = true });
+            case "SenhaTemporariaDefinida":
+                return (DefinirStatusServico(estacao, "ContaAD", "SenhaTemporaria"), dialogo);
+            case "ContaDesbloqueada":
+            case "SenhaTrocadaPelaPessoa":
+                return (DefinirStatusServico(estacao, "ContaAD", "Ativa"), dialogo);
+            case "ContaBloqueadaNovamente":
+                return (DefinirStatusServico(estacao, "ContaAD", "Bloqueada"), dialogo);
+            case "OrigemBloqueioIdentificada":
+                return (DefinirStatusServico(estacao, "EventosDeSeguranca", "Consultado"), dialogo);
+            case "AcessoContaRestabelecido":
+                return (estacao with { CompartilhamentoAcessivel = true }, dialogo);
+            default:
+                return (estacao, dialogo);
+        }
     }
+
+    /// <summary>Status atual de um servico da estacao, ou null se nao existir.</summary>
+    internal static string? StatusServico(EstadoEstacao estacao, string nome) =>
+        estacao.Servicos.FirstOrDefault(s => string.Equals(s.Nome, nome, StringComparison.OrdinalIgnoreCase))?.Status;
 
     /// <summary>Define o status de um servico da estacao; cria o servico (nao critico) se nao existir.</summary>
     internal static EstadoEstacao DefinirStatusServico(EstadoEstacao estacao, string nome, string status)

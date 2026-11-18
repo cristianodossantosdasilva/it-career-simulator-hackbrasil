@@ -13,12 +13,171 @@ internal static class ComandosPorEscala
     /// <summary>Devolve null quando o comando nao pertence a nenhum cenario por escala (segue para o fluxo generico).</summary>
     internal static ResultadoComandoEscala? TentarExecutar(EstadoSessao estado, string comando, DefinicaoCenario cenario)
     {
+        var texto = comando.Trim();
+        return cenario.CenarioId switch
+        {
+            "reset-senha-desbloqueio" => ExecutarResetSenha(estado, texto, cenario),
+            _ => null
+        };
+    }
+
+    /// <summary>Atalho de seguranca.resetar_senha em cenarios com Titular: mesma regra do comando redefinir-senha.</summary>
+    internal static ResultadoComandoEscala RedefinirSenha(EstadoSessao estado, DefinicaoCenario cenario) =>
+        RedefinirSenhaDaTitular(estado, cenario, "seguranca.resetar_senha");
+
+    // ---------------------------------------------------------------- utilidades
+
+    private static EventoEscala Ev(string tipo, params (string Chave, object? Valor)[] dados)
+    {
+        var d = new Dictionary<string, object?>();
+        foreach (var (chave, valor) in dados) d[chave] = valor;
+        return new EventoEscala(tipo, d);
+    }
+
+    private static ResultadoComandoEscala Resultado(EstadoSessao estado, string saida, params EventoEscala[] eventos)
+    {
+        var estacao = estado.Estacao;
+        var dialogo = estado.Dialogo;
+        foreach (var ev in eventos)
+            (estacao, dialogo) = EfeitosDeEventos.Aplicar(estacao, dialogo, ev.Tipo, ev.Dados);
+        return new ResultadoComandoEscala(estado with { Estacao = estacao, Dialogo = dialogo }, saida, eventos);
+    }
+
+    private static string Argumento(string comando, string prefixo) =>
+        comando.Length > prefixo.Length ? comando[prefixo.Length..].Trim() : "";
+
+    // ---------------------------------------------------------------- reset-senha-desbloqueio
+
+    private const string MensagemLoginInexistente = "O nome de usuario nao foi encontrado.";
+
+    private static ResultadoComandoEscala? ExecutarResetSenha(EstadoSessao estado, string comando, DefinicaoCenario cenario)
+    {
+        var lower = comando.ToLowerInvariant();
+
+        if (lower.StartsWith("net user", StringComparison.Ordinal))
+        {
+            var arg = Argumento(comando, "net user");
+            if (!string.Equals(arg, cenario.UsuarioAlvo, StringComparison.OrdinalIgnoreCase))
+                return Resultado(estado, MensagemLoginInexistente);
+            return Resultado(estado, TextoNetUser(estado, cenario));
+        }
+
+        if (lower.StartsWith("eventos-seguranca", StringComparison.Ordinal))
+        {
+            var arg = Argumento(comando, "eventos-seguranca");
+            if (!string.Equals(arg, cenario.UsuarioAlvo, StringComparison.OrdinalIgnoreCase))
+                return Resultado(estado, MensagemLoginInexistente);
+            return Resultado(estado, $"Nenhum bloqueio recente para {cenario.UsuarioAlvo}.");
+        }
+
+        if (lower.StartsWith("diretorio", StringComparison.Ordinal))
+        {
+            var arg = Argumento(comando, "diretorio");
+            var titular = cenario.Titular!;
+            if (!string.Equals(arg, cenario.UsuarioAlvo, StringComparison.OrdinalIgnoreCase))
+                return Resultado(estado, MensagemLoginInexistente);
+            return Resultado(estado,
+                $"Titular: {titular.Nome} | Ramal cadastrado: {titular.Ramal} | Gestor: {titular.NomeGestor} | " +
+                "Politica: confirmar identidade da titular antes de qualquer reset ou desbloqueio.");
+        }
+
+        if (lower.StartsWith("discar", StringComparison.Ordinal))
+        {
+            var titular = cenario.Titular!;
+            var arg = Argumento(comando, "discar");
+            if (!string.Equals(arg, titular.Ramal, StringComparison.Ordinal))
+                return Resultado(estado, "Numero fora do cadastro corporativo. Use o ramal do diretorio.");
+            return Resultado(estado,
+                $"Ligacao para o ramal cadastrado {titular.Ramal}: {titular.Nome} atendeu e confirma que e a titular.",
+                Ev("TitularContatado", ("canal", "ramal_cadastrado"), ("ramal", titular.Ramal)));
+        }
+
+        if (lower.StartsWith("redefinir-senha", StringComparison.Ordinal))
+        {
+            var arg = Argumento(comando, "redefinir-senha");
+            if (!string.Equals(arg, cenario.UsuarioAlvo, StringComparison.OrdinalIgnoreCase))
+                return Resultado(estado, MensagemLoginInexistente);
+            return RedefinirSenhaDaTitular(estado, cenario, "redefinir-senha");
+        }
+
+        if (lower.StartsWith("desbloquear-conta", StringComparison.Ordinal))
+        {
+            var arg = Argumento(comando, "desbloquear-conta");
+            if (!string.Equals(arg, cenario.UsuarioAlvo, StringComparison.OrdinalIgnoreCase))
+                return Resultado(estado, MensagemLoginInexistente);
+            return DesbloquearContaDaTitular(estado, cenario);
+        }
+
+        if (lower.StartsWith("enviar-link-troca", StringComparison.Ordinal))
+        {
+            var arg = Argumento(comando, "enviar-link-troca");
+            if (!string.Equals(arg, cenario.UsuarioAlvo, StringComparison.OrdinalIgnoreCase))
+                return Resultado(estado, MensagemLoginInexistente);
+            return EnviarLinkDeTroca(estado, cenario);
+        }
+
         return null;
     }
 
-    /// <summary>Atalho de seguranca.resetar_senha em cenarios com Titular.</summary>
-    internal static ResultadoComandoEscala RedefinirSenha(EstadoSessao estado, DefinicaoCenario cenario)
+    private static string TextoNetUser(EstadoSessao estado, DefinicaoCenario cenario)
     {
-        throw new NotSupportedException("Nenhum cenario por escala habilitou o atalho de redefinicao de senha.");
+        var status = EfeitosDeEventos.StatusServico(estado.Estacao, "ContaAD");
+        var detalhe = status switch
+        {
+            "SenhaTemporaria" => "ativa | senha temporaria, troca obrigatoria no primeiro acesso | 0 tentativas incorretas",
+            "Ativa" when cenario.Causa == "SENHA_ESQUECIDA" => "ativa | senha valida ate 2027-01-20 | 2 tentativas incorretas",
+            _ => "ativa | senha valida ate 2027-01-20 | 0 tentativas incorretas"
+        };
+        return $"Conta: {cenario.UsuarioAlvo} | Estado: {detalhe}";
+    }
+
+    /// <summary>Regra de Acao_Sensivel: sem identidade validada a acao e recusada e registrada, antes de qualquer regra por Causa.</summary>
+    private static ResultadoComandoEscala? RecusarSeSemIdentidade(EstadoSessao estado, DefinicaoCenario cenario, string rotulo)
+    {
+        if (estado.Dialogo.IdentidadeValidada) return null;
+        return Resultado(estado,
+            "RECUSADO pelo console: identidade da titular nao verificada. A acao foi registrada.",
+            Ev("AcaoSensivelSemVerificacao", ("acao", rotulo), ("usuario", cenario.UsuarioAlvo)),
+            Ev("AcaoPrejudicialRegistrada",
+                ("categoria", "seguranca"),
+                ("motivo", "Acao sensivel executada sem verificar a identidade da titular.")));
+    }
+
+    private static EventoEscala Desnecessaria(string rotulo, string motivo) =>
+        Ev("AcaoDesnecessariaRegistrada", ("comando", rotulo), ("motivo", motivo));
+
+    private static ResultadoComandoEscala RedefinirSenhaDaTitular(EstadoSessao estado, DefinicaoCenario cenario, string rotulo)
+    {
+        var recusa = RecusarSeSemIdentidade(estado, cenario, rotulo);
+        if (recusa is not null) return recusa;
+
+        var definida = Ev("SenhaTemporariaDefinida", ("usuario", cenario.UsuarioAlvo), ("trocaObrigatoria", true));
+        var restabelecido = Ev("AcessoContaRestabelecido", ("usuario", cenario.UsuarioAlvo), ("via", "reset"));
+        const string sucesso = "Senha temporaria definida e entregue a titular por canal seguro. Troca obrigatoria no primeiro acesso.";
+
+        return cenario.Causa switch
+        {
+            "SENHA_ESQUECIDA" => Resultado(estado, sucesso, definida, restabelecido),
+            _ => Resultado(estado, "A conta continua bloqueada: o reset nao remove a origem das tentativas.",
+                Desnecessaria(rotulo, "reset_nao_resolve_a_causa"))
+        };
+    }
+
+    private static ResultadoComandoEscala DesbloquearContaDaTitular(EstadoSessao estado, DefinicaoCenario cenario)
+    {
+        var recusa = RecusarSeSemIdentidade(estado, cenario, "desbloquear-conta");
+        if (recusa is not null) return recusa;
+
+        return Resultado(estado, "A conta nao esta bloqueada.",
+            Desnecessaria("desbloquear-conta", "conta_nao_esta_bloqueada"));
+    }
+
+    private static ResultadoComandoEscala EnviarLinkDeTroca(EstadoSessao estado, DefinicaoCenario cenario)
+    {
+        var recusa = RecusarSeSemIdentidade(estado, cenario, "enviar-link-troca");
+        if (recusa is not null) return recusa;
+
+        return Resultado(estado, "A titular nao tem a senha atual; o link exige a senha vigente.",
+            Desnecessaria("enviar-link-troca", "link_exige_a_senha_vigente"));
     }
 }

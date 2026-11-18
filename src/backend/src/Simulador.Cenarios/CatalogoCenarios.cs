@@ -15,6 +15,7 @@ public sealed partial class CatalogoCenarios : ICatalogoCenarios
             ("incidente-massivo", "v0.1-hackathon") => true,
             ("sre-cloud-latencia", "v2.0") => true,
             ("diagnostico-sql-readonly", "v2.0") => true,
+            ("reset-senha-desbloqueio", "v0.1-hackathon") => true,
             _ => false
         };
 
@@ -30,6 +31,7 @@ public sealed partial class CatalogoCenarios : ICatalogoCenarios
             "incidente-massivo" => CriarIncidenteMassivo(versaoManifesto),
             "sre-cloud-latencia" => CriarSreCloud(versaoManifesto, causaForcada, semente),
             "diagnostico-sql-readonly" => CriarSqlReadOnly(versaoManifesto),
+            "reset-senha-desbloqueio" => CriarResetSenha(versaoManifesto, causaForcada, semente),
             _ => throw new ArgumentException($"Cenario desconhecido: {cenarioId}")
         };
     }

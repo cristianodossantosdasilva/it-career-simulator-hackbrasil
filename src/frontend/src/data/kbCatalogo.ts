@@ -251,6 +251,16 @@ export const KB_CATALOGO: ArtigoKb[] = [
     conteudo:
       'Ao concluir investigacao de auditoria: 1) Documente as queries executadas, 2) Registre a divergencia ou conformidade encontrada, 3) Resolva o chamado com nota publica detalhada. O historico de queries fica vinculado ao chamado para rastreabilidade da auditoria.',
   },
+  // === N1: Acesso e Identidade (cenarios por escala) ===
+  {
+    id: 'KB-027',
+    uri: 'kb://acesso/reset-desbloqueio-e-troca',
+    titulo: 'Reset, Desbloqueio e Troca de Senha: a Menor Acao',
+    categoria: 'Acesso',
+    nivel: ['N1'],
+    conteudo:
+      'Reset, desbloqueio e troca de senha resolvem problemas diferentes. Antes de qualquer um, confirme a identidade da titular e leia o estado da conta no console. Senha esquecida pede reset com senha temporaria e troca obrigatoria. Conta bloqueada pede identificar de onde vem as tentativas antes de desbloquear, senao ela bloqueia de novo. Senha vencida pode ser trocada pela propria titular pelo autoatendimento. Escolha a menor acao que resolve o sintoma: a acao desnecessaria fica registrada na trilha do atendimento.',
+  },
 ]
 
 export const KB_URI_MAP: Record<string, string> = Object.fromEntries(

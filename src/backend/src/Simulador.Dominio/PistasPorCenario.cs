@@ -12,10 +12,21 @@ internal static class PistasPorCenario
         "Pista 3: Para corrigir com seguranca, eleve o privilegio no terminal/painel e depois confirme o acesso antes de resolver o chamado."
     ];
 
+    private static readonly string[] ResetSenha =
+    [
+        "Pista 1: Antes de qualquer acao, confirme quem pede e quem e a dona da conta, e consulte o estado da conta no console.",
+        "Pista 2: Quem pede nem sempre e a dona da conta: use o ramal do diretorio, nao o que foi informado. Compare o estado da conta com o sintoma e escolha a menor acao que resolve.",
+        "Pista 3: Depois de agir, confirme com a titular que o acesso voltou e registre no chamado o que foi feito e por que."
+    ];
+
     internal static string Obter(string cenarioId, string causa, int indice)
     {
         if (indice < 0 || indice >= Maximo)
             throw new ArgumentOutOfRangeException(nameof(indice));
-        return Padrao[indice];
+        return cenarioId switch
+        {
+            "reset-senha-desbloqueio" => ResetSenha[indice],
+            _ => Padrao[indice]
+        };
     }
 }
