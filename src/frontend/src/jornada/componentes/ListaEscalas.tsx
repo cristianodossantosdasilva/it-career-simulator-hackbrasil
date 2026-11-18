@@ -2,6 +2,7 @@ import { useId } from 'react'
 import { Icone, type NomeIcone } from '../../ui/Icone'
 import type { VisaoEscala } from '../progressoRota'
 import { CartaoMissao } from './CartaoMissao'
+import { CertificacoesReferencia } from './CertificacoesReferencia'
 import { GrupoVertente } from './GrupoVertente'
 
 const ESTADO_ESCALA: Record<VisaoEscala['estado'], { texto: string; icone: NomeIcone }> = {
@@ -52,6 +53,7 @@ function EscalaDoPlano({ visao, anterior }: { visao: VisaoEscala; anterior: Visa
           </ul>
         ),
       )}
+      <CertificacoesReferencia itens={visao.certificacoes} nivelTitulo={3} />
     </section>
   )
 }

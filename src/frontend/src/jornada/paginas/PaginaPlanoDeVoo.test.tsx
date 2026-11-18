@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CARTAO_DE_TESTE, criarArmazenamentoFalso, registroDeTeste } from '../../testes/armazenamentoFalso'
 import { CHAVE_CARTAO_EMBARQUE, serializarCartao } from '../armazenamento/cartaoEmbarque'
 import { CHAVE_REGISTROS_VOO, serializarRegistros } from '../armazenamento/registrosVoo'
+import { AVISO_CERTIFICACOES } from '../catalogos/catalogoCertificacoes'
 import type { IdMissao } from '../catalogos/catalogoRotas'
 import { textosDaMissao } from '../componentes/textosDaMissao'
 import { ProvedorJornada } from '../ProvedorJornada'
@@ -141,5 +142,26 @@ describe('Página Plano de voo', () => {
   it('mostra o Comandante no papel Instrutor', () => {
     abrir()
     expect(screen.getByRole('heading', { name: /Comandante, papel Instrutor/ })).toBeInTheDocument()
+  })
+  it('mostra as certificações de cada escala com o status em texto e o aviso fixo', () => {
+    abrir()
+    const escala = (nome: string) => screen.getByRole('heading', { level: 2, name: nome }).closest('section') as HTMLElement
+    const certificacoesDe = (nome: string) =>
+      within(escala(nome)).getByRole('group', { name: 'Certificações de referência' })
+
+    const helpDesk = certificacoesDe('Help Desk N1')
+    expect(within(helpDesk).getByRole('heading', { level: 3, name: 'Certificações de referência' })).toBeInTheDocument()
+    expect(within(helpDesk).getByText(AVISO_CERTIFICACOES)).toBeInTheDocument()
+    expect(within(within(helpDesk).getByText('CompTIA A+').closest('li') as HTMLElement).getByText('Disponível')).toBeInTheDocument()
+
+    const serviceDesk = certificacoesDe('Service Desk N1 Jr')
+    expect(within(serviceDesk).getAllByRole('listitem')).toHaveLength(2)
+    expect(within(within(serviceDesk).getByText('CompTIA Network+').closest('li') as HTMLElement).getByText('Em preparação')).toBeInTheDocument()
+    expect(within(certificacoesDe('N2 Pleno')).getByText('ITIL 4 Foundation')).toBeInTheDocument()
+
+    const n3 = certificacoesDe('N3 Sênior')
+    expect(within(n3).getByText('CompTIA Security+')).toBeInTheDocument()
+    expect(within(within(n3).getByText('CompTIA Security+').closest('li') as HTMLElement).getByText('Futuro')).toBeInTheDocument()
+    expect(screen.getAllByText(AVISO_CERTIFICACOES)).toHaveLength(4)
   })
 })

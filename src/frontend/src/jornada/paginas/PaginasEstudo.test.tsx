@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { LESSONS, LEVELS } from '../../educacao/catalogoEducacional'
@@ -78,14 +78,15 @@ describe('Páginas de estudo', () => {
     expect(screen.getByText('Não promete emprego, salário nem resultado.')).toBeInTheDocument()
   })
 
-  it('Hangar mínimo: um único h1 e as rotas do catálogo com o status em texto', () => {
+  it('Hangar: um único h1 e as rotas do catálogo com o status em texto', () => {
     abrir(<PaginaHangar />)
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     expect(screen.getByRole('heading', { level: 1, name: 'Hangar' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { level: 3, name: 'Suporte de TI' })).toBeInTheDocument()
-    expect(screen.getByText('Disponível')).toBeInTheDocument()
-    expect(screen.getByText('Em preparação')).toBeInTheDocument()
-    expect(screen.getAllByText('Futuro')).toHaveLength(2)
+    const rotas = within(screen.getByRole('heading', { level: 2, name: 'Rotas' }).closest('section') as HTMLElement)
+    expect(rotas.getByRole('heading', { level: 3, name: 'Suporte de TI' })).toBeInTheDocument()
+    expect(rotas.getByText('Disponível')).toBeInTheDocument()
+    expect(rotas.getByText('Em preparação')).toBeInTheDocument()
+    expect(rotas.getAllByText('Futuro')).toHaveLength(2)
   })
 
   it('Aulas: o link de outro nível leva ao endereço do nível', () => {

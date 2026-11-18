@@ -1519,6 +1519,12 @@ input[aria-label="Buscar na Base de Conhecimento"] { min-width: 260px; }
 .lista-rotas-hangar { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-3); }
 .rota-hangar { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md); min-width: 0; }
 .rota-hangar h2, .rota-hangar h3 { font-size: var(--font-size-md); color: var(--text-primary); }
+.escala-hangar, .certificacoes-referencia { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+.escala-hangar h3, .certificacoes-referencia h2, .certificacoes-referencia h3 { font-size: var(--font-size-md); color: var(--text-primary); }
+.lista-certificacoes { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-3); }
+.item-certificacao { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); min-width: 0; }
+.item-certificacao-nome { font-weight: var(--font-weight-semibold); color: var(--text-primary); }
+.item-certificacao-texto { flex-basis: 100%; margin: 0; max-width: var(--measure); font-size: var(--font-size-sm); color: var(--text-secondary); }
 .papeis-comandante { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-3); }
 .papel-comandante { padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md); min-width: 0; }
 .papel-comandante h2, .papel-comandante h3 { font-size: var(--font-size-md); color: var(--text-primary); }
