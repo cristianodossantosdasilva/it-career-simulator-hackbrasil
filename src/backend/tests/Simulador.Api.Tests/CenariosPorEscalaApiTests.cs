@@ -95,4 +95,14 @@ public class CenariosPorEscalaApiTests : IClassFixture<WebApplicationFactory<Pro
         var resp = await _client.PostAsJsonAsync("/api/sessoes", new { cenarioId = "reset-senha-desbloqueio", versaoManifesto = "v9" });
         Assert.Equal(HttpStatusCode.BadRequest, resp.StatusCode);
     }
-}
+
+    [Fact]
+    public async Task PastaRede_C4Forcada_CriaSessaoComVersaoEUnidadeNaoMapeada()
+    {
+        var resp = await _client.PostAsJsonAsync("/api/sessoes", new { cenarioId = "pasta-rede-inacessivel", causaForcada = "C4", semente = 42 });
+        Assert.Equal(HttpStatusCode.Created, resp.StatusCode);
+        var corpo = await resp.Content.ReadFromJsonAsync<JsonElement>();
+        var id = corpo.GetProperty("sessaoId").GetString()!;
+        var replay = await _client.GetFromJsonAsync<JsonElement>($"/api/sessoes/{id}/replay");
+        Assert.Equal(JsonValueKind.Null, replay.GetProperty("meta").GetProperty("causa").ValueKind);
+    }}

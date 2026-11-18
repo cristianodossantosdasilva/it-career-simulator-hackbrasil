@@ -38,7 +38,8 @@ public sealed partial class CatalogoCenarios : ICatalogoCenarios
 
     private static DefinicaoCenario CriarPastaRede(string versao, string? causaForcada, long semente)
     {
-        var causa = causaForcada is "C1" or "C2" or "C3"
+        // C4 so nasce por causaForcada ate a Ativacao_no_Sorteio (tarefa 19): CausasPastaRede continua com C1, C2 e C3.
+        var causa = causaForcada is "C1" or "C2" or "C3" or "C4"
             ? causaForcada
             : CausasPastaRede[new SplitMix64(semente).NextInt(CausasPastaRede.Length)];
 
@@ -64,27 +65,39 @@ public sealed partial class CatalogoCenarios : ICatalogoCenarios
             {
                 ["fileserver.aurora.local"] = ipDns
             },
-            [
-                new("Workstation", statusWorkstation, true),
-                new("DnsClient", "Running", true),
-                new("Spooler", "Running", false)
-            ],
+            causa == "C4"
+                ? [
+                    new("Workstation", statusWorkstation, true),
+                    new("DnsClient", "Running", true),
+                    new("Spooler", "Running", false),
+                    new("UnidadeRedeZ", "NaoMapeada", false)
+                ]
+                : [
+                    new("Workstation", statusWorkstation, true),
+                    new("DnsClient", "Running", true),
+                    new("Spooler", "Running", false)
+                ],
             false,
             true,
             [
                 "[INFO] Estacao EST-FIN-042 iniciada em aurora.local.",
                 causa switch
                 {
+                    "C4" => "[INFO] Unidade Z: (Financeiro) nao esta mapeada neste perfil.",
                     "C1" => "[WARN] Acesso negado ao compartilhamento \\\\fileserver.aurora.local\\Financeiro para maria.souza.",
                     "C2" => "[WARN] Resolucao de fileserver.aurora.local retornando 10.10.99.250 (destino inalcancavel).",
                     _ => "[ERROR] Servico Workstation (LanmanWorkstation) encontra-se parado na estacao EST-FIN-042."
                 }
             ],
-            ["whoami /groups", "nslookup", "ping", "ipconfig /flushdns", "net start", "sc query"]);
+            ["whoami /groups", "nslookup", "ping", "ipconfig /flushdns", "net start", "sc query", "net use"]);
+
+        var principal = causa == "C4"
+            ? new ChamadoInicial("Solicitacao: mapear a unidade Z: para a pasta Financeiro", "Estacao nova: preciso da unidade Z: apontando para \\\\fileserver.aurora.local\\Financeiro e ela nao aparece no meu perfil.", "Maria Souza", 0, true)
+            : new ChamadoInicial("Nao consigo acessar a pasta da rede Financeiro", "Ao tentar abrir \\\\fileserver.aurora.local\\Financeiro recebo erro de acesso/caminho nao encontrado.", "Maria Souza", 0, true);
 
         IReadOnlyList<ChamadoInicial> fila =
         [
-            new("Nao consigo acessar a pasta da rede Financeiro", "Ao tentar abrir \\\\fileserver.aurora.local\\Financeiro recebo erro de acesso/caminho nao encontrado.", "Maria Souza", 0, true),
+            principal,
             new("Impressora do 2o andar com fila travada", "Documentos ficam presos na fila da impressora HP-204.", "Carlos Mendes", 0, false),
             new("Solicitacao de acesso ao portal de ferias", "Novo colaborador precisa de acesso ao portal RH.", "Joana Lima", 0, false),
             new("Duvida sobre configuracao de assinatura no Webmail", "Como adicionar o telefone da filial na assinatura?", "Pedro Rocha", 0, false),

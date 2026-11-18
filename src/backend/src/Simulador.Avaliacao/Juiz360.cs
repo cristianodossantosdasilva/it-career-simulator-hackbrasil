@@ -150,6 +150,21 @@ public static partial class Juiz360
             "Evite desativar firewall, executar comandos destrutivos ou ignorar politicas de seguranca.",
             "kb://seguranca/acoes-prejudiciais"));
 
+        // J6 so existe em C4 (solicitacao de servico): as Causas C1 a C3 mantem 5 criterios.
+        if (estado.Meta.Causa == "C4")
+        {
+            var classifSolicitacao = eventos.LastOrDefault(e =>
+                e.Tipo == "ChamadoClassificado" &&
+                principal is not null &&
+                string.Equals(Dado(e, "chamadoId"), principal.Id, StringComparison.OrdinalIgnoreCase));
+            var j6Ok = classifSolicitacao is not null &&
+                       Normalizar(Dado(classifSolicitacao, "categoria") ?? "").Contains("solicit", StringComparison.Ordinal);
+            criterios.Add(new("J6", "Classificou o chamado como solicitacao de servico", j6Ok, classifSolicitacao?.Seq,
+                j6Ok ? "Chamado classificado como solicitacao de servico." : "O pedido de mapeamento de unidade nao foi classificado como solicitacao de servico.",
+                "Um pedido para obter algo novo (como mapear uma unidade) e uma solicitacao de servico, nao um incidente.",
+                "kb://itsm/solicitacao-de-servico"));
+        }
+
         var atendidos = criterios.Count(c => c.Atendido);
         var todosNoSla = estado.Itsm.Chamados.All(c => !c.SlaVencido);
         var xp = Math.Max(0, atendidos * 10 + (todosNoSla && j3Ok ? 10 : 0));

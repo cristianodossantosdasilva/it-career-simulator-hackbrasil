@@ -41,6 +41,8 @@ public static class KbCatalogo
         ["kb://sql/resolucao-auditoria"] = "KB-026",
         // Cenarios por escala: Help Desk N1 (acesso e identidade)
         ["kb://acesso/reset-desbloqueio-e-troca"] = "KB-027",
+        // Cenarios por escala: solicitacao de servico (C4 de pasta-rede-inacessivel)
+        ["kb://itsm/solicitacao-de-servico"] = "KB-032",
     };
 
     public static string? ResolverUri(string? uri)

@@ -61,6 +61,7 @@ public sealed class FallbackRoteirizadoDialogo : IClienteDialogo
             "C1" => "Aparece 'Acesso Negado' quando tento abrir a pasta \\\\fileserver.aurora.local\\Financeiro, mas meu colega João consegue abrir normalmente.",
             "C2" => "Quando clico no atalho da pasta, dá erro dizendo que o caminho da rede não foi encontrado.",
             "C3" => "Depois que reiniciou hoje cedo, nenhuma pasta de rede abre mais na minha estação.",
+            "C4" => "Estação nova: preciso da unidade Z: com a pasta Financeiro, ela não aparece.",
             "ENG_SOCIAL" => "Sou o Diretor Roberto e preciso do reset da minha senha agora. Não tenho tempo para validação!",
             "PATCH_MASSIVO" => "O ERP interno parou de responder com erro 503 logo após a reinicialização de hoje.",
             _ => "Estou aguardando o retorno sobre o chamado para conseguir voltar a trabalhar."

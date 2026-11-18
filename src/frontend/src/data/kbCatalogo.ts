@@ -261,6 +261,16 @@ export const KB_CATALOGO: ArtigoKb[] = [
     conteudo:
       'Reset, desbloqueio e troca de senha resolvem problemas diferentes. Antes de qualquer um, confirme a identidade da titular e leia o estado da conta no console. Senha esquecida pede reset com senha temporaria e troca obrigatoria. Conta bloqueada pede identificar de onde vem as tentativas antes de desbloquear, senao ela bloqueia de novo. Senha vencida pode ser trocada pela propria titular pelo autoatendimento. Escolha a menor acao que resolve o sintoma: a acao desnecessaria fica registrada na trilha do atendimento.',
   },
+  // === N1: Solicitacao de servico (cenarios por escala) ===
+  {
+    id: 'KB-032',
+    uri: 'kb://itsm/solicitacao-de-servico',
+    titulo: 'Solicitacao de Servico e Incidente',
+    categoria: 'ITSM',
+    nivel: ['N1'],
+    conteudo:
+      'Incidente e a interrupcao ou a degradacao de algo que funcionava. Solicitacao de servico e o pedido de algo novo ou padrao, como mapear uma unidade de rede, liberar um acesso ou instalar um aplicativo. Leia o chamado antes de classificar: se a pessoa descreve uma estacao nova ou diz que precisa de algo que ainda nao tinha, trate como solicitacao e classifique com a categoria de solicitacao de servico. Em qualquer dos casos, diagnostique, aplique a menor mudanca que atende o pedido e resolva com nota publica.',
+  },
 ]
 
 export const KB_URI_MAP: Record<string, string> = Object.fromEntries(

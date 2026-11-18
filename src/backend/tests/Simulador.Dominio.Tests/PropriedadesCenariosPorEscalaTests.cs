@@ -208,4 +208,38 @@ public class PropriedadesCenariosPorEscalaTests
             Assert.DoesNotContain("SENHA_EXPIRADA", t, StringComparison.OrdinalIgnoreCase);
         });
     }
-}
+
+    // Feature: cenarios-por-escala, Property 8: Sorteio legado inalterado (pasta-rede-inacessivel antes da ativacao)
+    // Validates: Requirements 16.2
+    [Theory]
+    [MemberData(nameof(Sementes200Sequenciais))]
+    public void Propriedade8_SorteioLegadoDePastaRede_ContinuaComC1C2C3(long semente)
+    {
+        string[] legado = ["C1", "C2", "C3"];
+        var esperado = legado[new SplitMix64(semente).NextInt(3)];
+        var obtido = new CatalogoCenarios().Obter("pasta-rede-inacessivel", "v1.1", null, semente);
+        Assert.Equal(esperado, obtido.Causa);
+    }
+
+    public static IEnumerable<object[]> Sementes200Sequenciais() => Enumerable.Range(0, 200).Select(s => new object[] { (long)s });
+
+    // Feature: cenarios-por-escala, Property 1: Reconstrucao equivalente (C4)
+    // Validates: Requirements 15.2, 15.3
+    [Theory]
+    [MemberData(nameof(Sementes50))]
+    public void Propriedade1_ReconstrucaoEquivalente_C4(long semente)
+    {
+        var s = SessaoDeTeste.Iniciar("pasta-rede-inacessivel", "v1.1", "C4", semente);
+        s.Aplicar("itsm.assumir_chamado", new { chamadoId = "CH-0001" });
+        s.Aplicar("itsm.classificar_chamado", new { chamadoId = "CH-0001", categoria = "Solicitacao de Servico", urgencia = "Media", impacto = "Baixo" });
+        s.Comando("whoami /groups");
+        s.Comando(@"net use z: \\fileserver.aurora.local\Financeiro");
+        s.Aplicar("itsm.resolver_chamado", new { chamadoId = "CH-0001", notaPublica = "Unidade Z: mapeada." });
+
+        var rec = s.Reconstruir();
+        Assert.Equal(JsonSerializer.Serialize(s.Estado.Estacao), JsonSerializer.Serialize(rec.Estacao));
+        Assert.Equal(JsonSerializer.Serialize(s.Estado.Dialogo), JsonSerializer.Serialize(rec.Dialogo));
+        Assert.Equal(JsonSerializer.Serialize(s.Estado.Meta), JsonSerializer.Serialize(rec.Meta));
+        Assert.Equal(s.Avaliar().CurriculoVivo.HashAuditoriaSha256,
+            Simulador.Avaliacao.Juiz360.Avaliar(rec, s.Eventos).CurriculoVivo.HashAuditoriaSha256);
+    }}

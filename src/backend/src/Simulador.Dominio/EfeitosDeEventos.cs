@@ -27,7 +27,16 @@ internal static class EfeitosDeEventos
             case "OrigemBloqueioIdentificada":
                 return (DefinirStatusServico(estacao, "EventosDeSeguranca", "Consultado"), dialogo);
             case "AcessoContaRestabelecido":
+            case "AcessoPastaRestabelecido":
                 return (estacao with { CompartilhamentoAcessivel = true }, dialogo);
+            case "UnidadeRedeMapeada":
+                return (DefinirStatusServico(estacao, "UnidadeRedeZ", "Mapeada"), dialogo);
+            case "RepositorioExpandido":
+                return (DefinirStatusServico(estacao, "RepositorioBackup", "Expandido"), dialogo);
+            case "BackupConcluido":
+                return (DefinirStatusServico(estacao, "JobBackupFinanceiro", "Succeeded") with { CompartilhamentoAcessivel = true }, dialogo);
+            case "PastaFinanceiroRestaurada":
+                return (DefinirStatusServico(estacao, "PastaFinanceiro", "Restaurada") with { CompartilhamentoAcessivel = true }, dialogo);
             default:
                 return (estacao, dialogo);
         }

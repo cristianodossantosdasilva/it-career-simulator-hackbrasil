@@ -1002,7 +1002,10 @@ public static class Motor
         var servicoOk = estacao.Servicos.Any(s =>
             string.Equals(s.Nome, cenario.ServicoAlvo, StringComparison.OrdinalIgnoreCase) &&
             string.Equals(s.Status, "Running", StringComparison.OrdinalIgnoreCase));
-        return gruposOk && dnsOk && servicoOk;
+        // C4 (unidade Z: nao mapeada): grupo, DNS e servico ja estao corretos; so o mapeamento restabelece o acesso.
+        var unidadeOk = cenario.Causa != "C4" ||
+                        EfeitosDeEventos.StatusServico(estacao, "UnidadeRedeZ") == "Mapeada";
+        return gruposOk && dnsOk && servicoOk && unidadeOk;
     }
 
     private static EstadoSessao AplicarEventosIniciais(EstadoSessao baseEstado, IReadOnlyList<EnvelopeEvento> eventos, DefinicaoCenario cenario, long semente)

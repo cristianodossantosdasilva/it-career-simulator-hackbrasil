@@ -17,6 +17,7 @@ internal static class ComandosPorEscala
         return cenario.CenarioId switch
         {
             "reset-senha-desbloqueio" => ExecutarResetSenha(estado, texto, cenario),
+            "pasta-rede-inacessivel" => ExecutarPastaRede(estado, texto, cenario),
             _ => null
         };
     }
@@ -218,4 +219,54 @@ internal static class ComandosPorEscala
                     Desnecessaria("enviar-link-troca", "link_exige_a_senha_vigente"));
         }
     }
-}
+
+    // ---------------------------------------------------------------- pasta-rede-inacessivel (C4)
+
+    private const string CaminhoFinanceiro = @"\\fileserver.aurora.local\Financeiro";
+
+    /// <summary>
+    /// net use: unico comando novo do cenario. Em C1 a C3 e so diagnostico (erro honesto, sem efeito);
+    /// em C4 mapear Z: para o Financeiro e a correcao. Os demais comandos seguem o fluxo generico.
+    /// </summary>
+    private static ResultadoComandoEscala? ExecutarPastaRede(EstadoSessao estado, string comando, DefinicaoCenario cenario)
+    {
+        const string prefixo = "net use";
+        if (!comando.StartsWith(prefixo, StringComparison.OrdinalIgnoreCase)) return null;
+        // "net user ..." compartilha o prefixo declarado, mas nao e um comando deste cenario.
+        if (comando.Length > prefixo.Length && !char.IsWhiteSpace(comando[prefixo.Length]))
+            return Resultado(estado, $"'{comando}' nao faz parte dos comandos declarados para este cenario.");
+
+        var c4 = cenario.Causa == "C4";
+        var mapeada = EfeitosDeEventos.StatusServico(estado.Estacao, "UnidadeRedeZ") == "Mapeada";
+        var arg = Argumento(comando, prefixo);
+
+        if (arg.Length == 0)
+        {
+            if (!c4) return Resultado(estado, "Nenhuma conexao de rede ativa.");
+            return Resultado(estado, mapeada ? $@"Unidade Z: MAPEADA para {CaminhoFinanceiro}." : "Unidade Z: NAO MAPEADA.");
+        }
+
+        var partes = arg.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var pedidoCerto = partes.Length == 2 &&
+                          string.Equals(partes[0], "z:", StringComparison.OrdinalIgnoreCase) &&
+                          string.Equals(partes[1], CaminhoFinanceiro, StringComparison.OrdinalIgnoreCase);
+        if (!pedidoCerto)
+            return Resultado(estado, "A letra de unidade ou o caminho nao corresponde ao solicitado (Z: para Financeiro).");
+
+        if (c4)
+        {
+            if (mapeada) return Resultado(estado, "O comando foi concluido com exito.");
+            return Resultado(estado, "O comando foi concluido com exito.",
+                Ev("UnidadeRedeMapeada", ("unidade", "Z:"), ("caminho", CaminhoFinanceiro)),
+                Ev("AcessoPastaRestabelecido", ("usuario", cenario.UsuarioAlvo), ("causa", cenario.Causa)));
+        }
+
+        // C1 a C3: o erro reflete a Causa. Depois que o acesso foi restabelecido por outra via, o mapeamento passa.
+        if (estado.Estacao.CompartilhamentoAcessivel) return Resultado(estado, "O comando foi concluido com exito.");
+        return Resultado(estado, cenario.Causa switch
+        {
+            "C1" => "Erro de sistema 5. Acesso negado.",
+            "C2" => "Erro de sistema 53. O caminho de rede nao foi encontrado.",
+            _ => "Erro de sistema 2250. O servico Workstation nao esta em execucao."
+        });
+    }}
