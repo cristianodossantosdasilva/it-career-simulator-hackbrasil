@@ -259,11 +259,14 @@ public static class Projecao
                 case "AcessoPastaRestabelecido":
                     estacao = estacao with { CompartilhamentoAcessivel = true };
                     break;
+                default:
+                    (estacao, dialogo) = EfeitosDeEventos.Aplicar(estacao, dialogo, ev.Tipo, ev.Dados);
+                    break;
             }
         }
 
         return new EstadoSessao(
-            new EstadoMeta(cenario.CenarioId, cenario.Causa, semente, cenario.Nivel, cenario.VersaoManifesto, eventos[^1].MinutoSimulado, eventos[^1].Seq),
+            new EstadoMeta(cenario.CenarioId, cenario.Causa, semente, cenario.Nivel, cenario.VersaoManifesto, eventos[^1].MinutoSimulado, eventos[^1].Seq, cenario.PedidoPorTerceiro),
             EstadoCarreira.Inicial(cenario.Nivel),
             new EstadoItsm(chamados, problemas, chamados.Count + 1, numProblema),
             dialogo,

@@ -296,17 +296,11 @@ public static class Motor
             }
             case "dialogo.pedir_pista":
             {
-                string[] pistas =
-                [
-                    "Pista 1: Antes de alterar qualquer configuracao, verifique no terminal os sinais da estacao (whoami /groups, nslookup, ping, net start).",
-                    "Pista 2: Compare o resultado do diagnostico com a Base de Conhecimento: grupo ausente (C1), DNS errado (C2) ou servico parado (C3).",
-                    "Pista 3: Para corrigir com seguranca, eleve o privilegio no terminal/painel e depois confirme o acesso antes de resolver o chamado."
-                ];
-                if (novo.Dialogo.PistasSolicitadas >= pistas.Length)
+                if (novo.Dialogo.PistasSolicitadas >= PistasPorCenario.Maximo)
                     return Rejeitar("pistas_esgotadas");
 
                 var indice = novo.Dialogo.PistasSolicitadas + 1;
-                var textoPista = pistas[novo.Dialogo.PistasSolicitadas];
+                var textoPista = PistasPorCenario.Obter(cenario.CenarioId, cenario.Causa, novo.Dialogo.PistasSolicitadas);
                 novo = novo with { Dialogo = novo.Dialogo with { PistasSolicitadas = indice } };
                 gerados.Add(new(++seqAtual, "PistaSolicitada", new Dictionary<string, object?>
                 {
@@ -329,7 +323,33 @@ public static class Motor
                 if (string.IsNullOrWhiteSpace(matricula) || string.IsNullOrWhiteSpace(ramal))
                     return Rejeitar("matricula e ramal sao obrigatorios.");
 
-                if (string.Equals(matricula, "AUR-1042", StringComparison.OrdinalIgnoreCase) && ramal == "2042")
+                var titular = cenario.Titular;
+                var matriculaEsperada = titular?.Matricula ?? "AUR-1042";
+                var ramalEsperado = titular?.Ramal ?? "2042";
+
+                if (titular is not null && cenario.PedidoPorTerceiro && !novo.Dialogo.TitularContatado)
+                {
+                    // Pedido feito por terceiro: a identidade so vale depois do contato com a titular pelo canal cadastrado.
+                    gerados.Add(new(++seqAtual, "IdentidadeNaoConfere", new Dictionary<string, object?>
+                    {
+                        ["tentativaMatricula"] = matricula,
+                        ["tentativaRamal"] = ramal,
+                        ["motivo"] = "solicitante_terceiro_sem_contato_com_titular"
+                    }, minutoDestino));
+                }
+                else if (titular is not null
+                    && string.Equals(matricula, matriculaEsperada, StringComparison.OrdinalIgnoreCase) && ramal == ramalEsperado)
+                {
+                    // Cenarios com Titular nunca liberam acesso remoto: a acao e feita pelo console.
+                    novo = novo with { Dialogo = novo.Dialogo with { IdentidadeValidada = true } };
+                    gerados.Add(new(++seqAtual, "IdentidadeVerificada", new Dictionary<string, object?>
+                    {
+                        ["usuario"] = cenario.UsuarioAlvo,
+                        ["matricula"] = matricula
+                    }, minutoDestino));
+                }
+                else if (titular is null
+                    && string.Equals(matricula, matriculaEsperada, StringComparison.OrdinalIgnoreCase) && ramal == ramalEsperado)
                 {
                     var (idRemoto, pinRemoto) = GerarCredenciaisSimuDesk(novo.Meta.Semente);
                     novo = novo with
@@ -440,6 +460,21 @@ public static class Motor
                         ["comando"] = cmd,
                         ["saida"] = $"'{cmd}' nao faz parte dos comandos declarados para este cenario."
                     }, minutoDestino));
+                    break;
+                }
+
+                var escala = ComandosPorEscala.TentarExecutar(novo, cmd, cenario);
+                if (escala is not null)
+                {
+                    novo = escala.NovoEstado;
+                    gerados.Add(new(++seqAtual, "ComandoExecutado", new Dictionary<string, object?>
+                    {
+                        ["comando"] = cmd,
+                        ["privilegio"] = novo.Estacao.Privilegio.ToString(),
+                        ["saida"] = escala.Saida
+                    }, minutoDestino));
+                    foreach (var ev in escala.Eventos)
+                        gerados.Add(new(++seqAtual, ev.Tipo, ev.Dados, minutoDestino));
                     break;
                 }
 
@@ -981,7 +1016,7 @@ public static class Motor
             }
         }
         return new EstadoSessao(
-            new EstadoMeta(cenario.CenarioId, cenario.Causa, semente, cenario.Nivel, cenario.VersaoManifesto, 0, eventos[^1].Seq),
+            new EstadoMeta(cenario.CenarioId, cenario.Causa, semente, cenario.Nivel, cenario.VersaoManifesto, 0, eventos[^1].Seq, cenario.PedidoPorTerceiro),
             EstadoCarreira.Inicial(cenario.Nivel),
             new EstadoItsm(chamados, [], chamados.Count + 1, 1),
             EstadoDialogo.Vazio,

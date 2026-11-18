@@ -2,7 +2,7 @@ using Simulador.Dominio;
 
 namespace Simulador.Cenarios;
 
-public sealed class CatalogoCenarios : ICatalogoCenarios
+public sealed partial class CatalogoCenarios : ICatalogoCenarios
 {
     private static readonly string[] CausasPastaRede = ["C1", "C2", "C3"];
     private static readonly string[] CausasSreCloud = ["OOM_KILLED", "POOL_EXHAUSTED", "CERT_EXPIRED"];

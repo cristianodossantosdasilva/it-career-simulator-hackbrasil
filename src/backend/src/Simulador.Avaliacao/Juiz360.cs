@@ -30,7 +30,7 @@ public sealed record RelatorioAvaliacao(
     CurriculoVivo CurriculoVivo,
     string Resumo);
 
-public static class Juiz360
+public static partial class Juiz360
 {
     private static readonly string[] TermosServico =
         ["auroragateway", "aurora gateway", "srv-gateway", "srv gateway", "servico do gateway", "servico gateway", "gateway"];

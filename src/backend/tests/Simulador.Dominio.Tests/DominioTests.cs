@@ -31,7 +31,8 @@ public class DominioTests
         Assert.Equal(KbCatalogo.UriParaId.Count, catalogoFrontend.Count);
         foreach (var (uri, id) in KbCatalogo.UriParaId)
             Assert.Equal(id, catalogoFrontend[uri]);
-        var fonteJuiz = File.ReadAllText(Path.Combine(raiz, "src", "backend", "src", "Simulador.Avaliacao", "Juiz360.cs"));
+        var pastaAvaliacao = Path.Combine(raiz, "src", "backend", "src", "Simulador.Avaliacao");
+        var fonteJuiz = string.Concat(Directory.GetFiles(pastaAvaliacao, "*.cs").Where(f => !Path.GetFileName(f).Equals("KbCatalogo.cs", StringComparison.Ordinal)).Select(File.ReadAllText));
         var urisEmitidas = Regex.Matches(fonteJuiz, "kb://[a-z0-9/-]+").Select(m => m.Value).Distinct();
         Assert.NotEmpty(urisEmitidas);
         Assert.All(urisEmitidas, uri => Assert.Contains(uri, KbCatalogo.UriParaId.Keys));

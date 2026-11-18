@@ -15,7 +15,8 @@ public sealed record EstadoMeta(
     string Nivel,
     string VersaoManifesto,
     int MinutoSimulado,
-    int UltimoSeq);
+    int UltimoSeq,
+    bool PedidoPorTerceiro = false);
 
 public sealed record EstadoCarreira(
     string CargoAtual,
@@ -34,7 +35,8 @@ public sealed record EstadoDialogo(
     bool IdentidadeValidada,
     int PistasSolicitadas,
     bool UsuarioConfirmouFuncionamento,
-    IReadOnlyList<MensagemDialogo> Mensagens)
+    IReadOnlyList<MensagemDialogo> Mensagens,
+    bool TitularContatado = false)
 {
     public static EstadoDialogo Vazio => new(false, null, null, false, 0, false, []);
 }
@@ -88,6 +90,9 @@ public sealed record ChamadoInicial(
     int AbertoEmMinuto,
     bool EhPrincipal);
 
+/// <summary>Titular sintetica da conta em cenarios de identidade (reset, desbloqueio).</summary>
+public sealed record IdentidadeTitular(string Nome, string Matricula, string Ramal, string NomeGestor);
+
 public sealed record DefinicaoCenario(
     string CenarioId,
     string VersaoManifesto,
@@ -98,7 +103,9 @@ public sealed record DefinicaoCenario(
     string GrupoAlvoCompartilhamento,
     string UsuarioAlvo,
     string HostAlvo,
-    string ServicoAlvo);
+    string ServicoAlvo,
+    IdentidadeTitular? Titular = null,
+    bool PedidoPorTerceiro = false);
 
 public interface ICatalogoCenarios
 {
