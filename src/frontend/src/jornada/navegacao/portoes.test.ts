@@ -33,12 +33,17 @@ function gerarRota(g: Gerador): RotaResolvida {
 }
 
 describe('decidirPortao', () => {
-  it('Feature: jornada-de-voo, Property 13: Portões da jornada (modo de demonstração inativo)', () => {
+  it('Feature: jornada-de-voo, Property 13: Portões da jornada (com o modo de demonstração gerado)', () => {
     paraTodo(
       'portões',
-      (g) => ({ rota: gerarRota(g), cartao: g.inteiro(0, 2) === 0 ? null : gerarCartao(g), registros: gerarRegistros(g) }),
-      ({ rota, cartao, registros }) => {
-        const decisao = decidirPortao(rota, cartao, registros)
+      (g) => ({ rota: gerarRota(g), cartao: g.inteiro(0, 2) === 0 ? null : gerarCartao(g), registros: gerarRegistros(g), modo: g.inteiro(0, 1) === 1 }),
+      ({ rota, cartao, registros, modo }) => {
+        const decisao = decidirPortao(rota, cartao, registros, modo)
+        // O cartão e a Missão em preparação decidem igual com o modo ativo e inativo.
+        const semModo = decidirPortao(rota, cartao, registros, false)
+        const comModo = decidirPortao(rota, cartao, registros, true)
+        expect(comModo.tipo === 'redirecionar').toBe(semModo.tipo === 'redirecionar')
+        expect(comModo.tipo === 'aviso-missao-em-preparacao').toBe(semModo.tipo === 'aviso-missao-em-preparacao')
         const protegida = rota.pagina === 'plano-de-voo' || rota.pagina === 'cabine'
         expect(decisao.tipo === 'redirecionar').toBe(protegida && cartao === null)
         if (decisao.tipo === 'redirecionar') {
@@ -52,13 +57,27 @@ describe('decidirPortao', () => {
         const local = escalaDaMissao(rota.missao)
         const emPreparacao = local?.missao.status !== 'disponivel'
         expect(decisao.tipo === 'aviso-missao-em-preparacao').toBe(emPreparacao)
-        const bloqueada = calcularProgressoRota(ROTA_SUPORTE, registros)[local?.indice ?? 0].estado === 'bloqueada'
-        expect(decisao.tipo === 'aviso-escala-bloqueada').toBe(!emPreparacao && bloqueada)
-        expect(decisao.tipo === 'exibir').toBe(!emPreparacao && !bloqueada)
+        const bloqueada =
+          calcularProgressoRota(ROTA_SUPORTE, registros, { modoDemonstracao: false })[local?.indice ?? 0].estado ===
+          'bloqueada'
+        expect(decisao.tipo === 'aviso-escala-bloqueada').toBe(!modo && !emPreparacao && bloqueada)
+        expect(decisao.tipo === 'exibir').toBe(!emPreparacao && (modo || !bloqueada))
       },
     )
   })
 
+  it('com o modo ativo e cartão válido, toda Cabine de Missão disponível exibe', () => {
+    paraTodo(
+      'cabine de missão disponível com o modo',
+      (g) => ({ missao: g.escolher(MISSOES_CATALOGO), cartao: gerarCartao(g), registros: gerarRegistros(g) }),
+      ({ missao, cartao, registros }) => {
+        const rota: RotaResolvida = { pagina: 'cabine', missao, semente: null, causa: null, nova: false }
+        const decisao = decidirPortao(rota, cartao, registros, true)
+        const disponivel = escalaDaMissao(missao)?.missao.status === 'disponivel'
+        expect(decisao.tipo).toBe(disponivel ? 'exibir' : 'aviso-missao-em-preparacao')
+      },
+    )
+  })
   it('exemplos com o catálogo atual', () => {
     const cabine = (missao: (typeof MISSOES_CATALOGO)[number]): RotaResolvida => ({
       pagina: 'cabine',
@@ -77,6 +96,13 @@ describe('decidirPortao', () => {
     })
     const comRegistro = [registroDeTeste('pasta-rede-inacessivel', 's-1')]
     expect(decidirPortao(cabine('incidente-massivo'), CARTAO_DE_TESTE, comRegistro)).toEqual({ tipo: 'exibir' })
+    // Com o modo ativo, a Cabine de escala bloqueada abre; a Missão em preparação continua com aviso.
+    expect(decidirPortao(cabine('incidente-massivo'), CARTAO_DE_TESTE, [], true)).toEqual({ tipo: 'exibir' })
+    expect(decidirPortao(cabine('sre-cloud-latencia'), CARTAO_DE_TESTE, [], true)).toEqual({ tipo: 'exibir' })
+    expect(decidirPortao(cabine('reset-senha-desbloqueio'), CARTAO_DE_TESTE, [], true)).toEqual({
+      tipo: 'aviso-missao-em-preparacao',
+    })
+    expect(decidirPortao({ pagina: 'plano-de-voo' }, null, [], true)).toEqual({ tipo: 'redirecionar', para: DESTINO_SEM_CARTAO })
     // Causa em preparação (C4) não muda a decisão: só o status da Missão conta.
     expect(decidirPortao({ ...cabine('pasta-rede-inacessivel'), causa: 'C4' }, CARTAO_DE_TESTE, [])).toEqual({ tipo: 'exibir' })
   })

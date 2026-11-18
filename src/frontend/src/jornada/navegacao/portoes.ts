@@ -16,12 +16,14 @@ export const DESTINO_SEM_CARTAO = enderecoDe({ pagina: 'check-in', motivo: 'sem-
 /**
  * Pura. Regras em ordem: sem cartão válido no Plano de voo ou na Cabine redireciona para o Check-in;
  * Cabine de Missão em preparação mostra aviso (o status das Causas não entra); Cabine de escala
- * bloqueada pelos registros mostra aviso; as demais exibem.
+ * bloqueada pelos registros mostra aviso só com o modo de demonstração inativo; as demais exibem. Os
+ * portões do cartão e da Missão em preparação valem com o modo ativo ou inativo.
  */
 export function decidirPortao(
   rota: RotaResolvida,
   cartao: CartaoEmbarque | null,
   registros: readonly RegistroDeVoo[],
+  modoDemonstracao = false,
 ): DecisaoPortao {
   if ((rota.pagina === 'plano-de-voo' || rota.pagina === 'cabine') && !cartao) {
     return { tipo: 'redirecionar', para: DESTINO_SEM_CARTAO }
@@ -32,7 +34,8 @@ export function decidirPortao(
   if (!local) return { tipo: 'exibir' }
   if (local.missao.status !== 'disponivel') return { tipo: 'aviso-missao-em-preparacao' }
 
-  const visao = calcularProgressoRota(local.rota, registros)[local.indice]
+  if (modoDemonstracao) return { tipo: 'exibir' }
+  const visao = calcularProgressoRota(local.rota, registros, { modoDemonstracao: false })[local.indice]
   if (visao.estado === 'bloqueada' && visao.escalaNecessaria) {
     return { tipo: 'aviso-escala-bloqueada', escalaNecessaria: visao.escalaNecessaria.id }
   }

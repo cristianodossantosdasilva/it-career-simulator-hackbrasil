@@ -41,7 +41,14 @@ export interface VisaoItemCatalogo {
 }
 export interface VisaoEscala {
   escala: Escala
+  /** Estado exibido. Com o modo de demonstração ativo nenhuma escala fica bloqueada. */
   estado: EstadoEscala
+  /** Estado calculado só pelos Registros_de_Voo, igual a `estado` com o modo inativo. */
+  estadoPorRegistros: EstadoEscala
+  /** Verdadeiro quando o modo ativo liberou uma escala que os registros mantêm bloqueada. */
+  liberadaPorDemonstracao: boolean
+  /** Verdadeiro em toda escala com o modo ativo, inclusive nas concluídas. */
+  seloDemonstracao: boolean
   /** Escala_Cumprida: toda Missão disponível tem registro, inclusive quando não há nenhuma. */
   cumprida: boolean
   semMissaoDisponivel: boolean
@@ -85,16 +92,24 @@ function missoesComRegistro(registros: readonly RegistroDeVoo[]): ReadonlySet<st
   return new Set(registros.map((registro) => registro.missao))
 }
 
+export interface OpcoesProgressoRota {
+  certificacoes?: readonly Certificacao[]
+  /** Muda só o estado exibido e a permissão de embarque. Padrão: inativo. Nunca muda o cálculo por registros. */
+  modoDemonstracao?: boolean
+}
+
 /**
- * Pura. Estado de cada escala calculado só pelos Registros_de_Voo e pelo status das Missões. Escala e
- * Vertente de um registro vêm do catálogo pela `missao`, não dos campos gravados no registro.
+ * Pura. O estado por registros de cada escala vem só dos Registros_de_Voo e do status das Missões. Escala e
+ * Vertente de um registro vêm do catálogo pela `missao`, não dos campos gravados no registro. O modo de
+ * demonstração libera o embarque nas escalas bloqueadas, mas uma Missão só fica concluída com registro.
  */
 export function calcularProgressoRota(
   rota: Rota,
   registros: readonly RegistroDeVoo[],
-  opcoes: { certificacoes?: readonly Certificacao[] } = {},
+  opcoes: OpcoesProgressoRota = {},
 ): readonly VisaoEscala[] {
   const certificacoes = opcoes.certificacoes ?? CATALOGO_CERTIFICACOES
+  const modo = opcoes.modoDemonstracao === true
   const comRegistro = missoesComRegistro(registros)
   const resumo = rota.escalas.map((escala) => {
     const disponiveis = missoesDaEscala(escala).filter((item) => missaoDisponivel(item.missao))
@@ -106,13 +121,15 @@ export function calcularProgressoRota(
 
   return rota.escalas.map((escala, indice) => {
     const anterior = indice > 0 ? rota.escalas[indice - 1] : null
-    const bloqueada = indice > 0 && !resumo[indice - 1].cumprida
+    const bloqueadaPorRegistros = indice > 0 && !resumo[indice - 1].cumprida
+    const bloqueada = bloqueadaPorRegistros && !modo
     const { semMissaoDisponivel, cumprida } = resumo[indice]
-    const estado: EstadoEscala = bloqueada
+    const estadoPorRegistros: EstadoEscala = bloqueadaPorRegistros
       ? 'bloqueada'
       : !semMissaoDisponivel && cumprida
         ? 'concluida'
         : 'liberada'
+    const estado: EstadoEscala = estadoPorRegistros === 'bloqueada' && modo ? 'liberada' : estadoPorRegistros
     const grupos = gruposDaEscala(escala).map(({ vertente, missoes }) => ({
       vertente,
       missoes: missoes.map((missao): VisaoMissao => {
@@ -137,9 +154,12 @@ export function calcularProgressoRota(
     return {
       escala,
       estado,
+      estadoPorRegistros,
+      liberadaPorDemonstracao: modo && bloqueadaPorRegistros,
+      seloDemonstracao: modo,
       cumprida,
       semMissaoDisponivel,
-      liberadaPorPreparacao: !bloqueada && indice > 0 && resumo[indice - 1].semMissaoDisponivel,
+      liberadaPorPreparacao: !modo && !bloqueada && indice > 0 && resumo[indice - 1].semMissaoDisponivel,
       escalaNecessaria: bloqueada ? anterior : null,
       grupos,
       certificacoes: certificacoes

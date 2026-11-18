@@ -302,3 +302,74 @@ describe('visaoDoHangar e certificações por escala', () => {
     expect(calcularProgressoRota(ROTA_SUPORTE, [], { certificacoes: [] }).every((escala) => escala.certificacoes.length === 0)).toBe(true)
   })
 })
+describe('calcularProgressoRota com o modo de demonstração', () => {
+  it('Feature: jornada-de-voo, Property 22: Progresso com o modo de demonstração', () => {
+    paraTodo('progresso com o modo', gerarCenario, ({ rota, registros }) => {
+      const comRegistro = new Set(registros.map((r) => r.missao))
+      const inativo = calcularProgressoRota(rota, registros, { modoDemonstracao: false })
+      const ativo = calcularProgressoRota(rota, registros, { modoDemonstracao: true })
+      expect(ativo.map((v) => v.escala.id)).toEqual(inativo.map((v) => v.escala.id))
+      ativo.forEach((v, i) => {
+        // O modo não muda o cálculo por registros.
+        expect(v.estadoPorRegistros).toBe(inativo[i].estado)
+        expect(inativo[i].estadoPorRegistros).toBe(inativo[i].estado)
+        expect(inativo[i].liberadaPorDemonstracao).toBe(false)
+        expect(inativo[i].seloDemonstracao).toBe(false)
+        expect(v.cumprida).toBe(inativo[i].cumprida)
+        // Com o modo ativo nenhuma escala fica bloqueada e o selo vale para todas.
+        expect(v.estado).not.toBe('bloqueada')
+        expect(v.seloDemonstracao).toBe(true)
+        expect(v.escalaNecessaria).toBeNull()
+        expect(v.liberadaPorPreparacao).toBe(false)
+        expect(v.liberadaPorDemonstracao).toBe(v.estadoPorRegistros === 'bloqueada')
+        expect(v.estado).toBe(v.estadoPorRegistros === 'bloqueada' ? 'liberada' : v.estadoPorRegistros)
+        const catalogo = missoesDaEscala(v.escala)
+        for (const visaoMissao of v.grupos.flatMap((grupo) => grupo.missoes)) {
+          const missao = catalogo.find((item) => item.missao.id === visaoMissao.missao)?.missao
+          const disponivel = missao?.status === 'disponivel'
+          expect(visaoMissao.podeEmbarcar).toBe(disponivel)
+          if (!disponivel) expect(visaoMissao.estado).toBe('em-preparacao')
+          // Concluída só com registro, com o modo ativo ou inativo.
+          if (disponivel) expect(visaoMissao.estado === 'concluida').toBe(comRegistro.has(visaoMissao.missao))
+        }
+        for (const visaoMissao of inativo[i].grupos.flatMap((grupo) => grupo.missoes)) {
+          const missao = catalogo.find((item) => item.missao.id === visaoMissao.missao)?.missao
+          if (missao?.status === 'disponivel') {
+            expect(visaoMissao.estado === 'concluida').toBe(comRegistro.has(visaoMissao.missao))
+          }
+        }
+      })
+    })
+  })
+
+  it('Property 22: sequência de valores do modo terminada em inativo equivale ao modo inativo', () => {
+    paraTodo(
+      'desativar volta ao cálculo por registros',
+      (g) => ({ ...gerarCenario(g), sequencia: g.lista((h) => h.inteiro(0, 1) === 1, 6) }),
+      ({ rota, registros, sequencia }) => {
+        const esperado = calcularProgressoRota(rota, registros, { modoDemonstracao: false })
+        for (const modoDemonstracao of [...sequencia, false]) calcularProgressoRota(rota, registros, { modoDemonstracao })
+        expect(calcularProgressoRota(rota, registros, { modoDemonstracao: false })).toEqual(esperado)
+        expect(calcularProgressoRota(rota, registros)).toEqual(esperado)
+      },
+    )
+  })
+
+  it('com o catálogo atual, o modo libera N2 Pleno e N3 Sênior sem concluir nenhuma missão', () => {
+    const visao = calcularProgressoRota(ROTA_SUPORTE, [], { modoDemonstracao: true })
+    expect(visao.map((v) => [v.escala.id, v.estado, v.liberadaPorDemonstracao])).toEqual([
+      ['help-desk-n1', 'liberada', false],
+      ['service-desk-n1-jr', 'liberada', false],
+      ['n2-pleno', 'liberada', true],
+      ['n3-senior', 'liberada', true],
+    ])
+    const missoes = visao.flatMap((v) => v.grupos.flatMap((grupo) => grupo.missoes))
+    expect(missoes.some((missao) => missao.estado === 'concluida')).toBe(false)
+    expect(missoes.filter((missao) => missao.podeEmbarcar).length).toBeGreaterThan(0)
+  })
+
+  it('o Brevê de piloto não recebe o modo', () => {
+    expect(calcularBrevePiloto.length).toBe(2)
+    expect(calcularBrevePiloto(ROTA_SUPORTE, []).conquistado).toBe(false)
+  })
+})

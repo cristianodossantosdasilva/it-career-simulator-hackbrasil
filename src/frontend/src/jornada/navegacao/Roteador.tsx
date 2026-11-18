@@ -47,8 +47,11 @@ interface PropsRoteador {
 export function Roteador({ renderizarPagina, comMoldura = true, barra }: PropsRoteador) {
   const local = useLocalAtual()
   const rota = useMemo(() => resolverEndereco(local.caminho, local.busca), [local.caminho, local.busca])
-  const { cartao, registros } = useArmazenamentoJornada()
-  const portao = useMemo(() => decidirPortao(rota, cartao, registros), [rota, cartao, registros])
+  const { cartao, registros, modoDemonstracao, registrarAnunciador } = useArmazenamentoJornada()
+  const portao = useMemo(
+    () => decidirPortao(rota, cartao, registros, modoDemonstracao),
+    [rota, cartao, registros, modoDemonstracao],
+  )
   useTituloEFoco(NOME_PAGINA[rota.pagina], local)
 
   // Portão sem cartão: substitui a entrada do histórico, então voltar não reabre a página negada.
@@ -65,6 +68,8 @@ export function Roteador({ renderizarPagina, comMoldura = true, barra }: PropsRo
   const [anuncio, setAnuncio] = useState<{ texto: string; chave: number } | null>(null)
   const anunciar = useCallback((texto: string) => setAnuncio({ texto, chave: obterLocalAtual().chave }), [])
   const valorAnuncio = useMemo<ValorAnuncioJornada>(() => ({ anunciar }), [anunciar])
+  // O provedor de armazenamento fica acima do Roteador: ele anuncia a troca do modo por esta região viva.
+  useEffect(() => registrarAnunciador(anunciar), [registrarAnunciador, anunciar])
   const textoAnuncio = anuncio && local.chave - anuncio.chave <= 1 ? anuncio.texto : ''
 
   const pagina = (

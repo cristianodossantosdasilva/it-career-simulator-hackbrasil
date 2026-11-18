@@ -31,11 +31,11 @@ function missoesEmbarcaveis(visoes: readonly VisaoEscala[]) {
  * convite. O progresso das escalas vem só dos Registros_de_Voo. O Embarcar nunca leva Causa nem semente.
  */
 export function PaginaPlanoDeVoo() {
-  const { cartao, registros } = useArmazenamentoJornada()
+  const { cartao, registros, modoDemonstracao } = useArmazenamentoJornada()
   const { estadoAcademia, resumoCarreira } = useAcademia()
   const { sessaoId, sessao, ocupado } = useVoo()
   const rota = rotaPorId(cartao?.rotaId ?? '') ?? rotaPorId(ROTA_PADRAO_DE_EMBARQUE)
-  const visoes = rota ? calcularProgressoRota(rota, registros) : []
+  const visoes = rota ? calcularProgressoRota(rota, registros, { modoDemonstracao }) : []
   const embarcaveis = missoesEmbarcaveis(visoes)
   // Quem ainda não tem registro vem primeiro: o primeiro voo é o primeiro que a rota libera e que falta fazer.
   const primeira = embarcaveis.find((missao) => missao.estado !== 'concluida') ?? embarcaveis[0] ?? null

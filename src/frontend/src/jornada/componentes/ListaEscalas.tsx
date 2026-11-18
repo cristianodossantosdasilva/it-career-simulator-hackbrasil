@@ -1,5 +1,6 @@
 import { useId } from 'react'
 import { Icone, type NomeIcone } from '../../ui/Icone'
+import { textoLiberadaSoParaDemonstracao } from '../demonstracao/textosDemonstracao'
 import type { VisaoEscala } from '../progressoRota'
 import { CartaoMissao } from './CartaoMissao'
 import { CertificacoesReferencia } from './CertificacoesReferencia'
@@ -31,6 +32,9 @@ function EscalaDoPlano({ visao, anterior }: { visao: VisaoEscala; anterior: Visa
         <p className="escala-nota">
           Para liberar esta escala, conclua as missões disponíveis de {visao.escalaNecessaria.nome}.
         </p>
+      )}
+      {visao.liberadaPorDemonstracao && anterior && (
+        <p className="escala-nota">{textoLiberadaSoParaDemonstracao(anterior.escala.nome)}</p>
       )}
       {visao.semMissaoDisponivel && <p className="escala-nota">{TEXTO_ESCALA_EM_PREPARACAO}</p>}
       {visao.liberadaPorPreparacao && anterior && (

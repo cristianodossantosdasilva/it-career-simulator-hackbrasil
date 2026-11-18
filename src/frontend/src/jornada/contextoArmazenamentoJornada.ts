@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react'
 import type { CartaoEmbarque } from './armazenamento/cartaoEmbarque'
+import type { OrigemModoDemonstracao } from './armazenamento/modoDemonstracao'
 import type { RegistroDeVoo } from './armazenamento/registrosVoo'
 import type { VoosAtivos } from './armazenamento/voosAtivos'
 import type { IdMissao } from './catalogos/catalogoRotas'
@@ -15,6 +16,15 @@ export interface ValorArmazenamentoJornada {
   /** Idempotente por `sessaoId`. */
   registrarVoo: (registro: RegistroDeVoo) => boolean
   registrarVooAtivo: (missao: IdMissao, sessaoId: string) => boolean
+  /** Modo_de_Demonstração lido uma vez. Inativo em qualquer falha de leitura. */
+  modoDemonstracao: boolean
+  /**
+   * Atualiza a memória, grava só a chave do modo e anuncia o novo estado. Devolve falso se a gravação
+   * falhou; o valor novo vale em memória mesmo assim.
+   */
+  definirModoDemonstracao: (ativo: boolean, origem: OrigemModoDemonstracao) => boolean
+  /** O Roteador registra aqui a região viva; devolve a função que desfaz o registro. */
+  registrarAnunciador: (anunciar: (texto: string) => void) => () => void
   /** Leitura síncrona do valor mais recente, para quem está fora do ciclo de renderização. */
   lerVoosAtivosAtuais: () => VoosAtivos
   /** Aviso não bloqueante da última gravação que falhou. Nulo quando tudo foi guardado. */
