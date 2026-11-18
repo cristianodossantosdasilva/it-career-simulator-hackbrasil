@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build && node scripts/check-bundle-secrets.mjs",
     "lint": "oxlint",
+    "postlint": "node scripts/check-regras-estilo.ts",
     "preview": "vite preview",
     "test": "vitest",
     "test:e2e": "playwright test"

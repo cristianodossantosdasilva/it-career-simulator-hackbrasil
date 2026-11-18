@@ -20,8 +20,8 @@ export interface Declaracao {
   readonly linha: number
 }
 
-/** Troca cada comentario por espacos, mantendo as quebras de linha, para preservar a numeracao. */
-export function removerComentarios(css: string): string {
+/** Troca cada comentario por espacos, mantendo as quebras de linha, para preservar a numeracao. Comentario de linha so em TypeScript. */
+export function removerComentarios(css: string, aceitarComentarioDeLinha = false): string {
   let saida = ''
   let i = 0
   let aspas: string | null = null
@@ -34,14 +34,22 @@ export function removerComentarios(css: string): string {
         i += 2
         continue
       }
-      if (c === aspas) aspas = null
+      // aspas simples e duplas nao atravessam linhas: uma aspa solta nao engole o resto do arquivo
+      if (c === aspas || (c === '\n' && aspas !== '`')) aspas = null
       i += 1
       continue
     }
-    if (c === '"' || c === "'") {
+    if (c === '"' || c === "'" || (aceitarComentarioDeLinha && c === '`')) {
       aspas = c
       saida += c
       i += 1
+      continue
+    }
+    if (aceitarComentarioDeLinha && c === '/' && css[i + 1] === '/') {
+      let fim = css.indexOf('\n', i)
+      if (fim === -1) fim = css.length
+      saida += ' '.repeat(fim - i)
+      i = fim
       continue
     }
     if (c === '/' && css[i + 1] === '*') {
