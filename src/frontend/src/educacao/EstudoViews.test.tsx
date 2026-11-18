@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AulasView } from './AulasView'
 import { CadernoView } from './CadernoView'
 import {
+  CHAVE_ARMAZENAMENTO_ACADEMIA,
   type EstadoAcademia,
   LEVELS,
   carregarEstadoAcademia,
@@ -35,14 +36,14 @@ describe('Telas de estudo', () => {
   })
 
   it('converte icones emoji de paginas salvas em versoes antigas ao carregar', () => {
-    expect(normalizarIconePagina('🎒')).toBe('nivel-estagiario')
+    expect(normalizarIconePagina('🎒')).toBe('nivel-help-desk-n1')
     expect(normalizarIconePagina('📝')).toBe('notas')
     expect(normalizarIconePagina('desconhecido')).toBe('pagina')
     expect(normalizarIconePagina('plano')).toBe('plano')
 
     const salvo = criarEstadoInicialAcademia()
     window.localStorage.setItem(
-      'itfs_academia_v3',
+      CHAVE_ARMAZENAMENTO_ACADEMIA,
       JSON.stringify({ ...salvo, pages: salvo.pages.map((p) => ({ ...p, icon: '🎤' })) }),
     )
     expect(carregarEstadoAcademia().pages.every((p) => p.icon === 'pitch')).toBe(true)
@@ -54,7 +55,7 @@ describe('Telas de estudo', () => {
         {(estado, atualizar) => (
           <AulasView
             estado={estado}
-            nivel="estagiario"
+            nivel="help-desk-n1"
             onAtualizarEstado={atualizar}
             onIrParaCaderno={vi.fn()}
             onIniciarLaboratorio={vi.fn()}
@@ -62,14 +63,14 @@ describe('Telas de estudo', () => {
         )}
       </Academia>,
     )
-    expect(screen.getByRole('heading', { level: 2, name: 'Estagiário' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'Help Desk N1' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Praticar no laboratório/i })).toBeInTheDocument()
     expect(container.textContent ?? '').not.toMatch(REGEX_EMOJI)
     expect(container.textContent ?? '').not.toContain('·')
     expect((await axe.run(container)).violations).toEqual([])
 
     fireEvent.click(screen.getByRole('button', { name: /Flashcards de revisão/i }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Flashcards de Estagiário' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Flashcards de Help Desk N1' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: /Virar cartão/i }))
     expect(screen.getByRole('button', { name: /Lembrei fácil/i })).toBeInTheDocument()
   })

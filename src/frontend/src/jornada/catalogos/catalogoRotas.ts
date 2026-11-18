@@ -27,9 +27,9 @@ export interface Missao {
   status: StatusDisponibilidade
   /** Vazio quando o catálogo não registra Causas da Missão. */
   causas: readonly Causa[]
-  /** Obrigatórios quando LEVELS não tem nível para o cenário. */
-  titulo?: string
-  descricao?: string
+  /** Nome e resumo exibidos da Missão. Fonte única: aulas e páginas da jornada leem daqui. */
+  titulo: string
+  descricao: string
 }
 
 export interface Vertente {
@@ -92,6 +92,9 @@ export const CATALOGO_ROTAS = [
           {
             id: 'pasta-rede-inacessivel',
             status: 'disponivel',
+            titulo: 'Pasta de Rede Inacessível (Simulador de Causas)',
+            descricao:
+              '4 causas sorteadas por semente (Grupo AD, DNS, Serviço parado ou pedido de mapeamento de unidade). Valide identidade, conecte no SimuDesk e atenda o chamado.',
             causas: [
               { codigo: 'C1', status: 'disponivel' },
               { codigo: 'C2', status: 'disponivel' },
@@ -110,6 +113,9 @@ export const CATALOGO_ROTAS = [
           {
             id: 'incidente-massivo',
             status: 'disponivel',
+            titulo: 'Incidente Massivo e Problema ITIL',
+            descricao:
+              '3 chamados simultâneos, com 3 causas sorteadas por semente (serviço parado após atualização, falha do provedor de e-mail ou domínio suspenso). Crie um Problema ITIL, investigue, comunique os solicitantes e resolva em lote.',
             causas: [
               { codigo: 'GATEWAY', status: 'disponivel' },
               { codigo: 'EMAIL_PROVEDOR', status: 'disponivel' },
@@ -131,6 +137,9 @@ export const CATALOGO_ROTAS = [
               {
                 id: 'sre-cloud-latencia',
                 status: 'disponivel',
+                titulo: 'Incidente Cloud e Kubernetes (Simulador)',
+                descricao:
+                  '3 causas raiz simuladas (OOMKilled, Pool Postgres ou TLS expirado). Investigue pods e logs no SimuDesk e mitigue com segurança.',
                 causas: [
                   { codigo: 'OOM_KILLED', status: 'disponivel' },
                   { codigo: 'POOL_EXHAUSTED', status: 'disponivel' },
@@ -159,8 +168,22 @@ export const CATALOGO_ROTAS = [
             id: 'n3-c-seguranca-dados',
             nome: 'N3-C Segurança e Dados',
             missoes: [
-              { id: 'triagem-engenharia-social', status: 'disponivel', causas: [] },
-              { id: 'diagnostico-sql-readonly', status: 'disponivel', causas: [] },
+              {
+                id: 'triagem-engenharia-social',
+                status: 'disponivel',
+                titulo: 'Triagem e Defesa contra Engenharia Social',
+                descricao:
+                  'Atenda um pedido urgente de suposto diretor sem token. Consulte a política, registre nota interna e proteja a empresa.',
+                causas: [],
+              },
+              {
+                id: 'diagnostico-sql-readonly',
+                status: 'disponivel',
+                titulo: 'Auditoria SQL Somente Leitura',
+                descricao:
+                  'Investigue divergência de faturamento no conjunto de dados sintético via SELECT e EXPLAIN. Escrita e injeção SQL são bloqueadas.',
+                causas: [],
+              },
             ],
           },
         ],
@@ -223,4 +246,11 @@ export function escalaDaMissao(
 
 export function ehIdMissao(valor: string): valor is IdMissao {
   return escalaDaMissao(valor) !== null
+}
+
+/** Escala e Vertente da Missão para exibição, por exemplo `N3 Sênior, N3-A Redes e Nuvem`. Nulo se a Missão não existe. */
+export function nomeDaEscalaDaMissao(missao: string): string | null {
+  const local = escalaDaMissao(missao)
+  if (!local) return null
+  return [local.escala.nome, local.vertente?.nome].filter(Boolean).join(', ')
 }

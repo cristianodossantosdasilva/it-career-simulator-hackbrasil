@@ -1,6 +1,7 @@
 import {
   ETAPAS_MISSAO_ZERO,
   GLOSSARIO_INICIANTE,
+  LEVELS,
   calcularProgressoNivel,
   nivelPorId,
   obterProximaAcao,
@@ -20,6 +21,8 @@ import { AVISO_CARTAO_DO_CHECKIN_RAPIDO, ROTULO_CHECKIN_COMPLETO } from '../demo
 import { navegar } from '../navegacao/navegador'
 import { NOME_PAGINA, enderecoDe } from '../navegacao/rotas'
 import { type VisaoEscala, calcularProgressoRota } from '../progressoRota'
+
+const PRIMEIRO_NIVEL = LEVELS[0]
 
 function enderecoDaCabine(missao: IdMissao): string {
   return enderecoDe({ pagina: 'cabine', missao, semente: null, causa: null, nova: false })
@@ -63,7 +66,7 @@ export function PaginaPlanoDeVoo() {
     } else if (proximaAcao.act === 'cards') {
       navegar(enderecoDe({ pagina: 'aulas', nivel: proximaAcao.level, modo: 'cards', aula: null }))
     } else if (proximaAcao.act === 'lab') {
-      const daAula = embarcaveis.find((missao) => missao.missao === nivelDoPasso.cenarioId)
+      const daAula = embarcaveis.find((missao) => missao.missao === proximaAcao.cenarioId)
       if (daAula) navegar(enderecoDaCabine(daAula.missao))
       else irParaPrimeiraMissao()
     } else {
@@ -98,7 +101,7 @@ export function PaginaPlanoDeVoo() {
         progressoFoco={calcularProgressoNivel(estadoAcademia, nivelDoPasso.id)}
         ocupado={ocupado}
         onIniciarPrimeiroVoo={irParaPrimeiraMissao}
-        onEstudarAntes={() => navegar(enderecoDe({ pagina: 'aulas', nivel: 'estagiario', modo: 'lesson', aula: null }))}
+        onEstudarAntes={() => navegar(enderecoDe({ pagina: 'aulas', nivel: PRIMEIRO_NIVEL.id, modo: 'lesson', aula: null }))}
         onExecutarProximaAcao={executarProximaAcao}
         onRetomarLaboratorio={retomarVoo}
       />

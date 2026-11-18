@@ -28,7 +28,7 @@ export function CredentialCard({ curriculo, nivel }: Props) {
         </h2>
         <dl className="selo-dados">
           <div>
-            <dt>Nível</dt>
+            <dt>Escala</dt>
             <dd>{nivel}</dd>
           </div>
           <div>

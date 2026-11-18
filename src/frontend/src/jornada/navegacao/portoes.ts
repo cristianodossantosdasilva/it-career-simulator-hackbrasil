@@ -29,8 +29,20 @@ export function decidirPortao(
     return { tipo: 'redirecionar', para: DESTINO_SEM_CARTAO }
   }
   if (rota.pagina !== 'cabine') return { tipo: 'exibir' }
+  return decidirPortaoDaMissao(rota.missao, registros, modoDemonstracao)
+}
 
-  const local = escalaDaMissao(rota.missao)
+/**
+ * Pura. A parte do portão que depende só da Missão: em preparação mostra aviso, e a escala bloqueada
+ * pelos registros mostra aviso só com o modo de demonstração inativo. Quem leva o aluno à Cabine por
+ * outro caminho (Aulas, Credencial) usa a mesma decisão da Cabine.
+ */
+export function decidirPortaoDaMissao(
+  missao: string,
+  registros: readonly RegistroDeVoo[],
+  modoDemonstracao = false,
+): DecisaoPortao {
+  const local = escalaDaMissao(missao)
   if (!local) return { tipo: 'exibir' }
   if (local.missao.status !== 'disponivel') return { tipo: 'aviso-missao-em-preparacao' }
 

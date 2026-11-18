@@ -6,6 +6,8 @@ import {
   type NivelEducacional,
   calcularProgressoNivel,
 } from '../educacao/catalogoEducacional'
+import { textosDaMissao } from '../jornada/componentes/textosDaMissao'
+import type { IdMissao } from '../jornada/catalogos/catalogoRotas'
 import { Icone } from '../ui/Icone'
 import { verificarCurriculoVivoJson, type ResultadoVerificacaoCurriculo } from '../utils/jcs'
 
@@ -17,6 +19,11 @@ interface CredencialViewProps {
   onApelidoChange?: (valor: string) => void
   onAtualizarCarreira?: (apelido?: string) => void
   onPraticar: (nivel: NivelEducacional) => void
+  /**
+   * Aviso de que a prática do nível ainda não está liberada, ou null com o portão aberto. Com aviso, o
+   * botão mostra o estado e leva ao Plano de voo em vez de prometer a Cabine.
+   */
+  avisoDaPratica?: (nivel: NivelEducacional) => string | null
   /** Nível do título. O Brevê tem o próprio h1 e passa 2. */
   nivelTitulo?: 1 | 2
 }
@@ -42,6 +49,7 @@ export function CredencialView({
   onApelidoChange,
   onAtualizarCarreira,
   onPraticar,
+  avisoDaPratica,
   nivelTitulo = 1,
 }: CredencialViewProps) {
   const Titulo = nivelTitulo === 2 ? 'h2' : 'h1'
@@ -74,13 +82,13 @@ export function CredencialView({
     URL.revokeObjectURL(url)
   }
 
-  const promocoes = resumoCarreira
+  const promocoes: [IdMissao, boolean][] = resumoCarreira
     ? [
-        ['N1', resumoCarreira.promocoes.nivel1Concluido],
-        ['N2', resumoCarreira.promocoes.nivel2Concluido],
-        ['N3', resumoCarreira.promocoes.nivel3Concluido],
-        ['N4', resumoCarreira.promocoes.nivel4Concluido],
-        ['N4b', resumoCarreira.promocoes.nivel4bConcluido],
+        ['triagem-engenharia-social', resumoCarreira.promocoes.nivel1Concluido],
+        ['pasta-rede-inacessivel', resumoCarreira.promocoes.nivel2Concluido],
+        ['incidente-massivo', resumoCarreira.promocoes.nivel3Concluido],
+        ['sre-cloud-latencia', resumoCarreira.promocoes.nivel4Concluido],
+        ['diagnostico-sql-readonly', resumoCarreira.promocoes.nivel4bConcluido],
       ]
     : []
 
@@ -122,6 +130,7 @@ export function CredencialView({
           <ul className="evolucao">
             {LEVELS.map((nivel) => {
               const p = calcularProgressoNivel(estado, nivel.id)
+              const aviso = avisoDaPratica?.(nivel) ?? null
               return (
                 <li key={nivel.id} className="evolucao-linha">
                   <div>
@@ -129,9 +138,19 @@ export function CredencialView({
                     <p className="muted dado-mono">
                       Teoria {p.t}%, Fixação {p.f}%, Prática {p.p}%
                     </p>
+                    {aviso && (
+                      <p id={`aviso-pratica-${nivel.id}`} className="muted">
+                        {aviso}
+                      </p>
+                    )}
                   </div>
-                  <button type="button" className="btn btn-secondary btn-sm" onClick={() => onPraticar(nivel)}>
-                    Praticar
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    aria-describedby={aviso ? `aviso-pratica-${nivel.id}` : undefined}
+                    onClick={() => onPraticar(nivel)}
+                  >
+                    {aviso ? 'Ver o Plano de voo' : 'Praticar'}
                   </button>
                 </li>
               )
@@ -164,10 +183,10 @@ export function CredencialView({
               </p>
 
               <ul className="promocoes">
-                {promocoes.map(([nome, ok]) => (
-                  <li key={String(nome)} className={ok ? 'ok' : undefined}>
+                {promocoes.map(([missao, ok]) => (
+                  <li key={missao} className={ok ? 'ok' : undefined}>
                     {ok && <Icone nome="confirmar" tamanho={16} />}
-                    {`${nome} ${ok ? 'OK' : 'Pendente'}`}
+                    {`${textosDaMissao(missao).titulo} ${ok ? 'OK' : 'Pendente'}`}
                   </li>
                 ))}
               </ul>

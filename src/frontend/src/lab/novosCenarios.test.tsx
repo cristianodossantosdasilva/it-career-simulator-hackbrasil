@@ -54,24 +54,23 @@ function passosFeitos(sessao: SessaoProjecao): number {
   return roteiroDoCenario(sessao.meta.cenarioId).passos.filter((passo) => passo.concluido(contexto)).length
 }
 
-describe('Níveis de aulas dos cenários sem módulo próprio', () => {
-  it('nivelPorCenarioId devolve null para reset-senha-desbloqueio e falha-backup-restore, sem cair no primeiro nível', () => {
-    expect(nivelPorCenarioId('reset-senha-desbloqueio')).toBeNull()
-    expect(nivelPorCenarioId('falha-backup-restore')).toBeNull()
+describe('Níveis de aulas dos cenários', () => {
+  it('nivelPorCenarioId devolve o nível da escala do catálogo, inclusive para os cenários novos', () => {
+    expect(nivelPorCenarioId('reset-senha-desbloqueio')?.id).toBe('help-desk-n1')
+    expect(nivelPorCenarioId('pasta-rede-inacessivel')?.id).toBe('service-desk-n1-jr')
+    expect(nivelPorCenarioId('incidente-massivo')?.id).toBe('n2-pleno')
+    expect(nivelPorCenarioId('sre-cloud-latencia')?.id).toBe('n3-a-redes-nuvem')
+    expect(nivelPorCenarioId('falha-backup-restore')?.id).toBe('n3-b-data-center-backup')
+    expect(nivelPorCenarioId('triagem-engenharia-social')?.id).toBe('n3-c-seguranca-dados')
+    expect(nivelPorCenarioId('diagnostico-sql-readonly')?.id).toBe('n3-c-seguranca-dados')
+  })
+  it('um identificador desconhecido não cai no primeiro nível', () => {
     expect(nivelPorCenarioId('desconhecido')).toBeNull()
   })
-  it('os cinco cenários com módulo continuam com o nível de antes', () => {
-    expect(nivelPorCenarioId('triagem-engenharia-social')?.id).toBe('estagiario')
-    expect(nivelPorCenarioId('pasta-rede-inacessivel')?.id).toBe('n1')
-    expect(nivelPorCenarioId('incidente-massivo')?.id).toBe('n2')
-    expect(nivelPorCenarioId('sre-cloud-latencia')?.id).toBe('n3')
-    expect(nivelPorCenarioId('diagnostico-sql-readonly')?.id).toBe('esp')
-  })
-  it('toda Missão do catálogo sem nível tem título e descrição próprios', () => {
+  it('toda Missão do catálogo tem título e descrição próprios', () => {
     for (const rota of CATALOGO_ROTAS) {
       for (const escala of rota.escalas) {
         for (const { missao } of missoesDaEscala(escala)) {
-          if (nivelPorCenarioId(missao.id)) continue
           expect(missao.titulo, missao.id).toBeTruthy()
           expect(missao.descricao, missao.id).toBeTruthy()
         }

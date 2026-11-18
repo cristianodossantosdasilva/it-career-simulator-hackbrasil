@@ -1,4 +1,4 @@
-import type { NivelEducacional, obterProximaAcao } from '../educacao/catalogoEducacional'
+import { LEVELS, type NivelEducacional, type obterProximaAcao } from '../educacao/catalogoEducacional'
 import { Icone } from '../ui/Icone'
 
 type ProximaAcao = ReturnType<typeof obterProximaAcao>
@@ -32,7 +32,7 @@ function descreverAcao(acao: ProximaAcao, nivel: NivelEducacional): { titulo: st
     default:
       return {
         titulo: 'Jornada completa',
-        detalhe: 'Você concluiu os 5 níveis do MVP. Exporte e valide sua credencial.',
+        detalhe: `Você concluiu os ${LEVELS.length} níveis do MVP. Exporte e valide sua credencial.`,
       }
   }
 }
@@ -115,8 +115,8 @@ export function PrimeiroVoo({
         ) : (
           <>
             <p className="primeiro-voo-texto">
-              Comece pelo Nível 1, fundamentos do suporte e segurança. Um pedido urgente de reset de senha chega ao
-              ITSM. Você confere a política, decide o que fazer e depois revê a decisão na Caixa-Preta.
+              Comece pelo Help Desk N1, a primeira escala da rota. Um pedido de reset de senha chega ao ITSM. Você
+              confirma a identidade de quem pede, escolhe a menor ação e depois revê a decisão na Caixa-Preta.
             </p>
             <div className="primeiro-voo-acoes">
               <button type="button" className="btn btn-primary btn-lg" disabled={ocupado} onClick={onIniciarPrimeiroVoo}>

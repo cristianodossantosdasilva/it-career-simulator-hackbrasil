@@ -200,8 +200,8 @@ describe('IT Flight Simulator UI', () => {
     })
     expect(within(painelCarreira).getByText(/Analista Jr \(N1\)/i)).toBeInTheDocument()
     expect(within(painelCarreira).getByText(/150 XP/i)).toBeInTheDocument()
-    expect(within(painelCarreira).getByText('N4 OK')).toBeInTheDocument()
-    expect(within(painelCarreira).getByText('N4b Pendente')).toBeInTheDocument()
+    expect(within(painelCarreira).getByText('Incidente Cloud e Kubernetes (Simulador) OK')).toBeInTheDocument()
+    expect(within(painelCarreira).getByText('Auditoria SQL Somente Leitura Pendente')).toBeInTheDocument()
     expect(within(painelCarreira).getByText(/1 sessão\(ões\) marcada\(s\) como não confirmada/i)).toBeInTheDocument()
     expect(within(painelCarreira).getByText(/deadbeef1234/i)).toBeInTheDocument()
     expect(

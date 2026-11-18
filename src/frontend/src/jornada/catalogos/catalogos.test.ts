@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { LEVELS } from '../../educacao/catalogoEducacional'
 import {
   CATALOGO_ROTAS,
   MISSAO_DEMONSTRACAO,
@@ -106,14 +105,13 @@ describe('Catálogo de rotas', () => {
     }
   })
 
-  it('dá a cada Missão um nível em LEVELS ou título e descrição próprios', () => {
+  it('dá a cada Missão título e descrição próprios, sem repetir título entre Missões', () => {
+    const titulos = todasAsMissoes().map(({ missao }) => missao.titulo)
     for (const { missao } of todasAsMissoes()) {
-      const nivel = LEVELS.find((l) => l.cenarioId === missao.id)
-      if (!nivel) {
-        expect(missao.titulo, missao.id).toBeTruthy()
-        expect(missao.descricao, missao.id).toBeTruthy()
-      }
+      expect(missao.titulo, missao.id).toBeTruthy()
+      expect(missao.descricao, missao.id).toBeTruthy()
     }
+    expect(new Set(titulos).size).toBe(titulos.length)
   })
 
   it('deixa só a rota Suporte de TI disponível', () => {

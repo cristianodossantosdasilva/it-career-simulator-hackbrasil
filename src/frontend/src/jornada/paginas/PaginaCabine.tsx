@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { DadosDaSessao } from '../cabine/DadosDaSessao'
 import { TurnoDaCabine } from '../cabine/TurnoDaCabine'
-import { type IdMissao, escalaDaMissao } from '../catalogos/catalogoRotas'
+import type { IdMissao } from '../catalogos/catalogoRotas'
 import { AvisoHonesto } from '../componentes/AvisoHonesto'
 import { textosDaMissao } from '../componentes/textosDaMissao'
 import { useVoo } from '../contextosJornada'
+import { TEXTO_MISSAO_EM_PREPARACAO, textoEscalaBloqueada } from '../navegacao/destinoDaPratica'
 import { navegar, reescreverEndereco } from '../navegacao/navegador'
 import type { DecisaoPortao } from '../navegacao/portoes'
 import { NOME_PAGINA, type RotaResolvida, enderecoDe } from '../navegacao/rotas'
@@ -18,7 +19,7 @@ type EstadoAbertura =
   | { tipo: 'falha'; mensagem: string }
 
 export const TEXTO_SESSAO_INDISPONIVEL = 'Esta sessão não está mais disponível no servidor.'
-export const TEXTO_MISSAO_EM_PREPARACAO_CABINE = 'Este cenário ainda está em preparação no simulador.'
+export const TEXTO_MISSAO_EM_PREPARACAO_CABINE = TEXTO_MISSAO_EM_PREPARACAO
 
 const LINK_PLANO = { tipo: 'link', rotulo: 'Voltar ao Plano de voo', href: '/plano-de-voo' } as const
 
@@ -78,7 +79,6 @@ export function PaginaCabine({ rota, portao }: { rota: RotaCabine; portao: Decis
   const emMemoria = sessao?.meta.cenarioId === missao && !chegada.nova
   const efetivo: EstadoAbertura = abrindo && emMemoria ? { tipo: 'pronto' } : estado
   const pronto = portaoAberto && efetivo.tipo === 'pronto'
-  const local = escalaDaMissao(missao)
 
   function refazer() {
     navegar(enderecoDaCabine(missao, { nova: true, semente: null, causa: null }), { substituir: true })
@@ -101,11 +101,7 @@ export function PaginaCabine({ rota, portao }: { rota: RotaCabine; portao: Decis
         <AvisoHonesto acoes={[LINK_PLANO]}>{TEXTO_MISSAO_EM_PREPARACAO_CABINE}</AvisoHonesto>
       )}
       {portao.tipo === 'aviso-escala-bloqueada' && (
-        <AvisoHonesto acoes={[LINK_PLANO]}>
-          A escala {local?.escala.nome} ainda não está liberada. Conclua as missões disponíveis de{' '}
-          {local?.rota.escalas.find((escala) => escala.id === portao.escalaNecessaria)?.nome ?? 'a escala anterior'} no Plano
-          de voo.
-        </AvisoHonesto>
+        <AvisoHonesto acoes={[LINK_PLANO]}>{textoEscalaBloqueada(missao, portao.escalaNecessaria)}</AvisoHonesto>
       )}
       {portaoAberto && efetivo.tipo === 'abrindo' && (
         <>

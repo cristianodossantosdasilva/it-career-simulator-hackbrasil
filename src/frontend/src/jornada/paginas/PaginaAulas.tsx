@@ -1,10 +1,11 @@
 import { AulasView } from '../../educacao/AulasView'
 import { LEVELS } from '../../educacao/catalogoEducacional'
-import { ehIdMissao } from '../catalogos/catalogoRotas'
+import type { IdMissao } from '../catalogos/catalogoRotas'
 import { useAcademia } from '../contextosJornada'
 import { LinkInterno } from '../navegacao/LinkInterno'
 import { navegar } from '../navegacao/navegador'
 import { NOME_PAGINA, type RotaResolvida, enderecoDe } from '../navegacao/rotas'
+import { useDestinoDaPratica } from '../navegacao/usarDestinoDaPratica'
 
 type RotaAulas = Extract<RotaResolvida, { pagina: 'aulas' }>
 
@@ -15,19 +16,21 @@ type RotaAulas = Extract<RotaResolvida, { pagina: 'aulas' }>
 export function PaginaAulas({ rota }: { rota: RotaAulas }) {
   const { estadoAcademia, atualizarEstadoAcademia } = useAcademia()
   const nivel = rota.nivel ?? estadoAcademia.focus
+  const destinoDaPratica = useDestinoDaPratica()
 
   function irParaCaderno(paginaId: string) {
     atualizarEstadoAcademia((anterior) => ({ ...anterior, activePage: paginaId }))
     navegar(enderecoDe({ pagina: 'caderno' }))
   }
 
-  function iniciarLaboratorio(cenarioId: string) {
-    // Os portões da Cabine decidem se a missão já pode ser aberta.
-    navegar(
-      ehIdMissao(cenarioId)
-        ? enderecoDe({ pagina: 'cabine', missao: cenarioId, semente: null, causa: null, nova: false })
-        : enderecoDe({ pagina: 'plano-de-voo' }),
-    )
+  /** Escala liberada (ou modo de demonstração): Cabine da missão. Bloqueada: Plano de voo, nunca a Cabine. */
+  function iniciarLaboratorio(cenarioId: IdMissao) {
+    navegar(destinoDaPratica(cenarioId).endereco)
+  }
+
+  function avisoDaPratica(cenarioId: IdMissao): string | null {
+    const destino = destinoDaPratica(cenarioId)
+    return destino.tipo === 'plano-de-voo' ? destino.aviso : null
   }
 
   return (
@@ -43,7 +46,7 @@ export function PaginaAulas({ rota }: { rota: RotaAulas }) {
               className={item.id === nivel ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'}
               aria-current={item.id === nivel ? 'page' : undefined}
             >
-              {item.cargo}
+              {item.nome}
             </LinkInterno>
           ))}
           <LinkInterno href={enderecoDe({ pagina: 'treino' })} className="btn btn-secondary btn-sm">
@@ -60,6 +63,7 @@ export function PaginaAulas({ rota }: { rota: RotaAulas }) {
         onAtualizarEstado={atualizarEstadoAcademia}
         onIrParaCaderno={irParaCaderno}
         onIniciarLaboratorio={iniciarLaboratorio}
+        avisoDaPratica={avisoDaPratica}
         nivelTitulo={2}
       />
     </div>

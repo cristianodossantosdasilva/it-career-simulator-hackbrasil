@@ -3,6 +3,7 @@ import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/re
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { apiClient } from '../api/client'
 import {
+  CHAVE_ARMAZENAMENTO_ACADEMIA,
   carregarEstadoAcademia,
   criarEstadoInicialAcademia,
   salvarEstadoAcademia,
@@ -56,20 +57,20 @@ describe('Estado inicial do Plano de voo', () => {
 })
 
 describe('Focus inicial da Academia', () => {
-  it('estado limpo usa estagiario e Aulas abre em Estagiario', () => {
-    expect(criarEstadoInicialAcademia().focus).toBe('estagiario')
-    expect(carregarEstadoAcademia().focus).toBe('estagiario')
+  it('estado limpo usa help-desk-n1 e Aulas abre em Help Desk N1', () => {
+    expect(criarEstadoInicialAcademia().focus).toBe('help-desk-n1')
+    expect(carregarEstadoAcademia().focus).toBe('help-desk-n1')
     abrirAplicacao('/')
     irPeloMenu('Aulas')
-    expect(screen.getByRole('heading', { level: 2, name: 'Estagiário' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'Help Desk N1' })).toBeInTheDocument()
   })
 
-  it('quem ja tem n1 salvo permanece em n1, sem migracao', () => {
-    window.localStorage.setItem('itfs_academia_v3', JSON.stringify({ focus: 'n1' }))
-    expect(carregarEstadoAcademia().focus).toBe('n1')
+  it('quem ja tem service-desk-n1-jr salvo permanece nele', () => {
+    window.localStorage.setItem(CHAVE_ARMAZENAMENTO_ACADEMIA, JSON.stringify({ focus: 'service-desk-n1-jr' }))
+    expect(carregarEstadoAcademia().focus).toBe('service-desk-n1-jr')
     abrirAplicacao('/')
     irPeloMenu('Aulas')
-    expect(screen.getByRole('heading', { level: 2, name: 'Analista Jr (N1)' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'Service Desk N1 Jr' })).toBeInTheDocument()
   })
 })
 

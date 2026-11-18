@@ -1,24 +1,38 @@
+import {
+  CATALOGO_ROTAS,
+  type Escala,
+  type IdMissao,
+  type IdVertente,
+  ehIdMissao,
+  escalaDaMissao,
+} from '../jornada/catalogos/catalogoRotas'
 import { type NomeIcone, ehNomeIcone } from '../ui/catalogoIcones'
 
-export type NivelId = 'estagiario' | 'n1' | 'n2' | 'n3' | 'esp'
+/**
+ * Nível de estudo: uma escala do Catálogo de Rotas ou, na N3 Sênior, uma Vertente. O identificador é o do
+ * catálogo: help-desk-n1, service-desk-n1-jr, n2-pleno, n3-a-redes-nuvem, n3-b-data-center-backup e
+ * n3-c-seguranca-dados.
+ */
+export type NivelId = 'help-desk-n1' | 'service-desk-n1-jr' | 'n2-pleno' | IdVertente
 
 export interface NivelEducacional {
   id: NivelId
-  cenarioId: string
-  icon: NomeIcone
-  cargo: string
+  /** Nome exibido, igual ao da escala ou da Vertente no Catálogo de Rotas. */
   nome: string
-  titulo: string
+  /** Missões do catálogo que o nível pratica, na ordem do catálogo. */
+  cenarioIds: readonly IdMissao[]
+  /** Missão de prática padrão do nível: a primeira do catálogo. */
+  cenarioId: IdMissao
+  icon: NomeIcone
   sub: string
-  desc: string
-  competencias: string
-  tag?: string
 }
 
 export interface MicroAula {
   id: string
   title: string
   min: number
+  /** Missão que a aula pratica, quando difere da padrão do nível. */
+  cenarioId?: IdMissao
   analogy: string
   paragraphs: { text: string; bold?: string[] }[]
   keys: string[]
@@ -84,76 +98,39 @@ export interface EstadoAcademia {
   activePage: string
   pitches: { text: string; at: string }[]
   feynman: NivelId[]
-  labsDone: NivelId[]
+  /** Missões concluídas no laboratório. Cada uma conta 60 XP uma única vez. */
+  labsDone: IdMissao[]
+}
+
+const APRESENTACAO_DO_NIVEL: Record<NivelId, { icon: NomeIcone; sub: string }> = {
+  'help-desk-n1': { icon: 'nivel-help-desk-n1', sub: 'Identidade, acesso e orientação básica' },
+  'service-desk-n1-jr': { icon: 'nivel-service-desk-n1-jr', sub: 'Redes, usuários e acesso remoto' },
+  'n2-pleno': { icon: 'nivel-n2-pleno', sub: 'ITIL, incidentes em massa e logs' },
+  'n3-a-redes-nuvem': { icon: 'nivel-n3-a-redes-nuvem', sub: 'Cloud, Kubernetes e observabilidade SRE' },
+  'n3-b-data-center-backup': { icon: 'nivel-n3-b-data-center-backup', sub: 'Backup, restauração e cópia imutável' },
+  'n3-c-seguranca-dados': { icon: 'nivel-n3-c-seguranca-dados', sub: 'Engenharia social e auditoria SQL' },
+}
+
+function nivelDe(id: NivelId, nome: string, missoes: readonly { id: IdMissao }[]): NivelEducacional {
+  const cenarioIds = missoes.map((missao) => missao.id)
+  return { id, nome, cenarioIds, cenarioId: cenarioIds[0], ...APRESENTACAO_DO_NIVEL[id] }
+}
+
+function niveisDaEscala(escala: Escala): NivelEducacional[] {
+  if (escala.vertentes.length > 0) return escala.vertentes.map((vertente) => nivelDe(vertente.id, vertente.nome, vertente.missoes))
+  return [nivelDe(escala.id as NivelId, escala.nome, escala.missoes)]
 }
 
 /**
- * Correspondencia entre ids e rotulos exibidos (os ids ficam salvos no navegador, nao renomear):
- * estagiario = Nivel 1, n1 = Nivel 2, n2 = Nivel 3, n3 = Nivel 4, esp = Nivel 4b.
+ * Trilha de estudo: uma entrada por escala do Catálogo de Rotas, e uma por Vertente na N3 Sênior, na
+ * ordem do catálogo. Escala, nome e cenários vêm do catálogo; aqui só ficam ícone e subtítulo.
  */
-export const LEVELS: NivelEducacional[] = [
-  {
-    id: 'estagiario',
-    cenarioId: 'triagem-engenharia-social',
-    icon: 'nivel-estagiario',
-    cargo: 'Nível 1: Estagiário',
-    nome: 'Estagiário',
-    titulo: 'Triagem e Defesa contra Engenharia Social',
-    sub: 'Fundamentos do suporte e segurança',
-    desc: 'Atenda um pedido urgente de suposto diretor sem token. Consulte a política, registre nota interna e proteja a empresa.',
-    competencias: 'Segurança, Política KB, Triagem ITSM',
-    tag: 'Comece aqui',
-  },
-  {
-    id: 'n1',
-    cenarioId: 'pasta-rede-inacessivel',
-    icon: 'nivel-n1',
-    cargo: 'Nível 2: Analista Jr (N1)',
-    nome: 'Analista Jr (N1)',
-    titulo: 'Pasta de Rede Inacessível (Simulador de Causas)',
-    sub: 'Redes, usuários e acesso remoto',
-    desc: '4 causas sorteadas por semente (Grupo AD, DNS, Serviço parado ou pedido de mapeamento de unidade). Valide identidade, conecte no SimuDesk e atenda o chamado.',
-    competencias: 'AD, DNS, Serviços, Solicitações, SimuDesk',
-  },
-  {
-    id: 'n2',
-    cenarioId: 'incidente-massivo',
-    icon: 'nivel-n2',
-    cargo: 'Nível 3: Analista Pleno (N2)',
-    nome: 'Analista Pleno (N2)',
-    titulo: 'Incidente Massivo e Problema ITIL',
-    sub: 'ITIL, incidentes em massa e logs',
-    desc: '3 chamados simultâneos, com 3 causas sorteadas por semente (serviço parado após atualização, falha do provedor de e-mail ou domínio suspenso). Crie um Problema ITIL, investigue, comunique os solicitantes e resolva em lote.',
-    competencias: 'Problema ITIL, Causa Raiz, Logs, Fornecedores',
-  },
-  {
-    id: 'n3',
-    cenarioId: 'sre-cloud-latencia',
-    icon: 'nivel-n3',
-    cargo: 'Nível 4 (V2): SRE e Cloud',
-    nome: 'SRE e Cloud (N3)',
-    titulo: 'Incidente Cloud e Kubernetes (Simulador)',
-    sub: 'Cloud, Kubernetes e observabilidade SRE',
-    desc: '3 causas raiz simuladas (OOMKilled, Pool Postgres ou TLS expirado). Investigue pods e logs no SimuDesk e mitigue com segurança.',
-    competencias: 'Kubernetes, Observabilidade, SRE',
-  },
-  {
-    id: 'esp',
-    cenarioId: 'diagnostico-sql-readonly',
-    icon: 'nivel-esp',
-    cargo: 'Nível 4b (V2): SQL Read-Only',
-    nome: 'Especialista SQL',
-    titulo: 'Auditoria SQL Somente Leitura',
-    sub: 'Dados e auditoria SQL fail-closed',
-    desc: 'Investigue divergência de faturamento no conjunto de dados sintético via SELECT e EXPLAIN. Escrita e injeção SQL são bloqueadas.',
-    competencias: 'SQL Analítico, Auditoria, Segurança',
-  },
-]
+export const LEVELS: NivelEducacional[] = CATALOGO_ROTAS[0].escalas.flatMap(niveisDaEscala)
 
 export const LESSONS: Record<NivelId, MicroAula[]> = {
-  estagiario: [
+  'help-desk-n1': [
     {
-      id: 'est-1',
+      id: 'help-desk-n1-1',
       title: 'O que faz o Suporte de TI (e o que é um chamado)',
       min: 6,
       analogy:
@@ -184,7 +161,7 @@ export const LESSONS: Record<NivelId, MicroAula[]> = {
       },
     },
     {
-      id: 'est-2',
+      id: 'help-desk-n1-2',
       title: 'Prioridade: urgência e impacto (SLA)',
       min: 5,
       analogy:
@@ -211,40 +188,129 @@ export const LESSONS: Record<NivelId, MicroAula[]> = {
       },
     },
     {
-      id: 'est-3',
-      title: 'Engenharia social: o golpe que não usa vírus',
-      min: 7,
-      analogy:
-        'É o golpista que liga dizendo ser do banco: ele não invade o sistema, ele convence você a abrir a porta.',
+      id: 'help-desk-n1-3',
+      title: 'Verificar a identidade antes de agir',
+      min: 6,
+      analogy: 'É o porteiro que confere o crachá antes de abrir a porta: simpatia não substitui o documento.',
       paragraphs: [
         {
-          text: 'Engenharia social é quando alguém manipula pessoas — com pressa, autoridade ou simpatia — para conseguir senhas e acessos. É uma das portas de entrada mais comuns em ataques.',
+          text: 'Antes de redefinir uma senha ou liberar uma conta, o suporte precisa ter certeza de quem está pedindo. Na Aurora Logística, isso significa confirmar matrícula e ramal da titular e ler o estado da conta no console, sem agir ainda.',
         },
         {
-          text: 'Por isso as empresas têm políticas de verificação: antes de trocar uma senha, o suporte confirma a identidade (matrícula, ramal) e um token corporativo, um código temporário que só o dono tem.',
+          text: 'Quando o pedido vem de outra pessoa, por exemplo o gestor da titular, a identidade só vale depois de contatar a própria titular pelo ramal do diretório. Um número passado por quem pede não serve: pode ser de um golpista.',
         },
       ],
       keys: [
-        'Pressa e autoridade são sinais de alerta.',
-        'Nunca troque senha sem verificar identidade.',
-        'Registre a tentativa em nota interna.',
+        'Confirme quem é a titular antes de qualquer ação sensível.',
+        'Pedido por terceiro: ligue para a titular pelo ramal do diretório.',
+        'Ação sem identidade verificada fica registrada como erro.',
       ],
-      flow: ['Pedido urgente', 'Consultar política (KB)', 'Verificar identidade e token', 'Sem token? Recusar e registrar'],
+      flow: ['Pedido recebido', 'Ler o estado da conta', 'Confirmar a identidade da titular', 'Escolher a menor ação', 'Registrar no chamado'],
       quiz: {
-        q: 'Alguém diz ser diretor, está sem token e exige troca de senha imediata. O que fazer?',
+        q: 'O gestor da Fernanda pede o reset da senha dela e passa um número de telefone para você confirmar. O que fazer?',
         opts: [
-          'Trocar a senha, afinal é um diretor',
-          'Recusar com educação, seguir a política e registrar nota interna',
-          'Passar a senha atual por telefone',
+          'Ligar para o número que o gestor passou e resetar se atenderem',
+          'Procurar o ramal da Fernanda no diretório, ligar para ela e só então agir',
+          'Resetar logo, porque o gestor tem autoridade',
         ],
         ok: 1,
-        why: 'A política vale para todos. Recusar e documentar é exatamente o que um profissional faz.',
+        why: 'O contato vem do diretório da empresa, não de quem pede. Só assim a identidade da titular fica confirmada.',
+      },
+    },
+    {
+      id: 'help-desk-n1-4',
+      title: 'Reset com senha temporária e troca obrigatória',
+      min: 5,
+      analogy: 'É a chave reserva do hotel: abre a porta uma vez, e na primeira entrada você escolhe a sua.',
+      paragraphs: [
+        {
+          text: 'Quando a pessoa esqueceu a senha e a identidade foi confirmada, o suporte define uma senha temporária e marca a troca obrigatória no primeiro acesso. Assim, nem o analista conhece a senha definitiva.',
+        },
+        {
+          text: 'A senha temporária nunca vai escrita no chamado nem em um chat aberto. Ela segue por um canal já confirmado, e a nota pública diz o que foi feito sem repetir a senha.',
+        },
+      ],
+      keys: [
+        'Reset gera uma senha temporária.',
+        'A troca no primeiro acesso é obrigatória.',
+        'Nunca escreva a senha no chamado.',
+      ],
+      flow: ['Senha esquecida', 'Identidade confirmada', 'Senha temporária', 'Troca obrigatória no primeiro acesso', 'Nota pública sem a senha'],
+      quiz: {
+        q: 'Depois de resetar a senha da Fernanda, o que deve constar na nota pública do chamado?',
+        opts: [
+          'A senha temporária, para ela não esquecer',
+          'O que foi feito e que a troca é obrigatória no primeiro acesso',
+          'Nada: reset não precisa de nota',
+        ],
+        ok: 1,
+        why: 'A nota registra a ação e orienta a pessoa, sem expor credencial.',
+      },
+    },
+    {
+      id: 'help-desk-n1-5',
+      title: 'Conta bloqueada: descubra a origem antes de desbloquear',
+      min: 6,
+      analogy: 'Se o alarme dispara toda noite, silenciar não resolve: é preciso achar quem mexe na porta.',
+      paragraphs: [
+        {
+          text: 'Uma conta bloqueia depois de várias tentativas erradas. Se a titular garante que não errou a senha, as tentativas podem vir de outro lugar, como um aplicativo antigo com a senha salva ou um celular com o e-mail desatualizado.',
+        },
+        {
+          text: 'Por isso o analista olha os eventos de segurança da conta e identifica a origem antes de desbloquear. Desbloquear sem tratar a origem faz a conta bloquear de novo minutos depois.',
+        },
+      ],
+      keys: [
+        'Bloqueio vem de tentativas erradas.',
+        'Procure a origem nos eventos de segurança.',
+        'Desbloquear sem tratar a origem repete o problema.',
+      ],
+      flow: ['Conta bloqueada', 'Eventos de segurança', 'Origem identificada', 'Desbloqueio', 'Orientar a titular'],
+      quiz: {
+        q: 'A conta bloqueou três vezes hoje e a titular diz que não digitou nada errado. Qual o próximo passo?',
+        opts: [
+          'Desbloquear de novo e encerrar o chamado',
+          'Ver nos eventos de segurança de onde vêm as tentativas',
+          'Resetar a senha sem verificar nada',
+        ],
+        ok: 1,
+        why: 'Sem achar a origem das tentativas, o bloqueio volta. O reset também seria uma ação desnecessária.',
+      },
+    },
+    {
+      id: 'help-desk-n1-6',
+      title: 'Senha expirada: oriente, não resete',
+      min: 5,
+      analogy: 'É o documento vencido: a pessoa o renova no balcão de autoatendimento, ninguém emite outro por ela.',
+      paragraphs: [
+        {
+          text: 'Senha expirada é diferente de senha esquecida. A pessoa sabe a senha atual e só precisa trocá-la. O autoatendimento de troca de senha existe para isso.',
+        },
+        {
+          text: 'Resetar nesse caso é uma ação desnecessária: dá ao suporte mais poder do que o problema exige e fica registrada na trilha do atendimento. O correto é orientar o caminho e confirmar que a pessoa conseguiu entrar.',
+        },
+      ],
+      keys: [
+        'Senha expirada pede troca, não reset.',
+        'Use a menor ação que resolve.',
+        'Registre a orientação no chamado.',
+      ],
+      flow: ['Senha expirada', 'Confirmar a identidade', 'Orientar a troca pelo autoatendimento', 'Pessoa troca a senha', 'Chamado resolvido'],
+      quiz: {
+        q: 'A Fernanda recebeu o aviso de senha expirada ao entrar e lembra a senha atual. O que o suporte faz?',
+        opts: [
+          'Resetar a senha e passar uma temporária',
+          'Orientar a troca pelo autoatendimento e confirmar o acesso',
+          'Desbloquear a conta',
+        ],
+        ok: 1,
+        why: 'Ela só precisa renovar a senha. A menor ação que resolve é orientar.',
       },
     },
   ],
-  n1: [
+  'service-desk-n1-jr': [
     {
-      id: 'n1-1',
+      id: 'service-desk-n1-jr-1',
       title: 'Rede, IP e DNS: a agenda da rede',
       min: 7,
       analogy:
@@ -271,7 +337,7 @@ export const LESSONS: Record<NivelId, MicroAula[]> = {
       },
     },
     {
-      id: 'n1-2',
+      id: 'service-desk-n1-jr-2',
       title: 'Usuários, grupos e permissões (Active Directory)',
       min: 6,
       analogy:
@@ -302,7 +368,7 @@ export const LESSONS: Record<NivelId, MicroAula[]> = {
       },
     },
     {
-      id: 'n1-3',
+      id: 'service-desk-n1-jr-3',
       title: 'Acesso remoto com ética: diagnosticar antes de mexer',
       min: 6,
       analogy:
@@ -333,9 +399,9 @@ export const LESSONS: Record<NivelId, MicroAula[]> = {
       },
     },
   ],
-  n2: [
+  'n2-pleno': [
     {
-      id: 'n2-1',
+      id: 'n2-pleno-1',
       title: 'Incidente versus Problema (ITIL)',
       min: 6,
       analogy:
@@ -366,7 +432,7 @@ export const LESSONS: Record<NivelId, MicroAula[]> = {
       },
     },
     {
-      id: 'n2-2',
+      id: 'n2-pleno-2',
       title: 'Logs: o diário de bordo dos sistemas',
       min: 5,
       analogy:
@@ -397,9 +463,9 @@ export const LESSONS: Record<NivelId, MicroAula[]> = {
       },
     },
   ],
-  n3: [
+  'n3-a-redes-nuvem': [
     {
-      id: 'n3-1',
+      id: 'n3-a-redes-nuvem-1',
       title: 'Nuvem e containers sem mistério',
       min: 6,
       analogy:
@@ -426,7 +492,7 @@ export const LESSONS: Record<NivelId, MicroAula[]> = {
       },
     },
     {
-      id: 'n3-2',
+      id: 'n3-a-redes-nuvem-2',
       title: 'Observabilidade e mitigação segura (SRE)',
       min: 7,
       analogy:
@@ -457,11 +523,106 @@ export const LESSONS: Record<NivelId, MicroAula[]> = {
       },
     },
   ],
-  esp: [
+  'n3-b-data-center-backup': [
     {
-      id: 'esp-1',
+      id: 'n3-b-data-center-backup-1',
+      title: 'Backup falhou: leia o log do job antes de mexer',
+      min: 6,
+      analogy:
+        'É o diário do caminhão de entregas: antes de culpar o motorista, leia por que ele voltou com a carga.',
+      paragraphs: [
+        {
+          text: 'Quando um job de backup falha, o log do job diz o que o impediu de rodar. Uma causa comum é o repositório cheio: não há espaço para gravar a nova cópia.',
+        },
+        {
+          text: 'O diagnóstico segue uma ordem: estado do job, log do job e, depois, o estado do repositório e da cadeia de cópias. Só então se corrige. Ampliar a capacidade e executar o job de novo exigem privilégio elevado, e o resultado é confirmado antes de resolver o chamado.',
+        },
+      ],
+      keys: [
+        'Leia o log do job antes de qualquer mudança.',
+        'Repositório cheio impede a nova cópia.',
+        'Confirme o resultado antes de resolver.',
+      ],
+      flow: ['Job falhou', 'Estado e log do job', 'Comparar repositório e cadeia', 'Corrigir com privilégio elevado', 'Executar o job e confirmar'],
+      quiz: {
+        q: 'O log do job de backup do Financeiro diz "sem espaço no repositório". Qual a ordem certa?',
+        opts: [
+          'Apagar pontos de restauração antigos para liberar espaço',
+          'Conferir repositório e cadeia, ampliar a capacidade com privilégio elevado e rodar o job de novo',
+          'Ignorar e esperar a próxima janela de backup',
+        ],
+        ok: 1,
+        why: 'Apagar pontos de restauração compromete a retenção. A correção é ampliar o espaço e confirmar com uma nova execução.',
+      },
+    },
+    {
+      id: 'n3-b-data-center-backup-2',
+      title: 'Cópia imutável, cadeia e restore',
+      min: 6,
+      analogy: 'A cópia imutável é o cofre do banco: depois de guardada, nem o dono altera até o prazo vencer.',
+      paragraphs: [
+        {
+          text: 'A cópia imutável não pode ser alterada nem apagada durante a retenção. É a última linha de defesa dos dados. A cadeia incremental depende de cada ponto anterior: um ponto inválido compromete os seguintes.',
+        },
+        {
+          text: 'Antes de restaurar, verifique a integridade da cadeia e das cópias para escolher uma origem íntegra. Nunca restaure sobre dados íntegros, porque isso sobrescreve o trabalho do dia, e confirme com o dono da pasta antes de encerrar.',
+        },
+      ],
+      keys: [
+        'Cópia imutável protege contra alteração e apagamento.',
+        'Verifique a cadeia antes de restaurar.',
+        'Não restaure sobre dados íntegros.',
+      ],
+      flow: ['Cadeia verificada', 'Origem íntegra escolhida', 'Restore', 'Dono da pasta confirma', 'Chamado resolvido'],
+      quiz: {
+        q: 'A pasta Financeiro foi corrompida e a cadeia tem um ponto inválido. O que fazer antes do restore?',
+        opts: [
+          'Restaurar do último ponto sem conferir nada',
+          'Verificar a integridade da cadeia e escolher uma origem íntegra',
+          'Apagar a cadeia inteira e começar do zero',
+        ],
+        ok: 1,
+        why: 'Restaurar de um ponto inválido propaga o problema. Primeiro escolha uma origem comprovadamente íntegra.',
+      },
+    },
+  ],
+  'n3-c-seguranca-dados': [
+    {
+      id: 'n3-c-seguranca-dados-1',
+      title: 'Engenharia social: o golpe que não usa vírus',
+      min: 7,
+      analogy:
+        'É o golpista que liga dizendo ser do banco: ele não invade o sistema, ele convence você a abrir a porta.',
+      paragraphs: [
+        {
+          text: 'Engenharia social é quando alguém manipula pessoas — com pressa, autoridade ou simpatia — para conseguir senhas e acessos. É uma das portas de entrada mais comuns em ataques.',
+        },
+        {
+          text: 'Por isso as empresas têm políticas de verificação: antes de trocar uma senha, o suporte confirma a identidade (matrícula, ramal) e um token corporativo, um código temporário que só o dono tem.',
+        },
+      ],
+      keys: [
+        'Pressa e autoridade são sinais de alerta.',
+        'Nunca troque senha sem verificar identidade.',
+        'Registre a tentativa em nota interna.',
+      ],
+      flow: ['Pedido urgente', 'Consultar política (KB)', 'Verificar identidade e token', 'Sem token? Recusar e registrar'],
+      quiz: {
+        q: 'Alguém diz ser diretor, está sem token e exige troca de senha imediata. O que fazer?',
+        opts: [
+          'Trocar a senha, afinal é um diretor',
+          'Recusar com educação, seguir a política e registrar nota interna',
+          'Passar a senha atual por telefone',
+        ],
+        ok: 1,
+        why: 'A política vale para todos. Recusar e documentar é exatamente o que um profissional faz.',
+      },
+    },
+    {
+      id: 'n3-c-seguranca-dados-2',
       title: 'Bancos de dados e SQL em linguagem simples',
       min: 6,
+      cenarioId: 'diagnostico-sql-readonly',
       analogy:
         'Um banco de dados é um conjunto de planilhas organizadas; o SQL é o jeito de fazer perguntas a elas.',
       paragraphs: [
@@ -486,9 +647,10 @@ export const LESSONS: Record<NivelId, MicroAula[]> = {
       },
     },
     {
-      id: 'esp-2',
+      id: 'n3-c-seguranca-dados-3',
       title: 'Auditoria somente leitura e evidência',
       min: 6,
+      cenarioId: 'diagnostico-sql-readonly',
       analogy: 'O auditor examina os livros contábeis sem rasurar uma linha sequer.',
       paragraphs: [
         {
@@ -515,72 +677,119 @@ export const LESSONS: Record<NivelId, MicroAula[]> = {
 }
 
 export const CARDS: Record<NivelId, FlashCard[]> = {
-  estagiario: [
+  'help-desk-n1': [
     {
-      id: 'c-est-1',
+      id: 'c-help-desk-n1-1',
       f: 'O que é um chamado (ticket)?',
       b: 'A ficha oficial de um pedido de ajuda no ITSM: quem pediu, o que aconteceu, quando e o que foi feito.',
     },
     {
-      id: 'c-est-2',
+      id: 'c-help-desk-n1-2',
       f: 'Como se calcula a prioridade de um chamado?',
       b: 'Urgência (quanta pressa) somada ao Impacto (quantas pessoas pararam) gera a Prioridade (P1 a P4), que define o prazo SLA.',
     },
     {
-      id: 'c-est-3',
-      f: 'Quais sinais indicam engenharia social?',
-      b: 'Pressa extrema, apelo à autoridade ("sou diretor") e pedido para pular a verificação (sem token).',
+      id: 'c-help-desk-n1-4',
+      f: 'Por que confirmar a identidade antes de resetar uma senha?',
+      b: 'Porque o reset dá acesso à conta. Sem confirmar matrícula e ramal da titular, o suporte pode entregar a conta a um golpista.',
+    },
+    {
+      id: 'c-help-desk-n1-5',
+      f: 'O gestor pede o reset da senha de outra pessoa. Como confirmar a identidade?',
+      b: 'Ligando para a titular pelo ramal do diretório da empresa, nunca por um número passado por quem pede.',
+    },
+    {
+      id: 'c-help-desk-n1-6',
+      f: 'O que é uma senha temporária com troca obrigatória?',
+      b: 'Uma senha provisória definida pelo suporte. No primeiro acesso a pessoa escolhe a definitiva, que o suporte nunca conhece.',
+    },
+    {
+      id: 'c-help-desk-n1-7',
+      f: 'A conta bloqueou de novo logo depois do desbloqueio. O que faltou?',
+      b: 'Achar a origem das tentativas erradas nos eventos de segurança antes de desbloquear.',
+    },
+    {
+      id: 'c-help-desk-n1-8',
+      f: 'Senha expirada pede reset?',
+      b: 'Não. A pessoa troca a senha pelo autoatendimento. O reset seria uma ação desnecessária, registrada na trilha do atendimento.',
     },
   ],
-  n1: [
+  'service-desk-n1-jr': [
     {
-      id: 'c-n1-1',
+      id: 'c-service-desk-n1-jr-1',
       f: 'O que o DNS faz?',
       b: 'Traduz nomes (AURORA-SRV01) em endereços IP — é a agenda de contatos da rede.',
     },
     {
-      id: 'c-n1-2',
+      id: 'c-service-desk-n1-jr-2',
       f: 'Só uma pessoa recebe "acesso negado" numa pasta. Primeiro suspeito?',
       b: 'Grupo ou permissão no Active Directory: ela pode ter perdido o vínculo com o grupo correto.',
     },
     {
-      id: 'c-n1-3',
+      id: 'c-service-desk-n1-jr-3',
       f: 'Qual a regra de ouro do acesso remoto?',
       b: 'Autorização antes de conectar e diagnóstico antes de corrigir, com o menor privilégio necessário.',
     },
   ],
-  n2: [
+  'n2-pleno': [
     {
-      id: 'c-n2-1',
+      id: 'c-n2-pleno-1',
       f: 'Qual a diferença entre incidente e problema?',
       b: 'Incidente é a interrupção sentida pelo usuário; problema é a causa raiz por trás de vários incidentes.',
     },
     {
-      id: 'c-n2-2',
+      id: 'c-n2-pleno-2',
       f: 'Onde procurar a causa num log?',
       b: 'Perto do horário em que o problema começou: a primeira mensagem de erro costuma apontar a causa.',
     },
   ],
-  n3: [
+  'n3-a-redes-nuvem': [
     {
-      id: 'c-n3-1',
+      id: 'c-n3-a-redes-nuvem-1',
       f: 'O que é um pod no Kubernetes?',
       b: 'A menor unidade que roda um ou mais containers — como uma marmita com o serviço dentro.',
     },
     {
-      id: 'c-n3-2',
+      id: 'c-n3-a-redes-nuvem-2',
       f: 'O que significa OOMKilled?',
       b: 'O processo passou do limite de memória e foi encerrado automaticamente.',
     },
   ],
-  esp: [
+  'n3-b-data-center-backup': [
     {
-      id: 'c-esp-1',
+      id: 'c-n3-b-data-center-backup-1',
+      f: 'O que o log de um job de backup mostra?',
+      b: 'O motivo da falha, como repositório cheio. É a primeira leitura, antes de qualquer correção.',
+    },
+    {
+      id: 'c-n3-b-data-center-backup-2',
+      f: 'Repositório cheio: posso apagar pontos de restauração para ganhar espaço?',
+      b: 'Não. Isso compromete a retenção. A correção é ampliar a capacidade, com privilégio elevado, e rodar o job de novo.',
+    },
+    {
+      id: 'c-n3-b-data-center-backup-3',
+      f: 'O que é uma cópia imutável?',
+      b: 'Uma cópia que não pode ser alterada nem apagada durante a retenção. É a última linha de defesa dos dados.',
+    },
+    {
+      id: 'c-n3-b-data-center-backup-4',
+      f: 'Por que verificar a cadeia antes de restaurar?',
+      b: 'Cada ponto da cadeia incremental depende do anterior. Um ponto inválido compromete os seguintes.',
+    },
+  ],
+  'n3-c-seguranca-dados': [
+    {
+      id: 'c-n3-c-seguranca-dados-1',
+      f: 'Quais sinais indicam engenharia social?',
+      b: 'Pressa extrema, apelo à autoridade ("sou diretor") e pedido para pular a verificação (sem token).',
+    },
+    {
+      id: 'c-n3-c-seguranca-dados-2',
       f: 'Qual comando SQL apenas lê dados?',
       b: 'SELECT. UPDATE e DELETE alteram dados e não são usados em auditoria.',
     },
     {
-      id: 'c-esp-2',
+      id: 'c-n3-c-seguranca-dados-3',
       f: 'O que entregar ao fim de uma auditoria?',
       b: 'Evidência clara e reproduzível (consulta e resultado), sem alterar nenhum dado.',
     },
@@ -588,68 +797,86 @@ export const CARDS: Record<NivelId, FlashCard[]> = {
 }
 
 export const CONCEPTS: ConceitoFeynman[] = [
-  { level: 'estagiario', name: 'Chamado e ITSM' },
-  { level: 'estagiario', name: 'Prioridade e SLA' },
-  { level: 'estagiario', name: 'Engenharia social' },
-  { level: 'n1', name: 'DNS' },
-  { level: 'n1', name: 'Grupos do Active Directory' },
-  { level: 'n1', name: 'Acesso remoto seguro' },
-  { level: 'n2', name: 'Incidente versus Problema' },
-  { level: 'n2', name: 'Logs' },
-  { level: 'n3', name: 'Containers e Kubernetes' },
-  { level: 'n3', name: 'OOMKilled' },
-  { level: 'esp', name: 'SQL somente leitura' },
+  { level: 'help-desk-n1', name: 'Chamado e ITSM' },
+  { level: 'help-desk-n1', name: 'Prioridade e SLA' },
+  { level: 'help-desk-n1', name: 'Verificação de identidade' },
+  { level: 'help-desk-n1', name: 'Reset e desbloqueio de conta' },
+  { level: 'service-desk-n1-jr', name: 'DNS' },
+  { level: 'service-desk-n1-jr', name: 'Grupos do Active Directory' },
+  { level: 'service-desk-n1-jr', name: 'Acesso remoto seguro' },
+  { level: 'n2-pleno', name: 'Incidente versus Problema' },
+  { level: 'n2-pleno', name: 'Logs' },
+  { level: 'n3-a-redes-nuvem', name: 'Containers e Kubernetes' },
+  { level: 'n3-a-redes-nuvem', name: 'OOMKilled' },
+  { level: 'n3-b-data-center-backup', name: 'Log do job de backup' },
+  { level: 'n3-b-data-center-backup', name: 'Cópia imutável e restore' },
+  { level: 'n3-c-seguranca-dados', name: 'Engenharia social' },
+  { level: 'n3-c-seguranca-dados', name: 'SQL somente leitura' },
 ]
 
 export const STAR_PREFILLS: Record<NivelId, PitchStar> = {
-  estagiario: {
-    s: 'No meu primeiro dia simulado no suporte da Aurora Logística, chegou um pedido urgente de troca de senha de alguém que dizia ser diretor, sem token.',
-    t: 'Eu precisava atender rápido sem colocar a conta e a empresa em risco.',
-    a: 'Eu assumi o chamado, consultei a política KB-001, solicitei matrícula e token corporativo no chat e, como não havia token válido, recusei a troca com educação e registrei nota interna.',
-    r: 'A conta ficou protegida, a tentativa de golpe foi documentada em menos de 10 minutos e minha avaliação 360º atingiu 100% nos critérios de segurança.',
+  'help-desk-n1': {
+    s: 'No laboratório de Help Desk N1, a Fernanda Lima, da Aurora Logística, não conseguia entrar na conta no dia do fechamento fiscal.',
+    t: 'Eu precisava devolver o acesso sem entregar a conta a quem não fosse a titular.',
+    a: 'Eu li o estado da conta no console, confirmei a identidade pela matrícula e pelo ramal do diretório, escolhi a menor ação que resolvia o sintoma e escrevi uma nota pública sem expor a senha.',
+    r: 'O acesso voltou em cerca de 10 minutos, sem ação desnecessária registrada, e o chamado ficou documentado para auditoria.',
   },
-  n1: {
-    s: 'No laboratório de suporte N1, a analista do Financeiro não conseguia abrir a pasta de rede no dia do fechamento fiscal.',
+  'service-desk-n1-jr': {
+    s: 'No laboratório do Service Desk N1 Jr, a analista do Financeiro não conseguia abrir a pasta de rede no dia do fechamento fiscal.',
     t: 'Eu precisava restabelecer o acesso antes do prazo SLA sem causar novos problemas.',
     a: 'Eu confirmei a identidade dela com matrícula e ramal, conectei com autorização no SimuDesk, testei DNS, grupos do AD e serviços e identifiquei a causa raiz antes de aplicar a correção.',
     r: 'A pasta voltou em cerca de 15 minutos, dentro do SLA, e documentei a causa raiz e a validação no chamado.',
   },
-  n2: {
-    s: 'No laboratório N2, três setores ficaram sem ERP após uma atualização noturna.',
+  'n2-pleno': {
+    s: 'No laboratório N2 Pleno, três setores ficaram sem ERP após uma atualização noturna.',
     t: 'Eu precisava restaurar a operação e encontrar a causa comum sem encerrar chamados às escuras.',
     a: 'Eu agrupei os chamados num Problema ITIL, confirmei a autorização, li os logs do horário da falha, elevei privilégio e restaurei o serviço AuroraGateway com validação.',
     r: 'Os três setores voltaram a operar em menos de 20 minutos e a causa raiz ficou registrada para a equipe de mudanças.',
   },
-  n3: {
-    s: 'No laboratório de SRE, a API de rastreamento ficou degradada e com falhas em produção.',
+  'n3-a-redes-nuvem': {
+    s: 'No laboratório N3-A de Redes e Nuvem, a API de rastreamento ficou degradada e com falhas em produção.',
     t: 'Eu precisava mitigar sem ações destrutivas e entender a causa.',
     a: 'Eu inspecionei os pods e logs no cluster Kubernetes simulado, identifiquei o motivo raiz no evento do sistema, elevei privilégio e apliquei mitigação segura.',
     r: 'A disponibilidade do cluster voltou para Healthy (HTTP 200) sem perda de dados e documentei o post-mortem.',
   },
-  esp: {
-    s: 'No laboratório de auditoria SQL, a Controladoria encontrou divergência entre entregas e pagamentos.',
-    t: 'Eu precisava localizar a divergência sem alterar nenhum dado em produção.',
-    a: 'Eu confirmei o escopo somente leitura, executei consultas SELECT seguras validando as tabelas pedidos e pagamentos e documentei a evidência reproduzível.',
-    r: 'Identifiquei a linha divergente sem executar escrita e entreguei o relatório auditável dentro do prazo.',
+  'n3-b-data-center-backup': {
+    s: 'No laboratório N3-B de Data Center e Backup, o job de backup da pasta Financeiro falhou na madrugada e a equipe ficou sem cópia recente.',
+    t: 'Eu precisava restabelecer o backup sem comprometer a retenção nem sobrescrever dados íntegros.',
+    a: 'Eu li o log do job, comparei o repositório e a cadeia de cópias, ampliei a capacidade com privilégio elevado, executei o job de novo e confirmei o resultado com o dono da pasta.',
+    r: 'O backup voltou a concluir em menos de 30 minutos, nenhum ponto de restauração foi apagado e o chamado foi resolvido com nota pública.',
+  },
+  'n3-c-seguranca-dados': {
+    s: 'No laboratório N3-C de Segurança e Dados, chegou um pedido urgente de troca de senha de alguém que dizia ser diretor, sem token.',
+    t: 'Eu precisava atender rápido sem colocar a conta e a empresa em risco.',
+    a: 'Eu assumi o chamado, consultei a política KB-001, solicitei matrícula e token corporativo no chat e, como não havia token válido, recusei a troca com educação e registrei nota interna.',
+    r: 'A conta ficou protegida, a tentativa de golpe foi documentada em menos de 10 minutos e minha avaliação 360º atingiu 100% nos critérios de segurança.',
   },
 }
 
 export const AI_KB: { k: string[]; a: string }[] = [
   {
     k: ['dns'],
-    a: 'DNS é a agenda de contatos da rede: você digita um nome (AURORA-SRV01) e ele devolve o número (IP) do computador. Se o DNS aponta para o número errado, parece que o sistema caiu — mas ele só está discando errado.\nAula recomendada: N1, Rede, IP e DNS.',
+    a: 'DNS é a agenda de contatos da rede: você digita um nome (AURORA-SRV01) e ele devolve o número (IP) do computador. Se o DNS aponta para o número errado, parece que o sistema caiu — mas ele só está discando errado.\nAula recomendada: Service Desk N1 Jr, Rede, IP e DNS.',
   },
   {
     k: ['sla', 'prioridade', 'urgência', 'urgencia', 'impacto'],
-    a: 'Prioridade combina Urgência (pressa) com Impacto (quantas pessoas pararam). Exemplo: faturamento parado para a empresa toda no fechamento gera prioridade P1. Cada prioridade tem um prazo combinado, o SLA.\nAula recomendada: Estagiário, Prioridade.',
+    a: 'Prioridade combina Urgência (pressa) com Impacto (quantas pessoas pararam). Exemplo: faturamento parado para a empresa toda no fechamento gera prioridade P1. Cada prioridade tem um prazo combinado, o SLA.\nAula recomendada: Help Desk N1, Prioridade.',
   },
   {
-    k: ['token', 'engenharia', 'golpe', 'senha', 'phishing'],
-    a: 'Engenharia social é convencer pessoas a quebrar regras usando pressa, autoridade ou simpatia. Sinais: urgência extrema, "sou diretor", pedido para pular a verificação. Resposta profissional: seguir a política KB-001, pedir token e matrícula, recusar com educação e registrar nota interna.',
+    k: ['token', 'engenharia', 'golpe', 'phishing'],
+    a: 'Engenharia social é convencer pessoas a quebrar regras usando pressa, autoridade ou simpatia. Sinais: urgência extrema, "sou diretor", pedido para pular a verificação. Resposta profissional: seguir a política KB-001, pedir token e matrícula, recusar com educação e registrar nota interna.\nAula recomendada: N3-C Segurança e Dados, Engenharia social: o golpe que não usa vírus.',
+  },
+  {
+    k: ['senha', 'reset', 'desbloque', 'bloquead', 'expirad', 'identidade'],
+    a: 'Antes de resetar ou desbloquear, confirme a identidade da titular: matrícula, ramal e, se o pedido veio de outra pessoa, contato pelo ramal do diretório. Depois escolha a menor ação: senha esquecida pede reset com senha temporária e troca obrigatória; conta bloqueada pede achar a origem das tentativas antes de desbloquear; senha expirada pede orientar a troca pelo autoatendimento.\nAula recomendada: Help Desk N1, Verificar a identidade antes de agir.',
+  },
+  {
+    k: ['backup', 'restore', 'restaur', 'repositório', 'repositorio', 'imutável', 'imutavel'],
+    a: 'Quando um job de backup falha, leia o log do job antes de mexer: ele diz o motivo, como repositório cheio. Compare com o estado do repositório e da cadeia de cópias, corrija com privilégio elevado e rode o job de novo. Nunca apague pontos de restauração para ganhar espaço e nunca restaure sobre dados íntegros.\nAula recomendada: N3-B Data Center e Backup, Backup falhou: leia o log do job antes de mexer.',
   },
   {
     k: ['ad', 'active directory', 'grupo', 'permiss'],
-    a: 'O Active Directory é a portaria da empresa: lista quem trabalha ali e quais portas cada crachá abre. Permissões são dadas a grupos; quem sai do grupo recebe acesso negado.\nAula recomendada: N1, Usuários, grupos e permissões.',
+    a: 'O Active Directory é a portaria da empresa: lista quem trabalha ali e quais portas cada crachá abre. Permissões são dadas a grupos; quem sai do grupo recebe acesso negado.\nAula recomendada: Service Desk N1 Jr, Usuários, grupos e permissões.',
   },
   {
     k: ['incidente', 'itil'],
@@ -665,7 +892,7 @@ export const AI_KB: { k: string[]; a: string }[] = [
   },
   {
     k: ['sql', 'select', 'banco'],
-    a: 'SQL é a forma de fazer perguntas a um banco de dados. SELECT só lê; UPDATE e DELETE alteram — por isso a auditoria usa apenas leitura e documenta a evidência.',
+    a: 'SQL é a forma de fazer perguntas a um banco de dados. SELECT só lê; UPDATE e DELETE alteram — por isso a auditoria usa apenas leitura e documenta a evidência.\nAula recomendada: N3-C Segurança e Dados, Bancos de dados e SQL em linguagem simples.',
   },
   {
     k: ['chamado', 'ticket', 'itsm'],
@@ -693,29 +920,29 @@ export const DEFAULT_PAGES: PaginaCaderno[] = [
     level: null,
     type: 'todo',
     todos: [
-      { t: 'Concluir as 3 aulas do Estagiário', done: false },
+      { t: 'Concluir as aulas do Help Desk N1', done: false },
       { t: 'Revisar flashcards (5 min por dia)', done: false },
-      { t: 'Fazer o laboratório Nível 1 (Engenharia Social)', done: false },
-      { t: 'Explicar engenharia social com a Técnica de Feynman', done: false },
+      { t: 'Fazer a missão de reset de senha e desbloqueio (Help Desk N1)', done: false },
+      { t: 'Explicar a verificação de identidade com a Técnica de Feynman', done: false },
       { t: 'Montar meu primeiro Pitch STAR', done: false },
     ],
   },
   {
-    id: 'pg-estagiario',
-    icon: 'nivel-estagiario',
-    title: 'Estagiário: Chamados, prioridade e golpes',
-    level: 'estagiario',
+    id: 'pg-help-desk-n1',
+    icon: 'nivel-help-desk-n1',
+    title: 'Help Desk N1: Chamados, prioridade e identidade',
+    level: 'help-desk-n1',
     type: 'cornell',
-    cues: 'O que é um chamado?\nComo calcular a prioridade?\nComo reconhecer engenharia social?',
+    cues: 'O que é um chamado?\nComo calcular a prioridade?\nPor que confirmar a identidade antes de agir?',
     notes:
-      '• Todo pedido vira chamado no ITSM — é a memória oficial do suporte.\n• Prioridade = urgência (pressa) somada ao impacto (quantas pessoas).\n• Pressa e autoridade sem token = sinal de golpe. Seguir a política KB-001.',
-    summary: 'O suporte trabalha com registro, prioridade e verificação. Segurança vale para todos, inclusive diretores.',
+      '• Todo pedido vira chamado no ITSM — é a memória oficial do suporte.\n• Prioridade = urgência (pressa) somada ao impacto (quantas pessoas).\n• Antes de resetar ou desbloquear, confirmar quem é a titular. Escolher a menor ação que resolve (KB-027).',
+    summary: 'O suporte trabalha com registro, prioridade e verificação. Identidade vale para todos, inclusive gestores.',
   },
   {
-    id: 'pg-n1',
-    icon: 'nivel-n1',
-    title: 'N1: Redes, DNS e acesso remoto',
-    level: 'n1',
+    id: 'pg-service-desk-n1-jr',
+    icon: 'nivel-service-desk-n1-jr',
+    title: 'Service Desk N1 Jr: Redes, DNS e acesso remoto',
+    level: 'service-desk-n1-jr',
     type: 'cornell',
     cues: 'O que o DNS faz?',
     notes: '• IP = endereço numérico. DNS = agenda que traduz nome para IP.',
@@ -774,7 +1001,12 @@ export const ETAPAS_MISSAO_ZERO = [
   },
 ]
 
-const ACADEMIA_STORAGE_KEY = 'itfs_academia_v3'
+/** Chave do estado da Academia no navegador. A versão 4 usa os ids de nível do Catálogo de Rotas. */
+export const CHAVE_ARMAZENAMENTO_ACADEMIA = 'itfs_academia_v4'
+
+function ehNivelId(valor: unknown): valor is NivelId {
+  return LEVELS.some((nivel) => nivel.id === valor)
+}
 
 export function criarEstadoInicialAcademia(): EstadoAcademia {
   return {
@@ -782,7 +1014,7 @@ export function criarEstadoInicialAcademia(): EstadoAcademia {
     streak: 1,
     weekMin: 0,
     weekGoal: 90,
-    focus: 'estagiario',
+    focus: LEVELS[0].id,
     lessonsDone: [],
     cards: {},
     pages: JSON.parse(JSON.stringify(DEFAULT_PAGES)) as PaginaCaderno[],
@@ -794,11 +1026,11 @@ export function criarEstadoInicialAcademia(): EstadoAcademia {
 }
 
 const ICONE_LEGADO: Record<string, NomeIcone> = {
-  '\u{1F392}': 'nivel-estagiario',
-  '\u{1F3A7}': 'nivel-n1',
-  '\u{1F9E9}': 'nivel-n2',
-  '\u2601\uFE0F': 'nivel-n3',
-  '\u{1F3C5}': 'nivel-esp',
+  '\u{1F392}': 'nivel-help-desk-n1',
+  '\u{1F3A7}': 'nivel-service-desk-n1-jr',
+  '\u{1F9E9}': 'nivel-n2-pleno',
+  '\u2601\uFE0F': 'nivel-n3-a-redes-nuvem',
+  '\u{1F3C5}': 'nivel-n3-c-seguranca-dados',
   '\u{1F5D3}\uFE0F': 'plano',
   '\u{1F4A1}': 'ideia',
   '\u{1F3A4}': 'pitch',
@@ -815,21 +1047,24 @@ export function normalizarIconePagina(valor: unknown): NomeIcone {
 
 export function carregarEstadoAcademia(): EstadoAcademia {
   try {
-    const raw = window.localStorage.getItem(ACADEMIA_STORAGE_KEY)
+    const raw = window.localStorage.getItem(CHAVE_ARMAZENAMENTO_ACADEMIA)
     if (!raw) return criarEstadoInicialAcademia()
     const parsed = JSON.parse(raw) as Partial<EstadoAcademia>
     const base = criarEstadoInicialAcademia()
     return {
       ...base,
       ...parsed,
+      focus: ehNivelId(parsed.focus) ? parsed.focus : base.focus,
       pages:
         Array.isArray(parsed.pages) && parsed.pages.length > 0
           ? parsed.pages.map((pagina) => ({ ...pagina, icon: normalizarIconePagina(pagina.icon) }))
           : base.pages,
       lessonsDone: Array.isArray(parsed.lessonsDone) ? parsed.lessonsDone : base.lessonsDone,
       pitches: Array.isArray(parsed.pitches) ? parsed.pitches : base.pitches,
-      feynman: Array.isArray(parsed.feynman) ? parsed.feynman : base.feynman,
-      labsDone: Array.isArray(parsed.labsDone) ? parsed.labsDone : base.labsDone,
+      feynman: Array.isArray(parsed.feynman) ? parsed.feynman.filter(ehNivelId) : base.feynman,
+      labsDone: Array.isArray(parsed.labsDone)
+        ? parsed.labsDone.filter((id): id is IdMissao => typeof id === 'string' && ehIdMissao(id))
+        : base.labsDone,
       cards: parsed.cards && typeof parsed.cards === 'object' ? parsed.cards : base.cards,
     }
   } catch {
@@ -839,10 +1074,15 @@ export function carregarEstadoAcademia(): EstadoAcademia {
 
 export function salvarEstadoAcademia(estado: EstadoAcademia) {
   try {
-    window.localStorage.setItem(ACADEMIA_STORAGE_KEY, JSON.stringify(estado))
+    window.localStorage.setItem(CHAVE_ARMAZENAMENTO_ACADEMIA, JSON.stringify(estado))
   } catch {
     // ignore storage quota errors
   }
+}
+
+/** Título da Missão no Catálogo de Rotas. Identificador desconhecido devolve o próprio id. */
+function textosDoCenario(cenarioId: string): { titulo: string } {
+  return { titulo: escalaDaMissao(cenarioId)?.missao.titulo ?? cenarioId }
 }
 
 export function nivelPorId(id: NivelId): NivelEducacional {
@@ -850,12 +1090,11 @@ export function nivelPorId(id: NivelId): NivelEducacional {
 }
 
 /**
- * Nível de aulas do cenário, ou null quando o cenário não tem módulo próprio (reset-senha-desbloqueio e
- * falha-backup-restore). Sem nível, quem chama não deve assumir o primeiro módulo: título e descrição da
- * Missão vêm do catálogo de rotas.
+ * Nível de estudo que contém o cenário. Toda Missão do Catálogo de Rotas tem nível; só um identificador
+ * desconhecido devolve null, e quem chama não deve assumir o primeiro módulo.
  */
 export function nivelPorCenarioId(cenarioId: string): NivelEducacional | null {
-  return LEVELS.find((l) => l.cenarioId === cenarioId) ?? null
+  return LEVELS.find((l) => l.cenarioIds.some((id) => id === cenarioId)) ?? null
 }
 
 export function aulaPorId(id: string): { lesson: MicroAula; level: NivelId } | null {
@@ -907,7 +1146,8 @@ export function calcularProgressoNivel(estado: EstadoAcademia, id: NivelId) {
     100,
     Math.round((rated / cs.length) * 50 + (estado.feynman.includes(id) ? 30 : 0) + (hasNotes ? 20 : 0)),
   )
-  const p = estado.labsDone.includes(id) ? 100 : 0
+  const missoes = nivelPorId(id).cenarioIds
+  const p = Math.round((missoes.filter((missao) => estado.labsDone.includes(missao)).length / missoes.length) * 100)
   return { t, f, p }
 }
 
@@ -938,10 +1178,12 @@ export function obterProximaAcao(estado: EstadoAcademia) {
       }
     }
     if (pr.p < 100) {
+      const cenarioId = L.cenarioIds.find((missao) => !estado.labsDone.includes(missao)) ?? L.cenarioId
       return {
         phase: 'practice' as const,
         level: L.id,
-        title: `Laboratório: ${L.titulo}`,
+        cenarioId,
+        title: `Laboratório: ${textosDoCenario(cenarioId).titulo}`,
         meta: `Prática guiada no cockpit, ${L.nome}, cerca de 15 min`,
         act: 'lab' as const,
         cta: 'Entrar no laboratório',
@@ -950,8 +1192,8 @@ export function obterProximaAcao(estado: EstadoAcademia) {
   }
   return {
     phase: 'mastery' as const,
-    level: 'esp' as NivelId,
-    title: 'Jornada completa! Você dominou os 5 níveis do MVP.',
+    level: LEVELS[LEVELS.length - 1].id,
+    title: `Jornada completa! Você dominou os ${LEVELS.length} níveis do MVP.`,
     meta: 'Exporte e valide seu Currículo Vivo (ECDSA P-256)',
     act: 'cv' as const,
     cta: 'Abrir Currículo Vivo',
@@ -961,7 +1203,7 @@ export function obterProximaAcao(estado: EstadoAcademia) {
 export function obterPatente(estado: EstadoAcademia): string {
   let patente = 'Cadete (iniciante)'
   for (const L of LEVELS) {
-    if (estado.labsDone.includes(L.id)) patente = L.nome
+    if (calcularProgressoNivel(estado, L.id).p === 100) patente = L.nome
   }
   return patente
 }
@@ -971,7 +1213,7 @@ export function responderMentor(raw: string): string {
   for (const item of AI_KB) {
     if (item.k.some((k) => (k.length <= 3 ? new RegExp(`\\b${k}\\b`).test(t) : t.includes(k)))) return item.a
   }
-  return 'Essa pergunta está fora da base desta trilha. O Mentor responde sobre chamados, prioridade e SLA, engenharia social, DNS, Active Directory, logs, Kubernetes, SQL, técnicas de estudo e entrevistas.'
+  return 'Essa pergunta está fora da base desta trilha. O Mentor responde sobre chamados, prioridade e SLA, reset e desbloqueio de conta, engenharia social, DNS, Active Directory, logs, Kubernetes, backup e restore, SQL, técnicas de estudo e entrevistas.'
 }
 
 const JARGON = [

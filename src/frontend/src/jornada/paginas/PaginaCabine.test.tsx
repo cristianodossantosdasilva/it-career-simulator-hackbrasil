@@ -146,14 +146,15 @@ describe('Página Cabine', () => {
     expect(criacoes(chamadas)).toHaveLength(1)
   })
 
-  it('reset-senha-desbloqueio usa o título do catálogo nas notas e no guia, sem cair no módulo Estagiário', async () => {
+  it('reset-senha-desbloqueio usa o nível Help Desk N1 nas notas e o título do catálogo no cabeçalho', async () => {
     simularApi({ missao: 'reset-senha-desbloqueio' })
     montar('reset-senha-desbloqueio', '', { [CHAVE_REGISTROS_VOO]: serializarRegistros([]) })
     await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
     fireEvent.click(screen.getByRole('button', { name: /Minhas notas/ }))
-    expect(await screen.findByRole('heading', { name: 'Minhas notas: Reset de senha e desbloqueio de conta' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Minhas notas: Help Desk N1' })).toBeInTheDocument()
     expect(document.body.textContent).not.toContain('Triagem e Defesa contra Engenharia Social')
-    expect(document.body.textContent).not.toContain('Minhas notas: Estagiário')
+    expect(screen.getAllByText('Reset de senha e desbloqueio de conta').length).toBeGreaterThan(0)
+    expect(document.body.textContent).not.toContain('Minhas notas: Reset de senha e desbloqueio de conta')
   })
   it('a gaveta do Comandante usa o papel Copiloto', async () => {
     simularApi({ missao: 'pasta-rede-inacessivel' })

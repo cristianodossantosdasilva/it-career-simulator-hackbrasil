@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { IdMissao } from '../jornada/catalogos/catalogoRotas'
 import { Icone } from '../ui/Icone'
 import {
   CARDS,
@@ -18,7 +19,12 @@ interface AulasViewProps {
   aulaInicialId?: string
   onAtualizarEstado: (updater: (prev: EstadoAcademia) => EstadoAcademia) => void
   onIrParaCaderno: (paginaId: string) => void
-  onIniciarLaboratorio: (cenarioId: string) => void
+  onIniciarLaboratorio: (cenarioId: IdMissao) => void
+  /**
+   * Aviso de que a prática da missão ainda não está liberada, ou null com o portão aberto. Com aviso, o
+   * botão deixa de prometer a Cabine: mostra o estado e leva ao Plano de voo.
+   */
+  avisoDaPratica?: (cenarioId: IdMissao) => string | null
   /** Nível do título da aula. As páginas da jornada têm o próprio h1 e passam 2. */
   nivelTitulo?: 1 | 2
 }
@@ -31,6 +37,7 @@ export function AulasView({
   onAtualizarEstado,
   onIrParaCaderno,
   onIniciarLaboratorio,
+  avisoDaPratica,
   nivelTitulo = 1,
 }: AulasViewProps) {
   const Titulo = nivelTitulo === 2 ? 'h2' : 'h1'
@@ -55,6 +62,9 @@ export function AulasView({
   const aulaAtual = ls.find((x) => x.id === aulaId) ?? ls[0]
   const aulaIndex = ls.findIndex((x) => x.id === aulaAtual.id)
   const pr = calcularProgressoNivel(estado, nivel)
+  const cenarioDaAula = aulaAtual.cenarioId ?? L.cenarioId
+  const avisoDoNivel = avisoDaPratica?.(L.cenarioId) ?? null
+  const avisoDaAula = avisoDaPratica?.(cenarioDaAula) ?? null
   const dueHere = cs.filter((c) => isCardDue(estado, c.id)).length
 
   let paginaCornell = estado.pages.find((x) => x.level === nivel && x.type === 'cornell')
@@ -195,11 +205,17 @@ export function AulasView({
           <button
             type="button"
             className="btn btn-primary btn-block mt"
+            aria-describedby={avisoDoNivel ? 'aviso-pratica-nivel' : undefined}
             onClick={() => onIniciarLaboratorio(L.cenarioId)}
           >
-            <Icone nome="praticar" tamanho={16} />
-            Praticar no laboratório
+            <Icone nome={avisoDoNivel ? 'plano-de-voo' : 'praticar'} tamanho={16} />
+            {avisoDoNivel ? 'Ver o Plano de voo' : 'Praticar no laboratório'}
           </button>
+          {avisoDoNivel && (
+            <p id="aviso-pratica-nivel" className="muted mt-1">
+              {avisoDoNivel}
+            </p>
+          )}
         </nav>
 
         <div>
@@ -447,11 +463,17 @@ export function AulasView({
                               <button
                                 type="button"
                                 className="btn btn-secondary"
-                                onClick={() => onIniciarLaboratorio(L.cenarioId)}
+                                aria-describedby={avisoDaAula ? 'aviso-pratica-aula' : undefined}
+                                onClick={() => onIniciarLaboratorio(cenarioDaAula)}
                               >
-                                <Icone nome="praticar" tamanho={16} />
-                                Praticar agora
+                                <Icone nome={avisoDaAula ? 'plano-de-voo' : 'praticar'} tamanho={16} />
+                                {avisoDaAula ? 'Ver o Plano de voo' : 'Praticar agora'}
                               </button>
+                              {avisoDaAula && (
+                                <p id="aviso-pratica-aula" className="muted">
+                                  {avisoDaAula}
+                                </p>
+                              )}
                             </div>
                           )}
                         </>

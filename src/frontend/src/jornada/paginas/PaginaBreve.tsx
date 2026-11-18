@@ -3,7 +3,7 @@ import { Icone } from '../../ui/Icone'
 import { CredencialView } from '../../workstation/CredencialView'
 import type { NivelEducacional } from '../../educacao/catalogoEducacional'
 import type { RegistroDeVoo } from '../armazenamento/registrosVoo'
-import { type Escala, ehIdMissao, rotaPorId } from '../catalogos/catalogoRotas'
+import { type Escala, rotaPorId } from '../catalogos/catalogoRotas'
 import { ROTA_PADRAO_DE_EMBARQUE } from '../catalogos/regrasIndicacao'
 import { PainelComandante } from '../comandante/PainelComandante'
 import { GrupoVertente } from '../componentes/GrupoVertente'
@@ -14,7 +14,8 @@ import { useArmazenamentoJornada } from '../contextoArmazenamentoJornada'
 import { useAcademia } from '../contextosJornada'
 import { LinkInterno } from '../navegacao/LinkInterno'
 import { navegar } from '../navegacao/navegador'
-import { NOME_PAGINA, enderecoDe } from '../navegacao/rotas'
+import { NOME_PAGINA } from '../navegacao/rotas'
+import { useDestinoDaPratica } from '../navegacao/usarDestinoDaPratica'
 import { type GrupoBreve, agruparRegistros, calcularBrevePiloto } from '../progressoRota'
 
 function RegistroNoBreve({ registro, link }: { registro: RegistroDeVoo; link: string }) {
@@ -92,13 +93,16 @@ export function PaginaBreve() {
   const visao = rota ? calcularBrevePiloto(rota, registros) : null
   const xpExibido = resumoCarreira ? Math.max(resumoCarreira.xpTotal, estadoAcademia.xp) : estadoAcademia.xp
 
+  const destinoDaPratica = useDestinoDaPratica()
+
+  /** Escala liberada (ou modo de demonstração): Cabine da missão. Bloqueada: Plano de voo, nunca a Cabine. */
   function praticar(nivel: NivelEducacional) {
-    // Os portões da Cabine decidem se o nível já pode ser aberto.
-    navegar(
-      ehIdMissao(nivel.cenarioId)
-        ? enderecoDe({ pagina: 'cabine', missao: nivel.cenarioId, semente: null, causa: null, nova: false })
-        : enderecoDe({ pagina: 'plano-de-voo' }),
-    )
+    navegar(destinoDaPratica(nivel.cenarioId).endereco)
+  }
+
+  function avisoDaPratica(nivel: NivelEducacional): string | null {
+    const destino = destinoDaPratica(nivel.cenarioId)
+    return destino.tipo === 'plano-de-voo' ? destino.aviso : null
   }
 
   return (
@@ -132,6 +136,7 @@ export function PaginaBreve() {
         onApelidoChange={setApelido}
         onAtualizarCarreira={(nome) => void atualizarResumoCarreira(undefined, nome)}
         onPraticar={praticar}
+        avisoDaPratica={avisoDaPratica}
         nivelTitulo={2}
       />
       <PainelComandante papel="mentor" pagina="breve" />

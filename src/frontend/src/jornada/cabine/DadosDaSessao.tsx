@@ -1,4 +1,5 @@
 import { Icone } from '../../ui/Icone'
+import { nomeDaEscalaDaMissao } from '../catalogos/catalogoRotas'
 import { useVoo } from '../contextosJornada'
 
 /**
@@ -8,10 +9,12 @@ import { useVoo } from '../contextosJornada'
 export function DadosDaSessao() {
   const { sessao, gaveta, setGaveta } = useVoo()
   if (!sessao) return null
+  // Escala e Vertente vêm do Catálogo de Rotas. O texto de `meta.nivel` do servidor segue a escada antiga.
+  const nomeDaEscala = nomeDaEscalaDaMissao(sessao.meta.cenarioId) ?? sessao.meta.nivel
   return (
     <div className="barra-contexto-acoes">
       <span className="dado-contexto hide-sm">
-        <span className="dado-contexto-rotulo">Nível</span> {sessao.meta.nivel}
+        <span className="dado-contexto-rotulo">Escala</span> {nomeDaEscala}
       </span>
       <span className="dado-contexto">
         <Icone nome="relogio" tamanho={16} />

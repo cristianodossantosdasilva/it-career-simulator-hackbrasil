@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest'
-import { cleanup, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { criarArmazenamentoFalso, registroDeTeste } from '../../testes/armazenamentoFalso'
 import { CHAVE_REGISTROS_VOO, serializarRegistros } from '../armazenamento/registrosVoo'
@@ -82,5 +82,50 @@ describe('Página Brevê', () => {
     abrir()
     expect(screen.getByRole('heading', { level: 2, name: 'Credencial' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /Comandante, papel Mentor/ })).toBeInTheDocument()
+  })
+})
+
+describe('Credencial: atalhos de prática respeitam os portões', () => {
+  function linhaDoNivel(nome: string): HTMLElement {
+    return screen.getByText(nome, { selector: 'strong' }).closest('li') as HTMLElement
+  }
+
+  it('lista os seis níveis da trilha, na ordem do Catálogo de Rotas', () => {
+    abrir()
+    const nomes = screen.getAllByText(/^Teoria \d+%, Fixação \d+%, Prática \d+%$/).map((item) => item.previousElementSibling?.textContent)
+    expect(nomes).toEqual([
+      'Help Desk N1',
+      'Service Desk N1 Jr',
+      'N2 Pleno',
+      'N3-A Redes e Nuvem',
+      'N3-B Data Center e Backup',
+      'N3-C Segurança e Dados',
+    ])
+  })
+
+  it('escala liberada: Praticar leva à Cabine da missão', () => {
+    abrir()
+    fireEvent.click(within(linhaDoNivel('Help Desk N1')).getByRole('button', { name: 'Praticar' }))
+    expect(window.location.pathname).toBe('/cabine/reset-senha-desbloqueio')
+  })
+
+  it('escala bloqueada: mostra o estado e leva ao Plano de voo, nunca à Cabine', () => {
+    window.history.replaceState(null, '', '/breve')
+    abrir()
+    const linha = linhaDoNivel('N2 Pleno')
+    expect(within(linha).queryByRole('button', { name: 'Praticar' })).not.toBeInTheDocument()
+    expect(within(linha).getByText(/A escala N2 Pleno ainda não está liberada/)).toBeInTheDocument()
+    const botao = within(linha).getByRole('button', { name: 'Ver o Plano de voo' })
+    expect(botao).toHaveAccessibleDescription(/ainda não está liberada/)
+    fireEvent.click(botao)
+    expect(window.location.pathname).toBe('/plano-de-voo')
+  })
+
+  it('com os registros anteriores, a N2 Pleno passa a levar à Cabine', () => {
+    abrir(['reset-senha-desbloqueio', 'pasta-rede-inacessivel'])
+    const linha = linhaDoNivel('N2 Pleno')
+    expect(within(linha).queryByText(/ainda não está liberada/)).not.toBeInTheDocument()
+    fireEvent.click(within(linha).getByRole('button', { name: 'Praticar' }))
+    expect(window.location.pathname).toBe('/cabine/incidente-massivo')
   })
 })
