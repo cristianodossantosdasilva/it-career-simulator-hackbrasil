@@ -242,4 +242,84 @@ public class PropriedadesCenariosPorEscalaTests
         Assert.Equal(JsonSerializer.Serialize(s.Estado.Meta), JsonSerializer.Serialize(rec.Meta));
         Assert.Equal(s.Avaliar().CurriculoVivo.HashAuditoriaSha256,
             Simulador.Avaliacao.Juiz360.Avaliar(rec, s.Eventos).CurriculoVivo.HashAuditoriaSha256);
+    }
+
+    private const string CenarioBackup = "falha-backup-restore";
+
+    private static void FluxoCompletoBackup(SessaoDeTeste s, string causa)
+    {
+        s.Aplicar("itsm.assumir_chamado", new { chamadoId = "CH-0001" });
+        s.Aplicar("itsm.classificar_chamado", new { chamadoId = "CH-0001", categoria = "Incidente", urgencia = "Alta", impacto = "Alto" });
+        s.Comando("backup log");
+        s.Aplicar("dialogo.pedir_pista");
+        s.Aplicar("estacao.elevar_privilegio");
+        if (causa == "REPOSITORIO_CHEIO")
+        {
+            s.Comando("backup repo expandir");
+            s.Comando("backup job executar");
+        }
+        s.Aplicar("itsm.resolver_chamado", new { chamadoId = "CH-0001", notaPublica = "Backup restabelecido." });
+    }
+
+    // Feature: cenarios-por-escala, Property 1: Reconstrucao equivalente (falha-backup-restore)
+    // Validates: Requirements 15.2, 15.3
+    [Theory]
+    [MemberData(nameof(Sementes50))]
+    public void Propriedade1_ReconstrucaoEquivalente_RepositorioCheio(long semente)
+    {
+        var s = SessaoDeTeste.Iniciar(CenarioBackup, Versao, "REPOSITORIO_CHEIO", semente);
+        FluxoCompletoBackup(s, "REPOSITORIO_CHEIO");
+
+        var rec = s.Reconstruir();
+        Assert.Equal(JsonSerializer.Serialize(s.Estado.Estacao), JsonSerializer.Serialize(rec.Estacao));
+        Assert.Equal(JsonSerializer.Serialize(s.Estado.Dialogo), JsonSerializer.Serialize(rec.Dialogo));
+        Assert.Equal(JsonSerializer.Serialize(s.Estado.Meta), JsonSerializer.Serialize(rec.Meta));
+        Assert.Equal(s.Avaliar().CurriculoVivo.HashAuditoriaSha256,
+            Simulador.Avaliacao.Juiz360.Avaliar(rec, s.Eventos).CurriculoVivo.HashAuditoriaSha256);
+    }
+
+    // Feature: cenarios-por-escala, Property 2: Determinismo do Sorteio (falha-backup-restore)
+    // Validates: Requirements 11.2, 15.3
+    [Theory]
+    [MemberData(nameof(Sementes200))]
+    public void Propriedade2_SorteioDoBackup_EDeterministicoEForcarACausaSubstituiSoACausa(long semente)
+    {
+        var catalogo = new CatalogoCenarios();
+        var a = catalogo.Obter(CenarioBackup, Versao, null, semente);
+        var b = catalogo.Obter(CenarioBackup, Versao, null, semente);
+        Assert.Equal(a.Causa, b.Causa);
+        Assert.Contains(a.Causa, CausasBackupEntregues);
+        foreach (var causa in CausasBackupEntregues)
+            Assert.Equal(causa, catalogo.Obter(CenarioBackup, Versao, causa, semente).Causa);
+        Assert.Equal(a.Causa, catalogo.Obter(CenarioBackup, Versao, "CAUSA_INEXISTENTE", semente).Causa);
+    }
+
+    private static readonly string[] CausasBackupEntregues = ["REPOSITORIO_CHEIO"];
+
+    public static IEnumerable<object[]> AcoesInvalidasDoBackup()
+    {
+        foreach (var semente in Sementes(15, 0x5EEDUL))
+        {
+            yield return new object[] { "estacao.executar_comando", "{\"comando\":\"\"}", semente };
+            yield return new object[] { "estacao.executar_comando", "{}", semente };
+            yield return new object[] { "itsm.resolver_chamado", "{\"chamadoId\":\"CH-0001\"}", semente };
+            yield return new object[] { "estacao.reiniciar_servico", "{\"servico\":\"JobBackupFinanceiro\"}", semente };
+            yield return new object[] { "estacao.adicionar_usuario_grupo", "{}", semente };
+        }
+    }
+
+    // Feature: cenarios-por-escala, Property 5: Rejeicao nao muda estado
+    // Validates: Requirement 15.5
+    [Theory]
+    [MemberData(nameof(AcoesInvalidasDoBackup))]
+    public void Propriedade5_AcaoComArgumentosInvalidos_RejeitaSemMudarEstado(string tipo, string json, long semente)
+    {
+        var s = SessaoDeTeste.Iniciar(CenarioBackup, Versao, "REPOSITORIO_CHEIO", semente);
+        var antes = JsonSerializer.Serialize(s.Estado.Estacao) + JsonSerializer.Serialize(s.Estado.Dialogo) + JsonSerializer.Serialize(s.Estado.Itsm);
+        var dados = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json);
+        var res = Motor.Aplicar(s.Estado, new Acao(tipo, dados), s.Cenario);
+        Assert.Single(res.Eventos);
+        Assert.Equal("AcaoRejeitada", res.Eventos[0].Tipo);
+        var depois = JsonSerializer.Serialize(res.NovoEstado.Estacao) + JsonSerializer.Serialize(res.NovoEstado.Dialogo) + JsonSerializer.Serialize(res.NovoEstado.Itsm);
+        Assert.Equal(antes, depois);
     }}

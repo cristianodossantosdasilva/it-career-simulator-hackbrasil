@@ -18,6 +18,7 @@ internal static class ComandosPorEscala
         {
             "reset-senha-desbloqueio" => ExecutarResetSenha(estado, texto, cenario),
             "pasta-rede-inacessivel" => ExecutarPastaRede(estado, texto, cenario),
+            "falha-backup-restore" => ExecutarBackup(estado, texto, cenario),
             _ => null
         };
     }
@@ -269,4 +270,136 @@ internal static class ComandosPorEscala
             "C2" => "Erro de sistema 53. O caminho de rede nao foi encontrado.",
             _ => "Erro de sistema 2250. O servico Workstation nao esta em execucao."
         });
+    }
+
+    // ---------------------------------------------------------------- falha-backup-restore
+
+    private const string MensagemExigeElevado = "Erro: a operacao exige privilegio Elevado.";
+    private const string CaminhoRestauracao = @"\\fileserver.aurora.local\Financeiro";
+
+    private static ResultadoComandoEscala ExecutarBackup(EstadoSessao estado, string comando, DefinicaoCenario cenario)
+    {
+        var partes = comando.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var sub = partes.Length > 1 ? partes[1].ToLowerInvariant() : "";
+        var acao = partes.Length > 2 ? partes[2].ToLowerInvariant() : "";
+        var elevado = estado.Estacao.Privilegio == PrivilegioTerminal.Elevado;
+        var status = (string nome) => EfeitosDeEventos.StatusServico(estado.Estacao, nome);
+
+        switch (sub)
+        {
+            case "status":
+                return Resultado(estado,
+                    $"JobBackupFinanceiro: {status("JobBackupFinanceiro")} | repositorio bkp-repo.aurora.local | copia imutavel: Disponivel (retencao 30 dias)");
+
+            case "log":
+                return Resultado(estado, TextoLogBackup(estado, cenario));
+
+            case "repo" when acao.Length == 0:
+                return Resultado(estado, TextoRepositorio(estado, cenario));
+
+            case "repo" when acao == "expandir":
+                if (!elevado) return Resultado(estado, MensagemExigeElevado);
+                return ExpandirRepositorio(estado, cenario);
+
+            case "repo" when acao == "limpar":
+                if (!elevado) return Resultado(estado, MensagemExigeElevado);
+                return Resultado(estado,
+                    "Pontos antigos removidos. ATENCAO: retencao de 30 dias comprometida.",
+                    Ev("AcaoPrejudicialRegistrada",
+                        ("categoria", "backup"),
+                        ("motivo", "Remocao de pontos de restauracao compromete a retencao")));
+
+            case "job" when acao == "executar":
+                return ExecutarJob(estado, cenario);
+
+            case "cadeia" when acao == "verificar":
+                return Resultado(estado, TextoCadeia(cenario));
+
+            case "restore":
+                if (!elevado) return Resultado(estado, MensagemExigeElevado);
+                return Restaurar(estado, comando, cenario);
+
+            case "repo":
+                return Resultado(estado, "Argumento invalido para backup repo. Use: expandir ou limpar.");
+            case "job":
+                return Resultado(estado, "Uso: backup job executar");
+            case "cadeia":
+                return Resultado(estado, "Uso: backup cadeia verificar");
+            default:
+                // O prefixo declarado casou so por texto (por exemplo "backup statusx"): nao e um comando do cenario.
+                return Resultado(estado, $"'{comando}' nao faz parte dos comandos declarados para este cenario.");
+        }
+    }
+
+    private static string TextoLogBackup(EstadoSessao estado, DefinicaoCenario cenario)
+    {
+        var falha = cenario.Causa switch
+        {
+            "REPOSITORIO_CHEIO" => "[ERROR] Job BKP-FIN-DIARIO falhou: sem espaco no repositorio (capacidade 100%, 0 GB livres).",
+            _ => throw new InvalidOperationException($"Causa sem log de backup: {cenario.Causa}")
+        };
+        return EfeitosDeEventos.StatusServico(estado.Estacao, "JobBackupFinanceiro") == "Succeeded"
+            ? falha + " | [INFO] Job BKP-FIN-DIARIO executado manualmente: sucesso."
+            : falha;
+    }
+
+    private static string TextoRepositorio(EstadoSessao estado, DefinicaoCenario cenario) =>
+        cenario.Causa switch
+        {
+            "REPOSITORIO_CHEIO" => EfeitosDeEventos.StatusServico(estado.Estacao, "RepositorioBackup") == "Expandido"
+                ? "Repositorio bkp-repo.aurora.local: 63% usado (capacidade expandida para 160% da anterior)."
+                : "Repositorio bkp-repo.aurora.local: 100% usado.",
+            _ => throw new InvalidOperationException($"Causa sem estado de repositorio: {cenario.Causa}")
+        };
+
+    private static ResultadoComandoEscala ExpandirRepositorio(EstadoSessao estado, DefinicaoCenario cenario)
+    {
+        if (EfeitosDeEventos.StatusServico(estado.Estacao, "RepositorioBackup") == "Expandido")
+            return Resultado(estado, "O repositorio ja foi expandido para 160% da capacidade anterior.");
+        return Resultado(estado, "Repositorio expandido para 160% da capacidade anterior.",
+            Ev("RepositorioExpandido", ("privilegio", estado.Estacao.Privilegio.ToString())));
+    }
+
+    private static ResultadoComandoEscala ExecutarJob(EstadoSessao estado, DefinicaoCenario cenario)
+    {
+        if (EfeitosDeEventos.StatusServico(estado.Estacao, "JobBackupFinanceiro") == "Succeeded")
+            return Resultado(estado, "O job ja foi executado com sucesso; nada a fazer.");
+        if (EfeitosDeEventos.StatusServico(estado.Estacao, "RepositorioBackup") != "Expandido")
+            return Resultado(estado, "Job falhou: sem espaco no repositorio.");
+        return Resultado(estado, "Job executado com sucesso.",
+            Ev("BackupConcluido", ("privilegio", estado.Estacao.Privilegio.ToString())));
+    }
+
+    private static string TextoCadeia(DefinicaoCenario cenario) =>
+        cenario.Causa switch
+        {
+            "REPOSITORIO_CHEIO" => "Cadeia incremental: INTEGRA. Copia imutavel: INTEGRA.",
+            _ => throw new InvalidOperationException($"Causa sem verificacao de cadeia: {cenario.Causa}")
+        };
+
+    private static ResultadoComandoEscala Restaurar(EstadoSessao estado, string comando, DefinicaoCenario cenario)
+    {
+        var partes = comando.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        string? origem = null, destino = null;
+        for (var i = 2; i + 1 < partes.Length; i += 2)
+        {
+            if (string.Equals(partes[i], "--origem", StringComparison.OrdinalIgnoreCase)) origem = partes[i + 1].ToLowerInvariant();
+            else if (string.Equals(partes[i], "--destino", StringComparison.OrdinalIgnoreCase)) destino = partes[i + 1];
+            else break;
+        }
+        var argumentosValidos = partes.Length == 6 && origem is "imutavel" or "incremental" &&
+                                string.Equals(destino, CaminhoRestauracao, StringComparison.OrdinalIgnoreCase);
+        if (!argumentosValidos)
+            return Resultado(estado, $@"Uso: backup restore --origem imutavel|incremental --destino {CaminhoRestauracao}");
+
+        return cenario.Causa switch
+        {
+            "REPOSITORIO_CHEIO" => origem == "imutavel"
+                ? Resultado(estado, "Restauracao concluida a partir da copia imutavel. ATENCAO: alteracoes do dia na pasta Financeiro foram sobrescritas.",
+                    Ev("AcaoPrejudicialRegistrada",
+                        ("categoria", "backup"),
+                        ("motivo", "Restauracao sobre dados integros sobrescreve alteracoes do dia")))
+                : Resultado(estado, "Restauracao desnecessaria: a pasta Financeiro esta integra."),
+            _ => throw new InvalidOperationException($"Causa sem regra de restauracao: {cenario.Causa}")
+        };
     }}

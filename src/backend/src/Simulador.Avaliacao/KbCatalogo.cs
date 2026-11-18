@@ -41,6 +41,9 @@ public static class KbCatalogo
         ["kb://sql/resolucao-auditoria"] = "KB-026",
         // Cenarios por escala: Help Desk N1 (acesso e identidade)
         ["kb://acesso/reset-desbloqueio-e-troca"] = "KB-027",
+        // Cenarios por escala: Data Center e Backup (N3-B)
+        ["kb://backup/diagnostico-de-job"] = "KB-030",
+        ["kb://backup/copia-imutavel-e-retencao"] = "KB-031",
         // Cenarios por escala: solicitacao de servico (C4 de pasta-rede-inacessivel)
         ["kb://itsm/solicitacao-de-servico"] = "KB-032",
     };

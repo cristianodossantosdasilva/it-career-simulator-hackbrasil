@@ -146,4 +146,94 @@ public static partial class Juiz360
             new CurriculoVivo(estado.Meta.Nivel, xp, competencias, CalcularHashTrilha(eventos)),
             $"{atendidos}/{criterios.Count} criterios atendidos | XP: {xp}");
     }
-}
+
+    // ------------------------------------------------------------------ falha-backup-restore
+
+    private static RelatorioAvaliacao AvaliarBackup(EstadoSessao estado, IReadOnlyList<EnvelopeEvento> eventos)
+    {
+        var criterios = new List<CriterioAvaliacao>();
+        var principal = estado.Itsm.Chamados.FirstOrDefault();
+        var causa = estado.Meta.Causa;
+
+        // Evento corretivo da Causa (B4) e primeiro Evento corretivo de qualquer tipo (limite do diagnostico, B2).
+        var primeiroCorretivo = eventos.FirstOrDefault(e => e.Tipo is "RepositorioExpandido" or "BackupConcluido" or "PastaFinanceiroRestaurada");
+        var corretivo = causa == "CADEIA_CORROMPIDA"
+            ? eventos.FirstOrDefault(e => e.Tipo == "PastaFinanceiroRestaurada" && Dado(e, "origem") == "imutavel")
+            : eventos.FirstOrDefault(e => e.Tipo == "BackupConcluido");
+
+        var classificado = eventos.FirstOrDefault(e => e.Tipo == "ChamadoClassificado" &&
+            principal is not null && string.Equals(Dado(e, "chamadoId"), principal.Id, StringComparison.OrdinalIgnoreCase));
+        criterios.Add(new("B1", "Classificou o chamado principal no ITSM", classificado is not null, classificado?.Seq,
+            classificado is not null ? "Chamado classificado com categoria, urgencia e impacto." : "Chamado nao foi classificado.",
+            "Classifique o chamado com categoria, urgencia e impacto para calcular o SLA.",
+            "kb://itsm/classificacao-sla"));
+
+        var diagnostico = eventos.FirstOrDefault(e =>
+            e.Tipo == "LogsConsultados" ||
+            (e.Tipo == "ComandoExecutado" && Dado(e, "comando")?.TrimStart().StartsWith("backup log", StringComparison.OrdinalIgnoreCase) == true));
+        var b2 = diagnostico is not null && (primeiroCorretivo is null || diagnostico.Seq < primeiroCorretivo.Seq);
+        criterios.Add(new("B2", "Diagnosticou o job pelo log antes de agir", b2, diagnostico?.Seq,
+            b2 ? "Log do job consultado antes de qualquer correcao." : "Correcao aplicada sem consultar o log do job.",
+            "Execute backup log: o log diz o que impediu o backup.",
+            "kb://backup/diagnostico-de-job"));
+
+        var b3 = corretivo is not null && FoiComPrivilegioElevado(eventos, corretivo);
+        criterios.Add(new("B3", "Aplicou a correcao com privilegio Elevado", b3, corretivo?.Seq,
+            b3 ? "Correcao aplicada com privilegio Elevado." : "A correcao nao foi aplicada com privilegio Elevado.",
+            "Operacoes de backup e restore exigem privilegio elevado: eleve o privilegio antes de agir.",
+            "kb://servicos/privilegio-elevado"));
+
+        var b4 = corretivo is not null;
+        criterios.Add(new("B4", "Aplicou a correcao da causa", b4, corretivo?.Seq,
+            b4 ? "A correcao adequada a causa foi aplicada." : "Nenhuma correcao adequada a causa foi aplicada.",
+            causa == "CADEIA_CORROMPIDA"
+                ? "Quando a cadeia incremental esta corrompida, restaure a partir da copia imutavel integra."
+                : "Quando o repositorio esta sem espaco, expanda o repositorio e execute o job de novo.",
+            causa == "CADEIA_CORROMPIDA" ? "kb://backup/copia-imutavel-e-retencao" : "kb://backup/diagnostico-de-job"));
+
+        var prejudicial = eventos.FirstOrDefault(e => e.Tipo == "AcaoPrejudicialRegistrada");
+        var b5 = prejudicial is null;
+        criterios.Add(new("B5", "Nenhuma acao destrutiva sobre retencao ou dados integros", b5, prejudicial?.Seq,
+            b5 ? "Nenhuma acao prejudicial registrada." : $"Acao prejudicial detectada: {Dado(prejudicial!, "motivo")}",
+            "Apagar pontos de restauracao ou restaurar sobre dados integros nao e um atalho seguro.",
+            "kb://backup/copia-imutavel-e-retencao"));
+
+        var resolvido = eventos.FirstOrDefault(e => e.Tipo == "ChamadoResolvido" &&
+            principal is not null && string.Equals(Dado(e, "chamadoId"), principal.Id, StringComparison.OrdinalIgnoreCase));
+        var b6 = resolvido is not null && corretivo is not null && resolvido.Seq > corretivo.Seq &&
+                 principal!.Notas.Any(n => n.Tipo == TipoNota.Publica && !string.IsNullOrWhiteSpace(n.Texto)) &&
+                 !principal.SlaVencido;
+        criterios.Add(new("B6", "Resolveu depois do restabelecimento, com nota publica e dentro do SLA", b6, resolvido?.Seq,
+            b6 ? "Chamado resolvido apos o restabelecimento, com nota publica e dentro do SLA." : "Chamado resolvido antes do restabelecimento, sem nota publica ou fora do SLA.",
+            "Resolva o chamado so depois de restabelecer o servico e registre o que foi feito em nota publica.",
+            "kb://itsm/resolucao-chamado"));
+
+        var b7 = false;
+        if (causa == "CADEIA_CORROMPIDA")
+        {
+            var restauracao = eventos.FirstOrDefault(e => e.Tipo == "PastaFinanceiroRestaurada");
+            var verificacao = eventos.FirstOrDefault(e => e.Tipo == "ComandoExecutado" &&
+                Dado(e, "comando")?.TrimStart().StartsWith("backup cadeia", StringComparison.OrdinalIgnoreCase) == true);
+            b7 = verificacao is not null && restauracao is not null && verificacao.Seq < restauracao.Seq;
+            criterios.Add(new("B7", "Verificou a cadeia antes de restaurar", b7, verificacao?.Seq,
+                b7 ? "Cadeia verificada antes da restauracao." : "Restauracao sem verificar a cadeia antes, ou cadeia nunca verificada.",
+                "Execute backup cadeia verificar para saber qual copia esta integra antes de restaurar.",
+                "kb://backup/copia-imutavel-e-retencao"));
+        }
+
+        var atendidos = criterios.Count(c => c.Atendido);
+        var xp = Math.Max(0, atendidos * 20 - (b5 ? 0 : 25));
+
+        var competencias = new List<string>();
+        if (b2) competencias.Add("Diagnostico de Backup por Log");
+        if (b3 && b4) competencias.Add("Recuperacao de Dados e Restore");
+        if (b5) competencias.Add("Seguranca Operacional");
+        var concluida = principal?.Status is StatusChamado.Resolvido or StatusChamado.Encerrado && estado.Estacao.CompartilhamentoAcessivel;
+        return new RelatorioAvaliacao(
+            concluida,
+            criterios,
+            !b5,
+            xp,
+            new CurriculoVivo(estado.Meta.Nivel, xp, competencias, CalcularHashTrilha(eventos)),
+            $"{atendidos}/{criterios.Count} criterios atendidos | XP: {xp}");
+    }}

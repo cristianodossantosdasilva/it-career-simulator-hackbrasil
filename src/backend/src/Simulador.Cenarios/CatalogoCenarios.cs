@@ -16,6 +16,7 @@ public sealed partial class CatalogoCenarios : ICatalogoCenarios
             ("sre-cloud-latencia", "v2.0") => true,
             ("diagnostico-sql-readonly", "v2.0") => true,
             ("reset-senha-desbloqueio", "v0.1-hackathon") => true,
+            ("falha-backup-restore", "v0.1-hackathon") => true,
             _ => false
         };
 
@@ -32,6 +33,7 @@ public sealed partial class CatalogoCenarios : ICatalogoCenarios
             "sre-cloud-latencia" => CriarSreCloud(versaoManifesto, causaForcada, semente),
             "diagnostico-sql-readonly" => CriarSqlReadOnly(versaoManifesto),
             "reset-senha-desbloqueio" => CriarResetSenha(versaoManifesto, causaForcada, semente),
+            "falha-backup-restore" => CriarBackupRestore(versaoManifesto, causaForcada, semente),
             _ => throw new ArgumentException($"Cenario desconhecido: {cenarioId}")
         };
     }

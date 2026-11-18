@@ -30,6 +30,9 @@ public sealed class FallbackRoteirizadoDialogo : IClienteDialogo
         if (estado.Meta.CenarioId == "reset-senha-desbloqueio")
             return ResponderClienteResetSenha(estado, texto);
 
+        if (estado.Meta.CenarioId == "falha-backup-restore")
+            return ResponderClienteBackup(estado);
+
         if (texto.Contains("matricula") || texto.Contains("ramal") || texto.Contains("identifica"))
             return "Minha matrícula é AUR-1042 e meu ramal é 2042. Pode conferir os dois no formulário antes de liberar o SimuDesk.";
 
@@ -76,6 +79,8 @@ public sealed class FallbackRoteirizadoDialogo : IClienteDialogo
         var nivel = estado.Dialogo.Mensagens.Count(m => m.Remetente == "techlead");
         if (estado.Meta.CenarioId == "reset-senha-desbloqueio")
             return ResponderTechLeadResetSenha(estado, nivel);
+        if (estado.Meta.CenarioId == "falha-backup-restore")
+            return ResponderTechLeadBackup(nivel);
         if (estado.Meta.CenarioId == "sre-cloud-latencia")
         {
             if (texto.Contains("post") || texto.Contains("causa") || texto.Contains("resolver"))
@@ -147,6 +152,23 @@ public sealed class FallbackRoteirizadoDialogo : IClienteDialogo
             _ => "Escolha a menor ação que resolve o sintoma e registre no chamado o motivo da escolha."
         };
     }
+
+    // falha-backup-restore: o dialogo so devolve texto; nenhuma resposta altera estado nem revela a Causa.
+    private static string ResponderClienteBackup(EstadoSessao estado) =>
+        estado.Meta.Causa switch
+        {
+            "REPOSITORIO_CHEIO" => "O backup de ontem não rodou e o fechamento precisa de cópia hoje.",
+            "CADEIA_CORROMPIDA" => "A pasta do fechamento abre com erro e os arquivos de ontem não leem.",
+            _ => "Estou aguardando o retorno sobre o chamado para conseguir voltar a trabalhar."
+        };
+
+    private static string ResponderTechLeadBackup(int nivel) =>
+        nivel switch
+        {
+            0 => "Comece pelo estado do job e pelo log da falha.",
+            1 => "Compare o estado do repositório, da cadeia e das cópias com o que o log diz antes de mudar qualquer coisa.",
+            _ => "Preserve a retenção e valide a cópia antes de sobrescrever qualquer dado."
+        };
 
     private static string SemAcento(string texto)
     {

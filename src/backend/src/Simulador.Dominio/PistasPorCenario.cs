@@ -19,6 +19,13 @@ internal static class PistasPorCenario
         "Pista 3: Depois de agir, confirme com a titular que o acesso voltou e registre no chamado o que foi feito e por que."
     ];
 
+    private static readonly string[] BackupRestore =
+    [
+        "Pista 1: Comece pelo estado do job e pelo log da falha; o log diz o que impediu o backup.",
+        "Pista 2: Compare o estado do repositorio e da cadeia com o log antes de qualquer mudanca. Apagar pontos de restauracao nao e um atalho seguro.",
+        "Pista 3: Operacoes de backup exigem privilegio elevado. Confirme com o dono da pasta antes de resolver o chamado."
+    ];
+
     internal static string Obter(string cenarioId, string causa, int indice)
     {
         if (indice < 0 || indice >= Maximo)
@@ -26,6 +33,7 @@ internal static class PistasPorCenario
         return cenarioId switch
         {
             "reset-senha-desbloqueio" => ResetSenha[indice],
+            "falha-backup-restore" => BackupRestore[indice],
             _ => Padrao[indice]
         };
     }

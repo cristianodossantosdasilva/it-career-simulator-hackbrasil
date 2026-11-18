@@ -261,6 +261,25 @@ export const KB_CATALOGO: ArtigoKb[] = [
     conteudo:
       'Reset, desbloqueio e troca de senha resolvem problemas diferentes. Antes de qualquer um, confirme a identidade da titular e leia o estado da conta no console. Senha esquecida pede reset com senha temporaria e troca obrigatoria. Conta bloqueada pede identificar de onde vem as tentativas antes de desbloquear, senao ela bloqueia de novo. Senha vencida pode ser trocada pela propria titular pelo autoatendimento. Escolha a menor acao que resolve o sintoma: a acao desnecessaria fica registrada na trilha do atendimento.',
   },
+  // === N3-B: Data Center e Backup (cenarios por escala) ===
+  {
+    id: 'KB-030',
+    uri: 'kb://backup/diagnostico-de-job',
+    titulo: 'Diagnostico de Job de Backup pelo Log',
+    categoria: 'Backup',
+    nivel: ['N3-B'],
+    conteudo:
+      'Quando um job de backup falha, o log do job diz o que impediu a execucao. Leia o estado do job e o log antes de qualquer mudanca, depois compare com o estado do repositorio e da cadeia de copias. Alteracoes de capacidade e execucao de jobs exigem privilegio elevado. Depois de corrigir, execute o job de novo e confirme o resultado antes de resolver o chamado com nota publica.',
+  },
+  {
+    id: 'KB-031',
+    uri: 'kb://backup/copia-imutavel-e-retencao',
+    titulo: 'Copia Imutavel, Cadeia e Retencao',
+    categoria: 'Backup',
+    nivel: ['N3-B'],
+    conteudo:
+      'A copia imutavel e a ultima linha de defesa dos dados: nao pode ser alterada nem apagada durante a retencao. A cadeia incremental depende de cada ponto anterior, entao um ponto invalido compromete os seguintes. Antes de restaurar, verifique a integridade da cadeia e das copias para escolher uma origem integra. Nunca apague pontos de restauracao para ganhar espaco e nunca restaure sobre dados integros: as duas acoes comprometem a retencao ou sobrescrevem trabalho do dia.',
+  },
   // === N1: Solicitacao de servico (cenarios por escala) ===
   {
     id: 'KB-032',
