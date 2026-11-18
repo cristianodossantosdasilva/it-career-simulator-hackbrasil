@@ -1,8 +1,8 @@
 import {
-  type CSSProperties,
   type KeyboardEvent,
   type PointerEvent,
   type ReactNode,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react'
@@ -89,10 +89,13 @@ export function SplitLabWorkspace({ guia, consola, gaveta, resumoGuia }: SplitLa
     salvarLargura(novo)
   }
 
-  const estilo = { '--guia-largura': `${largura}%` } as CSSProperties
+  // A largura do guia vai para a variável CSS pelo DOM, sem atributo de estilo no JSX.
+  useLayoutEffect(() => {
+    grade.current?.style.setProperty('--guia-largura', `${largura}%`)
+  }, [largura])
 
   return (
-    <div className={`lab-split ${gaveta ? 'com-gaveta' : ''}`} ref={grade} style={estilo} data-arrastando={arrastando}>
+    <div className={`lab-split ${gaveta ? 'com-gaveta' : ''}`} ref={grade} data-arrastando={arrastando}>
       <button
         type="button"
         className="lab-guia-alternar"

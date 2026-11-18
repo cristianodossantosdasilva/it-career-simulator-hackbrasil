@@ -1,32 +1,39 @@
-# React + TypeScript + Vite
+# Frontend do IT Flight Simulator
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Interface web do simulador. Ela mostra o estado e envia as ações do participante à API. Quem decide estado, comandos simulados, SLA e avaliação é o motor determinístico do backend.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19 e TypeScript, empacotados com Vite.
+- Estilos em um único `src/index.css`, com tokens de cor, espaço e tipografia nos temas tactical e corporate.
+- Testes unitários e de componentes com Vitest, Testing Library e jsdom.
+- Testes de ponta a ponta, contraste e capturas visuais com Playwright e axe-core.
+- Lint com Oxlint.
 
-## React Compiler
+## Comandos
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Execute a partir de `src/frontend`. No Windows use `npm.cmd`.
 
-## Expanding the Oxlint configuration
+| Comando | O que faz |
+|---|---|
+| `npm run dev` | Servidor de desenvolvimento do Vite. |
+| `npm run lint` | Oxlint. |
+| `npm test -- --run` | Vitest uma vez, sem modo de observação. |
+| `npm run build` | Verificação de tipos, build de produção e varredura de segredos no bundle. |
+| `npm run preview` | Serve o build gerado. |
+| `npm run test:e2e` | Playwright. Exige a API local em `http://localhost:8080` e o frontend em `http://localhost:5173`. |
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## Estrutura de `src`
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+`api` (cliente da API), `jornada` (rotas e fluxo de entrada), `educacao`, `workstation`, `lab`, `replay`, `apps`, `shell`, `tema`, `ui`, `textos`, `data`, `utils` e `testes`.
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Regras do código
+
+- Sem atributo `style` em arquivos `.tsx` (o teste `src/jornada/conformidade.test.ts` vigia): a aparência vem das classes e dos tokens de `index.css`.
+- Chaves de API nunca entram no bundle. A varredura roda no `build`.
+- Dados do simulador são sintéticos.
+
+## Mais informações
+
+- [README da raiz](../../README.md): visão geral do projeto, backend e implantação.
+- [docs/design/DESIGN.md](../../docs/design/DESIGN.md): direção visual, temas e acessibilidade.

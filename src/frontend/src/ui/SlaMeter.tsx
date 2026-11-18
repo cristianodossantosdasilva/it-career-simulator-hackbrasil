@@ -47,9 +47,7 @@ export function SlaMeter(props: SlaMeterProps) {
   return (
     <span className="sla" data-nivel={nivel}>
       {nivel !== 'sem-prazo' && (
-        <span className="sla-barra" aria-hidden="true">
-          <span className="sla-barra-nivel" style={{ width: `${Math.round(consumido * 100)}%` }} />
-        </span>
+        <progress className="sla-barra" aria-hidden="true" value={Math.round(consumido * 100)} max={100} />
       )}
       <span className="sla-texto dado-mono">{texto}</span>
     </span>

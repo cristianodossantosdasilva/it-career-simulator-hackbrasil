@@ -361,19 +361,16 @@ export function MentorView({ estado, onAtualizarEstado, nivelTitulo = 1 }: Mento
                   <strong>Clareza</strong>
                   <strong>{feyRes.score}/100</strong>
                 </div>
-                <div
+                <meter
                   className="meter mt"
-                  role="progressbar"
                   aria-label="Clareza da explicação"
-                  aria-valuenow={feyRes.score}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                >
-                  <span
-                    className={feyRes.score >= 80 ? 'meter-ok' : feyRes.score >= 55 ? 'meter-atencao' : 'meter-risco'}
-                    style={{ width: `${feyRes.score}%` }}
-                  />
-                </div>
+                  value={feyRes.score}
+                  min={0}
+                  max={100}
+                  low={55}
+                  high={80}
+                  optimum={100}
+                />
                 <p className="mt">
                   <strong>
                     {feyRes.score >= 80

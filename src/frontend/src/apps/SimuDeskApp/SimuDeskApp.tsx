@@ -166,9 +166,7 @@ function SrePainelCluster({ cluster, elevado, ocupado, onAcao }: { cluster: Clus
 
       <div className="painel-bloco" role="region" aria-label="Pool PgBouncer">
         <h3>PgBouncer Pool</h3>
-        <div className="pool-meter" role="meter" aria-valuenow={cluster.pgbouncerPool.ativas} aria-valuemin={0} aria-valuemax={cluster.pgbouncerPool.limite} aria-label="Conexões ativas">
-          <div className="pool-bar" data-critico={poolCritico} style={{ width: `${(cluster.pgbouncerPool.ativas / cluster.pgbouncerPool.limite) * 100}%` }} />
-        </div>
+        <meter className="pool-meter" data-critico={poolCritico} min={0} max={cluster.pgbouncerPool.limite} value={cluster.pgbouncerPool.ativas} aria-label="Conexões ativas" />
         <div className="pool-stats">
           <span className={poolCritico ? 'text-danger' : ''}>Ativas: <strong>{cluster.pgbouncerPool.ativas}</strong>/{cluster.pgbouncerPool.limite}</span>
           <span className={cluster.pgbouncerPool.espera > 10 ? 'text-warn' : ''}>Aguardando: <strong>{cluster.pgbouncerPool.espera}</strong></span>

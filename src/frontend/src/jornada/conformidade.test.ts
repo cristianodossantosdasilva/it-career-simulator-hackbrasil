@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 /**
  * Conformidade textual da jornada e do sistema de temas: varre os fontes por import.meta.glob e falha se aparecer E comercial
- * em texto ou nome de arquivo, emoji, estilo inline, cor hexadecimal fora de index.css ou a chave do modo
+ * em texto ou nome de arquivo, emoji, atributo style em .tsx de produção, cor hexadecimal fora de index.css ou a chave do modo
  * de demonstração fora do módulo dele.
  */
 const FONTES = import.meta.glob('/src/**/*.{ts,tsx}', { query: '?raw', import: 'default', eager: true }) as Record<
@@ -71,14 +71,12 @@ describe('Conformidade da jornada', () => {
     }
   })
 
-  it('não há estilo inline na jornada, e fora dela só para largura dinâmica', () => {
-    for (const [caminho, texto] of ESCOPO) {
-      const linhas = linhasQue(texto, (linha) => {
-        if (!linha.includes('style={{')) return false
-        const larguraDinamica = /style=\{\{\s*width:\s*`/.test(linha)
-        return caminho.startsWith('/src/jornada/') || !larguraDinamica
-      })
-      expect(linhas, `${caminho} tem estilo inline nas linhas ${linhas.join(', ')}`).toEqual([])
+  it('nenhum .tsx de produção do projeto tem o atributo style', () => {
+    const producao = Object.entries(FONTES).filter(([caminho]) => caminho.endsWith('.tsx') && !ehTeste(caminho))
+    expect(producao.length).toBeGreaterThan(50)
+    for (const [caminho, texto] of producao) {
+      const linhas = linhasQue(texto, (linha) => /\bstyle\s*=/.test(linha))
+      expect(linhas, `${caminho} tem style= nas linhas ${linhas.join(', ')}`).toEqual([])
     }
   })
 

@@ -147,16 +147,7 @@ export function AulasView({
             <span>Teoria</span>
             <strong>{pr.t}%</strong>
           </div>
-          <div
-            className="bar theory"
-            role="progressbar"
-            aria-label="Progresso da teoria"
-            aria-valuenow={pr.t}
-            aria-valuemin={0}
-            aria-valuemax={100}
-          >
-            <span style={{ width: `${pr.t}%` }} />
-          </div>
+          <progress className="bar theory" aria-label="Progresso da teoria" value={pr.t} max={100} />
 
           <ol className="lesson-list">
             {ls.map((l, i) => {
