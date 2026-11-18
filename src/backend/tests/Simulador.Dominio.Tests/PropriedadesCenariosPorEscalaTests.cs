@@ -9,7 +9,7 @@ public class PropriedadesCenariosPorEscalaTests
 {
     private const string Cenario = "reset-senha-desbloqueio";
     private const string Versao = "v0.1-hackathon";
-    private static readonly string[] CausasReset = ["SENHA_ESQUECIDA", "CONTA_BLOQUEADA"];
+    private static readonly string[] CausasReset = ["SENHA_ESQUECIDA", "CONTA_BLOQUEADA", "SENHA_EXPIRADA"];
 
     private static IEnumerable<long> Sementes(int quantidade, ulong origem)
     {
@@ -53,7 +53,12 @@ public class PropriedadesCenariosPorEscalaTests
             s.Comando("discar 2087");
         }
         s.Aplicar("dialogo.verificar_identidade", new { matricula = "AUR-2087", ramal = "2087" });
-        s.Comando(causa == "CONTA_BLOQUEADA" ? "desbloquear-conta fernanda.lima" : "redefinir-senha fernanda.lima");
+        s.Comando(causa switch
+        {
+            "CONTA_BLOQUEADA" => "desbloquear-conta fernanda.lima",
+            "SENHA_EXPIRADA" => "enviar-link-troca fernanda.lima",
+            _ => "redefinir-senha fernanda.lima"
+        });
         s.Aplicar("dialogo.pedir_pista");
         s.Aplicar("itsm.resolver_chamado", new { chamadoId = "CH-0001", notaPublica = "Senha temporaria entregue a titular." });
 
@@ -143,6 +148,23 @@ public class PropriedadesCenariosPorEscalaTests
             Assert.Empty(s.De("AcessoContaRestabelecido"));
             Assert.Equal("Bloqueada", status);
         }
+    }
+
+    // Feature: cenarios-por-escala, Property 9: Criterios do Juiz_360 deterministicos
+    // Validates: Requirements 6.7, 15.3, 17.3
+    [Theory]
+    [MemberData(nameof(CausasESementes50))]
+    public void Propriedade9_Juiz360_EDeterministicoETodoLinkKbExisteNoCatalogo(string causa, long semente)
+    {
+        var s = SessaoDeTeste.Iniciar(Cenario, Versao, causa, semente);
+        AbrirEVerificarSeNecessario(s);
+        s.Comando("net user fernanda.lima");
+        s.Comando("redefinir-senha fernanda.lima");
+        var a = s.Avaliar();
+        var b = s.Avaliar();
+        Assert.Equal(JsonSerializer.Serialize(a), JsonSerializer.Serialize(b));
+        Assert.Equal(a.CurriculoVivo.HashAuditoriaSha256, b.CurriculoVivo.HashAuditoriaSha256);
+        Assert.All(a.Criterios, c => Assert.Contains(c.LinkKb!, Simulador.Avaliacao.KbCatalogo.UriParaId.Keys));
     }
 
     // Feature: cenarios-por-escala, Property 6: Comando fora da lista

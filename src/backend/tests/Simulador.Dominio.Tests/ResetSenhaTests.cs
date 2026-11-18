@@ -380,4 +380,90 @@ public class ResetSenhaTests
         Assert.Empty(s.De("ContaDesbloqueada"));
         Assert.True(s.Avaliar().IncidenteSeguranca);
     }
+
+    // ------------------------------------------------------------ SENHA_EXPIRADA
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void SenhaExpirada_FluxoCorretoComLinkDeTroca_AtendeH1aH8(bool porTerceiro)
+    {
+        var s = Nova("SENHA_EXPIRADA", porTerceiro);
+        Assert.Equal("SenhaExpirada", StatusConta(s.Estado));
+        Abrir(s);
+        s.Comando("net user fernanda.lima");
+        Assert.Contains("EXPIRADA", s.UltimaSaida());
+        if (porTerceiro)
+        {
+            s.Comando("diretorio fernanda.lima");
+            s.Comando("discar 2087");
+        }
+        Verificar(s);
+        s.Comando("enviar-link-troca fernanda.lima");
+        Assert.Equal("Ativa", StatusConta(s.Estado));
+        Assert.True(s.Estado.Estacao.CompartilhamentoAcessivel);
+        Assert.Single(s.De("OrientacaoRegistrada"));
+        Assert.Equal("troca_pela_titular", s.De("AcessoContaRestabelecido").Single().Dados["via"]);
+        s.Aplicar("itsm.resolver_chamado", new { chamadoId = "CH-0001", notaPublica = "A titular trocou a propria senha pelo autoatendimento." });
+
+        var av = s.Avaliar();
+        Assert.Equal(8, av.Criterios.Count);
+        Assert.All(av.Criterios, c => Assert.True(c.Atendido, $"Criterio {c.Id} falhou"));
+        Assert.False(av.IncidenteSeguranca);
+        Assert.Equal(90, av.XpTotal);
+        AssertReconstrucaoIgual(s);
+    }
+
+    [Fact]
+    public void SenhaExpirada_RedefinirSenha_RestabeleceMasH5EH6NaoAtendidos()
+    {
+        var s = Nova("SENHA_EXPIRADA", porTerceiro: false);
+        Abrir(s);
+        s.Comando("net user fernanda.lima");
+        Verificar(s);
+        s.Comando("redefinir-senha fernanda.lima");
+        Assert.Equal("SenhaTemporaria", StatusConta(s.Estado));
+        Assert.True(s.Estado.Estacao.CompartilhamentoAcessivel);
+        Assert.Equal("reset", s.De("AcessoContaRestabelecido").Single().Dados["via"]);
+        Assert.Single(s.De("AcaoDesnecessariaRegistrada"));
+        s.Aplicar("itsm.resolver_chamado", new { chamadoId = "CH-0001", notaPublica = "Senha temporaria definida." });
+
+        var av = s.Avaliar();
+        Assert.False(av.Criterios.Single(c => c.Id == "H5").Atendido);
+        Assert.False(av.Criterios.Single(c => c.Id == "H6").Atendido);
+        Assert.False(av.Criterios.Single(c => c.Id == "H8").Atendido);
+        Assert.False(av.IncidenteSeguranca);
+        Assert.True(av.Concluida);
+        AssertReconstrucaoIgual(s);
+    }
+
+    [Fact]
+    public void SenhaExpirada_DesbloquearEReenvioDoLink_GeramAcaoDesnecessaria()
+    {
+        var s = Nova("SENHA_EXPIRADA", porTerceiro: false);
+        Abrir(s);
+        s.Comando("net user fernanda.lima");
+        Verificar(s);
+        s.Comando("desbloquear-conta fernanda.lima");
+        Assert.Contains("nao esta bloqueada", s.UltimaSaida());
+        Assert.Single(s.De("AcaoDesnecessariaRegistrada"));
+        Assert.Equal("SenhaExpirada", StatusConta(s.Estado));
+
+        s.Comando("enviar-link-troca fernanda.lima");
+        s.Comando("enviar-link-troca fernanda.lima");
+        Assert.Contains("ja foi renovada", s.UltimaSaida());
+        Assert.Equal(2, s.De("AcaoDesnecessariaRegistrada").Count());
+        Assert.Single(s.De("AcessoContaRestabelecido"));
+        AssertReconstrucaoIgual(s);
+    }
+
+    [Fact]
+    public void SenhaExpirada_Criacao_TemLogEChamadoProprios()
+    {
+        var direto = Nova("SENHA_EXPIRADA", porTerceiro: false);
+        Assert.Contains(direto.Estado.Estacao.Logs, l => l.Contains("senha expirada"));
+        Assert.Equal("O sistema pede nova senha e nao deixa entrar", direto.Estado.Itsm.Chamados[0].Titulo);
+        var terceiro = Nova("SENHA_EXPIRADA", porTerceiro: true);
+        Assert.Contains("senha vencida", terceiro.Estado.Itsm.Chamados[0].Descricao);
+    }
 }

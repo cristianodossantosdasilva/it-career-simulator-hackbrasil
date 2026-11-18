@@ -5,7 +5,7 @@ namespace Simulador.Cenarios;
 public sealed partial class CatalogoCenarios
 {
     // Causas entregues e aceitas como forcadas. Cada Item acrescenta a sua Causa neste conjunto.
-    private static readonly string[] CausasResetSenha = ["SENHA_ESQUECIDA", "CONTA_BLOQUEADA"];
+    private static readonly string[] CausasResetSenha = ["SENHA_ESQUECIDA", "CONTA_BLOQUEADA", "SENHA_EXPIRADA"];
 
     private static readonly IdentidadeTitular TitularResetSenha =
         new("Fernanda Lima", "AUR-2087", "2087", "Paulo Andrade");
@@ -21,10 +21,11 @@ public sealed partial class CatalogoCenarios
             : sorteada;
 
         var bloqueada = causa == "CONTA_BLOQUEADA";
+        var expirada = causa == "SENHA_EXPIRADA";
 
         IReadOnlyList<ServicoEstacao> servicos = bloqueada
             ? [new("ContaAD", "Bloqueada", true), new("EventosDeSeguranca", "NaoConsultado", false)]
-            : [new("ContaAD", "Ativa", true)];
+            : [new("ContaAD", expirada ? "SenhaExpirada" : "Ativa", true)];
 
         var estacao = new EstadoEstacao(
             PrivilegioTerminal.UsuarioPadrao,
@@ -39,18 +40,30 @@ public sealed partial class CatalogoCenarios
             true,
             [
                 "[INFO] Estacao EST-FIN-017 iniciada em aurora.local.",
-                bloqueada
-                    ? "[WARN] Conta fernanda.lima bloqueada por excesso de tentativas de senha incorreta."
-                    : "[INFO] Logon de fernanda.lima recusado: senha incorreta (2 tentativas, abaixo do limite de bloqueio)."
+                causa switch
+                {
+                    "CONTA_BLOQUEADA" => "[WARN] Conta fernanda.lima bloqueada por excesso de tentativas de senha incorreta.",
+                    "SENHA_EXPIRADA" => "[WARN] Logon de fernanda.lima recusado: senha expirada (politica de 90 dias).",
+                    _ => "[INFO] Logon de fernanda.lima recusado: senha incorreta (2 tentativas, abaixo do limite de bloqueio)."
+                }
             ],
             ["net user", "eventos-seguranca", "diretorio", "discar", "redefinir-senha", "desbloquear-conta", "enviar-link-troca"]);
 
-        var sintomaTerceiro = bloqueada ? "esta com a conta bloqueada" : "esqueceu a senha";
-        var (tituloDireto, descricaoDireta) = bloqueada
-            ? ("Minha conta esta bloqueada",
-               "O sistema informa que a minha conta esta bloqueada e eu nao consigo entrar na estacao EST-FIN-017.")
-            : ("Esqueci minha senha e nao consigo entrar",
-               "Ao tentar entrar na estacao EST-FIN-017 o sistema recusa a minha senha e eu nao lembro qual e a correta.");
+        var sintomaTerceiro = causa switch
+        {
+            "CONTA_BLOQUEADA" => "esta com a conta bloqueada",
+            "SENHA_EXPIRADA" => "esta com a senha vencida",
+            _ => "esqueceu a senha"
+        };
+        var (tituloDireto, descricaoDireta) = causa switch
+        {
+            "CONTA_BLOQUEADA" => ("Minha conta esta bloqueada",
+                "O sistema informa que a minha conta esta bloqueada e eu nao consigo entrar na estacao EST-FIN-017."),
+            "SENHA_EXPIRADA" => ("O sistema pede nova senha e nao deixa entrar",
+                "Ao tentar entrar na estacao EST-FIN-017 o sistema diz que a senha venceu e nao me deixa passar."),
+            _ => ("Esqueci minha senha e nao consigo entrar",
+                "Ao tentar entrar na estacao EST-FIN-017 o sistema recusa a minha senha e eu nao lembro qual e a correta.")
+        };
 
         var principal = porTerceiro
             ? new ChamadoInicial(

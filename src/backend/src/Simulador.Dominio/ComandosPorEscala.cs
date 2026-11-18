@@ -129,6 +129,7 @@ internal static class ComandosPorEscala
         var detalhe = status switch
         {
             "Bloqueada" => "conta BLOQUEADA | 12 tentativas incorretas nas ultimas 2 horas",
+            "SenhaExpirada" => "ativa | senha EXPIRADA em 2026-11-12 (politica de 90 dias)",
             "SenhaTemporaria" => "ativa | senha temporaria, troca obrigatoria no primeiro acesso | 0 tentativas incorretas",
             "Ativa" when cenario.Causa == "SENHA_ESQUECIDA" => "ativa | senha valida ate 2027-01-20 | 2 tentativas incorretas",
             _ => "ativa | senha valida ate 2027-01-20 | 0 tentativas incorretas"
@@ -165,6 +166,8 @@ internal static class ComandosPorEscala
             "SENHA_ESQUECIDA" => Resultado(estado, sucesso, definida, restabelecido),
             "CONTA_BLOQUEADA" => Resultado(estado, "A conta continua bloqueada: o reset nao remove a origem das tentativas.",
                 Desnecessaria(rotulo, "reset_nao_resolve_a_causa")),
+            "SENHA_EXPIRADA" => Resultado(estado, sucesso, definida, restabelecido,
+                Desnecessaria(rotulo, "senha_vencida_se_resolve_pela_troca_da_titular")),
             _ => throw new InvalidOperationException($"Causa sem regra de reset: {cenario.Causa}")
         };
     }
@@ -196,10 +199,23 @@ internal static class ComandosPorEscala
         var recusa = RecusarSeSemIdentidade(estado, cenario, "enviar-link-troca");
         if (recusa is not null) return recusa;
 
-        return cenario.Causa == "CONTA_BLOQUEADA"
-            ? Resultado(estado, "O link nao remove a origem do bloqueio.",
-                Desnecessaria("enviar-link-troca", "link_nao_remove_a_origem_do_bloqueio"))
-            : Resultado(estado, "A titular nao tem a senha atual; o link exige a senha vigente.",
-                Desnecessaria("enviar-link-troca", "link_exige_a_senha_vigente"));
+        switch (cenario.Causa)
+        {
+            case "CONTA_BLOQUEADA":
+                return Resultado(estado, "O link nao remove a origem do bloqueio.",
+                    Desnecessaria("enviar-link-troca", "link_nao_remove_a_origem_do_bloqueio"));
+            case "SENHA_EXPIRADA":
+                if (EfeitosDeEventos.StatusServico(estado.Estacao, "ContaAD") != "SenhaExpirada")
+                    return Resultado(estado, "A senha ja foi renovada.",
+                        Desnecessaria("enviar-link-troca", "senha_ja_foi_renovada"));
+                return Resultado(estado,
+                    "Link de autoatendimento enviado ao e-mail alternativo; a titular trocou a propria senha.",
+                    Ev("OrientacaoRegistrada", ("usuario", cenario.UsuarioAlvo), ("tema", "troca_pela_titular")),
+                    Ev("SenhaTrocadaPelaPessoa", ("usuario", cenario.UsuarioAlvo)),
+                    Ev("AcessoContaRestabelecido", ("usuario", cenario.UsuarioAlvo), ("via", "troca_pela_titular")));
+            default:
+                return Resultado(estado, "A titular nao tem a senha atual; o link exige a senha vigente.",
+                    Desnecessaria("enviar-link-troca", "link_exige_a_senha_vigente"));
+        }
     }
 }
