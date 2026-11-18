@@ -50,23 +50,11 @@ Sequência proposta: alfabetização digital e atendimento; ticket e prioridade;
 
 ## Frente 4 — Financeiro
 
-Preços não foram validados por vendas ou entrevistas. Alura Empresas divulga valores por assento a partir de R$ 125, com escopo diferente. TryHackMe Premium exibe €10,50/mês no anual, focado em cibersegurança. Udemy vende cursos e plano individual, sem preço brasileiro fixo na página lida. Cursos técnicos têm outros custos e garantias. Faixa proposta é hipótese.
-
-O modelo não comprova CAC, suporte, chargeback, reembolso, inadimplência, conteúdo, acessibilidade, segurança, tributos por atividade, pessoal, câmbio, egress ou contingência. “Margem líquida” é nome impróprio antes dos custos fixos. Equilíbrio em 35–45 alunos não pode ser refeito sem separar custo fixo, variável, mix e retenção.
-
-A R$ 59,90 para 1.000 clientes, receita anualizada é R$ 718.800. No Anexo III, se corretamente enquadrada, taxa efetiva aproximada é 11,05%, não 6%. A R$ 79,90, receita é R$ 958.800 e a taxa aproximada sobe a 12,28%. Software sujeito ao fator R abaixo de 28% pode ir ao Anexo V, com carga maior. Valores são aproximações sem segregação ou validação municipal.
-
-Realtime é cobrado por tokens de entrada e saída e duração ativa; contexto acumulado pode aumentar custo dos turnos. Avatar client-side não elimina rede, TURN/SFU, hospedagem, moderação e suporte. Definir limite de minutos, opt-in, encerramento, teto de despesa e alternativa sem voz.
-
-Créditos Hack Brasil são condicionais, por classificação ou presença, ligados a fornecedores e prazos. Não contabilizar como receita nem custo recorrente coberto. Orçar preço cheio e planejar migração antes da expiração. Regulamento não exige tecnologia de patrocinador.
+Conteúdo comercial retirado do repositório público: o hackathon roda a custo zero e o modelo de negócio é tratado fora dele.
 
 ## Frente 5 — Contábil e tributário
 
-CNAEs 8599-6/03 e 8599-6/04 descrevem treinamento. Não cobrem automaticamente SaaS e licenciamento. Software não customizável costuma demandar análise de 6203-1/00; customizável, 6202-3/00; desenvolvimento por encomenda, 6201-5/01. Contrato e atividade efetiva definem.
-
-LC 116 inclui instrução no subitem 8.02 e licenciamento no 1.05; município define cadastro, alíquota e obrigação concreta. Curso e software podem ter tratamentos distintos. Segregar receitas e validar retenção B2B, NFS-e, pró-labore, folha, fator R, ME/EPP e sublimites. Não assumir MEI ou Anexo III fixo.
-
-A transição IBS/CBS já exige preparação em 2026. Regras para 2027 e opção entre Simples e recolhimento regular afetam documentos e fluxo de caixa. Contador deve avaliar conforme atividade, município e perfil dos clientes. Isto não substitui parecer individual.
+Conteúdo comercial retirado do repositório público: o hackathon roda a custo zero e o modelo de negócio é tratado fora dele.
 
 ## Frente 6 — Jurídico
 

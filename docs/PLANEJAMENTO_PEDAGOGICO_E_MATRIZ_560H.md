@@ -1,4 +1,4 @@
-# Planejamento Pedagógico, Regulação, Custos e Matriz Curricular Técnica 560h — IT Flight Simulator
+# Planejamento Pedagógico, Regulação e Matriz Curricular Técnica 560h — IT Flight Simulator
 
 > **Documento Mestre de Engenharia Educacional, Curricular, Comercial e de Arquitetura de Produto**  
 > **Deliberação Conjunta:** Cristiano dos Santos da Silva + Antigravity e Orchestrator (Argon)  
@@ -411,72 +411,9 @@ flowchart LR
 
 ---
 
-## 9. Modelos Comerciais, Créditos Oficiais do Hack Brasil 2026 e Custos Reais de Produto Pronto
+## 9. Custo do Hackathon e Modelo de Negócio
 
-### 9.1. Hackathon a Custo Zero vs. Créditos Oficiais de Evolução (`hackbrasil.com`)
-Para o **Hack Brasil 2026 (até 30/nov/2026)**, toda a plataforma opera a **R\$ 0,00** (Render Free + Neon Free + Vercel Free + Motor Determinístico `.NET 10` com `Dialogo:HabilitarLlm=false`), garantindo custo zero para a equipe e acesso gratuito e ilimitado aos avaliadores.
-
-Além disso, conforme divulgado oficialmente pelo **Hack Brasil 2026** (`hackbrasil.com`), avançar à final presencial no Google for Startups (12/dez) e disputar o pódio desbloqueia pacotes reais de créditos e ferramentas que abatem substancialmente os custos do produto comercial no primeiro ano:
-
-| Parceiro Oficial Hack Brasil 2026 | Benefício Divulgado e Critério de Conquista *(Finalistas vs. Top 3)* | Impacto Direto no Abatimento de Custos do Produto |
-| :--- | :--- | :--- |
-| **WorkOS** | **Todos os finalistas presenciais:** pacote de autenticação corporativa com domínio próprio por 12 meses (**US\$ 1.188 / ~R\$ 6.890**) | Zera por 1 ano o custo de autenticação SSO, SAML e MFA multi-tenant para contas B2B e escolas |
-| **Resend** | **Todos os finalistas presenciais:** 3 meses de plano Pro gratuito · **Top 3:** **US\$ 10.000 em créditos (12 meses)** | Cobre envio de e-mails transacionais, avisos de revisão SM-2 e **Certificados de Conclusão de Curso Livre** |
-| **Nvoip** | **Finalistas / ecossistema parceiro:** créditos de API de telefonia em nuvem, VoIP/SIP, WhatsApp e voz programável (PABX virtual) | Habilita laboratórios futuros de telefonia IP/VoIP e notificações de abertura de chamados P1 em voz/WhatsApp sem custo inicial |
-| **AbacatePay** | **Vencedores:** **R\$ 500.000 em vantagens** na forma de taxas reduzidas em Pix e cartão (por até 24 meses) | Reduz drasticamente o custo financeiro de cobrança nas matrículas por assinatura e intensivo |
-| **Firecrawl** | **Participantes e vencedores:** cupons para participantes + **US\$ 50.000 em créditos** para **vencedores** | Automatiza extração e atualização de documentações técnicas abertas (RFCs/docs) para a KB |
-| **Cognition** | **Vencedores:** **US\$ 20.000 em créditos** | Acelera engenharia dos 8 laboratórios especializados e suíte de testes |
-| **Convex** | **Top 3:** premiação direta de **US\$ 6.000** distribuídos no pódio (`US\$ 3k / 2k / 1k`) | Capital semente inicial para cobrir custos operacionais e infra pós-lançamento |
-| **Jumpstart, Puentes e Ecossistema Google for Startups** | **Vencedores / Finalistas:** fast-track internacional, assessorias de visto (`US\$ 40k`) para vencedores e visibilidade na sede do **Google Brasil** | Facilita ingresso posterior nos programas de créditos startup **Google for Startups Cloud**, **Microsoft for Startups** e **AWS Activate** |
-
----
-
-### 9.2. Estratégia Comercial e Precificação Validada Legalmente
-
-Em operação comercial regular no Brasil, a empresa opera com CNPJ enquadrado em:
-- **CNAEs Principais (Ensino Livre / Treinamento):** `8599-6/03` (*Treinamento em informática*) e `8599-6/04` (*Treinamento em desenvolvimento profissional e gerencial*).
-- **CNAEs Secundários SaaS (Plataforma Digital):** `6203-1/00` (*Desenvolvimento e licenciamento de programas de computador não-customizáveis*), `6311-9/00` (*Tratamento de dados, provedores de serviços de aplicação e hospedagem*) e `6319-4/00` (*Portais, provedores de conteúdo e outros serviços de informação na internet*), permitindo segregação correta de receitas entre serviço educacional e licenciamento/SaaS quando aplicável.
-- **Tributação Realista (Solução de Consulta Cosit nº 236/2017, Simples Nacional Progressivo e LC nº 214/2025):** A alíquota inicial de **6,0%** aplica-se **somente** à 1ª faixa de faturamento anual (até R\$ 180 mil/ano, ~250 assinantes Essenciais). No cenário de escala analisado abaixo (`1.000` alunos ativos pagos, **receita mensal ~R\$ 48 mil / `RBT12` de R\$ 576 mil**), a alíquota efetiva real passa para **11,05% no Anexo III** *(desde que mantido **Fator R `>= 28%`** com folha/pró-labore)* — ou **18,12% no Anexo V** caso a parcela SaaS não atinja o Fator R —, conforme diretriz da **Solução de Consulta Cosit nº 236/2017** (distinção entre licenciamento SaaS e ensino presencial/remoto sem interação síncrona). O planejamento contábil também prevê adaptação gradual à transição do **IBS/CBS (Lei Complementar nº 214/2025)**.
-- **Garantias ao Consumidor (CDC Art. 49 e Decreto nº 7.962/2013):** Direito de arrependimento integral em até **7 dias** para compras online e botão explícito de cancelamento de assinatura em 1 clique sem multas abusivas.
-
-#### Três Modelos de Acesso (Diferencial Imbatível: Teoria + Estúdio + 8 Laboratórios Simulados)
-
-| Modelo de Oferta | Público-Alvo | Preço de Mercado Planejado | O Que Inclui no Diferencial Simulado |
-| :--- | :--- | :--- | :--- |
-| **1A. Assinatura Essencial ("Estudo e Simulador")** | Quem busca formação contínua acessível (modelo Alura/Coursera/TryHackMe) | **R\$ 59,90/mês** *(anual R\$ 718,80)* ou **R\$ 79,90/mês** *(mensal)* | Acesso completo às 560h teóricas (`UC1–UC8`), Caderno Cornell, SM-2, Mentor Heurístico e aos **8 Laboratórios Determinísticos + 80 Cenários** |
-| **1B. Assinatura Pro ("Certificações e Vídeo IA")** | Alunos focados em certificações internacionais e preparação de entrevista | **R\$ 119,90/mês** *(anual)* ou **R\$ 149,90/mês** *(mensal)* | Tudo do Essencial + **Centro de Simulados de Certificação** (CompTIA, Cisco, Fortinet, MikroTik, Microsoft) + Tutor LLM 80/20 ilimitado + **2 Chamadas em Vídeo Ao Vivo/mês com teto de 8 min e fallback voz/chat (Onda 4)** |
-| **2. Pacote Fechado Intensivo (Compra Única / Parcelada)** | Quem quer foco objetivo em emprego rápido ou formação completa sem recorrência | **Intensivo Júnior 4 Meses (`Ciclo 1 — 280h`):** **R\$ 497,00** *(ou 12x de R\$ 49,70)*<br>**Completo Jr ao N3 8 Meses (`560h`):** **R\$ 897,00** *(ou 12x de R\$ 89,70)* | Acesso garantido por 6 meses (Ciclo 1) ou 12 meses (Formação Integral) com **Certificado de Conclusão de Curso Livre e Microcertificados Modulares** + 1 avaliação prática em Vídeo/Voz na conclusão do Ciclo |
-| **3. Licenciamento B2B (Empresas e Escolas)** | Escolas técnicas, ONGs, universidades e empresas MSP/TI | **R\$ 45,00 a R\$ 85,00 por assento/mês** *(mín. 20 alunos)* | Painel administrativo de turma, auditoria de horas práticas reais por CBO, simulados customizados e marca institucional compartilhada |
-
----
-
-### 9.3. Estimativa Real de Custos do Produto Pronto (Preços Reais de Tabela 2026 — Sem Especulação)
-
-Diferente de plataformas baseadas em VMs individuais na nuvem (que custam R\$ 25 a R\$ 80 por aluno/mês só em computação EC2/Azure), o nosso **Motor Determinístico C#/.NET 10** simula switches, firewalls NGFW, iSCSI/RAID e AD em memória de servidor compartilhado com latência de milissegundos. Abaixo estão os **custos reais de tabela de mercado (câmbio base `US\$ 1 = R\$ 5,80`)** para o **produto pronto operando em produção real (cenário base de 1.000 alunos ativos pagos / `RBT12` de R\$ 576 mil)** sem depender de gratuidade:
-
-| Categoria de Custo Real em Produção | Serviço de Mercado / Fornecedor de Referência | Custo Real Mensal (1.000 Alunos Ativos — Preço Cheio) | Custo com Créditos de Finalista Hack Brasil (Ano 1) |
-| :--- | :--- | :--- | :--- |
-| **1. Servidor Backend `.NET 10` em Produção** | 2 instâncias dedicadas (Render Pro / AWS Lightsail / Hetzner Cloud — 4 vCPU, 8 GB RAM total) | **R\$ 240,00 a R\$ 420,00 / mês** | Mesmo valor (ou abatido caso conquiste créditos Startup Cloud) |
-| **2. Banco de Dados `PostgreSQL` Gerenciado** | Neon Launch/Scale ou RDS Postgres Gerenciado (20–50 GB SSD + backups automáticos + leitura) | **R\$ 180,00 a R\$ 398,00 / mês** | Igual no pós-piloto |
-| **3. CDN, DNS, WAF e Frontend** | Cloudflare Pro (`US\$ 20`) + Vercel Pro (`US\$ 20`) | **R\$ 116,00 a R\$ 232,00 / mês** | Igual |
-| **4. Autenticação Multi-Tenant e E-mail Transacional** | WorkOS AuthKit / SSO + Resend Pro (`US\$ 20` a `US\$ 50`) | **R\$ 116,00 a R\$ 290,00 / mês** | **R\$ 0,00** *(Coberto pelos benefícios WorkOS + Resend de finalista)* |
-| **5. IA Generativa Texto (Tutor, Feynman, STAR — Filtro 80/20)** | Gemini 2.5 Flash-Lite / GPT-4o-mini em produção real (20% das interações com cache) | **~R\$ 0,45 / aluno = R\$ 450,00 / mês** | Mesmo valor |
-| **6. Armazenamento S3 e Backups da Plataforma + Vídeos/Assets** | Cloudflare R2 / AWS S3 (assets aulas, heatmaps, PDFs e exports) | **R\$ 50,00 a R\$ 110,00 / mês** | Mesmo valor |
-| **7. Estrutura Legal, Contábil e Domínio (Brasil)** | Contabilidade Digital + e-CNPJ A1 + Domínio `.com.br` | **R\$ 320,00 a R\$ 450,00 / mês** | Mesmo valor |
-| **SUBTOTAL INFRAESTRUTURA FIXA + TEXTO (1.000 alunos)** | *Sem considerar vídeo Onda 4* | **R\$ 1.472,00 a R\$ 2.350,00 / mês** *(**R\$ 1,47 a R\$ 2,35 por aluno/mês**)* | **R\$ 1.356,00 a R\$ 2.060,00 / mês** |
-| **8. Custo Adicional de Chamada em Vídeo/Voz Ao Vivo (Onda 4 — Somente Plano Pro c/ Teto)** | API Multimodal Realtime Audio + Avatar Cliente-Side com teto de 8 min e fallback voz/chat (**R\$ 3,71 a R\$ 10,90 por sessão de 8 min**; 2 sessões/mês para ~300 assinantes Pro) | **R\$ 2.226,00 a R\$ 6.540,00 / mês** *(**R\$ 7,42 a R\$ 21,80 por assinante Pro/mês**, média **R\$ 14,61**)* | Igual (uso estritamente sob demanda e teto de minutos no Plano Pro) |
-| **9. Custos Variáveis de Venda (Fiscais e Gateway)** | **Simples Nacional (`RBT12 R\$ 576k`: `11,05%` Anexo III c/ Fator R `>= 28%` ou `18,12%` Anexo V)** + **Gateway (~3,0% ponderado Pix/Cartão)** | **~14,05% a 21,12% da Receita Bruta** | Reduzido na parcela de gateway com **AbacatePay** (vencedores) |
-
-#### Demonstrativo de Unit Economics e Margem Líquida por Assinante (Valores Reais — `RBT12 R\$ 576k`, Anexo III `11,05%` + Gateway `~3,0%`)
-
-| Plano | Preço Cobrado ao Aluno | Imposto (`11,05%`) + Gateway (`~3,0%`) | Custo Real Nuvem + IA do Aluno | Margem Líquida Direta Antes de Custos Corporativos Fixos |
-| :--- | :--- | :--- | :--- | :--- |
-| **Assinatura Essencial (Anual)** | **R\$ 59,90 / mês** | - R\$ 8,42 | - R\$ 1,90 *(infra + IA texto 80/20)* | **R\$ 49,58 / aluno (~82,8% de margem; ou ~75,7% no Anexo V `18,12%`)** |
-| **Assinatura Pro (Certificações e Vídeo Onda 4)** | **R\$ 119,90 / mês** | - R\$ 16,85 | - R\$ 9,42 a - R\$ 23,80 *(infra `~R\$ 2,00` + 2 sessões 8 min de `R\$ 3,71–10,90`; média `- R\$ 16,61`)* | **R\$ 79,25 a R\$ 93,63 / aluno (~66,1% a 78,1% de margem; média `R\$ 86,44 / 72,1%`)** |
-| **Intensivo Júnior (4 Meses — Pacote R\$ 497)** | **R\$ 497,00 total** *(equivalente ~R\$ 124,25/mês)* | - R\$ 69,83 total | - R\$ 14,90 total *(4 meses infra/texto `R\$ 7,60` + 1 avaliação vídeo `R\$ 7,30` média)* | **R\$ 412,27 por matrícula (~83,0% de margem de contribuição)** |
-
-*(Ponto de equilíbrio operacional com estrutura contábil, servidores dedicados e banco gerenciado é atingido com aproximadamente **40 a 55 assinantes ativos**, mesmo já computando alíquota progressiva de Simples Nacional `11,05%`, antes da escala B2B).*
-
+O Hack Brasil 2026 (até 30/nov/2026) roda a custo zero: Render, Neon e Vercel em planos gratuitos e o motor determinístico `.NET 10` com `Dialogo:HabilitarLlm=false`, sem chamada a modelo de linguagem. O modelo de negócio é tratado fora do repositório público.
 ---
 
 ## 10. Estratégia de Implementação Sem Regressão (Do Hackathon às 560h e Certificações)

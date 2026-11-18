@@ -18,8 +18,6 @@ Data de acesso de todas as fontes web: 15/nov/2026. Conteúdo de terceiros foi p
 - Lei 8.078/1990 (CDC), arts. 6, 31, 37 e 49; Decreto 7.962/2013; Decreto 11.034/2022 (confirmar artigos)
 - Lei 13.709/2018 (LGPD), arts. 5, 14, 20, 33, 41; Enunciado CD/ANPD nº 1/2023; Resolução CD/ANPD nº 19/2024
 - Lei 15.211/2025 (ECA Digital), em vigor desde 17/mar/2026
-- Lei Complementar 123/2006 (Simples Nacional); Lei Complementar 116/2003 (ISS); Lei Complementar 214/2025 (IBS e CBS)
-- Solução de Consulta Cosit nº 236/2017 (enquadramento de treinamento em informática e serviços de TI no Simples Nacional), lida por resumo de terceiro
 - RFC 8785 (JSON Canonicalization Scheme); RFC 8032 (Ed25519)
 
 ## 3. URLs consultadas na web
@@ -29,7 +27,6 @@ Data de acesso de todas as fontes web: 15/nov/2026. Conteúdo de terceiros foi p
 | https://www.gov.br/mdh/pt-br/assuntos/noticias/2026/defeso-eleitoral/agosto/eca-digital-conheca-as-regras-de-protecao-de-criancas-e-adolescentes-no-ambiente-online | ECA Digital em vigor desde 17/mar/2026 | Oficial |
 | https://www.gov.br/anpd/pt-br/assuntos/eca-digital | Obrigações: aferição de idade, supervisão parental, publicidade | Oficial |
 | https://www.gov.br/mj/pt-br/assuntos/sua-protecao/sedigi/eca-digital/eca-digital-1 | Lei 15.211/2025 | Oficial |
-| https://tributodevido.com.br/portal/tributacao-servicos-informatica-simples-nacional/ | Resumo da Solução de Consulta Cosit 236/2017 (Anexo III para escola livre, Anexo V para licenciamento e hospedagem) | Secundária |
 | https://senhorcontabil.com.br/consulta-cnae/8599603-treinamento-em-informatica/ | Descrição da 8599-6/03, o que não cabe nela | Secundária |
 | https://concla.ibge.gov.br/busca-online-cnae.html?subclasse=8599603 | Busca oficial de CNAE | Oficial (não aprofundada) |
 | https://www.contabilizei.com.br/contabilidade-online/tabela-simples-nacional-completa/ | Tabelas do Simples | Secundária |

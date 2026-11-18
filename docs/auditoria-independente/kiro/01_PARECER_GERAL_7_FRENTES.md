@@ -95,24 +95,11 @@ O que medi (DOM e captura em 375 por 800 px; não fiz teste com usuários nem le
 
 ### Frente 4. Financeira
 
-Resumo (números e premissas no arquivo 04 e em `04b_CUSTOS_E_TRIBUTOS.csv`):
-
-- A margem de contribuição declarada (81,4% a 88,1%) usa imposto fixo de 6%. Com 1.000 assinantes Essencial a R$ 59,90 a receita anual é cerca de R$ 718,8 mil, e a alíquota efetiva do Anexo III sobe para cerca de 11,05%. Se a receita de assinatura for classificada como licenciamento ou hospedagem de software (Anexo V), a efetiva é cerca de 18,1% (sem Fator R). Margem de contribuição por assinante cai de 86,8% para 81,8% (Anexo III) ou 74,7% (Anexo V), antes de qualquer custo de aquisição.
-- O cálculo de custos ignora aquisição de clientes (CAC), churn, inadimplência de cartão, estornos pelo prazo de 7 dias e suporte humano. Com premissas de mercado (rotuladas como premissas) o LTV/CAC fica entre 1,6 e 9,9 conforme churn e CAC.
-- **Vídeo e voz ao vivo (Onda 4) estão subestimados.** O documento assume R$ 2,80 a R$ 6,90 por sessão de 8 minutos e 2 sessões por mês. Preço de tabela do modelo de voz da OpenAI (US$ 32 por milhão de tokens de áudio de entrada e US$ 64 de saída) leva a cerca de US$ 0,08 por minuto com cache otimista e cerca de US$ 0,235 por minuto sem cache nos testes publicados, ou R$ 3,71 a R$ 10,90 por sessão só de modelo, a R$ 5,80 por dólar. Isso exclui avatar, relé TURN, gravação, transcrição extra e novas tentativas. A tabela de preços promete "2 a 4 chamadas por mês"; com 4 chamadas no cenário sem cache o custo de modelo chega a R$ 43,62 por assinante Pro por mês, e a margem do plano Pro cai para cerca de 44%.
-- **Créditos de parceiros:** quase tudo é só para o top 3 ou finalistas (seção 4.4 do arquivo 04). Planejar com crédito zero e tratar crédito como bônus.
-- **Preços de concorrentes verificados:** Alura vende só planos anuais (página oficial de suporte); TryHackMe Premium custa 10,50 euros por mês no anual e 16,99 no mensal (página oficial); a Alura Corporativo foi reportada por terceiro entre R$ 125 e R$ 197 por pessoa por mês em outubro de 2026. Udemy, Coursera, Rocketseat e Escola DNC não foram verificados nesta auditoria. O B2B a R$ 45 a R$ 85 por assento é competitivo, mas o catálogo hoje não sustenta cobrança.
+Conteúdo comercial retirado do repositório público: o hackathon roda a custo zero e o modelo de negócio é tratado fora dele.
 
 ### Frente 5. Contábil e tributária
 
-(Parecer completo no arquivo 04. Não substitui contador.)
-
-- **CNAE:** 8599-6/03 (treinamento em informática) e 8599-6/04 (treinamento em desenvolvimento profissional e gerencial) cobrem aula e curso livre. Não cobrem com segurança a assinatura de plataforma com software simulado como atividade em si. A Solução de Consulta Cosit nº 236/2017 trata escola livre e cursos gerenciais no Anexo III, e desenvolvimento e licenciamento de programas, hospedagem na internet e portais no Anexo V. Receita de licença B2B de software e acesso a plataforma tende ao Anexo V. É preciso segregar receitas por atividade e incluir CNAEs secundários (6311-9/00 tratamento de dados e hospedagem, 6319-4/00 portais, 6203-1/00 desenvolvimento e licenciamento de programas não customizáveis) conforme orientação do contador e do município.
-- **Anexo III contra Anexo V e Fator R:** a primeira faixa do Anexo III é 6,0% e a do Anexo V é 15,5%. Fator R (folha dividida pela receita de 12 meses, limiar de 28%) pode levar atividades do Anexo V para o III. O documento afirma que a faixa de 6% vale "incluindo ISS"; o ISS está dentro do DAS no Simples, e a alíquota efetiva cresce com a receita acumulada de 12 meses.
-- **ISS:** subitem 8.02 (instrução e treinamento) contra 1.05 (licenciamento ou cessão de uso de programas), 1.03 e 1.09 (disponibilização de conteúdo por internet). O município do prestador define o enquadramento e a NFS-e; o conflito entre 8.02 e 1.05/1.09 em assinatura mista é frequente e deve ser resolvido com consulta à prefeitura.
-- **Reforma tributária:** em 2026 vigoram alíquotas-teste de CBS (0,9%) e IBS (0,1%); CBS plena a partir de 2027; IBS e extinção gradual do ISS na transição até 2033 (LC 214/2025). Serviços de educação têm redução de 60% prevista na lei, mas a aplicação a curso livre online e a assinatura de plataforma deve ser confirmada. O Simples Nacional continua existindo com ajustes a partir de 2027.
-- **MEI não serve:** correto. Estrutura realista: ME no Simples Nacional (limite de R$ 360 mil de receita bruta anual) e EPP depois, com contabilidade digital, NFS-e nacional, pró-labore de pelo menos um salário mínimo vigente, e segregação de receita por anexo.
-- **Hackathon:** o regulamento permite participar como pessoa física (item 3.3) e não exige CNPJ. Prêmios são pagos ao responsável do time pelo patrocinador e os tributos são do ganhador (itens 10.5 e 10.11). Não abrir empresa antes da submissão só por causa do concurso.
+Conteúdo comercial retirado do repositório público: o hackathon roda a custo zero e o modelo de negócio é tratado fora dele.
 
 ### Frente 6. Jurídica
 

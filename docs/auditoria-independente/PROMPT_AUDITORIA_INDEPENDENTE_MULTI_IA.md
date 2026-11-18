@@ -109,14 +109,10 @@ Pesquise diretamente nas páginas oficiais do evento (`https://www.hackbrasil.co
 - Avalie a validade pedagógica da **trilha de certificações** e como estruturar simulados práticos (PBQs) realmente eficazes.
 
 ### Frente 4 — Consultor Financeiro
-- Audite a precificação proposta (**Assinatura Essencial R\$ 59,90–79,90**, **Pro R\$ 119,90–149,90**, **Pacotes Intensivos R\$ 497 e R\$ 897**, **B2B R\$ 45–85/assento**) comparando com concorrentes reais no Brasil (Alura, Udemy, Coursera, TryHackMe, Hack The Box, Escola DNC, Rocketseat, cursos técnicos presenciais/EAD).
-- Audite os custos de nuvem, banco PostgreSQL, armazenamento, autenticação, e-mail, IA texto (80/20), IA vídeo/voz ao vivo (Onda 4 — avalie especialmente o custo real por minuto de APIs WebRTC/Realtime e avatar!), gateways de pagamento, churn, inadimplência, CAC/marketing e suporte humano ao aluno. Os cálculos atuais subestimam algum custo real?
-- Como estruturar o plano de uso dos **créditos de parceiros do Hack Brasil 2026** para evitar "armadilha de custo pós-crédito" quando acabarem?
+Conteúdo comercial retirado do repositório público: o hackathon roda a custo zero e o modelo de negócio é tratado fora dele.
 
 ### Frente 5 — Contador (Tributação e Contabilidade no Brasil)
-- Valide se os **CNAEs `8599-6/03` e `8599-6/04`** suportam tanto **curso livre em plataforma própria**, **assinatura recorrente com software simulado (SaaS educacional)**, **licenciamento B2B** e **pacotes de tutoria/IA**. Verifique se há risco de desenquadramento ou necessidade de CNAEs secundários (ex.: desenvolvimento/licenciamento de software `6201-5` / `6203-1` ou portais de conteúdo).
-- Audite o regime tributário (**Simples Nacional Anexo III vs. Anexo V / Fator R**, alíquota efetiva progressiva além da faixa 1 de R\$ 180 mil/ano, regras de **ISS municipal** para subitem `8.02` vs. licenciamento de software `1.05`, substituição/reforma tributária **IBS/CBS** em transição no Brasil a partir de 2026/2027).
-- Aponte obrigações acessórias, emissão de NFS-e (inclusive diferença quando vende para Pessoa Física no Brasil vs. B2B com retenções), pró-labore mínimo e estrutura contábil realista (incluindo ME vs. EPP, pois MEI não comporta essas atividades/faturamento de escala).
+Conteúdo comercial retirado do repositório público: o hackathon roda a custo zero e o modelo de negócio é tratado fora dele.
 
 ### Frente 6 — Advogado (Direito Educacional, Propriedade Industrial, Autoral, LGPD e Consumidor)
 - **Direito Educacional (MEC / LDB Art. 42 / Decreto nº 5.154/2004 / Resolução CNE/CP nº 1/2021):** Quais termos são proibidos ou arriscados na comunicação (*ex.: risco de propaganda enganosa se o marketing insinuar "diploma técnico" ou "garantia de emprego"*)? Como blindar certificados FIC e microcertificados?

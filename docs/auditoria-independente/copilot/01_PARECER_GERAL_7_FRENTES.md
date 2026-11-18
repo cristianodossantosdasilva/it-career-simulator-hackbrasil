@@ -51,19 +51,11 @@ As tecnicas SM-2, Cornell, Feynman, STAR e Pomodoro sao coerentes, mas ainda sao
 
 ## Frente 4 — Financeiro
 
-Os precos planejados sao plausiveis como hipotese de posicionamento, mas nao como validacao de mercado. O preco mensal fica acima de produtos globais de pratica tecnica em alguns cenarios e abaixo de uma formacao com tutoria humana. A diferenca precisa ser explicada por simulacao deterministica, feedback e evidencias de competencia.
-
-O modelo de custo esta otimista em pontos importantes: suporte humano, chargeback, impostos fora da faixa inicial, observabilidade, backups, antifraude, armazenamento de audio, limites de API, disponibilidade do plano gratuito e custo de video em uso intenso. O custo de video por minuto nao pode ser aceito sem fornecedor, modelo, resolucao, codec, latencia e volume contratual definidos.
-
-Creditos de parceiros devem ser tratados como acelerador temporario. Cada beneficio precisa de data de expiracao, substituto pago, teto mensal e kill switch. O produto deve funcionar sem credito promocional antes de liberar Onda 4.
+Conteúdo comercial retirado do repositório público: o hackathon roda a custo zero e o modelo de negócio é tratado fora dele.
 
 ## Frente 5 — Contabil e tributaria
 
-Os CNAEs citados podem ser compativeis com treinamento em informatica e desenvolvimento profissional, mas nao autorizam sozinhos todas as atividades comerciais. Assinatura de software, licenciamento, marketplace, tutoria e processamento de video podem exigir enquadramento adicional e analise municipal.
-
-Nao e seguro afirmar Anexo III permanente. O Fator R, a composicao da receita, folha, pro-labore, municipio, ISS e possiveis receitas de software precisam ser simulados com contador. A transicao IBS e CBS deve ser acompanhada a partir de 2026 sem inserir aliquota especulativa no preco.
-
-Nao tratar a operacao como MEI. Separar receita de curso livre, software, suporte e licenciamento, emitir NFS-e conforme o municipio, documentar cancelamento e controlar tributos sobre premios em dinheiro e beneficios recebidos.
+Conteúdo comercial retirado do repositório público: o hackathon roda a custo zero e o modelo de negócio é tratado fora dele.
 
 ## Frente 6 — Juridico
 
