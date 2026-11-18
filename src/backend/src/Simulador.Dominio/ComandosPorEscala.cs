@@ -336,6 +336,7 @@ internal static class ComandosPorEscala
         var falha = cenario.Causa switch
         {
             "REPOSITORIO_CHEIO" => "[ERROR] Job BKP-FIN-DIARIO falhou: sem espaco no repositorio (capacidade 100%, 0 GB livres).",
+            "CADEIA_CORROMPIDA" => "[ERROR] Job BKP-FIN-DIARIO falhou: ponto incremental 14 invalido, cadeia corrompida desde 2026-11-12.",
             _ => throw new InvalidOperationException($"Causa sem log de backup: {cenario.Causa}")
         };
         return EfeitosDeEventos.StatusServico(estado.Estacao, "JobBackupFinanceiro") == "Succeeded"
@@ -349,11 +350,14 @@ internal static class ComandosPorEscala
             "REPOSITORIO_CHEIO" => EfeitosDeEventos.StatusServico(estado.Estacao, "RepositorioBackup") == "Expandido"
                 ? "Repositorio bkp-repo.aurora.local: 63% usado (capacidade expandida para 160% da anterior)."
                 : "Repositorio bkp-repo.aurora.local: 100% usado.",
+            "CADEIA_CORROMPIDA" => "Repositorio bkp-repo.aurora.local: 61% usado.",
             _ => throw new InvalidOperationException($"Causa sem estado de repositorio: {cenario.Causa}")
         };
 
     private static ResultadoComandoEscala ExpandirRepositorio(EstadoSessao estado, DefinicaoCenario cenario)
     {
+        if (cenario.Causa == "CADEIA_CORROMPIDA")
+            return Resultado(estado, "O repositorio tem espaco; expansao desnecessaria.");
         if (EfeitosDeEventos.StatusServico(estado.Estacao, "RepositorioBackup") == "Expandido")
             return Resultado(estado, "O repositorio ja foi expandido para 160% da capacidade anterior.");
         return Resultado(estado, "Repositorio expandido para 160% da capacidade anterior.",
@@ -362,6 +366,8 @@ internal static class ComandosPorEscala
 
     private static ResultadoComandoEscala ExecutarJob(EstadoSessao estado, DefinicaoCenario cenario)
     {
+        if (cenario.Causa == "CADEIA_CORROMPIDA")
+            return Resultado(estado, "Job continua falhando: cadeia incremental corrompida.");
         if (EfeitosDeEventos.StatusServico(estado.Estacao, "JobBackupFinanceiro") == "Succeeded")
             return Resultado(estado, "O job ja foi executado com sucesso; nada a fazer.");
         if (EfeitosDeEventos.StatusServico(estado.Estacao, "RepositorioBackup") != "Expandido")
@@ -374,6 +380,7 @@ internal static class ComandosPorEscala
         cenario.Causa switch
         {
             "REPOSITORIO_CHEIO" => "Cadeia incremental: INTEGRA. Copia imutavel: INTEGRA.",
+            "CADEIA_CORROMPIDA" => "Cadeia incremental: INVALIDA no ponto 14. Copia imutavel (2026-11-15 22:00): INTEGRA (hash conferido).",
             _ => throw new InvalidOperationException($"Causa sem verificacao de cadeia: {cenario.Causa}")
         };
 
@@ -400,6 +407,12 @@ internal static class ComandosPorEscala
                         ("categoria", "backup"),
                         ("motivo", "Restauracao sobre dados integros sobrescreve alteracoes do dia")))
                 : Resultado(estado, "Restauracao desnecessaria: a pasta Financeiro esta integra."),
+            "CADEIA_CORROMPIDA" => origem == "imutavel"
+                ? EfeitosDeEventos.StatusServico(estado.Estacao, "PastaFinanceiro") == "Restaurada"
+                    ? Resultado(estado, "A pasta Financeiro ja foi restaurada.")
+                    : Resultado(estado, "Restauracao concluida a partir da copia imutavel.",
+                        Ev("PastaFinanceiroRestaurada", ("origem", "imutavel"), ("privilegio", estado.Estacao.Privilegio.ToString())))
+                : Resultado(estado, "Restauracao falhou: cadeia incremental corrompida no ponto 14."),
             _ => throw new InvalidOperationException($"Causa sem regra de restauracao: {cenario.Causa}")
         };
     }}

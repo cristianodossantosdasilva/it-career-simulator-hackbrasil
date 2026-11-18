@@ -258,17 +258,25 @@ public class PropriedadesCenariosPorEscalaTests
             s.Comando("backup repo expandir");
             s.Comando("backup job executar");
         }
+        else
+        {
+            s.Comando("backup cadeia verificar");
+            s.Comando(@"backup restore --origem imutavel --destino \\fileserver.aurora.local\Financeiro");
+        }
         s.Aplicar("itsm.resolver_chamado", new { chamadoId = "CH-0001", notaPublica = "Backup restabelecido." });
     }
 
-    // Feature: cenarios-por-escala, Property 1: Reconstrucao equivalente (falha-backup-restore)
+    public static IEnumerable<object[]> CausasDoBackupESementes50() =>
+        CausasBackupEntregues.SelectMany(c => Sementes(50, 0xC0FFEEUL).Select(s => new object[] { c, s }));
+
+    // Feature: cenarios-por-escala, Property 1: Reconstrucao equivalente (falha-backup-restore, as 2 Causas)
     // Validates: Requirements 15.2, 15.3
     [Theory]
-    [MemberData(nameof(Sementes50))]
-    public void Propriedade1_ReconstrucaoEquivalente_RepositorioCheio(long semente)
+    [MemberData(nameof(CausasDoBackupESementes50))]
+    public void Propriedade1_ReconstrucaoEquivalente_BackupNasDuasCausas(string causa, long semente)
     {
-        var s = SessaoDeTeste.Iniciar(CenarioBackup, Versao, "REPOSITORIO_CHEIO", semente);
-        FluxoCompletoBackup(s, "REPOSITORIO_CHEIO");
+        var s = SessaoDeTeste.Iniciar(CenarioBackup, Versao, causa, semente);
+        FluxoCompletoBackup(s, causa);
 
         var rec = s.Reconstruir();
         Assert.Equal(JsonSerializer.Serialize(s.Estado.Estacao), JsonSerializer.Serialize(rec.Estacao));
@@ -294,7 +302,7 @@ public class PropriedadesCenariosPorEscalaTests
         Assert.Equal(a.Causa, catalogo.Obter(CenarioBackup, Versao, "CAUSA_INEXISTENTE", semente).Causa);
     }
 
-    private static readonly string[] CausasBackupEntregues = ["REPOSITORIO_CHEIO"];
+    private static readonly string[] CausasBackupEntregues = ["REPOSITORIO_CHEIO", "CADEIA_CORROMPIDA"];
 
     public static IEnumerable<object[]> AcoesInvalidasDoBackup()
     {
@@ -322,4 +330,20 @@ public class PropriedadesCenariosPorEscalaTests
         Assert.Equal("AcaoRejeitada", res.Eventos[0].Tipo);
         var depois = JsonSerializer.Serialize(res.NovoEstado.Estacao) + JsonSerializer.Serialize(res.NovoEstado.Dialogo) + JsonSerializer.Serialize(res.NovoEstado.Itsm);
         Assert.Equal(antes, depois);
+    }
+
+    // Feature: cenarios-por-escala, Property 9: Criterios do Juiz_360 deterministicos (falha-backup-restore)
+    // Validates: Requirements 13.5, 15.3, 17.3
+    [Theory]
+    [MemberData(nameof(CausasDoBackupESementes50))]
+    public void Propriedade9_Juiz360DoBackup_EDeterministicoETodoLinkKbExisteNoCatalogo(string causa, long semente)
+    {
+        var s = SessaoDeTeste.Iniciar(CenarioBackup, Versao, causa, semente);
+        FluxoCompletoBackup(s, causa);
+        var a = s.Avaliar();
+        var b = s.Avaliar();
+        Assert.Equal(JsonSerializer.Serialize(a), JsonSerializer.Serialize(b));
+        Assert.Equal(a.CurriculoVivo.HashAuditoriaSha256, b.CurriculoVivo.HashAuditoriaSha256);
+        Assert.Equal(causa == "CADEIA_CORROMPIDA" ? 7 : 6, a.Criterios.Count);
+        Assert.All(a.Criterios, c => Assert.Contains(c.LinkKb!, Simulador.Avaliacao.KbCatalogo.UriParaId.Keys));
     }}

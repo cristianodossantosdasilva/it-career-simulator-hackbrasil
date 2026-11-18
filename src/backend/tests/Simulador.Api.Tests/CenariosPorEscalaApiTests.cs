@@ -128,4 +128,15 @@ public class CenariosPorEscalaApiTests : IClassFixture<WebApplicationFactory<Pro
         var resposta = mensagens[mensagens.GetArrayLength() - 1].GetProperty("conteudo").GetString()!;
         Assert.Contains("Não vou ignorar", resposta, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("REPOSITORIO_CHEIO", resposta, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task BackupRestore_CadeiaCorrompidaForcada_CriaSessaoOcultandoACausa()
+    {
+        var resp = await _client.PostAsJsonAsync("/api/sessoes", new { cenarioId = "falha-backup-restore", causaForcada = "CADEIA_CORROMPIDA", semente = 42 });
+        Assert.Equal(HttpStatusCode.Created, resp.StatusCode);
+        var corpo = await resp.Content.ReadFromJsonAsync<JsonElement>();
+        var id = corpo.GetProperty("sessaoId").GetString()!;
+        var replay = await _client.GetFromJsonAsync<JsonElement>($"/api/sessoes/{id}/replay");
+        Assert.Equal(JsonValueKind.Null, replay.GetProperty("meta").GetProperty("causa").ValueKind);
     }}

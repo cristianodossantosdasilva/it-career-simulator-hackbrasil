@@ -256,4 +256,143 @@ public class BackupRestoreTests
             Assert.DoesNotContain("CADEIA_CORROMPIDA", t, StringComparison.OrdinalIgnoreCase);
         });
     }
-}
+
+    // ---------------------------------------------------------------- CADEIA_CORROMPIDA
+
+    private static void RestaurarPelaImutavel(SessaoDeTeste s) =>
+        s.Comando($@"backup restore --origem imutavel --destino {Destino}");
+
+    [Fact]
+    public void Criacao_CadeiaCorrompida_DefineLogsChamadoEPastaIndisponivel()
+    {
+        var s = Nova("CADEIA_CORROMPIDA");
+        Assert.Equal("CADEIA_CORROMPIDA", s.Estado.Meta.Causa);
+        Assert.Equal("Indisponivel", Status(s.Estado, "PastaFinanceiro"));
+        Assert.Equal("Failed", Status(s.Estado, "JobBackupFinanceiro"));
+        Assert.Equal(2, s.Estado.Estacao.Logs.Count);
+        Assert.Contains(s.Estado.Estacao.Logs, l => l.Contains("erros de checksum"));
+        Assert.StartsWith("Pasta Financeiro corrompida", s.Estado.Itsm.Chamados[0].Titulo);
+        Assert.DoesNotContain(s.Estado.Estacao.Logs, l => l.Contains("ponto incremental") || l.Contains("imutavel"));
+    }
+
+    [Fact]
+    public void FluxoCorreto_CadeiaCorrompida_AtendeB1aB7ComXp140()
+    {
+        var s = Nova("CADEIA_CORROMPIDA");
+        Abrir(s);
+        s.Comando("backup log");
+        Assert.Contains("cadeia corrompida", s.UltimaSaida());
+        s.Comando("backup repo");
+        Assert.Contains("61% usado", s.UltimaSaida());
+        s.Comando("backup cadeia verificar");
+        Assert.Contains("INVALIDA no ponto 14", s.UltimaSaida());
+        Assert.Contains("INTEGRA (hash conferido)", s.UltimaSaida());
+        Elevar(s);
+        RestaurarPelaImutavel(s);
+        Assert.Equal("Restaurada", Status(s.Estado, "PastaFinanceiro"));
+        Assert.True(s.Estado.Estacao.CompartilhamentoAcessivel);
+        Assert.Equal("imutavel", s.De("PastaFinanceiroRestaurada").Single().Dados["origem"]);
+        Resolver(s, "Pasta Financeiro restaurada pela copia imutavel e conferida com o gerente.");
+
+        var av = s.Avaliar();
+        Assert.True(av.Concluida);
+        Assert.False(av.IncidenteSeguranca);
+        Assert.Equal(["B1", "B2", "B3", "B4", "B5", "B6", "B7"], av.Criterios.Select(c => c.Id).ToArray());
+        Assert.All(av.Criterios, c => Assert.True(c.Atendido, $"Criterio {c.Id} falhou"));
+        Assert.Equal(140, av.XpTotal);
+        AssertReconstrucaoIgual(s);
+    }
+
+    [Fact]
+    public void RestoreIncremental_EmCadeiaCorrompida_FalhaSemMudarEstado()
+    {
+        var s = Nova("CADEIA_CORROMPIDA");
+        Abrir(s);
+        Elevar(s);
+        var antes = JsonSerializer.Serialize(s.Estado.Estacao);
+        s.Comando($@"backup restore --origem incremental --destino {Destino}");
+        Assert.Contains("cadeia incremental corrompida no ponto 14", s.UltimaSaida());
+        Assert.Equal(antes, JsonSerializer.Serialize(s.Estado.Estacao));
+        Assert.Empty(s.De("PastaFinanceiroRestaurada"));
+        Assert.Empty(s.De("AcaoPrejudicialRegistrada"));
+    }
+
+    [Fact]
+    public void RestoreSemVerificarCadeia_Restabelece_MasNaoAtendeB7()
+    {
+        var s = Nova("CADEIA_CORROMPIDA");
+        Abrir(s);
+        s.Comando("backup log");
+        Elevar(s);
+        RestaurarPelaImutavel(s);
+        s.Comando("backup cadeia verificar");
+        Resolver(s);
+
+        var av = s.Avaliar();
+        Assert.True(av.Criterios.Single(c => c.Id == "B4").Atendido);
+        Assert.False(av.Criterios.Single(c => c.Id == "B7").Atendido);
+        Assert.True(av.Concluida);
+        Assert.Equal(6 * 20, av.XpTotal);
+    }
+
+    [Fact]
+    public void ExpandirEExecutarJob_NaoResolvemCadeiaCorrompida()
+    {
+        var s = Nova("CADEIA_CORROMPIDA");
+        Abrir(s);
+        Elevar(s);
+        var antes = JsonSerializer.Serialize(s.Estado.Estacao);
+        s.Comando("backup repo expandir");
+        Assert.Contains("expansao desnecessaria", s.UltimaSaida());
+        s.Comando("backup job executar");
+        Assert.Contains("Job continua falhando", s.UltimaSaida());
+        Assert.Equal(antes, JsonSerializer.Serialize(s.Estado.Estacao));
+        Assert.False(s.Estado.Estacao.CompartilhamentoAcessivel);
+        Assert.Empty(s.De("RepositorioExpandido"));
+        Assert.Empty(s.De("BackupConcluido"));
+    }
+
+    [Fact]
+    public void RestoreImutavelSemElevar_DeixaPastaIndisponivelENaoAtendeB3()
+    {
+        var s = Nova("CADEIA_CORROMPIDA");
+        Abrir(s);
+        RestaurarPelaImutavel(s);
+        Assert.Equal("Erro: a operacao exige privilegio Elevado.", s.UltimaSaida());
+        Assert.Equal("Indisponivel", Status(s.Estado, "PastaFinanceiro"));
+        var av = s.Avaliar();
+        Assert.False(av.Criterios.Single(c => c.Id == "B3").Atendido);
+        Assert.False(av.Criterios.Single(c => c.Id == "B4").Atendido);
+    }
+
+    [Fact]
+    public void RepoLimpar_EmCadeiaCorrompida_RegistraAcaoPrejudicial()
+    {
+        var s = Nova("CADEIA_CORROMPIDA");
+        Abrir(s);
+        Elevar(s);
+        s.Comando("backup repo limpar");
+        Assert.Single(s.De("AcaoPrejudicialRegistrada"));
+        Assert.Equal("Indisponivel", Status(s.Estado, "PastaFinanceiro"));
+        Assert.False(s.Avaliar().Criterios.Single(c => c.Id == "B5").Atendido);
+    }
+
+    [Fact]
+    public void RestoreImutavelRepetido_NaoDuplicaEvento()
+    {
+        var s = Nova("CADEIA_CORROMPIDA");
+        Abrir(s);
+        Elevar(s);
+        RestaurarPelaImutavel(s);
+        RestaurarPelaImutavel(s);
+        Assert.Single(s.De("PastaFinanceiroRestaurada"));
+        Assert.Contains("ja foi restaurada", s.UltimaSaida());
+    }
+
+    [Fact]
+    public void BackupLogECadeia_NaoRevelamACausaNoEstadoInicial()
+    {
+        var s = Nova("CADEIA_CORROMPIDA");
+        Assert.DoesNotContain(s.Estado.Itsm.Chamados, c => c.Descricao.Contains("cadeia") || c.Titulo.Contains("cadeia"));
+        Assert.DoesNotContain(s.Estado.Estacao.Servicos, x => x.Status.Contains("Corromp"));
+    }}
