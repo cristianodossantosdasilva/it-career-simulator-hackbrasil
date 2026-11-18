@@ -72,13 +72,13 @@ export const CATALOGO_ROTAS = [
         missoes: [
           {
             id: 'reset-senha-desbloqueio',
-            status: 'em-preparacao',
+            status: 'disponivel',
             titulo: 'Reset de senha e desbloqueio de conta',
             descricao: 'Verificar a identidade antes de agir.',
             causas: [
-              { codigo: 'SENHA_ESQUECIDA', status: 'em-preparacao' },
-              { codigo: 'CONTA_BLOQUEADA', status: 'em-preparacao' },
-              { codigo: 'SENHA_EXPIRADA', status: 'em-preparacao' },
+              { codigo: 'SENHA_ESQUECIDA', status: 'disponivel' },
+              { codigo: 'CONTA_BLOQUEADA', status: 'disponivel' },
+              { codigo: 'SENHA_EXPIRADA', status: 'disponivel' },
             ],
           },
         ],
@@ -96,7 +96,7 @@ export const CATALOGO_ROTAS = [
               { codigo: 'C1', status: 'disponivel' },
               { codigo: 'C2', status: 'disponivel' },
               { codigo: 'C3', status: 'disponivel' },
-              { codigo: 'C4', status: 'em-preparacao' },
+              { codigo: 'C4', status: 'disponivel' },
             ],
           },
         ],
@@ -112,8 +112,8 @@ export const CATALOGO_ROTAS = [
             status: 'disponivel',
             causas: [
               { codigo: 'GATEWAY', status: 'disponivel' },
-              { codigo: 'EMAIL_PROVEDOR', status: 'em-preparacao' },
-              { codigo: 'DOMINIO_SUSPENSO', status: 'em-preparacao' },
+              { codigo: 'EMAIL_PROVEDOR', status: 'disponivel' },
+              { codigo: 'DOMINIO_SUSPENSO', status: 'disponivel' },
             ],
           },
         ],
@@ -145,12 +145,12 @@ export const CATALOGO_ROTAS = [
             missoes: [
               {
                 id: 'falha-backup-restore',
-                status: 'em-preparacao',
+                status: 'disponivel',
                 titulo: 'Falha de backup e restauração',
                 descricao: 'Investigar a rotina de backup e restaurar os dados com segurança.',
                 causas: [
-                  { codigo: 'REPOSITORIO_CHEIO', status: 'em-preparacao' },
-                  { codigo: 'CADEIA_CORROMPIDA', status: 'em-preparacao' },
+                  { codigo: 'REPOSITORIO_CHEIO', status: 'disponivel' },
+                  { codigo: 'CADEIA_CORROMPIDA', status: 'disponivel' },
                 ],
               },
             ],

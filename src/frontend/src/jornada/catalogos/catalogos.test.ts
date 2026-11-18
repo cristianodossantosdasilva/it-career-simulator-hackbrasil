@@ -53,11 +53,11 @@ describe('Catálogo de rotas', () => {
   it('atribui os status das Missões conforme o Requirement 6.4', () => {
     const status = Object.fromEntries(todasAsMissoes().map(({ missao }) => [missao.id, missao.status]))
     expect(status).toEqual({
-      'reset-senha-desbloqueio': 'em-preparacao',
+      'reset-senha-desbloqueio': 'disponivel',
       'pasta-rede-inacessivel': 'disponivel',
       'incidente-massivo': 'disponivel',
       'sre-cloud-latencia': 'disponivel',
-      'falha-backup-restore': 'em-preparacao',
+      'falha-backup-restore': 'disponivel',
       'triagem-engenharia-social': 'disponivel',
       'diagnostico-sql-readonly': 'disponivel',
     })
@@ -69,14 +69,14 @@ describe('Catálogo de rotas', () => {
     )
     expect(causas).toEqual({
       'reset-senha-desbloqueio': [
-        'SENHA_ESQUECIDA:em-preparacao',
-        'CONTA_BLOQUEADA:em-preparacao',
-        'SENHA_EXPIRADA:em-preparacao',
+        'SENHA_ESQUECIDA:disponivel',
+        'CONTA_BLOQUEADA:disponivel',
+        'SENHA_EXPIRADA:disponivel',
       ],
-      'pasta-rede-inacessivel': ['C1:disponivel', 'C2:disponivel', 'C3:disponivel', 'C4:em-preparacao'],
-      'incidente-massivo': ['GATEWAY:disponivel', 'EMAIL_PROVEDOR:em-preparacao', 'DOMINIO_SUSPENSO:em-preparacao'],
+      'pasta-rede-inacessivel': ['C1:disponivel', 'C2:disponivel', 'C3:disponivel', 'C4:disponivel'],
+      'incidente-massivo': ['GATEWAY:disponivel', 'EMAIL_PROVEDOR:disponivel', 'DOMINIO_SUSPENSO:disponivel'],
       'sre-cloud-latencia': ['OOM_KILLED:disponivel', 'POOL_EXHAUSTED:disponivel', 'CERT_EXPIRED:disponivel'],
-      'falha-backup-restore': ['REPOSITORIO_CHEIO:em-preparacao', 'CADEIA_CORROMPIDA:em-preparacao'],
+      'falha-backup-restore': ['REPOSITORIO_CHEIO:disponivel', 'CADEIA_CORROMPIDA:disponivel'],
       'triagem-engenharia-social': [],
       'diagnostico-sql-readonly': [],
     })

@@ -95,11 +95,14 @@ describe('Plano de voo: controle do modo de demonstração', () => {
     expect(controle).toHaveAttribute('aria-checked', 'false')
   })
 
-  it('libera o Embarcar das missões disponíveis de N2 Pleno e das Vertentes da N3 Sênior, sem liberar as em preparação', () => {
+  it('libera o Embarcar das missões disponíveis de Service Desk N1 Jr, N2 Pleno e das Vertentes da N3 Sênior', () => {
     abrirApp('/plano-de-voo', { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
     for (const missao of [
+      'reset-senha-desbloqueio',
+      'pasta-rede-inacessivel',
       'incidente-massivo',
       'sre-cloud-latencia',
+      'falha-backup-restore',
       'triagem-engenharia-social',
       'diagnostico-sql-readonly',
     ] as const) {
@@ -107,15 +110,9 @@ describe('Plano de voo: controle do modo de demonstração', () => {
         'href',
         `/cabine/${missao}`,
       )
-    }
-    for (const missao of ['reset-senha-desbloqueio', 'falha-backup-restore'] as const) {
-      const cartao = cartaoDa(missao)
-      expect(within(cartao).queryByRole('link', { name: /Embarcar/ })).not.toBeInTheDocument()
-      expect(within(cartao).queryByRole('button', { name: /Embarcar/ })).not.toBeInTheDocument()
-      expect(within(cartao).getByText('Em preparação')).toBeInTheDocument()
+      expect(within(cartaoDa(missao)).queryByText('Em preparação')).not.toBeInTheDocument()
     }
   })
-
   it('"Concluída" só aparece com registro de voo', () => {
     abrirApp('/plano-de-voo', { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
     expect(screen.queryByText('Concluída')).not.toBeInTheDocument()
@@ -257,16 +254,18 @@ describe('Brevê, Cabine e barra de contexto com o modo ativo', () => {
     await waitFor(() => expect(posts(inativo)).toHaveLength(0))
   })
 
-  it('Cabine de reset-senha-desbloqueio mostra o aviso de preparação e não cria sessão, com o modo ativo e inativo', () => {
-    const chamadas = simularApi({ missao: 'reset-senha-desbloqueio' })
+  it('Cabine de reset-senha-desbloqueio, da Help Desk N1, cria uma sessão com o modo ativo e com o inativo', async () => {
+    const ativo = simularApi({ missao: 'reset-senha-desbloqueio' })
     abrirApp('/cabine/reset-senha-desbloqueio', { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
-    expect(screen.getByText('Este cenário ainda está em preparação no simulador.')).toBeInTheDocument()
+    await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
+    expect(posts(ativo)).toHaveLength(1)
     cleanup()
+    vi.restoreAllMocks()
+    const inativo = simularApi({ missao: 'reset-senha-desbloqueio' })
     abrirApp('/cabine/reset-senha-desbloqueio', { [CHAVE_CARTAO_EMBARQUE]: CARTAO })
-    expect(screen.getByText('Este cenário ainda está em preparação no simulador.')).toBeInTheDocument()
-    expect(chamadas).toHaveLength(0)
+    await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
+    expect(posts(inativo)).toHaveLength(1)
   })
-
   it('portão do cartão vale com o modo ativo: sem cartão a Cabine vai ao check-in e não cria sessão', () => {
     const chamadas = simularApi({ missao: 'incidente-massivo' })
     abrirApp('/cabine/incidente-massivo', { [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })

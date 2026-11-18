@@ -55,15 +55,14 @@ describe('Página Brevê', () => {
     expect(screen.queryByText(/Você ainda não tem voos registrados/)).not.toBeInTheDocument()
   })
 
-  it('mostra as quatro exigências pendentes, com o texto de aguardo da Help Desk N1', () => {
+  it('mostra as quatro exigências pendentes, sem texto de aguardo', () => {
     abrir()
     const secao = secaoBreve()
     expect(within(secao).getByText('Brevê de piloto pendente')).toBeInTheDocument()
     const itens = within(secao).getAllByRole('listitem')
     expect(itens).toHaveLength(4)
     for (const item of itens) expect(within(item).getByText('Pendente')).toBeInTheDocument()
-    expect(within(itens[0]).getByText('Aguarda missão em preparação no simulador.')).toBeInTheDocument()
-    expect(within(itens[1]).queryByText('Aguarda missão em preparação no simulador.')).not.toBeInTheDocument()
+    for (const item of itens) expect(within(item).queryByText('Aguarda missão em preparação no simulador.')).not.toBeInTheDocument()
   })
 
   it('mostra o Brevê de piloto conquistado, com texto, quando as quatro exigências estão cumpridas', () => {

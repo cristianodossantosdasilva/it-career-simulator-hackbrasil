@@ -17,9 +17,12 @@ function criacoes(chamadas: readonly ChamadaDeTeste[]) {
   return chamadas.filter((chamada) => chamada.metodo === 'POST' && chamada.url.endsWith('/api/sessoes'))
 }
 
+/** A Help Desk N1 vem antes: sem este registro a Service Desk N1 Jr abre bloqueada. */
+const REGISTROS_DA_HELP_DESK = serializarRegistros([registroDeTeste('reset-senha-desbloqueio', 'sessao-ajuda')])
 function pagina(missao: IdMissao, busca = '', armazenamentoInicial: Record<string, string> = {}) {
   const armazenamento = criarArmazenamentoFalso({
     [CHAVE_CARTAO_EMBARQUE]: serializarCartao(CARTAO_DE_TESTE),
+    [CHAVE_REGISTROS_VOO]: REGISTROS_DA_HELP_DESK,
     ...armazenamentoInicial,
   })
   const rota = resolverEndereco(`/cabine/${missao}`, busca)
@@ -75,12 +78,16 @@ describe('Página Cabine', () => {
     expect(window.location.pathname + window.location.search).toBe('/cabine/pasta-rede-inacessivel')
   })
 
-  it('Missão em preparação mostra o aviso e não chama o servidor', () => {
+  it('a Help Desk N1 abre a Cabine de reset-senha-desbloqueio sem registro anterior e cria a sessão', async () => {
     const chamadas = simularApi({ missao: 'reset-senha-desbloqueio' })
-    montar('reset-senha-desbloqueio')
-    expect(screen.getByText('Este cenário ainda está em preparação no simulador.')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Voltar ao Plano de voo' })).toHaveAttribute('href', '/plano-de-voo')
-    expect(screen.queryByRole('navigation', { name: 'Aplicativos da Cabine' })).not.toBeInTheDocument()
+    montar('reset-senha-desbloqueio', '', { [CHAVE_REGISTROS_VOO]: serializarRegistros([]) })
+    await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
+    expect(JSON.parse(criacoes(chamadas)[0]?.corpo ?? '')).toEqual({ cenarioId: 'reset-senha-desbloqueio' })
+  })
+  it('Service Desk N1 Jr sem registro da Help Desk N1 mostra o aviso e não chama o servidor', () => {
+    const chamadas = simularApi({ missao: 'pasta-rede-inacessivel' })
+    montar('pasta-rede-inacessivel', '', { [CHAVE_REGISTROS_VOO]: serializarRegistros([]) })
+    expect(screen.getByText(/A escala Service Desk N1 Jr ainda não está liberada\. Conclua as missões disponíveis de Help Desk N1/)).toBeInTheDocument()
     expect(chamadas).toHaveLength(0)
   })
 

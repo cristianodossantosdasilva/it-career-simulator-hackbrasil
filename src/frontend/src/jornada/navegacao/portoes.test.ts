@@ -88,22 +88,27 @@ describe('decidirPortao', () => {
     })
     expect(DESTINO_SEM_CARTAO).toBe('/check-in?motivo=sem-cartao')
     expect(decidirPortao({ pagina: 'plano-de-voo' }, null, [])).toEqual({ tipo: 'redirecionar', para: DESTINO_SEM_CARTAO })
-    expect(decidirPortao(cabine('reset-senha-desbloqueio'), CARTAO_DE_TESTE, [])).toEqual({ tipo: 'aviso-missao-em-preparacao' })
-    expect(decidirPortao(cabine('pasta-rede-inacessivel'), CARTAO_DE_TESTE, [])).toEqual({ tipo: 'exibir' })
+    // Com o catálogo atual todas as Missões estão disponíveis; a Help Desk N1 abre a cadeia.
+    expect(decidirPortao(cabine('reset-senha-desbloqueio'), CARTAO_DE_TESTE, [])).toEqual({ tipo: 'exibir' })
+    expect(decidirPortao(cabine('pasta-rede-inacessivel'), CARTAO_DE_TESTE, [])).toEqual({
+      tipo: 'aviso-escala-bloqueada',
+      escalaNecessaria: 'help-desk-n1',
+    })
     expect(decidirPortao(cabine('incidente-massivo'), CARTAO_DE_TESTE, [])).toEqual({
       tipo: 'aviso-escala-bloqueada',
       escalaNecessaria: 'service-desk-n1-jr',
     })
-    const comRegistro = [registroDeTeste('pasta-rede-inacessivel', 's-1')]
+    const comRegistro = [registroDeTeste('reset-senha-desbloqueio', 's-0'), registroDeTeste('pasta-rede-inacessivel', 's-1')]
+    expect(decidirPortao(cabine('pasta-rede-inacessivel'), CARTAO_DE_TESTE, [registroDeTeste('reset-senha-desbloqueio', 's-0')])).toEqual({
+      tipo: 'exibir',
+    })
     expect(decidirPortao(cabine('incidente-massivo'), CARTAO_DE_TESTE, comRegistro)).toEqual({ tipo: 'exibir' })
-    // Com o modo ativo, a Cabine de escala bloqueada abre; a Missão em preparação continua com aviso.
+    // Com o modo ativo, a Cabine de escala bloqueada abre.
     expect(decidirPortao(cabine('incidente-massivo'), CARTAO_DE_TESTE, [], true)).toEqual({ tipo: 'exibir' })
     expect(decidirPortao(cabine('sre-cloud-latencia'), CARTAO_DE_TESTE, [], true)).toEqual({ tipo: 'exibir' })
-    expect(decidirPortao(cabine('reset-senha-desbloqueio'), CARTAO_DE_TESTE, [], true)).toEqual({
-      tipo: 'aviso-missao-em-preparacao',
-    })
+    expect(decidirPortao(cabine('pasta-rede-inacessivel'), CARTAO_DE_TESTE, [], true)).toEqual({ tipo: 'exibir' })
     expect(decidirPortao({ pagina: 'plano-de-voo' }, null, [], true)).toEqual({ tipo: 'redirecionar', para: DESTINO_SEM_CARTAO })
-    // Causa em preparação (C4) não muda a decisão: só o status da Missão conta.
-    expect(decidirPortao({ ...cabine('pasta-rede-inacessivel'), causa: 'C4' }, CARTAO_DE_TESTE, [])).toEqual({ tipo: 'exibir' })
+    // A Causa pedida (C4) não muda a decisão: só o status da Missão e a escala contam.
+    expect(decidirPortao({ ...cabine('pasta-rede-inacessivel'), causa: 'C4' }, CARTAO_DE_TESTE, [], true)).toEqual({ tipo: 'exibir' })
   })
 })

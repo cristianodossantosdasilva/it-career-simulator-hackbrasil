@@ -35,17 +35,18 @@ const CODIGOS_CAUSA = ROTA_SUPORTE.escalas.flatMap((escala) =>
 )
 
 describe('calcularProgressoRota', () => {
-  it('com o catálogo atual e sem registros: Service Desk N1 Jr liberada por preparação, N2 e N3 bloqueadas', () => {
+  it('com o catálogo atual e sem registros: só a Help Desk N1 liberada, as demais bloqueadas em cadeia', () => {
     const visao = calcularProgressoRota(ROTA_SUPORTE, [])
     expect(visao.map((v) => [v.escala.id, v.estado])).toEqual([
       ['help-desk-n1', 'liberada'],
-      ['service-desk-n1-jr', 'liberada'],
+      ['service-desk-n1-jr', 'bloqueada'],
       ['n2-pleno', 'bloqueada'],
       ['n3-senior', 'bloqueada'],
     ])
-    expect(visao[0].semMissaoDisponivel).toBe(true)
-    expect(visao[0].cumprida).toBe(true)
-    expect(visao[1].liberadaPorPreparacao).toBe(true)
+    expect(visao[0].semMissaoDisponivel).toBe(false)
+    expect(visao[0].cumprida).toBe(false)
+    expect(visao[1].liberadaPorPreparacao).toBe(false)
+    expect(visao[1].escalaNecessaria?.id).toBe('help-desk-n1')
     expect(visao[2].escalaNecessaria?.id).toBe('service-desk-n1-jr')
     expect(visao[3].grupos.map((grupo) => grupo.vertente?.nome)).toEqual([
       'N3-A Redes e Nuvem',
@@ -54,8 +55,18 @@ describe('calcularProgressoRota', () => {
     ])
   })
 
-  it('um registro de pasta-rede-inacessivel conclui o Service Desk N1 Jr e libera a N2 Pleno', () => {
+  it('o registro de pasta-rede-inacessivel sozinho não libera o embarque da Service Desk N1 Jr: a Help Desk N1 vem antes', () => {
     const visao = calcularProgressoRota(ROTA_SUPORTE, [registroDeTeste('pasta-rede-inacessivel', 's-1')])
+    expect(visao[0].estado).toBe('liberada')
+    expect(visao[1].estado).toBe('bloqueada')
+    expect(visao[1].escalaNecessaria?.id).toBe('help-desk-n1')
+  })
+  it('os registros de reset-senha-desbloqueio e de pasta-rede-inacessivel concluem as duas primeiras escalas e liberam a N2 Pleno', () => {
+    const visao = calcularProgressoRota(ROTA_SUPORTE, [
+      registroDeTeste('reset-senha-desbloqueio', 's-0'),
+      registroDeTeste('pasta-rede-inacessivel', 's-1'),
+    ])
+    expect(visao[0].estado).toBe('concluida')
     expect(visao[1].estado).toBe('concluida')
     expect(visao[2].estado).toBe('liberada')
     expect(visao[2].liberadaPorPreparacao).toBe(false)
@@ -178,14 +189,14 @@ describe('calcularProgressoRota', () => {
 })
 
 describe('calcularBrevePiloto', () => {
-  it('com o catálogo atual: pendente e Help Desk N1 aguardando preparação', () => {
+  it('com o catálogo atual: pendente e nenhuma exigência aguarda preparação', () => {
     const todas = ROTA_SUPORTE.escalas
       .slice(1)
       .map((escala, i) => registroDeTeste(disponiveisDa(escala)[0].missao.id, `s-${i}`))
     const breve = calcularBrevePiloto(ROTA_SUPORTE, todas)
     expect(breve.conquistado).toBe(false)
     expect(breve.exigencias.map((e) => e.escalaId)).toEqual(ROTA_SUPORTE.escalas.map((e) => e.id))
-    expect(breve.exigencias[0]).toMatchObject({ cumprida: false, aguardaPreparacao: true })
+    expect(breve.exigencias[0]).toMatchObject({ cumprida: false, aguardaPreparacao: false })
     expect(breve.exigencias.slice(1).every((e) => e.cumprida)).toBe(true)
     expect(breve.exigencias[3].rotulo).toBe('Ao menos um voo em uma das vertentes da N3 Sênior')
   })
@@ -359,7 +370,7 @@ describe('calcularProgressoRota com o modo de demonstração', () => {
     const visao = calcularProgressoRota(ROTA_SUPORTE, [], { modoDemonstracao: true })
     expect(visao.map((v) => [v.escala.id, v.estado, v.liberadaPorDemonstracao])).toEqual([
       ['help-desk-n1', 'liberada', false],
-      ['service-desk-n1-jr', 'liberada', false],
+      ['service-desk-n1-jr', 'liberada', true],
       ['n2-pleno', 'liberada', true],
       ['n3-senior', 'liberada', true],
     ])

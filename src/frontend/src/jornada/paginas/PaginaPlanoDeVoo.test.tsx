@@ -70,10 +70,17 @@ describe('Página Plano de voo', () => {
     expect(within(cartaoDa('pasta-rede-inacessivel')).getByText('Concluída')).toBeInTheDocument()
   })
 
-  it('libera Service Desk N1 Jr com o texto de liberação por preparação', () => {
+  it('Service Desk N1 Jr abre bloqueada e libera depois do registro da Help Desk N1, sem texto de preparação', () => {
     abrir()
-    expect(screen.getByText('Liberada porque as missões de Help Desk N1 estão em preparação.')).toBeInTheDocument()
-    expect(screen.getByText('As missões desta escala estão em preparação no simulador.')).toBeInTheDocument()
+    expect(within(cartaoDa('pasta-rede-inacessivel')).getByText('Bloqueada')).toBeInTheDocument()
+    expect(screen.queryByText(/estão em preparação/)).not.toBeInTheDocument()
+    expect(within(cartaoDa('reset-senha-desbloqueio')).getByRole('link', { name: /Embarcar/ })).toHaveAttribute(
+      'href',
+      '/cabine/reset-senha-desbloqueio',
+    )
+    cleanup()
+    abrir(['reset-senha-desbloqueio'])
+    expect(within(cartaoDa('reset-senha-desbloqueio')).getByText('Concluída')).toBeInTheDocument()
     expect(within(cartaoDa('pasta-rede-inacessivel')).getByRole('link', { name: /Embarcar/ })).toBeInTheDocument()
   })
 
@@ -89,21 +96,22 @@ describe('Página Plano de voo', () => {
   })
 
   it.each(['reset-senha-desbloqueio', 'falha-backup-restore'] as const)(
-    '%s aparece em preparação, com o aviso honesto e sem Embarcar',
+    '%s aparece disponível, com Embarcar e sem aviso de preparação',
     (missao) => {
-      abrir(['pasta-rede-inacessivel', 'incidente-massivo'])
+      abrir(['reset-senha-desbloqueio', 'pasta-rede-inacessivel', 'incidente-massivo'])
       const cartao = cartaoDa(missao)
-      expect(within(cartao).getAllByText('Em preparação').length).toBeGreaterThan(0)
-      expect(within(cartao).getByText('Este cenário ainda não está disponível no simulador.')).toBeInTheDocument()
-      expect(within(cartao).queryByRole('link', { name: /Embarcar/ })).not.toBeInTheDocument()
-      expect(within(cartao).queryByRole('button', { name: /Embarcar/ })).not.toBeInTheDocument()
+      expect(within(cartao).queryByText('Em preparação')).not.toBeInTheDocument()
+      expect(within(cartao).queryByText('Este cenário ainda não está disponível no simulador.')).not.toBeInTheDocument()
+      expect(within(cartao).getByRole('link', { name: /Embarcar/ })).toHaveAttribute('href', `/cabine/${missao}`)
     },
   )
 
-  it('mostra só a contagem de Causas, sem os nomes das Causas em preparação', () => {
+  it('mostra só a contagem de Causas, sem os códigos das Causas', () => {
     abrir()
-    expect(within(cartaoDa('pasta-rede-inacessivel')).getByText('3 causas disponíveis e 1 em preparação')).toBeInTheDocument()
-    expect(within(cartaoDa('incidente-massivo')).getByText('1 causa disponível e 2 em preparação')).toBeInTheDocument()
+    expect(within(cartaoDa('reset-senha-desbloqueio')).getByText('3 causas disponíveis')).toBeInTheDocument()
+    expect(within(cartaoDa('pasta-rede-inacessivel')).getByText('4 causas disponíveis')).toBeInTheDocument()
+    expect(within(cartaoDa('incidente-massivo')).getByText('3 causas disponíveis')).toBeInTheDocument()
+    expect(within(cartaoDa('falha-backup-restore')).getByText('2 causas disponíveis')).toBeInTheDocument()
     const texto = document.body.textContent ?? ''
     expect(texto).not.toMatch(/\bC4\b/)
     expect(texto).not.toContain('EMAIL_PROVEDOR')
@@ -111,8 +119,8 @@ describe('Página Plano de voo', () => {
   })
 
   it('o Embarcar leva à Cabine sem causa nem semente', () => {
-    abrir(['pasta-rede-inacessivel', 'incidente-massivo'])
-    for (const missao of ['pasta-rede-inacessivel', 'incidente-massivo', 'sre-cloud-latencia'] as const) {
+    abrir(['reset-senha-desbloqueio', 'pasta-rede-inacessivel', 'incidente-massivo'])
+    for (const missao of ['reset-senha-desbloqueio', 'pasta-rede-inacessivel', 'incidente-massivo', 'sre-cloud-latencia'] as const) {
       const href = within(cartaoDa(missao)).getByRole('link', { name: /Embarcar/ }).getAttribute('href')
       expect(href).toBe(`/cabine/${missao}`)
       expect(href).not.toMatch(/causa|semente/)
@@ -121,13 +129,24 @@ describe('Página Plano de voo', () => {
 
   it('as opções avançadas só oferecem links de escalas liberadas e pedem uma semente válida', () => {
     abrir()
+    const semRegistro = screen.getByText('Opções avançadas para teste').closest('details') as HTMLElement
+    expect(within(semRegistro).queryByRole('link', { name: /Demo rápida/ })).not.toBeInTheDocument()
+    fireEvent.change(within(semRegistro).getByLabelText('Semente (número opcional)'), { target: { value: '7' } })
+    expect(within(semRegistro).getAllByRole('link', { name: /, semente 7/ }).map((link) => link.getAttribute('href'))).toEqual([
+      '/cabine/reset-senha-desbloqueio?semente=7&nova=1',
+    ])
+    cleanup()
+    abrir(['reset-senha-desbloqueio'])
     const opcoes = screen.getByText('Opções avançadas para teste').closest('details') as HTMLElement
     const demo = within(opcoes).getByRole('link', { name: /Demo rápida/ })
     expect(demo.getAttribute('href')).toMatch(/^\/cabine\/pasta-rede-inacessivel\?semente=42&causa=C1&nova=1$/)
     expect(within(opcoes).queryAllByRole('link', { name: /, semente \d/ })).toHaveLength(0)
     fireEvent.change(within(opcoes).getByLabelText('Semente (número opcional)'), { target: { value: '7' } })
     const links = within(opcoes).getAllByRole('link', { name: /, semente 7/ })
-    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/cabine/pasta-rede-inacessivel?semente=7&nova=1'])
+    expect(links.map((link) => link.getAttribute('href'))).toEqual([
+      '/cabine/reset-senha-desbloqueio?semente=7&nova=1',
+      '/cabine/pasta-rede-inacessivel?semente=7&nova=1',
+    ])
   })
 
   it('o convite ao copiloto não tem campo nem faz requisição', () => {

@@ -52,7 +52,7 @@ describe('Página Hangar', () => {
     }
   })
 
-  it('agrupa as Missões por escala e Vertente, com as em preparação e o status em texto', () => {
+  it('agrupa as Missões por escala e Vertente, com o status em texto', () => {
     render(<PaginaHangar />)
     const missoes = secao('Missões de Suporte de TI')
     const escalas = within(missoes)
@@ -72,12 +72,13 @@ describe('Página Hangar', () => {
     expect(within(grupoC).getByText(textosDaMissao('diagnostico-sql-readonly').titulo)).toBeInTheDocument()
     expect(within(vertentes[1]).getByText(textosDaMissao('falha-backup-restore').titulo)).toBeInTheDocument()
 
-    const emPreparacao = cartaoDaMissao('reset-senha-desbloqueio')
-    expect(within(emPreparacao).getByText('Em preparação')).toBeInTheDocument()
-    expect(within(emPreparacao).getByText('3 causas em preparação')).toBeInTheDocument()
+    const reset = cartaoDaMissao('reset-senha-desbloqueio')
+    expect(within(reset).getByText('Disponível')).toBeInTheDocument()
+    expect(within(reset).getByText('3 causas disponíveis')).toBeInTheDocument()
     const disponivel = cartaoDaMissao('pasta-rede-inacessivel')
     expect(within(disponivel).getByText('Disponível')).toBeInTheDocument()
-    expect(within(disponivel).getByText('3 causas disponíveis e 1 em preparação')).toBeInTheDocument()
+    expect(within(disponivel).getByText('4 causas disponíveis')).toBeInTheDocument()
+    expect(within(missoes).queryByText('Em preparação')).not.toBeInTheDocument()
     expect(within(missoes).getAllByRole('listitem')).toHaveLength(7)
   })
 

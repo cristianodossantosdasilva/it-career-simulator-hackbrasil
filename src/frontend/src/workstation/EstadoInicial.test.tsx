@@ -8,6 +8,8 @@ import {
   salvarEstadoAcademia,
 } from '../educacao/catalogoEducacional'
 import { abrirAplicacao, irPeloMenu, limparNavegador } from '../testes/abrirAplicacao'
+import { registroDeTeste } from '../testes/armazenamentoFalso'
+import { CHAVE_REGISTROS_VOO, serializarRegistros } from '../jornada/armazenamento/registrosVoo'
 
 afterEach(() => {
   cleanup()
@@ -33,13 +35,15 @@ describe('Estado inicial do Plano de voo', () => {
     const criarSessao = espiarInicioDeSessao()
     abrirAplicacao('/plano-de-voo')
     fireEvent.click(screen.getByRole('button', { name: 'Iniciar primeiro voo' }))
-    expect(window.location.pathname).toBe('/cabine/pasta-rede-inacessivel')
+    expect(window.location.pathname).toBe('/cabine/reset-senha-desbloqueio')
     await waitFor(() => expect(criarSessao).toHaveBeenCalledTimes(1))
-    expect(criarSessao).toHaveBeenCalledWith({ cenarioId: 'pasta-rede-inacessivel' })
+    expect(criarSessao).toHaveBeenCalledWith({ cenarioId: 'reset-senha-desbloqueio' })
   })
 
   it('Demo rapida inicia a missao de demonstracao com semente 42 e a Causa do catalogo', async () => {
     const criarSessao = espiarInicioDeSessao()
+    // A Service Desk N1 Jr só libera depois do registro da Help Desk N1.
+    window.localStorage.setItem(CHAVE_REGISTROS_VOO, serializarRegistros([registroDeTeste('reset-senha-desbloqueio', 'sessao-ajuda')]))
     abrirAplicacao('/plano-de-voo')
     const opcoes = screen.getByText('Opções avançadas para teste').closest('details') as HTMLDetailsElement
     opcoes.open = true

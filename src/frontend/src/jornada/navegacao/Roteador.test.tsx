@@ -59,13 +59,13 @@ describe('Roteador com portões', () => {
     expect(erro).not.toHaveBeenCalled()
   })
 
-  it('com cartão, exibe o Plano de voo e repassa o aviso de missão em preparação à Cabine', () => {
+  it('com cartão, exibe o Plano de voo e repassa o aviso de escala bloqueada à Cabine', () => {
     const cartao = { [CHAVE_CARTAO_EMBARQUE]: serializarCartao(CARTAO_DE_TESTE) }
     abrir('/plano-de-voo', cartao)
     expect(screen.getByRole('heading', { level: 1, name: 'Plano de voo' })).toBeInTheDocument()
     cleanup()
-    abrir('/cabine/reset-senha-desbloqueio', cartao)
-    expect(window.location.pathname).toBe('/cabine/reset-senha-desbloqueio')
-    expect(screen.getByText('Portão: aviso-missao-em-preparacao')).toBeInTheDocument()
+    abrir('/cabine/incidente-massivo', cartao)
+    expect(window.location.pathname).toBe('/cabine/incidente-massivo')
+    expect(screen.getByText('Portão: aviso-escala-bloqueada')).toBeInTheDocument()
   })
 })
