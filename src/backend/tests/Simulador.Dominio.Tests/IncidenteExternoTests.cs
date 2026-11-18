@@ -369,14 +369,25 @@ public class IncidenteExternoTests
     }
 
     [Fact]
-    public void SorteioSemCausaForcada_AteAAtivacao_DevolveSempreOMesmoPatchMassivo()
+    public void SorteioSemCausaForcada_AposAAtivacao_CobreAs3CausasDeFormaDeterministica()
     {
+        string[] sorteio = ["PATCH_MASSIVO", "EMAIL_PROVEDOR", "DOMINIO_SUSPENSO"];
         var catalogo = new CatalogoCenarios();
+        var vistas = new HashSet<string>();
+        for (long semente = 0; semente < 200; semente++)
+        {
+            var causa = catalogo.Obter(Cenario, Versao, null, semente).Causa;
+            Assert.Equal(sorteio[new SplitMix64(semente).NextInt(3)], causa);
+            Assert.Equal(causa, catalogo.Obter(Cenario, Versao, null, semente).Causa);
+            vistas.Add(causa);
+        }
+        Assert.Equal(sorteio.Order().ToArray(), vistas.Order().ToArray());
+        // Causa forcada desconhecida cai no Sorteio pela semente.
+        Assert.Equal(sorteio[new SplitMix64(5).NextInt(3)], catalogo.Obter(Cenario, Versao, "CAUSA_INEXISTENTE", 5).Causa);
+        // O apelido GATEWAY continua gravando PATCH_MASSIVO, qualquer que seja a semente.
         for (long semente = 0; semente < 20; semente++)
-            Assert.Equal("PATCH_MASSIVO", catalogo.Obter(Cenario, Versao, null, semente).Causa);
-        Assert.Equal("PATCH_MASSIVO", catalogo.Obter(Cenario, Versao, "CAUSA_INEXISTENTE", 5).Causa);
+            Assert.Equal("PATCH_MASSIVO", catalogo.Obter(Cenario, Versao, "GATEWAY", semente).Causa);
     }
-
     // ---------------------------------------------------------------- DOMINIO_SUSPENSO
 
     [Fact]

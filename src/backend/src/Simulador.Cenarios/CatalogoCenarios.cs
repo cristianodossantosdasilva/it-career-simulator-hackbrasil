@@ -4,7 +4,8 @@ namespace Simulador.Cenarios;
 
 public sealed partial class CatalogoCenarios : ICatalogoCenarios
 {
-    private static readonly string[] CausasPastaRede = ["C1", "C2", "C3"];
+    // Ativacao_no_Sorteio (autorizada pelo usuario): C4 entra no Sorteio. Sessoes ja gravadas guardam a Causa em SessaoIniciada e nao mudam.
+    private static readonly string[] CausasPastaRede = ["C1", "C2", "C3", "C4"];
     private static readonly string[] CausasSreCloud = ["OOM_KILLED", "POOL_EXHAUSTED", "CERT_EXPIRED"];
 
     public bool SuportaVersao(string cenarioId, string versaoManifesto) =>
@@ -40,7 +41,6 @@ public sealed partial class CatalogoCenarios : ICatalogoCenarios
 
     private static DefinicaoCenario CriarPastaRede(string versao, string? causaForcada, long semente)
     {
-        // C4 so nasce por causaForcada ate a Ativacao_no_Sorteio (tarefa 19): CausasPastaRede continua com C1, C2 e C3.
         var causa = causaForcada is "C1" or "C2" or "C3" or "C4"
             ? causaForcada
             : CausasPastaRede[new SplitMix64(semente).NextInt(CausasPastaRede.Length)];

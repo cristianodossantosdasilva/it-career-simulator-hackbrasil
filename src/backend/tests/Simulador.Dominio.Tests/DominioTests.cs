@@ -214,7 +214,7 @@ public class DominioTests
     [Fact]
     public void Nivel3_IncidenteMassivo_ProblemaEmLoteERcaNormalizada()
     {
-        var cenario = _catalogo.Obter("incidente-massivo", "v0.1-hackathon", null, 1);
+        var cenario = _catalogo.Obter("incidente-massivo", "v0.1-hackathon", "PATCH_MASSIVO", 1);
         var inicio = Motor.Iniciar(cenario, 1);
         var eventos = inicio.Eventos.ToList();
         var estado = inicio.NovoEstado;

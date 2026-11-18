@@ -1,4 +1,7 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
+using Simulador.Cenarios;
 
 namespace Simulador.Dominio.Tests;
 
@@ -161,5 +164,69 @@ public class PastaRedeC4Tests
         Assert.Equal(JsonSerializer.Serialize(s.Estado.Meta), JsonSerializer.Serialize(rec.Meta));
         Assert.Equal(s.Avaliar().CurriculoVivo.HashAuditoriaSha256,
             Simulador.Avaliacao.Juiz360.Avaliar(rec, s.Eventos).CurriculoVivo.HashAuditoriaSha256);
+    }
+
+    // ---------------------------------------------------------------- Ativacao_no_Sorteio: sessoes gravadas ficam estaveis
+
+    // SHA-256 do JSON da Definicao obtida com causa forcada, medido no commit anterior a ativacao (f587cc5),
+    // antes de CausasPastaRede e CausasIncidenteSorteio receberem as Causas novas.
+    private static readonly Dictionary<(string Cenario, string Versao, string Causa), string> DefinicaoAntesDaAtivacao = new()
+    {
+        [("pasta-rede-inacessivel", "v1.1", "C1")] = "c026608e84bed2b9b2512d4d5424bcdb4f5c18913a9599ef23aedd5d7fce48b2",
+        [("pasta-rede-inacessivel", "v1.1", "C2")] = "1fec6ffb40d479e1aa5a10609d5c9e7339d6e91e5733c654c54650dfb1a9f02f",
+        [("pasta-rede-inacessivel", "v1.1", "C3")] = "4012a97daf6eddec57eca639c367330892e17085eb78273cbb59af4962d8d477",
+        [("pasta-rede-inacessivel", "v1.1", "C4")] = "638e6789341b590a6d5bf5b52d4913340e47f7bcb9571ad6498c5978f040217a",
+        [("incidente-massivo", "v0.1-hackathon", "PATCH_MASSIVO")] = "f4ecf610a77c9146d4b6292e357fa4dea582cded3c7185edc08aabfde60e6192",
+        [("incidente-massivo", "v0.1-hackathon", "EMAIL_PROVEDOR")] = "99f07b7e0cbd42820b42b1ef37ff692caa0d447a18683f76e94b67f340473b19",
+        [("incidente-massivo", "v0.1-hackathon", "DOMINIO_SUSPENSO")] = "e5a89381d82e116347eece8a4b2b35539b3e80a0e4bc577c00185e1b9a02206e"
+    };
+
+    private static string HashDaDefinicao(DefinicaoCenario d) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(d)))).ToLowerInvariant();
+
+    [Fact]
+    public void CausaForcada_AposAAtivacao_DevolveADefinicaoDeAntesParaAsSementes0a199()
+    {
+        var catalogo = new CatalogoCenarios();
+        foreach (var ((cenario, versao, causa), esperado) in DefinicaoAntesDaAtivacao)
+            for (long semente = 0; semente < 200; semente++)
+            {
+                var definicao = catalogo.Obter(cenario, versao, causa, semente);
+                Assert.Equal(causa, definicao.Causa);
+                Assert.True(esperado == HashDaDefinicao(definicao), $"Definicao mudou: {cenario} {causa} semente {semente}");
+            }
+    }
+
+    [Fact]
+    public void SessaoGravadaComCausaC1aC3_ReconstroiIgualAposAAtivacao()
+    {
+        foreach (var causa in new[] { "C1", "C2", "C3" })
+            foreach (var semente in new long[] { 0, 1, 2, 3, 48, 99, 199 })
+            {
+                var s = SessaoDeTeste.Iniciar(Cenario, Versao, causa, semente);
+                s.Aplicar("itsm.assumir_chamado", new { chamadoId = "CH-0001" });
+                s.Comando("whoami /groups");
+                s.Comando("nslookup fileserver.aurora.local");
+                s.Aplicar("dialogo.pedir_pista");
+                Assert.Equal(causa, s.Estado.Meta.Causa);
+                BackupRestoreTests.AssertReconstrucaoIgual(s);
+            }
+    }
+
+    [Fact]
+    public void SorteioSemCausaForcada_AposAAtivacao_UsaC1aC4ESoC4EhNova()
+    {
+        string[] sorteio = ["C1", "C2", "C3", "C4"];
+        var catalogo = new CatalogoCenarios();
+        var vistas = new HashSet<string>();
+        for (long semente = 0; semente < 200; semente++)
+        {
+            var causa = catalogo.Obter(Cenario, Versao, null, semente).Causa;
+            Assert.Equal(sorteio[new SplitMix64(semente).NextInt(4)], causa);
+            vistas.Add(causa);
+        }
+        Assert.Equal(4, vistas.Count);
+        Assert.Equal("C4", catalogo.Obter(Cenario, Versao, null, 48).Causa);
+        Assert.Equal("C3", catalogo.Obter(Cenario, Versao, null, 2).Causa);
     }
 }

@@ -52,9 +52,11 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
     }
 
     [Fact]
-    public async Task Semente48_SorteiaC3SemPostgres_EOcultaCausaNoReplayEmAndamento()
+    public async Task Semente2_SorteiaC3SemPostgres_EOcultaCausaNoReplayEmAndamento()
     {
-        const long semente = 48;
+        // Com 4 Causas no Sorteio (C4 ativada), a semente 48 passou a sortear C4 (resto 3 modulo 4).
+        // A semente 2 tem resto 2 modulo 4 e continua sorteando C3.
+        const long semente = 2;
         var catalogo = new CatalogoCenarios();
         var cenario = catalogo.Obter("pasta-rede-inacessivel", "v1.1", null, semente);
         Assert.Equal("C3", cenario.Causa);

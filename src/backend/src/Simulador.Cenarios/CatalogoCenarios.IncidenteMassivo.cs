@@ -4,8 +4,8 @@ namespace Simulador.Cenarios;
 
 public sealed partial class CatalogoCenarios
 {
-    // Causas sorteadas sem Causa forcada. EMAIL_PROVEDOR e DOMINIO_SUSPENSO entram aqui na Ativacao_no_Sorteio.
-    private static readonly string[] CausasIncidenteSorteio = ["PATCH_MASSIVO"];
+    // Causas sorteadas sem Causa forcada (Ativacao_no_Sorteio autorizada pelo usuario). Sessoes ja gravadas guardam a Causa em SessaoIniciada.
+    private static readonly string[] CausasIncidenteSorteio = ["PATCH_MASSIVO", "EMAIL_PROVEDOR", "DOMINIO_SUSPENSO"];
 
     // Causas aceitas como forcadas. GATEWAY e apelido de entrada de PATCH_MASSIVO (a Causa gravada e PATCH_MASSIVO).
     private static readonly string[] CausasIncidenteForcadas = ["PATCH_MASSIVO", "EMAIL_PROVEDOR", "DOMINIO_SUSPENSO", "GATEWAY"];

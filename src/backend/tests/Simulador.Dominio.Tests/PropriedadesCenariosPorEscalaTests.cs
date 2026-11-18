@@ -209,14 +209,14 @@ public class PropriedadesCenariosPorEscalaTests
         });
     }
 
-    // Feature: cenarios-por-escala, Property 8: Sorteio legado inalterado (pasta-rede-inacessivel antes da ativacao)
-    // Validates: Requirements 16.2
+    // Feature: cenarios-por-escala, Property 8: Sorteio de pasta-rede-inacessivel apos a ativacao (C1 a C4, calculo independente)
+    // Validates: Requirements 16.2, 18.4
     [Theory]
     [MemberData(nameof(Sementes200Sequenciais))]
-    public void Propriedade8_SorteioLegadoDePastaRede_ContinuaComC1C2C3(long semente)
+    public void Propriedade8_SorteioDePastaRede_AposAAtivacaoUsaC1aC4(long semente)
     {
-        string[] legado = ["C1", "C2", "C3"];
-        var esperado = legado[new SplitMix64(semente).NextInt(3)];
+        string[] sorteio = ["C1", "C2", "C3", "C4"];
+        var esperado = sorteio[new SplitMix64(semente).NextInt(4)];
         var obtido = new CatalogoCenarios().Obter("pasta-rede-inacessivel", "v1.1", null, semente);
         Assert.Equal(esperado, obtido.Causa);
     }
@@ -372,18 +372,16 @@ public class PropriedadesCenariosPorEscalaTests
         AssertReconstrucaoIgual(s);
     }
 
-    // Feature: cenarios-por-escala, Property 8: Sorteio legado inalterado (incidente-massivo antes da ativacao)
-    // Validates: Requirement 16.3
+    // Feature: cenarios-por-escala, Property 8: Sorteio de incidente-massivo apos a ativacao (3 Causas, calculo independente)
+    // Validates: Requirements 16.3, 18.4
     [Theory]
     [MemberData(nameof(Sementes200Sequenciais))]
-    public void Propriedade8_SorteioDeIncidenteMassivo_AteAAtivacaoDevolveSempreOPatchMassivo(long semente)
+    public void Propriedade8_SorteioDeIncidenteMassivo_AposAAtivacaoUsaAs3Causas(long semente)
     {
+        string[] sorteio = ["PATCH_MASSIVO", "EMAIL_PROVEDOR", "DOMINIO_SUSPENSO"];
         var obtido = new CatalogoCenarios().Obter(CenarioIncidente, Versao, null, semente);
-        Assert.Equal("PATCH_MASSIVO", obtido.Causa);
-        Assert.Single(obtido.EstacaoInicial.Servicos);
-        Assert.Equal("AuroraGateway", obtido.EstacaoInicial.Servicos[0].Nome);
+        Assert.Equal(sorteio[new SplitMix64(semente).NextInt(3)], obtido.Causa);
     }
-
     // Feature: cenarios-por-escala, Property 1: Reconstrucao equivalente (DOMINIO_SUSPENSO)
     // Validates: Requirements 15.2, 15.3
     [Theory]
@@ -439,5 +437,22 @@ public class PropriedadesCenariosPorEscalaTests
         Assert.Equal(a.CurriculoVivo.HashAuditoriaSha256, b.CurriculoVivo.HashAuditoriaSha256);
         Assert.Equal(9, a.Criterios.Count);
         Assert.All(a.Criterios, c => Assert.Contains(c.LinkKb!, Simulador.Avaliacao.KbCatalogo.UriParaId.Keys));
+    }
+
+    // Feature: cenarios-por-escala, Property 8 (segunda metade): sessoes gravadas com Causa C1 a C3 reconstroem igual
+    // Validates: Requirements 16.2, 18.4
+    [Theory]
+    [MemberData(nameof(Sementes50))]
+    public void Propriedade8_SessoesGravadasComC1aC3_ReconstroemIgualAposAAtivacao(long semente)
+    {
+        foreach (var causa in new[] { "C1", "C2", "C3" })
+        {
+            var s = SessaoDeTeste.Iniciar("pasta-rede-inacessivel", "v1.1", causa, semente);
+            s.Aplicar("itsm.assumir_chamado", new { chamadoId = "CH-0001" });
+            s.Comando("whoami /groups");
+            s.Aplicar("dialogo.pedir_pista");
+            Assert.Equal(causa, s.Estado.Meta.Causa);
+            AssertReconstrucaoIgual(s);
+        }
     }
 }
