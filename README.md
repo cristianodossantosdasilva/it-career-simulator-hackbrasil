@@ -128,7 +128,7 @@ Contagens medidas em **2026-11-18**, branch `jornada-de-voo`:
 | `dotnet test src/backend/Simulador.slnx` | 2344 testes aprovados, 0 falhas (`Simulador.Dominio.Tests` 2316 e `Simulador.Api.Tests` 28) |
 | `npm test -- --run` em `src/frontend` | 385 testes aprovados em 49 arquivos, 0 falhas |
 
-`Simulador.Infra.IntegrationTests` roda no CI contra PostgreSQL 17 e não entrou nessa medição local. Os testes de ponta a ponta (Playwright) ficam em `src/frontend/e2e`.
+`Simulador.Infra.IntegrationTests` roda no CI contra PostgreSQL 17 e não entrou nessa medição local. Os testes de ponta a ponta (Playwright) ficam em `src/frontend/e2e`. A CI roda os projetos `chromium`, `mobile-375` e `desktop-1440` (job `e2e`, com a API em segundo plano e o `vite preview`); os demais viewports rodam localmente com `npx playwright test`.
 
 ## Documentação
 

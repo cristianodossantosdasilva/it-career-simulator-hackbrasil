@@ -8,6 +8,11 @@ import { defineConfig, devices } from '@playwright/test'
  */
 const SPEC_VISUAL = /(visual|contraste)\.spec\.ts$/
 
+// Na CI, os servidores sobem fora do Playwright (backend em segundo plano e vite preview).
+// E2E_SERVIDORES_EXTERNOS=1 manda o Playwright reaproveitar esses servidores em vez de recusar a porta ocupada.
+const reaproveitarServidor = !process.env.CI || process.env.E2E_SERVIDORES_EXTERNOS === '1'
+const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm'
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: false,
@@ -52,13 +57,13 @@ export default defineConfig({
       // Toda a suite usa 127.0.0.1; o limite padrao de 120 req/min por IP gerava HTTP 429 (F5).
       // Vale so para este servidor de teste. Um backend ja ativo na porta 8080 ignora esta variavel.
       env: { RateLimit__PermitLimit: '5000' },
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: reaproveitarServidor,
       timeout: 60_000,
     },
     {
-      command: 'npm.cmd run dev -- --host 127.0.0.1 --port 5173 --strictPort',
+      command: `${npm} run dev -- --host 127.0.0.1 --port 5173 --strictPort`,
       url: 'http://127.0.0.1:5173',
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: reaproveitarServidor,
       timeout: 60_000,
     },
   ],
