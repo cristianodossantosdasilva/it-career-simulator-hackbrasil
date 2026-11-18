@@ -8,8 +8,12 @@ import {
 } from '../testes/geradoresJornada'
 import { type Gerador, paraTodo } from '../testes/propriedade'
 import type { RegistroDeVoo } from './armazenamento/registrosVoo'
-import { type Escala, type Rota, missoesDaEscala } from './catalogos/catalogoRotas'
-import { calcularBrevePiloto, calcularProgressoRota, textoCausas } from './progressoRota'
+import { type Certificacao, CATALOGO_CERTIFICACOES } from './catalogos/catalogoCertificacoes'
+import { type Parceiro, CATALOGO_PARCEIROS } from './catalogos/catalogoParceiros'
+import { type Escala, type Missao, type Rota, missoesDaEscala } from './catalogos/catalogoRotas'
+import { APRESENTACAO_STATUS, type StatusDisponibilidade } from './catalogos/status'
+import { textosDaMissao } from './componentes/textosDaMissao'
+import { calcularBrevePiloto, calcularProgressoRota, textoCausas, visaoDoHangar } from './progressoRota'
 
 function disponiveisDa(escala: Escala) {
   return missoesDaEscala(escala).filter((item) => item.missao.status === 'disponivel')
@@ -200,5 +204,101 @@ describe('calcularBrevePiloto', () => {
       expect(breve.conquistado).toBe(breve.exigencias.every((e) => e.cumprida))
       expect(calcularBrevePiloto(rota, registros)).toEqual(breve)
     })
+  })
+})
+
+const TRES_STATUS: readonly StatusDisponibilidade[] = ['disponivel', 'em-preparacao', 'futuro']
+
+function comTresStatus(g: Gerador, rota: Rota): Rota {
+  const sortear = (missao: Missao): Missao => ({ ...missao, status: g.escolher(TRES_STATUS) })
+  return {
+    ...rota,
+    status: g.escolher(TRES_STATUS),
+    escalas: rota.escalas.map((escala) => ({
+      ...escala,
+      missoes: escala.missoes.map(sortear),
+      vertentes: escala.vertentes.map((vertente) => ({ ...vertente, missoes: vertente.missoes.map(sortear) })),
+    })),
+  }
+}
+
+function gerarCatalogos(g: Gerador) {
+  const rota = comTresStatus(g, ROTA_SUPORTE)
+  const rotaSemEscalas: Rota = { ...rota, id: 'rota-extra', nome: 'Rota extra', status: g.escolher(TRES_STATUS), escalas: [] }
+  const certificacoes: Certificacao[] = CATALOGO_CERTIFICACOES.map((item) => ({ ...item, status: g.escolher(TRES_STATUS) }))
+  const parceiros: Parceiro[] = CATALOGO_PARCEIROS.map((item) => ({ ...item, status: g.escolher(TRES_STATUS) }))
+  return { rotas: [rota, rotaSemEscalas], certificacoes, parceiros }
+}
+
+function textoEIconeDefinidos(item: { statusTexto: string; statusIcone: string }, status: StatusDisponibilidade) {
+  expect(item.statusTexto).toBeTruthy()
+  expect(item.statusIcone).toBeTruthy()
+  expect(item.statusTexto).toBe(APRESENTACAO_STATUS[status].texto)
+  expect(item.statusIcone).toBe(APRESENTACAO_STATUS[status].icone)
+}
+
+describe('visaoDoHangar e certificações por escala', () => {
+  it('Feature: jornada-de-voo, Property 18: Catálogo refletido sem cópia', () => {
+    paraTodo(
+      'o Hangar e as escalas refletem o status de cada item do catálogo',
+      gerarCatalogos,
+      ({ rotas, certificacoes, parceiros }) => {
+        const visao = visaoDoHangar(rotas, certificacoes, parceiros)
+
+        expect(visao.rotas.map((item) => item.id)).toEqual(rotas.map((rota) => rota.id))
+        visao.rotas.forEach((item, i) => {
+          textoEIconeDefinidos(item, rotas[i].status)
+          expect(item.titulo).toBe(rotas[i].nome)
+        })
+        visao.certificacoes.forEach((item, i) => {
+          textoEIconeDefinidos(item, certificacoes[i].status)
+          expect([item.id, item.titulo, item.descricao]).toEqual([
+            certificacoes[i].id,
+            certificacoes[i].nome,
+            certificacoes[i].descricao,
+          ])
+        })
+        expect(visao.certificacoes).toHaveLength(certificacoes.length)
+        visao.parceiros.forEach((item, i) => {
+          textoEIconeDefinidos(item, parceiros[i].status)
+          expect(item.descricao).toBe(parceiros[i].descricao)
+        })
+        expect(visao.parceiros).toHaveLength(parceiros.length)
+
+        // Toda Missão, inclusive as em preparação, uma vez só, no grupo da sua escala e Vertente.
+        const esperadas = rotas.flatMap((rota) => rota.escalas.flatMap((escala) => missoesDaEscala(escala).map((item) => ({ ...item, escala }))))
+        const exibidas = visao.missoes.flatMap((grupo) => grupo.itens.map((item) => ({ item, grupo })))
+        expect(exibidas.map(({ item }) => item.id).sort()).toEqual(esperadas.map(({ missao }) => missao.id).sort())
+        for (const { missao, escala, vertente } of esperadas) {
+          const ocorrencias = exibidas.filter(({ item }) => item.id === missao.id)
+          expect(ocorrencias).toHaveLength(1)
+          const { item, grupo } = ocorrencias[0]
+          expect(grupo.escala.id).toBe(escala.id)
+          expect(grupo.vertente?.id ?? null).toBe(vertente?.id ?? null)
+          textoEIconeDefinidos(item, missao.status)
+          expect(item.titulo).toBe(textosDaMissao(missao.id).titulo)
+        }
+
+        // As certificações de cada escala vêm do mesmo catálogo, na ordem dele, sem lista própria.
+        const rota = rotas[0]
+        const porEscala = calcularProgressoRota(rota, [], { certificacoes })
+        for (const escalaVisao of porEscala) {
+          const esperadasDaEscala = certificacoes.filter((item) => item.escalaIds.includes(escalaVisao.escala.id))
+          expect(escalaVisao.certificacoes.map((item) => item.id)).toEqual(esperadasDaEscala.map((item) => item.id))
+          escalaVisao.certificacoes.forEach((item, i) => textoEIconeDefinidos(item, esperadasDaEscala[i].status))
+        }
+      },
+    )
+  })
+
+  it('o catálogo atual põe cada certificação na escala do design e aceita um catálogo vazio', () => {
+    const visao = calcularProgressoRota(ROTA_SUPORTE, [])
+    expect(visao.map((escala) => escala.certificacoes.map((item) => item.titulo))).toEqual([
+      ['CompTIA A+'],
+      ['ITIL 4 Foundation', 'CompTIA Network+'],
+      ['ITIL 4 Foundation'],
+      ['CompTIA Security+', 'Fundamentos de nuvem de provedores públicos (referência genérica)'],
+    ])
+    expect(calcularProgressoRota(ROTA_SUPORTE, [], { certificacoes: [] }).every((escala) => escala.certificacoes.length === 0)).toBe(true)
   })
 })

@@ -1,5 +1,10 @@
+import type { NomeIcone } from '../ui/Icone'
 import type { RegistroDeVoo } from './armazenamento/registrosVoo'
+import { type Certificacao, CATALOGO_CERTIFICACOES } from './catalogos/catalogoCertificacoes'
+import { type Parceiro, TITULO_TIPO_PARCEIRO } from './catalogos/catalogoParceiros'
 import { type Escala, type IdMissao, type Missao, type Rota, type Vertente, missoesDaEscala } from './catalogos/catalogoRotas'
+import { APRESENTACAO_STATUS, type StatusDisponibilidade } from './catalogos/status'
+import { textosDaMissao } from './componentes/textosDaMissao'
 import { enderecoDe } from './navegacao/rotas'
 
 export type EstadoEscala = 'liberada' | 'bloqueada' | 'concluida'
@@ -25,6 +30,15 @@ export interface VisaoGrupoMissoes {
   missoes: readonly VisaoMissao[]
 }
 
+/** Item de catálogo já com o status em texto e ícone, vindo de APRESENTACAO_STATUS do próprio item. */
+export interface VisaoItemCatalogo {
+  id: string
+  titulo: string
+  descricao: string
+  status: StatusDisponibilidade
+  statusTexto: string
+  statusIcone: NomeIcone
+}
 export interface VisaoEscala {
   escala: Escala
   estado: EstadoEscala
@@ -36,6 +50,8 @@ export interface VisaoEscala {
   /** Preenchida só quando o estado é bloqueada. */
   escalaNecessaria: Escala | null
   grupos: readonly VisaoGrupoMissoes[]
+  /** Certificações de referência desta escala, na ordem do catálogo. */
+  certificacoes: readonly VisaoItemCatalogo[]
 }
 
 function missaoDisponivel(missao: Missao): boolean {
@@ -56,6 +72,15 @@ function contarCausas(missao: Missao): ContagemCausas {
   }
 }
 
+function itemDoCatalogo(
+  item: { id: string; status: StatusDisponibilidade },
+  titulo: string,
+  descricao: string,
+): VisaoItemCatalogo {
+  const { texto, icone } = APRESENTACAO_STATUS[item.status]
+  return { id: item.id, titulo, descricao, status: item.status, statusTexto: texto, statusIcone: icone }
+}
+
 function missoesComRegistro(registros: readonly RegistroDeVoo[]): ReadonlySet<string> {
   return new Set(registros.map((registro) => registro.missao))
 }
@@ -64,7 +89,12 @@ function missoesComRegistro(registros: readonly RegistroDeVoo[]): ReadonlySet<st
  * Pura. Estado de cada escala calculado só pelos Registros_de_Voo e pelo status das Missões. Escala e
  * Vertente de um registro vêm do catálogo pela `missao`, não dos campos gravados no registro.
  */
-export function calcularProgressoRota(rota: Rota, registros: readonly RegistroDeVoo[]): readonly VisaoEscala[] {
+export function calcularProgressoRota(
+  rota: Rota,
+  registros: readonly RegistroDeVoo[],
+  opcoes: { certificacoes?: readonly Certificacao[] } = {},
+): readonly VisaoEscala[] {
+  const certificacoes = opcoes.certificacoes ?? CATALOGO_CERTIFICACOES
   const comRegistro = missoesComRegistro(registros)
   const resumo = rota.escalas.map((escala) => {
     const disponiveis = missoesDaEscala(escala).filter((item) => missaoDisponivel(item.missao))
@@ -112,8 +142,52 @@ export function calcularProgressoRota(rota: Rota, registros: readonly RegistroDe
       liberadaPorPreparacao: !bloqueada && indice > 0 && resumo[indice - 1].semMissaoDisponivel,
       escalaNecessaria: bloqueada ? anterior : null,
       grupos,
+      certificacoes: certificacoes
+        .filter((item) => item.rotaId === rota.id && item.escalaIds.includes(escala.id))
+        .map((item) => itemDoCatalogo(item, item.nome, item.descricao)),
     }
   })
+}
+
+export interface VisaoMissaoHangar extends VisaoItemCatalogo {
+  /** Só a contagem. Nomes e códigos de Causa não saem do catálogo. */
+  causas: ContagemCausas
+}
+export interface VisaoGrupoHangar {
+  escala: Escala
+  vertente: Vertente | null
+  itens: readonly VisaoMissaoHangar[]
+}
+export interface VisaoHangar {
+  rotas: readonly VisaoItemCatalogo[]
+  /** Todas as Missões, inclusive as em preparação, uma vez cada, por escala e Vertente. */
+  missoes: readonly VisaoGrupoHangar[]
+  certificacoes: readonly VisaoItemCatalogo[]
+  parceiros: readonly VisaoItemCatalogo[]
+}
+/** Pura. Reflete os catálogos recebidos, sem lista própria e sem cópia de texto de status. */
+export function visaoDoHangar(
+  rotas: readonly Rota[],
+  certificacoes: readonly Certificacao[],
+  parceiros: readonly Parceiro[],
+): VisaoHangar {
+  return {
+    rotas: rotas.map((rota) => itemDoCatalogo(rota, rota.nome, rota.descricao)),
+    missoes: rotas.flatMap((rota) =>
+      rota.escalas.flatMap((escala) =>
+        gruposDaEscala(escala).map(({ vertente, missoes }) => ({
+          escala,
+          vertente,
+          itens: missoes.map((missao): VisaoMissaoHangar => {
+            const { titulo, descricao } = textosDaMissao(missao.id)
+            return { ...itemDoCatalogo(missao, titulo, descricao ?? ''), causas: contarCausas(missao) }
+          }),
+        })),
+      ),
+    ),
+    certificacoes: certificacoes.map((item) => itemDoCatalogo(item, item.nome, item.descricao)),
+    parceiros: parceiros.map((item) => itemDoCatalogo(item, TITULO_TIPO_PARCEIRO[item.tipo], item.descricao)),
+  }
 }
 
 function plural(quantidade: number, singular: string, varias: string): string {
