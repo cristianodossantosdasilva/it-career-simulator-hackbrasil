@@ -11,7 +11,7 @@ Ao criar ou alterar interface, siga as regras do documento abaixo. Ele é a font
 
 Regras de execução para o agente:
 
-- Antes de entregar mudança visual, abrir a página em 375 e 1440 px, nos temas `corporate` e `tactical`, com o Playwright MCP, e conferir as capturas.
+- Antes de entregar mudança visual, abrir a página em 375 e 1440 px, nos temas `operacao` (hoje `tactical` no CSS) e `corporativo` (hoje `corporate`), e também em `editorial`, `acolhedor` e no alto contraste (`data-contraste`) quando existirem, com o Playwright MCP, e conferir as capturas. Chaves do navegador: `itfs_tema` e `itfs_contraste`. A renomeação no CSS é feita pela spec `temas-selecionaveis`.
 - Nenhum valor de cor, espaço, raio ou sombra fora das definições de token em `src/frontend/src/index.css`.
 - Ícones somente por `src/frontend/src/ui/Icone.tsx`. A biblioteca `lucide-react` já está instalada.
 - Toda animação precisa de tratamento de `prefers-reduced-motion`.

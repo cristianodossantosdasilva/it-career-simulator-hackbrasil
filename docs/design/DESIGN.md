@@ -16,14 +16,14 @@ A home vocacional e os materiais do pitch (capa, vídeo, slides) podem ter uma i
 
 O que a identidade nova não pode mudar (ver seções 3 e 4):
 - as regras de acessibilidade;
-- o mecanismo de temas por tokens;
+- o mecanismo de temas por tokens, com os atributos `data-theme` e `data-contraste`;
 - as regras de conteúdo e de domínio do repositório.
 
 A identidade atual (tokens da seção 5) é a linha de base. Uma proposta nova entra como um novo conjunto de valores para os mesmos nomes de token, nunca como cores soltas no CSS.
 
 ## 3. Regras inegociáveis de acessibilidade
 
-1. Contraste mínimo WCAG 2.2 AA: texto normal 4.5 para 1, texto grande e componentes de interface 3 para 1. Vale para os dois temas.
+1. Contraste mínimo WCAG 2.2 AA: texto normal 4.5 para 1, texto grande e componentes de interface 3 para 1. Vale para todos os temas e também para o modo de alto contraste.
 2. Foco visível em todo controle, usando `--focus-ring`, com 2 px de largura e 2 px de afastamento. Nunca remover `outline` sem substituto.
 3. Alvo de toque mínimo de 44 px (`--touch-target`).
 4. Todo movimento que dure mais de 5 segundos ou repita deve ter pausa, ou parar em `prefers-reduced-motion: reduce`. Animação `infinite` sem esse tratamento é recusada.
@@ -43,7 +43,24 @@ A identidade atual (tokens da seção 5) é a linha de base. Uma proposta nova e
 
 ## 5. Tokens (linha de base atual)
 
-Fonte de verdade: `src/frontend/src/index.css`. Os temas são aplicados pelo atributo `data-theme` do elemento `html`: `corporate` (claro, padrão) e `tactical` (escuro).
+Fonte de verdade: `src/frontend/src/index.css`.
+
+### Temas e alto contraste
+
+O produto tem quatro temas e um modo de alto contraste, escolhidos pela pessoa e guardados no navegador:
+
+| Tema | Aparência | Nome atual no CSS |
+|---|---|---|
+| `operacao` | escuro, padrão | `tactical` |
+| `corporativo` | claro | `corporate` |
+| `editorial` | definido pela spec `temas-selecionaveis` | ainda não existe no CSS |
+| `acolhedor` | definido pela spec `temas-selecionaveis` | ainda não existe no CSS |
+
+- O tema vai no atributo `data-theme` do elemento `html` e fica na chave `itfs_tema` do armazenamento local.
+- O alto contraste é independente do tema. Vai no atributo `data-contraste` do elemento `html` e fica na chave `itfs_contraste`.
+- Estado atual do código: o CSS ainda usa só `corporate` e `tactical`, e a página abre em `tactical`. A renomeação para `operacao` e `corporativo`, a criação de `editorial` e `acolhedor` e o atributo `data-contraste` são feitos pela spec `temas-selecionaveis`. Até lá, as tabelas de cor abaixo valem para os temas `corporativo` (hoje `corporate`) e `operacao` (hoje `tactical`).
+- Não confundir o tema `editorial` com a densidade editorial (`data-density`), que é outro mecanismo.
+- Os valores de cor de `editorial`, `acolhedor` e do alto contraste entram neste arquivo quando a spec for entregue. Todos devem cumprir a seção 3.
 
 ### Tipografia e espaço
 
@@ -54,7 +71,7 @@ Fonte de verdade: `src/frontend/src/index.css`. Os temas são aplicados pelo atr
 - Espaço: 4, 8, 12, 16, 20, 24, 32, 40 e 48 px (`--space-1` até `--space-12`).
 - Raio: 4, 8 e 12 px.
 
-### Cor, tema corporate (claro)
+### Cor, tema corporativo (hoje `corporate`, claro)
 
 | Papel | Token | Valor |
 |---|---|---|
@@ -69,7 +86,7 @@ Fonte de verdade: `src/frontend/src/index.css`. Os temas são aplicados pelo atr
 | Alerta, texto | `--status-warning-text` | #B45309 |
 | Perigo, texto | `--status-danger-text` | #B91C1C |
 
-### Cor, tema tactical (escuro)
+### Cor, tema operacao (hoje `tactical`, escuro, padrão)
 
 | Papel | Token | Valor |
 |---|---|---|
@@ -90,7 +107,7 @@ Lista completa, incluindo superfícies de estado, bordas e sombras: ver `index.c
 
 Regra central: nenhum valor de cor, espaço, raio ou sombra aparece direto em componente. Tudo passa por token.
 
-1. Entregar a proposta como tokens nomeados (nomes iguais aos da seção 5) para os dois temas.
+1. Entregar a proposta como tokens nomeados (nomes iguais aos da seção 5) para todos os temas.
 2. Usar `Icone` para ícones e as classes de componente já existentes antes de criar novas.
 3. Cores de status aparecem junto de texto ou ícone.
 4. Hex fixo é aceito apenas dentro das definições de token em `index.css`.
@@ -106,7 +123,7 @@ A PR só é revisada para merge se cumprir todos os itens:
 - [ ] Nenhum E comercial, emoji ou estilo inline.
 - [ ] Sem nova dependência sem justificativa.
 - [ ] Escopo bate com a decisão aprovada no DevLedger (home vocacional com escopo reduzido).
-- [ ] Capturas em 375 e 1440 px, nos dois temas, anexadas.
+- [ ] Capturas em 375 e 1440 px, em cada tema tocado e no alto contraste, anexadas.
 - [ ] Spec de contraste sem falha.
 
 ## 8. Fluxo de trabalho entre ferramentas
