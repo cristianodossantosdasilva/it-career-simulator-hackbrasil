@@ -3,21 +3,27 @@ import { CHAVE_CARTAO_EMBARQUE, serializarCartao } from '../src/jornada/armazena
 import { CHAVE_MODO_DEMONSTRACAO, serializarModoDemonstracao } from '../src/jornada/armazenamento/modoDemonstracao'
 import { ITENS_MENU } from '../src/jornada/catalogos/catalogoNavegacao'
 import { CARTAO_DE_TESTE } from '../src/testes/armazenamentoFalso'
+import { CATALOGO_TEMAS, type IdTema } from '../src/tema/catalogo'
+import { CHAVE_CONTRASTE, CHAVE_TEMA } from '../src/tema/persistencia'
 import { TEXTOS_WORKSTATION as T } from '../src/textos/workstation'
 
 /**
- * Captura uma imagem por página e por largura em test-results/visual/ e confere regras de layout.
+ * Captura uma imagem por tema, página e largura em test-results/visual/ e confere regras de layout.
  * Cada projeto (mobile-375, tablet-768, desktop-1280, desktop-1440) executa esta spec com o
- * próprio viewport. Nome do arquivo: <projeto>__<tema>__<página>.png.
+ * próprio viewport. Nome do arquivo: <projeto>__<tema>__<página>.png, com <tema>-alto no lugar de <tema>
+ * nas capturas com alto contraste (Início, Plano de voo e Cabine em operacao e corporativo, só em 375 e 1440 px).
  * As capturas não validam aparência. A spec falha se a página não abrir, se houver rolagem
  * horizontal, se os itens do menu se tocarem ou tiverem menos de 44 px, se o Mais não abrir todos os
  * itens em 375 px, se o interruptor ou o atalho tiverem menos de 44 px ou ficarem sem contorno de
- * foco, se o zoom de 200 por cento (640 por 400 px) perder conteúdo ou se houver animação infinita
- * com movimento reduzido.
+ * foco, se o zoom de 200 por cento (640 por 400 px) perder conteúdo (640 por 450 px, nos quatro temas), se um controle irmão de outro controle em contêiner
+ * flex ou grid tiver margem em vez de gap, se a estrutura de main mudar entre os temas ou se houver animação
+ * infinita com movimento reduzido.
  */
 const PASTA = 'test-results/visual'
-const TEMAS = ['tactical', 'corporate'] as const
-type Tema = (typeof TEMAS)[number]
+const TEMAS = CATALOGO_TEMAS.map((tema) => tema.id)
+const TEMAS_COM_ALTO_CONTRASTE: readonly IdTema[] = ['operacao', 'corporativo']
+const PROJETOS_COM_ALTO_CONTRASTE = ['mobile-375', 'desktop-1440']
+type Tema = IdTema
 const ALVO_MINIMO = 44
 const LARGURA_MINIMA_DESKTOP = 768
 const CARTAO = serializarCartao(CARTAO_DE_TESTE)
@@ -44,17 +50,24 @@ const PAGINAS = [
   { visao: 'nao-encontrada', caminho: '/nao-existe', h1: 'Página não encontrada' },
 ] as const
 
-/** Semeia o tema e as chaves antes de cada carga, sem sobrescrever o que a aplicação gravou. */
-async function preparar(page: Page, tema: Tema, chaves: Record<string, string> = { [CHAVE_CARTAO_EMBARQUE]: CARTAO }) {
+/** Semeia tema, contraste e as chaves antes de cada carga, sem sobrescrever o que a aplicação gravou. */
+async function preparar(
+  page: Page,
+  tema: Tema,
+  chaves: Record<string, string> = { [CHAVE_CARTAO_EMBARQUE]: CARTAO },
+  contraste: 'padrao' | 'alto' = 'padrao',
+) {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.addInitScript(
-    ([valor, entradas]) => {
-      window.localStorage.setItem('itfs_theme', valor as string)
+    ([chaveTema, valorTema, chaveContraste, valorContraste, entradas]) => {
+      window.localStorage.setItem(chaveTema as string, valorTema as string)
+      if (valorContraste === 'alto') window.localStorage.setItem(chaveContraste as string, 'alto')
+      else window.localStorage.removeItem(chaveContraste as string)
       for (const [chave, texto] of Object.entries(entradas as Record<string, string>)) {
         if (!window.localStorage.getItem(chave)) window.localStorage.setItem(chave, texto)
       }
     },
-    [tema, chaves] as const,
+    [CHAVE_TEMA, tema, CHAVE_CONTRASTE, contraste, chaves] as const,
   )
 }
 
@@ -105,13 +118,15 @@ async function restaurarFixos(page: Page, estilo: Awaited<ReturnType<typeof neut
 const semRolagemHorizontal = (page: Page) =>
   page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)
 
-async function capturar(page: Page, testInfo: TestInfo, tema: Tema, visao: string) {
+async function capturar(page: Page, testInfo: TestInfo, tema: Tema, visao: string, contraste: 'padrao' | 'alto' = 'padrao') {
   await page.evaluate(() => document.fonts.ready)
   await expect(page.locator('html')).toHaveAttribute('data-theme', tema)
+  if (contraste === 'alto') await expect(page.locator('html')).toHaveAttribute('data-contraste', 'alto')
+  const sufixo = contraste === 'alto' ? '-alto' : ''
   await higienizarEntrada(page)
   const estilo = await neutralizarFixos(page)
   await page.screenshot({
-    path: `${PASTA}/${testInfo.project.name}__${tema}__${visao}.png`,
+    path: `${PASTA}/${testInfo.project.name}__${tema}${sufixo}__${visao}.png`,
     fullPage: true,
     animations: 'disabled',
   })
@@ -204,6 +219,32 @@ for (const tema of TEMAS) {
       await page.getByRole('button', { name: 'Atualizar resumo' }).click()
       await capturar(page, testInfo, tema, 'breve-com-voo')
     })
+
+    test('painel de aparência aberto', async ({ page }, testInfo) => {
+      await preparar(page, tema)
+      await abrir(page, '/', 'Início')
+      await page.getByRole('button', { name: 'Aparência' }).click()
+      await expect(page.getByRole('region', { name: 'Aparência' })).toBeVisible()
+      await capturar(page, testInfo, tema, 'aparencia')
+    })
+
+    test('alto contraste: início, plano de voo e cabine', async ({ page }, testInfo) => {
+      test.skip(
+        !PROJETOS_COM_ALTO_CONTRASTE.includes(testInfo.project.name) || !TEMAS_COM_ALTO_CONTRASTE.includes(tema),
+        'Alto contraste só em mobile-375 e desktop-1440, nos temas operacao e corporativo',
+      )
+      await preparar(page, tema, { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO }, 'alto')
+      await abrir(page, '/', 'Início')
+      await capturar(page, testInfo, tema, 'inicio', 'alto')
+      await abrir(page, '/plano-de-voo', 'Plano de voo')
+      await capturar(page, testInfo, tema, 'plano-de-voo', 'alto')
+      await page.goto('/cabine/triagem-engenharia-social?nova=1')
+      await expect(page.getByRole('heading', { name: /CH-0001/i })).toBeVisible()
+      await capturar(page, testInfo, tema, 'cabine-itsm', 'alto')
+      await page.getByRole('button', { name: /SimuDesk Remoto/i }).click()
+      await expect(page.getByPlaceholder(T.simudesk.placeholderId)).toBeVisible()
+      await capturar(page, testInfo, tema, 'cabine-simudesk', 'alto')
+    })
   })
 }
 
@@ -211,7 +252,7 @@ test.describe('Regras de layout e acessibilidade', () => {
   test.setTimeout(120_000)
 
   test('menu: itens sem interseção e com 44 px ou mais', async ({ page }) => {
-    await preparar(page, 'tactical')
+    await preparar(page, 'operacao')
     await abrir(page, '/plano-de-voo', 'Plano de voo')
     const itens = page.locator('nav[aria-label="Navegação principal"] .nav-item:visible')
     // Sem voo ativo a Cabine não aparece. Abaixo de 768 px ficam os principais e o Mais; a partir dele, todos.
@@ -246,7 +287,7 @@ test.describe('Regras de layout e acessibilidade', () => {
 
   test('menu Mais em 375 px: todos os itens ao alcance e Escape devolve o foco', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'mobile-375', 'Só no celular de 375 px')
-    await preparar(page, 'tactical')
+    await preparar(page, 'operacao')
     await abrir(page, '/plano-de-voo', 'Plano de voo')
     const menu = page.getByRole('navigation', { name: 'Navegação principal' })
     const botaoMais = menu.getByRole('button', { name: 'Mais' })
@@ -271,21 +312,56 @@ test.describe('Regras de layout e acessibilidade', () => {
   })
 
   test('interruptor do modo e atalho Experimentar: 44 px e contorno de foco visível', async ({ page }) => {
-    await preparar(page, 'corporate')
+    await preparar(page, 'corporativo')
     await abrir(page, '/plano-de-voo', 'Plano de voo')
     await conferirAlvoEFoco(page, page.getByRole('switch', { name: NOME_CONTROLE }), 'interruptor do modo')
     await abrir(page, '/', 'Início')
     await conferirAlvoEFoco(page, page.getByRole('button', { name: 'Experimentar um voo agora' }), 'atalho Experimentar')
   })
 
-  test('zoom de 200 por cento (viewport 640 por 400 px): sem rolagem horizontal e sem perda de função', async ({ page }, testInfo) => {
+  test('zoom de 200 por cento (viewport 640 por 450 px): sem rolagem horizontal, sem corte e sem perda de função, nos quatro temas', async ({ browser }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop-1280', 'Zoom aproximado só no desktop-1280')
-    await preparar(page, 'corporate', { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
-    await page.setViewportSize({ width: 640, height: 400 })
-    for (const pagina of PAGINAS) {
-      await abrir(page, pagina.caminho, pagina.h1)
-      expect(await semRolagemHorizontal(page), `rolagem horizontal em ${pagina.visao} a 640 px`).toBe(true)
+    test.setTimeout(240_000)
+    // Uma página nova por tema: os scripts de inicialização de preparar() se acumulam na mesma página.
+    const novaPagina = async (tema: Tema) => {
+      const contexto = await browser.newContext({ viewport: { width: 640, height: 450 } })
+      const nova = await contexto.newPage()
+      await preparar(nova, tema, { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
+      return nova
     }
+    for (const tema of TEMAS) {
+      const page = await novaPagina(tema)
+      for (const pagina of PAGINAS) {
+        await abrir(page, pagina.caminho, pagina.h1)
+        expect(await semRolagemHorizontal(page), `rolagem horizontal em ${pagina.visao} a 640 px (${tema})`).toBe(true)
+        const defeitos = await page.evaluate((largura) => {
+          const achados: string[] = []
+          const descrever = (el: Element) => el.tagName.toLowerCase() + (el.className && typeof el.className === 'string' ? '.' + el.className.split(' ')[0] : '')
+          const dentroDeRolagem = (el: Element) => {
+            for (let n = el.parentElement; n; n = n.parentElement) {
+              const o = getComputedStyle(n).overflowX
+              if (o === 'auto' || o === 'scroll') return true
+            }
+            return false
+          }
+          for (const el of Array.from(document.querySelectorAll('button, a[href], input:not([type=hidden]), select, textarea, summary'))) {
+            const r = el.getBoundingClientRect()
+            if (r.width === 0 || r.height === 0 || dentroDeRolagem(el)) continue
+            if (r.left < -0.5 || r.right > largura + 0.5) achados.push(`controle fora da janela: ${descrever(el)} (${Math.round(r.left)} a ${Math.round(r.right)})`)
+          }
+          for (const el of Array.from(document.querySelectorAll('body *'))) {
+            const cs = getComputedStyle(el)
+            if (cs.overflowX !== 'hidden' || cs.display === 'none') continue
+            const temTexto = Array.from(el.childNodes).some((no) => no.nodeType === Node.TEXT_NODE && (no.textContent ?? '').trim() !== '')
+            if (temTexto && el.scrollWidth > el.clientWidth + 1) achados.push(`texto cortado: ${descrever(el)} (${el.scrollWidth} contra ${el.clientWidth})`)
+          }
+          return achados
+        }, 640)
+        expect(defeitos, `zoom 640 px em ${pagina.visao} (${tema})`).toEqual([])
+      }
+      await page.context().close()
+    }
+    const page = await novaPagina('corporativo')
     await abrir(page, '/plano-de-voo', 'Plano de voo')
     const controle = page.getByRole('switch', { name: NOME_CONTROLE })
     await controle.scrollIntoViewIfNeeded()
@@ -296,11 +372,86 @@ test.describe('Regras de layout e acessibilidade', () => {
     await menu.getByRole('button', { name: 'Mais' }).click()
     await expect(menu.getByRole('link', { name: 'Comandante' })).toBeVisible()
     await page.keyboard.press('Escape')
-    await capturar(page, testInfo, 'corporate', 'zoom-200-plano-de-voo')
+    await capturar(page, testInfo, 'corporativo', 'zoom-200-plano-de-voo')
+    await page.context().close()
   })
 
+  test('espaçamento entre controles irmãos por gap, sem margem', async ({ page }) => {
+    await preparar(page, 'operacao', { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
+    const defeitos: string[] = []
+    for (const pagina of PAGINAS) {
+      await abrir(page, pagina.caminho, pagina.h1)
+      const achados = await page.evaluate(() => {
+        const CONTROLES = 'button, a.btn, input, select, textarea'
+        const LADOS = ['top', 'right', 'bottom', 'left'] as const
+        const descrever = (el: Element) => el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className ? '.' + el.className.split(' ')[0] : '')
+        /** Margem declarada com auto (empurra o item): isenta, porque não é espaçamento entre irmãos. */
+        const usaAuto = (el: Element, lado: string) => {
+          const olhar = (regras: CSSRuleList): boolean => {
+            for (const regra of Array.from(regras)) {
+              if (regra instanceof CSSStyleRule && el.matches(regra.selectorText)) {
+                const declarado = regra.style.getPropertyValue(`margin-${lado}`) || regra.style.getPropertyValue('margin')
+                if (declarado.includes('auto')) return true
+              } else if ('cssRules' in regra && olhar((regra as CSSGroupingRule).cssRules)) {
+                return true
+              }
+            }
+            return false
+          }
+          return Array.from(document.styleSheets).some((folha) => {
+            try {
+              return olhar(folha.cssRules)
+            } catch {
+              return false
+            }
+          })
+        }
+        const saida: string[] = []
+        for (const el of Array.from(document.querySelectorAll(CONTROLES))) {
+          const r = el.getBoundingClientRect()
+          const pai = el.parentElement
+          if (!pai || r.width === 0 || r.height === 0) continue
+          const exibicao = getComputedStyle(pai).display
+          if (!/flex|grid/.test(exibicao)) continue
+          const temIrmaoControle = Array.from(pai.children).some((irmao) => irmao !== el && irmao.matches(CONTROLES))
+          if (!temIrmaoControle) continue
+          const cs = getComputedStyle(el)
+          for (const lado of LADOS) {
+            const valor = Number.parseFloat(cs.getPropertyValue(`margin-${lado}`))
+            if (valor !== 0 && !usaAuto(el, lado)) saida.push(`${descrever(el)} margin-${lado} ${valor}px`)
+          }
+        }
+        return saida
+      })
+      for (const achado of achados) defeitos.push(`${pagina.visao}: ${achado}`)
+    }
+    expect([...new Set(defeitos)], 'controles irmãos com margem (use gap no contêiner)').toEqual([])
+  })
+
+  test('estrutura de main igual nos quatro temas', async ({ browser }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop-1440', 'Só no desktop-1440')
+    test.setTimeout(240_000)
+    const porPagina = new Map<string, string[]>()
+    for (const tema of TEMAS) {
+      // Uma página nova por tema: os scripts de inicialização de preparar() se acumulam na mesma página.
+      const contexto = await browser.newContext({ viewport: { width: 1440, height: 900 } })
+      const page = await contexto.newPage()
+      await preparar(page, tema)
+      for (const pagina of PAGINAS) {
+        await abrir(page, pagina.caminho, pagina.h1)
+        await expect(page.locator('html')).toHaveAttribute('data-theme', tema)
+        porPagina.set(pagina.visao, [...(porPagina.get(pagina.visao) ?? []), await page.locator('main').first().ariaSnapshot()])
+      }
+      await contexto.close()
+    }
+    for (const [visao, estruturas] of porPagina) {
+      for (let i = 1; i < estruturas.length; i += 1) {
+        expect(estruturas[i], `estrutura de main em ${visao}: ${TEMAS[i]} difere de ${TEMAS[0]}`).toBe(estruturas[0])
+      }
+    }
+  })
   test('movimento reduzido: nenhuma animação infinita nas páginas da jornada', async ({ page }) => {
-    await preparar(page, 'tactical', { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
+    await preparar(page, 'operacao', { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
     for (const pagina of PAGINAS) {
       await abrir(page, pagina.caminho, pagina.h1)
       const infinitas = await page.evaluate(() =>

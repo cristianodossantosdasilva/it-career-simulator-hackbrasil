@@ -486,7 +486,7 @@ a:focus-visible, [tabindex]:focus-visible {
 .btn-secondary { background: var(--bg-elevated); border-color: var(--border-control); color: var(--text-primary); font-weight: var(--font-weight-semibold); }
 .btn-secondary:hover:not(:disabled) { background: var(--bg-hover); border-color: var(--accent-primary); color: var(--text-primary); }
 .btn-ghost { background: transparent; border-color: transparent; color: var(--theory); font-weight: 700; padding: 0 10px; }
-.btn-ghost:hover:not(:disabled) { background: var(--theory-bg); border-color: var(--theory-solid); }
+.btn-ghost:hover:not(:disabled) { background: var(--theory-bg); border-color: var(--accent-primary); }
 /* Botao invertido: texto primario como fundo e canvas como texto, mais de 14:1 em todos os temas. */
 .btn-white { background: var(--text-primary); border-color: var(--text-primary); color: var(--bg-canvas); font-weight: 800; }
 .btn-white:hover:not(:disabled) { background: var(--bg-hover); border-color: var(--bg-hover); color: var(--text-primary); }
@@ -908,8 +908,8 @@ a.nav-item { display: inline-flex; align-items: center; justify-content: center;
 .lesson-list { list-style: none; padding: 0; margin: 14px 0 0; display: flex; flex-direction: column; gap: 4px; }
 .lesson-item { justify-content: flex-start; gap: 10px; align-items: flex-start; width: 100%; text-align: left; padding: 10px; border-radius: 10px; border: 1px solid transparent; background: transparent; min-height: 44px; }
 .lesson-item:hover { background: var(--bg-elevated); }
-.lesson-item.active { background: var(--theory-bg); border-color: var(--theory-solid); }
-.lesson-item.active-fix { background: var(--fix-bg); border-color: var(--fix-solid); }
+.lesson-item.active { background: var(--theory-bg); border-color: var(--accent-primary); }
+.lesson-item.active-fix { background: var(--fix-bg); border-color: var(--accent-primary); }
 /* text-muted sobre accent-surface mede menos de 4,5:1 no tema operacao. O par accent-text sobre accent-surface passa em todos os temas. */
 .lesson-item.active .muted, .lesson-item.active-fix .muted { color: var(--accent-text); }
 .tick { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--border-bright); display: grid; place-items: center; font-size: 0.82rem; font-weight: 800; flex: 0 0 auto; background: var(--bg-surface); }
@@ -978,7 +978,7 @@ select.text.sm { width: auto; min-height: 40px; }
 /* ===== Mentor IA ===== */
 .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 18px; overflow-x: auto; }
 .tab { flex: 0 0 auto; padding: 10px 16px; border: 0; border-radius: 8px 8px 0 0; background: transparent; border-bottom: 3px solid transparent; font-weight: 800; color: var(--text-secondary); white-space: nowrap; min-height: 48px; }
-.tab.active { color: var(--fix); border-bottom-color: var(--fix-solid); background: var(--fix-bg); }
+.tab.active { color: var(--fix); border-bottom-color: var(--accent-primary); background: var(--fix-bg); }
 .chat { display: flex; flex-direction: column; gap: var(--space-3); height: 400px; overflow-y: auto; padding: var(--space-4); background: var(--bg-elevated); border-radius: var(--radius-lg); border: 1px solid var(--border-strong); }
 .chat.short { height: 280px; }
 .bubble { max-width: 86%; padding: 10px 14px; border-radius: 14px; white-space: pre-line; }

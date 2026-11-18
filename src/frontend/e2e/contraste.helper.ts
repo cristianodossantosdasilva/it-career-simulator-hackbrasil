@@ -1,7 +1,9 @@
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Page } from '@playwright/test'
+import { TEMA_DO_TERMINAL } from '../src/tema/catalogo'
+import { blocosDeToken } from '../src/tema/blocosTokens'
 
 /**
  * Base de medição de contraste e contorno (ciclo 2, E1).
@@ -22,19 +24,59 @@ export const CAMINHO_AXE = fileURLToPath(new URL('../node_modules/axe-core/axe.m
 export const LIMIARES = {
   texto: 4.5,
   textoGrande: 3,
+  textoAltoContraste: 7,
   controleEFoco: 3,
   container: 2,
-  divisorCorporate: 1.4,
+  divisorClaro: 1.4,
+  /** Piso do tema operacao (escuro, padrão), herdado da linha de base: sem regressão. */
+  divisorOperacao: { surface: 1.71, canvas: 1.81 },
 } as const
 
-export type Estado = 'limpo' | 'modo de demonstração ativo' | 'missão iniciada' | 'turno concluído'
+export type Estado =
+  | 'limpo'
+  | 'modo de demonstração ativo'
+  | 'missão iniciada'
+  | 'turno concluído'
+  | 'painel de aparência aberto'
+
+export type Contraste = 'padrao' | 'alto'
+export type Esquema = 'claro' | 'escuro'
 
 export interface MetaCelula {
   projeto: string
   tema: string
+  esquema: Esquema
+  contraste: Contraste
   viewport: { largura: number; altura: number }
   tela: string
   estado: Estado
+}
+
+/** Cores esperadas do terminal (valores de --bg-canvas e --text-primary lidos de index.css no Node). */
+export interface TerminalEsperado {
+  fundo: string
+  texto: string
+}
+
+/** Seletores de elementos de status: precisam de texto ou de svg.icone, nunca só de cor (WCAG 1.4.1). */
+export const SELETOR_STATUS = '.estado, .selo-status, .chip, .alert-success, .alert-danger, .alert-inline, .banner-notice'
+
+/** Lê index.css no Node e devolve as cores do terminal: bloco operacao (padrão) ou conjunto escuro (alto). */
+export function terminalEsperado(contraste: Contraste): TerminalEsperado {
+  const css = readFileSync(fileURLToPath(new URL('../src/index.css', import.meta.url)), 'utf8')
+  const blocos = blocosDeToken(css)
+  const tokens = blocos.get(contraste === 'alto' ? 'alto-contraste-escuro' : TEMA_DO_TERMINAL)
+  const fundo = tokens?.['--bg-canvas']
+  const texto = tokens?.['--text-primary']
+  if (fundo === undefined || texto === undefined) throw new Error('Tokens do terminal não encontrados em index.css')
+  return { fundo: hexParaRgb(fundo), texto: hexParaRgb(texto) }
+}
+
+function hexParaRgb(hex: string): string {
+  const m = hex.trim().match(/^#([0-9a-fA-F]{6})([0-9a-fA-F]{2})?$/)
+  if (m === null) throw new Error(`Cor fora do formato hexadecimal: ${hex}`)
+  const n = Number.parseInt(m[1], 16)
+  return `rgb(${(n >> 16) % 256}, ${(n >> 8) % 256}, ${n % 256})`
 }
 
 export interface ResultadoCelula extends MetaCelula {
@@ -52,6 +94,14 @@ export interface ResultadoCelula extends MetaCelula {
   hover?: unknown[]
   naoCalculaveis?: unknown[]
   informativas?: unknown
+  statusSemCor?: string[]
+  terminal?: ResultadoTerminal | null
+}
+
+export interface ResultadoTerminal {
+  fundo: { obtido: string; esperado: string }
+  texto: { obtido: string; esperado: string }
+  saida: { obtido: string; esperado: string }
 }
 
 /** Instala as funções de medição em window.__ct. Executa uma vez por página. */
@@ -187,14 +237,20 @@ async function instalarAuxiliares(page: Page) {
 
     const arred = (x: number) => Math.round(x * 100) / 100
 
-    /** Limiar por papel, tema e fundo externo. null = só informativo. */
-    ct.limiar = (papel: string, tema: string, fundo: string) => {
+    /** Contexto da célula: tema, esquema e estado de contraste. Definido por medirCelula antes de medir. */
+    ct.contexto = { tema: 'operacao', esquema: 'escuro', contraste: 'padrao' }
+    ct.piso = { surface: 0, canvas: 0 }
+
+    /** Limiar por papel e fundo externo. null = só informativo. O esquema e o contraste vêm de ct.contexto. */
+    ct.limiar = (papel: string, fundo: string) => {
       const base = fundo === 'surface' || fundo === 'canvas'
       if (papel === 'container') return base ? { valor: 2, regra: 'contorno de container 2,0:1 sobre surface e canvas' } : null
       if (papel === 'divisor') {
         if (!base) return null
-        if (tema === 'corporate') return { valor: 1.4, regra: 'divisor 1,4:1 no corporate' }
-        return { valor: fundo === 'surface' ? 1.72 : 1.82, regra: 'divisor tactical sem regressão (1,72 surface, 1,82 canvas)' }
+        if (ct.contexto.tema === 'operacao' && ct.contexto.contraste === 'padrao') {
+          return { valor: ct.piso[fundo], regra: 'divisor do operacao sem regressão (' + ct.piso.surface + ' surface, ' + ct.piso.canvas + ' canvas)' }
+        }
+        return { valor: 1.4, regra: 'divisor 1,4:1' }
       }
       if (papel === 'controle' || papel === 'foco') {
         return fundo === 'outro' || fundo === 'hover'
@@ -203,7 +259,6 @@ async function instalarAuxiliares(page: Page) {
       }
       return null
     }
-
     const LADOS = ['Top', 'Right', 'Bottom', 'Left']
     ct.ladoBorda = (cs: CSSStyleDeclaration) => {
       for (const lado of LADOS) {
@@ -262,7 +317,7 @@ async function instalarAuxiliares(page: Page) {
         razaoPreenchimento = ct.ratio(fill, ext.cor)
       }
       const fundoNome = ct.nomeToken(ext.cor, tokens.fundos)
-      const lim = ct.limiar(papel, tema, fundoNome)
+      const lim = ct.limiar(papel, fundoNome)
       const melhor = Math.max(razaoBorda ?? 0, papel === 'controle' ? razaoPreenchimento ?? 0 : 0)
       const corBordaReal = bordaVisivel ? (corBorda.a < 1 ? ct.compor(corBorda, ext.cor) : corBorda) : null
       const corBordaHex = corBordaReal ? ct.hex(corBordaReal) : null
@@ -436,11 +491,11 @@ async function instalarAuxiliares(page: Page) {
       pseudoContent: 'conteúdo de pseudo-elemento',
     }
 
-    ct.axe = async (escopo: string | null) => {
+    ct.axe = async (escopo: string | null, regra: string) => {
       const alvo = escopo ? document.querySelector(escopo) : document
       const axe = (window as any).axe
       const r = await axe.run(alvo, {
-        runOnly: { type: 'rule', values: ['color-contrast'] },
+        runOnly: { type: 'rule', values: [regra] },
         resultTypes: ['violations', 'incomplete', 'passes'],
       })
       const dado = (no: any) => no.any?.[0]?.data ?? {}
@@ -473,6 +528,27 @@ async function instalarAuxiliares(page: Page) {
       return { violacoes, incompletas, passes }
     }
 
+    /** Status sem texto nem svg.icone: dependeria só da cor (WCAG 1.4.1). Devolve os seletores. */
+    ct.statusSemCor = (seletor: string) => {
+      const falhas: string[] = []
+      for (const el of Array.from(document.querySelectorAll(seletor))) {
+        if (!ct.visivel(el)) continue
+        const texto = (el.textContent || '').trim()
+        if (texto.length > 0 || el.querySelector('svg.icone') !== null) continue
+        falhas.push(ct.desc(el))
+      }
+      return falhas
+    }
+
+    /** Cores calculadas do terminal, ou null quando o SimuDesk não está aberto. */
+    ct.terminal = () => {
+      const casca = document.querySelector('.terminal-shell')
+      const saida = document.querySelector('.terminal-output')
+      if (!casca || !saida) return null
+      const cc = getComputedStyle(casca)
+      const cs = getComputedStyle(saida)
+      return { fundo: cc.backgroundColor, texto: cc.color, saida: cs.color }
+    }
     ct.informativas = () => {
       const alvos: string[] = []
       let totalAlvos = 0
@@ -556,11 +632,32 @@ const LIMITE_HOVER = 6
 /** Mede uma tela já aberta. Reutiliza a página (sem novas requisições além da navegação). */
 export async function medirCelula(page: Page, meta: MetaCelula): Promise<ResultadoCelula> {
   await prepararPagina(page)
+  await page.evaluate(
+    ([contexto, piso]) => {
+      const ct = (window as any).__ct
+      ct.contexto = contexto
+      ct.piso = piso
+    },
+    [{ tema: meta.tema, esquema: meta.esquema, contraste: meta.contraste }, LIMIARES.divisorOperacao] as const,
+  )
   await ociosa(page)
 
-  const texto = await page.evaluate(() => (window as any).__ct.axe(null))
+  // Contraste padrão: AA (4,5:1). Alto contraste: nível reforçado (7:1), como pede o conjunto de alto contraste.
+  const regraAxe = meta.contraste === 'alto' ? 'color-contrast-enhanced' : 'color-contrast'
+  const texto = await page.evaluate((regra) => (window as any).__ct.axe(null, regra), regraAxe)
   const estatico = await page.evaluate((tema) => (window as any).__ct.contornos(tema), meta.tema)
   const informativas = await page.evaluate(() => (window as any).__ct.informativas())
+  const statusSemCor: string[] = await page.evaluate((seletor) => (window as any).__ct.statusSemCor(seletor), SELETOR_STATUS)
+  const coresTerminal = await page.evaluate(() => (window as any).__ct.terminal())
+  let terminal: ResultadoTerminal | null = null
+  if (coresTerminal) {
+    const esperado = terminalEsperado(meta.contraste)
+    terminal = {
+      fundo: { obtido: coresTerminal.fundo, esperado: esperado.fundo },
+      texto: { obtido: coresTerminal.texto, esperado: esperado.texto },
+      saida: { obtido: coresTerminal.saida, esperado: esperado.texto },
+    }
+  }
 
   // O teclado precisa ter sido usado para que :focus-visible case com foco programático.
   await page.keyboard.press('Shift')
@@ -581,7 +678,7 @@ export async function medirCelula(page: Page, meta: MetaCelula): Promise<Resulta
     const medida = await page.evaluate(([indice, tema]) => (window as any).__ct.medirHover(indice, tema), [i, meta.tema] as const)
     if (medida.linha) hoverLinhas.push({ ...medida.linha, fundo_hover: medida.fundo_hover, token_fundo_hover: medida.token_fundo_hover })
     if (medida.nc) hoverNc.push({ ...medida.nc, ocorrencias: 1 })
-    const t = await page.evaluate((indice) => (window as any).__ct.axe(`[data-ct-h="${indice}"]`), i)
+    const t = await page.evaluate(([indice, regra]) => (window as any).__ct.axe(`[data-ct-h="${indice}"]`, regra), [i, regraAxe] as const)
     hoverTexto.violacoes.push(...t.violacoes.map((v: any) => ({ ...v, interacao: 'hover' })))
     hoverTexto.incompletas.push(...t.incompletas.map((v: any) => ({ ...v, interacao: 'hover' })))
     hoverTexto.passes += t.passes
@@ -601,9 +698,41 @@ export async function medirCelula(page: Page, meta: MetaCelula): Promise<Resulta
     hover: hoverLinhas,
     naoCalculaveis: [...estatico.naoCalculaveis, ...foco.naoCalculaveis, ...hoverNc],
     informativas,
+    statusSemCor,
+    terminal,
   }
 }
 
+/**
+ * Violações da célula nas categorias da WCAG 2.2 AA que a spec cobra: texto (axe), contorno de container,
+ * controle, divisor e foco (inclusive em hover), tamanho mínimo de texto, status sem cor e cores do terminal.
+ * Cada item é uma frase com tema, contraste, tela, seletor, razão e mínimo.
+ */
+export function violacoesDaCelula(c: ResultadoCelula): string[] {
+  if (c.status !== 'medida') return []
+  const ctx = `${c.tema}/${c.contraste} ${c.viewport.largura}px, ${c.tela} (${c.estado})`
+  const itens: string[] = []
+  const texto = c.texto
+  for (const v of [...(texto?.violacoes ?? []), ...(texto?.hover.violacoes ?? [])] as any[]) {
+    itens.push(`${ctx}: texto ${v.seletor} ${v.cor_texto} sobre ${v.cor_fundo} = ${v.razao} (mínimo ${v.esperado})`)
+  }
+  for (const l of [...(c.contornos ?? []), ...(c.foco ?? []), ...(c.hover ?? [])] as any[]) {
+    if (l.atende !== false) continue
+    itens.push(`${ctx}: ${l.papel}${l.interacao === 'hover' ? ' (hover)' : ''} ${l.seletor} sobre ${l.token_fundo_externo} = ${l.razao ?? l.razao_preenchimento} (mínimo ${l.limiar})`)
+  }
+  const inf = c.informativas as { texto_menor_12px: number; exemplos_texto: string[] } | undefined
+  if (inf && inf.texto_menor_12px > 0) {
+    itens.push(`${ctx}: ${inf.texto_menor_12px} nó(s) de texto abaixo de 12 px (${inf.exemplos_texto.join('; ')})`)
+  }
+  for (const s of c.statusSemCor ?? []) itens.push(`${ctx}: status sem texto nem ícone ${s}`)
+  const t = c.terminal
+  if (t) {
+    for (const [nome, par] of Object.entries(t) as [string, { obtido: string; esperado: string }][]) {
+      if (par.obtido !== par.esperado) itens.push(`${ctx}: terminal ${nome} obtido ${par.obtido}, esperado ${par.esperado}`)
+    }
+  }
+  return itens
+}
 export function celulaNaoCalculavel(meta: MetaCelula, motivo: string): ResultadoCelula {
   return { ...meta, status: 'não calculável', motivo }
 }

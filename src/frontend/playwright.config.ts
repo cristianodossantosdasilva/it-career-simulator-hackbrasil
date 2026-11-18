@@ -32,17 +32,17 @@ export default defineConfig({
     {
       name: 'mobile-375',
       testMatch: SPEC_VISUAL,
-      use: { ...devices['Pixel 7'], viewport: { width: 375, height: 812 } },
+      use: { ...devices['Pixel 7'], viewport: { width: 375, height: 900 } },
     },
     {
       name: 'tablet-768',
       testMatch: SPEC_VISUAL,
-      use: { ...devices['Desktop Chrome'], viewport: { width: 768, height: 1024 } },
+      use: { ...devices['Desktop Chrome'], viewport: { width: 768, height: 900 } },
     },
     {
       name: 'desktop-1280',
       testMatch: SPEC_VISUAL,
-      use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 900 } },
     },
     {
       name: 'desktop-1440',

@@ -1,22 +1,28 @@
-// Gera a linha de base de contraste e contorno (ciclo 2, E1) a partir dos JSON gravados por
-// e2e/contraste.spec.ts em test-results/contraste/.
+// Gera a linha de base de contraste e contorno dos temas a partir dos JSON gravados por
+// e2e/contraste.spec.ts em test-results/contraste/ (um por projeto, tema, contraste e grupo).
 //
 // Uso (na pasta src/frontend, depois de uma rodada do Playwright):
 //   node e2e/contraste.relatorio.mjs
 //
-// Arquivos gerados: docs/auditoria-ui-ux/ciclo2/10_LINHA_DE_BASE.md e 10_linha_de_base.json.
+// Arquivos gerados: docs/auditoria-ui-ux/temas/LINHA_DE_BASE_TEMAS.md e LINHA_DE_BASE_TEMAS.json.
 // O script não mede nada. Só consolida o que a spec gravou.
 
 import { execSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
+import { CATALOGO_TEMAS } from '../src/tema/catalogo.ts'
 
 const ENTRADA = fileURLToPath(new URL('../test-results/contraste/', import.meta.url))
-const DESTINO = fileURLToPath(new URL('../../../docs/auditoria-ui-ux/ciclo2/', import.meta.url))
+const DESTINO = fileURLToPath(new URL('../../../docs/auditoria-ui-ux/temas/', import.meta.url))
 const E_COMERCIAL = String.fromCharCode(38)
 
 const ORDEM_VIEWPORT = [375, 768, 1280, 1440]
-const ORDEM_TEMA = ['tactical', 'corporate']
+const ORDEM_ID_TEMA = CATALOGO_TEMAS.map((tema) => tema.id)
+const ORDEM_CONTRASTE = ['padrao', 'alto']
+/** Rótulo de coluna: tema e contraste. Todas as agregações abaixo agrupam por esse rótulo. */
+const rotuloTema = (id, contraste) => `${id} (${contraste})`
+const idDoRotulo = (rotulo) => rotulo.split(' ')[0]
+const altoDoRotulo = (rotulo) => rotulo.endsWith('(alto)')
 const FUNDOS = ['surface', 'canvas', 'elevated', 'hover']
 
 function lerJson(caminho) {
@@ -50,7 +56,12 @@ if (arquivos.length === 0) {
   process.exit(1)
 }
 const entradas = arquivos.map((f) => ({ arquivo: f, ...lerJson(ENTRADA + f) }))
-const celulas = entradas.flatMap((e) => e.celulas.map((c) => ({ ...c, chromium: e.chromium, node: e.node })))
+const celulas = entradas.flatMap((e) =>
+  e.celulas.map((c) => ({ ...c, tema: rotuloTema(c.tema, c.contraste ?? e.contraste ?? 'padrao'), chromium: e.chromium, node: e.node })),
+)
+const ORDEM_TEMA = ORDEM_ID_TEMA.flatMap((id) => ORDEM_CONTRASTE.map((contraste) => rotuloTema(id, contraste))).filter((rotulo) =>
+  celulas.some((c) => c.tema === rotulo),
+)
 const chromium = [...new Set(entradas.map((e) => e.chromium).filter(Boolean))].join(', ')
 const nodeVersao = [...new Set(entradas.map((e) => e.node).filter(Boolean))].join(', ')
 const projetos = [...new Set(entradas.map((e) => e.projeto))]
@@ -128,7 +139,7 @@ function vazio() {
     container_violacoes: 0, divisor_violacoes: 0, controle_violacoes: 0, foco_violacoes: 0,
     hover_violacoes_borda_ou_fundo: 0, hover_violacoes_texto: 0, linhas_medidas_com_limiar: 0,
     linhas_informativas: 0, elementos_nao_calculaveis: 0, celulas_com_rolagem_horizontal: 0,
-    alvos_menores_44px: 0, texto_menor_12px: 0,
+    alvos_menores_44px: 0, texto_menor_12px: 0, status_sem_cor: 0, terminal_violacoes: 0,
   }
 }
 const totais = {}
@@ -150,6 +161,8 @@ for (const c of celulas) {
   if (c.informativas.rolagem_horizontal) t.celulas_com_rolagem_horizontal += 1
   t.alvos_menores_44px += c.informativas.alvos_menores_44
   t.texto_menor_12px += c.informativas.texto_menor_12px
+  t.status_sem_cor += (c.statusSemCor ?? []).length
+  if (c.terminal) t.terminal_violacoes += Object.values(c.terminal).filter((par) => par.obtido !== par.esperado).length
   t.elementos_nao_calculaveis += c.texto.incompletas.length + c.texto.hover.incompletas.length
   for (const n of c.naoCalculaveis) t.elementos_nao_calculaveis += n.ocorrencias ?? 1
   const contar = (lista, chave) => {
@@ -192,6 +205,8 @@ const matrizTokens = []
 for (const tema of ORDEM_TEMA) {
   const tk = tokensPorTema[tema]
   if (!tk) continue
+  const alto = altoDoRotulo(tema)
+  const operacaoPadrao = idDoRotulo(tema) === 'operacao' && !alto
   const par = (grupo, nome, fundo, limiar, regra) => {
     const cor = tk[grupo][nome]
     const bg = tk.fundos[fundo]
@@ -202,13 +217,13 @@ for (const tema of ORDEM_TEMA) {
       regra, atende: limiar === null ? null : r >= limiar,
     })
   }
-  for (const nome of Object.keys(tk.textos)) for (const f of FUNDOS) par('textos', nome, f, 4.5, 'texto 4,5:1')
+  for (const nome of Object.keys(tk.textos)) for (const f of FUNDOS) par('textos', nome, f, alto ? 7 : 4.5, alto ? 'texto 7:1 (alto contraste)' : 'texto 4,5:1')
   for (const nome of ['border-control', 'focus-ring']) for (const f of FUNDOS) par('bordas', nome, f, 3, 'controle e foco 3:1')
   for (const f of FUNDOS) par('bordas', 'border-strong', f, f === 'surface' || f === 'canvas' ? 2 : null, f === 'surface' || f === 'canvas' ? 'contorno de container 2,0:1' : 'informativo')
   for (const f of FUNDOS) {
     const base = f === 'surface' || f === 'canvas'
-    const lim = !base ? null : tema === 'corporate' ? 1.4 : f === 'surface' ? 1.71 : 1.81
-    par('bordas', 'border-subtle', f, lim, !base ? 'informativo' : tema === 'corporate' ? 'divisor 1,4:1' : 'divisor sem regressão')
+    const lim = !base ? null : !operacaoPadrao ? 1.4 : f === 'surface' ? 1.71 : 1.81
+    par('bordas', 'border-subtle', f, lim, !base ? 'informativo' : !operacaoPadrao ? 'divisor 1,4:1' : 'divisor sem regressão')
   }
 }
 
@@ -252,7 +267,9 @@ const violHover = violacoes.filter((l) => l.categoria.endsWith('(hover)'))
 
 // ---------- matriz de cobertura ----------
 const colunas = []
-for (const tema of ORDEM_TEMA) for (const v of ORDEM_VIEWPORT) colunas.push({ tema, v })
+for (const tema of ORDEM_TEMA) {
+  for (const v of ORDEM_VIEWPORT) if (celulas.some((c) => c.tema === tema && largura(c) === v)) colunas.push({ tema, v })
+}
 const chavesTela = []
 for (const c of celulas) {
   const k = `${c.tela}|${c.estado}`
@@ -314,20 +331,19 @@ const data = new Date().toISOString()
 const commitBase = git('rev-parse --short HEAD')
 const ramo = git('branch --show-current')
 let md = ''
-md += '# Ciclo 2, E1: linha de base de contraste e contorno\n\n'
-md += `Gerado em ${data} por e2e/contraste.relatorio.mjs, a partir dos JSON de test-results/contraste/. Não corrige produto. Mede o estado da branch ${ramo} no commit ${commitBase} (produto idêntico ao da main em a88988c, os commits da branch até aqui só mudam documentação).\n\n`
+md += '# Linha de base de contraste e contorno dos temas\n\n'
+md += `Gerado em ${data} por e2e/contraste.relatorio.mjs, a partir dos JSON de test-results/contraste/. A Spec_de_Contraste falha por violação nas categorias da WCAG 2.2 AA abaixo, então este relatório descreve o estado medido, não pendências aceitas. Branch ${ramo}, commit ${commitBase}.\n\n`
 md += '## 1. Ambiente e método\n\n'
-md += `| Item | Valor |\n|---|---|\n| Chromium | ${chromium} |\n| Node | ${nodeVersao} |\n| Playwright | ${playwrightVersao} |\n| axe-core | ${axeVersao} (regra color-contrast, injetado por page.addScriptTag) |\n| Projetos | ${projetos.join(', ')} |\n| Telas | ${cobertura.telas_distintas} (${[...new Set(celulas.map((c) => c.tela))].join(', ')}) |\n| Estados | limpo (sem missão iniciada), missão iniciada (laboratório logo após Decolar), turno concluído (depois de resolver o chamado do Nível 1) |\n| Temas | tactical e corporate |\n| Viewports | 375, 768, 1280 e 1440 de largura |\n\n`
-md += 'Observação sobre a contagem de telas: o plano cita 9 telas, a lista do procedimento tem 10 (Missões, Aulas, Caderno, Mentor, Credencial, ITSM, Chat, KB, SimuDesk e Juiz 360 com Replay, que é uma tela só). O relatório cobre as 10.\n\n'
+md += `| Item | Valor |\n|---|---|\n| Chromium | ${chromium} |\n| Node | ${nodeVersao} |\n| Playwright | ${playwrightVersao} |\n| axe-core | ${axeVersao} (regra color-contrast no contraste padrão e color-contrast-enhanced no alto contraste, injetado por page.addScriptTag) |\n| Projetos | ${projetos.join(', ')} |\n| Telas | ${cobertura.telas_distintas} (${[...new Set(celulas.map((c) => c.tela))].join(', ')}) |\n| Estados | limpo, modo de demonstração ativo, painel de aparência aberto, missão iniciada e turno concluído |\n| Temas | ${ORDEM_ID_TEMA.join(', ')}, cada um com contraste padrão e, em mobile-375 e desktop-1440, alto contraste |\n| Viewports | 375, 768, 1280 e 1440 de largura |\n\n`
 md += 'Método:\n\n'
-md += '- Texto: regra color-contrast do axe-core no Chromium real, na página inteira e de novo na subárvore de cada elemento sob hover. Elementos que o axe não consegue avaliar (incomplete) vão para a lista de não calculáveis com o motivo do axe.\n'
-md += '- Contorno: getComputedStyle da borda contra o fundo opaco efetivo do ancestral, compondo camadas translúcidas. Containers: .edu-card, .panel, .glossary-details, .card-section e table. Divisores: th, td e .itsm-nota. Controles: button, input, select, textarea e summary. Registra também a razão contra o fundo interno do próprio elemento e, para controles, contra o preenchimento.\n'
-md += '- Foco: até 12 elementos distintos por célula, conteúdo antes da casca (trilho e barra de contexto). Foco programático depois de uma tecla, para que :focus-visible case. Mede a cor do anel (outline) contra o fundo do ancestral.\n'
+md += '- Texto: regra color-contrast do axe-core no Chromium real (color-contrast-enhanced, 7:1, no alto contraste), na página inteira e de novo na subárvore de cada elemento sob hover. Elementos que o axe não consegue avaliar (incomplete) vão para a lista de não calculáveis com o motivo do axe.\n'
+md += '- Contorno: getComputedStyle da borda contra o fundo opaco efetivo do ancestral, compondo camadas translúcidas. Containers: .edu-card, .panel, .glossary-details, .card-section, table e os cartões da jornada. Divisores: th, td e .itsm-nota. Controles: button, input, select, textarea e summary.\n'
+md += '- Foco: até 12 elementos distintos por célula, conteúdo antes da casca. Foco programático depois de uma tecla, para que :focus-visible case. Mede a cor do anel (outline) contra o fundo do ancestral.\n'
 md += '- Hover: até 6 elementos distintos por célula, mouse sobre o centro do elemento, sem transições, medindo borda e preenchimento e rodando o axe na subárvore.\n'
-md += '- Páginas reutilizadas: uma página por projeto, tema e grupo (estudo, laboratório). Só um backend, porta 8080, com limite de 5000 requisições por minuto definido pelo playwright.config.ts.\n'
-md += '- Limiares (seção 4 do plano final): texto 4,5:1 (grande 3:1, vindo do axe); controles e foco 3:1; contorno de container 2,0:1 sobre surface e canvas; divisor 1,4:1 no corporate e, no tactical, sem regressão (1,72 surface e 1,82 canvas); fundo elevated e hover só informativo para container e divisor.\n'
-md += '- Papel por seletor, não por token: o contorno de container é avaliado pelo papel do elemento (.edu-card, .panel etc.), seja qual for o token que a regra CSS usa. Hoje essas regras usam var(--border), alias de --border-subtle. O plano trata o contorno de container como border-strong, então a violação de container abaixo mostra a distância entre o que o CSS usa e o que o limiar de 2,0:1 pede.\n\n'
-
+md += '- Texto abaixo de 12 px, status sem texto nem svg.icone e cores do terminal (.terminal-shell e .terminal-output contra --bg-canvas e --text-primary do bloco operacao ou do conjunto escuro de alto contraste) também falham a spec.\n'
+md += '- Páginas reutilizadas: uma página por projeto, tema, contraste e grupo. Backend local com limite de 5000 requisições por minuto só no processo dele.\n'
+md += '- Limiares: texto 4,5:1 (grande 3:1, vindo do axe; 7:1 no alto contraste); controles e foco 3:1; contorno de container 2,0:1 sobre surface e canvas; divisor 1,4:1 e, no operacao com contraste padrão, sem regressão (1,71 surface e 1,81 canvas); fundo elevated e hover só informativo para container e divisor.\n'
+md += '- Papel por seletor, não por token: o contorno de container é avaliado pelo papel do elemento, seja qual for o token que a regra CSS usa.\n\n'
 md += '## 2. Totais por tema e viewport\n\n'
 md += 'Contagem de elementos distintos por célula (tela e estado). O mesmo componente que aparece em duas telas conta nas duas. Linhas informativas são as sem limiar aplicável (fundo elevated ou hover, controle só com preenchimento).\n\n'
 const campos = [
@@ -346,7 +362,9 @@ const campos = [
   ['elementos_nao_calculaveis', 'Elementos não calculáveis'],
   ['celulas_com_rolagem_horizontal', 'Células com rolagem horizontal'],
   ['alvos_menores_44px', 'Alvos menores que 44 px (informativo)'],
-  ['texto_menor_12px', 'Textos menores que 12 px (informativo)'],
+  ['texto_menor_12px', 'Textos menores que 12 px'],
+  ['status_sem_cor', 'Status sem texto nem ícone'],
+  ['terminal_violacoes', 'Cores do terminal fora do esperado'],
 ]
 md += `| Métrica | ${colunas.map((c) => `${c.tema} ${c.v}`).join(' | ')} |\n|---|${colunas.map(() => '---:').join('|')}|\n`
 for (const [chave, rotulo] of campos) {
@@ -354,11 +372,11 @@ for (const [chave, rotulo] of campos) {
 }
 md += '\n'
 const somaTema = (tema, chave) => ORDEM_VIEWPORT.reduce((s, v) => s + totais[tema][v][chave], 0)
-md += '| Tema | Texto (estático e hover) | Container | Divisor | Controle | Foco | Hover (controle ou divisor) |\n|---|---:|---:|---:|---:|---:|---:|\n'
+md += '| Tema (contraste) | Texto (estático e hover) | Container | Divisor | Controle | Foco | Hover (controle ou divisor) |\n|---|---:|---:|---:|---:|---:|---:|\n'
 for (const tema of ORDEM_TEMA) {
   md += `| ${tema} | ${somaTema(tema, 'texto_axe_violacoes') + somaTema(tema, 'hover_violacoes_texto')} | ${somaTema(tema, 'container_violacoes')} | ${somaTema(tema, 'divisor_violacoes')} | ${somaTema(tema, 'controle_violacoes')} | ${somaTema(tema, 'foco_violacoes')} | ${somaTema(tema, 'hover_violacoes_borda_ou_fundo')} |\n`
 }
-md += '\n(Soma dos quatro viewports de cada tema.)\n\n'
+md += '\n(Soma dos viewports medidos de cada tema e contraste.)\n\n'
 
 md += '## 3. Matriz de cobertura\n\n'
 md += `${cobertura.combinacoes_tela_estado} combinações de tela e estado por ${colunas.length} colunas de tema e viewport: ${cobertura.celulas_esperadas} células esperadas, ${cobertura.celulas_medidas} medidas e ${cobertura.celulas_nao_calculaveis} não calculáveis.\n\n`
@@ -368,16 +386,30 @@ if (notasMotivo.length > 0) {
 }
 
 md += '## 4. Violações medidas\n\n'
-md += 'Cada grupo reúne elementos com o mesmo tema, seletor, par de cores e razão. O arquivo 10_linha_de_base.json traz todas as linhas, uma por elemento distinto, tela, estado, tema e viewport.\n\n'
+md += 'Cada grupo reúne elementos com o mesmo tema, seletor, par de cores e razão. O arquivo LINHA_DE_BASE_TEMAS.json traz todas as linhas, uma por elemento distinto, tela, estado, tema e viewport.\n\n'
 md += tabelaViolacoes('4.1 Texto (axe)', violTexto) + '\n'
 md += tabelaViolacoes('4.2 Contorno de container', violContainer) + '\n'
 md += tabelaViolacoes('4.3 Divisor', violDivisor) + '\n'
 md += tabelaViolacoes('4.4 Controle (borda ou preenchimento)', violControle) + '\n'
 md += tabelaViolacoes('4.5 Foco', violFoco) + '\n'
 md += tabelaViolacoes('4.6 Controle e divisor sob hover', violHover) + '\n'
+const extras = []
+for (const c of celulas) {
+  if (c.status !== 'medida') continue
+  const base = `${c.tema}, ${largura(c)} px, ${rotuloTela(c)}`
+  if (c.informativas.texto_menor_12px > 0) {
+    extras.push(`${base}: ${c.informativas.texto_menor_12px} nó(s) de texto abaixo de 12 px (${c.informativas.exemplos_texto.join('; ')})`)
+  }
+  for (const s of c.statusSemCor ?? []) extras.push(`${base}: status sem texto nem ícone ${s}`)
+  for (const [nome, par] of Object.entries(c.terminal ?? {})) {
+    if (par.obtido !== par.esperado) extras.push(`${base}: terminal ${nome} obtido ${par.obtido}, esperado ${par.esperado}`)
+  }
+}
+md += '### 4.7 Texto abaixo de 12 px, status sem cor e terminal\n\n'
+md += extras.length === 0 ? 'Nenhuma violação medida.\n\n' : extras.map((e) => `- ${celula(e)}`).join('\n') + '\n\n'
 
 md += '## 5. Matriz de tokens\n\n'
-md += 'Razões calculadas a partir dos valores dos tokens lidos da página em cada tema (getComputedStyle da raiz). Referência para a E5.\n\n'
+md += 'Razões calculadas a partir dos valores dos tokens lidos da página em cada tema e contraste (getComputedStyle da raiz).\n\n'
 md += '| Tema | Token | Cor | Fundo | Cor do fundo | Razão | Limiar | Situação |\n|---|---|---|---|---|---:|---:|---|\n'
 for (const m of matrizTokens) {
   md += `| ${m.tema} | ${m.token} | ${m.cor} | ${m.fundo} | ${m.cor_fundo} | ${fmt(m.razao)} | ${fmt(m.limiar)} | ${m.atende === null ? 'informativo' : m.atende ? 'atende' : 'não atende'} (${celula(m.regra)}) |\n`
@@ -400,22 +432,19 @@ md += '- Axe mede o estado da página no instante da medição. Menus, diálogos
 md += '- Controle só com preenchimento (sem borda) é informativo: o limiar de 3:1 só vale para controles que têm borda visível. O mesmo vale para rádio e caixa de seleção nativos, cuja borda não aparece no estilo computado.\n'
 md += '- O fundo de elemento com opacidade menor que 1, imagem ou gradiente não é calculado, vai para a lista de não calculáveis.\n'
 md += '- Pseudo-elementos (por exemplo o botão do seletor de arquivo) não entram no estilo computado do elemento. O axe os trata como conteúdo de pseudo-elemento quando os encontra.\n'
-md += '- O tactical foi medido de forma completa nesta etapa, mas só dois PNG dele foram inspecionados no ciclo 1. A inspeção visual dos dois temas fica para a E6.\n'
-md += '- Zoom em 200 por cento e leitor de tela não fazem parte desta etapa (verificação manual da E7).\n'
+md += '- Zoom em 200 por cento é coberto pela Spec_Visual (640 por 450 px). Leitor de tela real não faz parte da medição.\n'
 
 mkdirSync(DESTINO, { recursive: true })
-writeFileSync(`${DESTINO}10_LINHA_DE_BASE.md`, limpar(md), 'utf8')
+writeFileSync(`${DESTINO}LINHA_DE_BASE_TEMAS.md`, limpar(md), 'utf8')
 
 const json = {
-  etapa: 'E1',
   gerado_em: data,
   branch: ramo,
   commit: git('rev-parse HEAD'),
-  base_produto: 'a88988c',
   ambiente: { chromium, node: nodeVersao, playwright: playwrightVersao, axe_core: axeVersao, projetos },
   limiares: {
     texto: 4.5, texto_grande: 3, controle_e_foco: 3, container: 2,
-    divisor_corporate: 1.4, divisor_tactical: 'sem regressão (1,72 surface, 1,82 canvas)',
+    texto_alto_contraste: 7, divisor: 1.4, divisor_operacao_padrao: 'sem regressão (1,71 surface, 1,81 canvas)',
     observacao: 'fundos elevated e hover são só informativos para container e divisor',
   },
   cobertura,
@@ -437,7 +466,7 @@ const json = {
   linhas,
   nao_calculaveis: naoCalc,
 }
-writeFileSync(`${DESTINO}10_linha_de_base.json`, limpar(JSON.stringify(json, null, 1)), 'utf8')
+writeFileSync(`${DESTINO}LINHA_DE_BASE_TEMAS.json`, limpar(JSON.stringify(json, null, 1)), 'utf8')
 
 console.log(`Relatório gerado em ${DESTINO}`)
 console.log(JSON.stringify({ cobertura, violacoes: violacoes.length, linhas: linhas.length, nao_calculaveis: naoCalc.length }))
