@@ -163,6 +163,19 @@ export const ROTEIRO_CHECKIN: { versao: string; perguntas: readonly PerguntaRote
   ],
 }
 
+/**
+ * Check-in_Rápido: respostas padrão que indicam Suporte de TI, a rota disponível. Os identificadores
+ * existem em ROTEIRO_CHECKIN. Quem confirma não escolhe nada, e o texto abaixo diz isso.
+ */
+export const CHECKIN_RAPIDO: {
+  respostas: Readonly<Record<IdPerguntaCheckIn, string>>
+  explicacao: string
+} = {
+  respostas: { interesse: 'ajudar-pessoas', situacao: 'perguntar-o-que-aparece', ritmo: 'praticar' },
+  explicacao:
+    'O check-in rápido usa as respostas padrão abaixo para levar você a um voo em um passo. Você pode refazer o check-in completo quando quiser, e o cartão novo substitui este.',
+}
+
 /** Texto fixo por rota, o começo da justificativa da indicação. */
 export const JUSTIFICATIVAS: Readonly<Record<IdRota, string>> = {
   'suporte-ti':

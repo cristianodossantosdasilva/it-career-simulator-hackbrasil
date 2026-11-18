@@ -11,6 +11,9 @@ import {
 } from './catalogoRotas'
 import { AVISO_CERTIFICACOES, CATALOGO_CERTIFICACOES } from './catalogoCertificacoes'
 import { CATALOGO_PARCEIROS } from './catalogoParceiros'
+import { CHECKIN_RAPIDO, ROTEIRO_CHECKIN } from './catalogoVocacional'
+import { indicarRota } from './regrasIndicacao'
+import * as textosDemonstracao from '../demonstracao/textosDemonstracao'
 import { APRESENTACAO_STATUS } from './status'
 
 const ROTAS: readonly Rota[] = CATALOGO_ROTAS
@@ -186,6 +189,32 @@ describe('Catálogo de parceiros', () => {
 describe('Textos dos catálogos de certificações e parceiros', () => {
   it('não usam E comercial nem emoji', () => {
     const textos = JSON.stringify([CATALOGO_CERTIFICACOES, AVISO_CERTIFICACOES, CATALOGO_PARCEIROS])
+    expect(textos).not.toContain('&')
+    expect(textos).not.toMatch(/\p{Extended_Pictographic}/u)
+  })
+})
+
+describe('Check-in_Rápido e textos do modo de demonstração', () => {
+  it('as respostas padrão existem nas opções do roteiro', () => {
+    for (const pergunta of ROTEIRO_CHECKIN.perguntas) {
+      const resposta = CHECKIN_RAPIDO.respostas[pergunta.id]
+      expect(pergunta.opcoes.some((opcao) => opcao.id === resposta)).toBe(true)
+    }
+  })
+
+  it('as respostas padrão indicam a rota Suporte de TI, que está disponível', () => {
+    const { rotaId } = indicarRota(CHECKIN_RAPIDO.respostas)
+    expect(rotaId).toBe('suporte-ti')
+    expect(rotaPorId(rotaId)?.status).toBe('disponivel')
+  })
+
+  it('os textos do modo, do atalho e do check-in rápido não usam E comercial nem emoji', () => {
+    const textos = JSON.stringify([
+      CHECKIN_RAPIDO,
+      ...Object.values(textosDemonstracao).map((valor) =>
+        typeof valor === 'function' ? valor('Service Desk N1 Jr') : valor,
+      ),
+    ])
     expect(textos).not.toContain('&')
     expect(textos).not.toMatch(/\p{Extended_Pictographic}/u)
   })
