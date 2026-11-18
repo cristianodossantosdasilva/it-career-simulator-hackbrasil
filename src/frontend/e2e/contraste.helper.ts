@@ -27,7 +27,7 @@ export const LIMIARES = {
   divisorCorporate: 1.4,
 } as const
 
-export type Estado = 'limpo' | 'missão iniciada' | 'turno concluído'
+export type Estado = 'limpo' | 'modo de demonstração ativo' | 'missão iniciada' | 'turno concluído'
 
 export interface MetaCelula {
   projeto: string
@@ -293,8 +293,8 @@ async function instalarAuxiliares(page: Page) {
     }
 
     ct.papeis = [
-      ['container', '.edu-card, .panel, .glossary-details, .card-section, table, .painel-bloco, .step-box, .chat, .chat-log'],
-      ['divisor', '.missao-linha, table th, table td, .itsm-nota'],
+      ['container', '.edu-card, .panel, .glossary-details, .card-section, table, .painel-bloco, .step-box, .chat, .chat-log, .passo-jornada, .estado-vazio, .resposta-checkin-rapido, .escala, .grupo-vertente, .cartao-missao, .convite-copiloto, .opcoes-avancadas, .indicacao-checkin, .demonstracao-checkin, .cartao-embarque, .breve-piloto, .registro-voo, .resumo-local, .rota-hangar, .papel-comandante'],
+      ['divisor', 'table th, table td, .itsm-nota'],
       ['controle', 'button, input:not([type=hidden]), select, textarea, summary'],
     ]
 
@@ -393,7 +393,7 @@ async function instalarAuxiliares(page: Page) {
       const vistos = new Set<string>()
       let i = 0
       const candidatos = document.querySelectorAll(
-        'button:not(:disabled), a[href]:not(.skip), summary, .missao-linha, tbody tr, [role=tab], input:not([type=hidden]):not(:disabled), select, textarea',
+        'button:not(:disabled), a[href]:not(.skip), summary, tbody tr, [role=tab], input:not([type=hidden]):not(:disabled), select, textarea',
       )
       for (const el of ct.conteudoPrimeiro(Array.from(candidatos))) {
         if (i >= limite) break
@@ -410,7 +410,7 @@ async function instalarAuxiliares(page: Page) {
       const el = document.querySelector('[data-ct-h="' + indice + '"]')
       if (!el) return { motivo: 'candidato removido da página' }
       const tokens = ct.tokens()
-      const divisor = el.matches('.missao-linha, tr, th, td')
+      const divisor = el.matches('tr, th, td')
       const papel = divisor ? 'divisor' : 'controle'
       const r = ct.medirElemento(el, papel, tema, 'hover', tokens)
       const fundoProprio = ct.fundo(el)
