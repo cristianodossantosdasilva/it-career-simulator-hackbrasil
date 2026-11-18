@@ -17,6 +17,8 @@ interface CredencialViewProps {
   onApelidoChange?: (valor: string) => void
   onAtualizarCarreira?: (apelido?: string) => void
   onPraticar: (nivel: NivelEducacional) => void
+  /** Nível do título. O Brevê tem o próprio h1 e passa 2. */
+  nivelTitulo?: 1 | 2
 }
 
 const ROTULO_VERIFICACAO: Record<ResultadoVerificacaoCurriculo['status'], string> = {
@@ -40,7 +42,9 @@ export function CredencialView({
   onApelidoChange,
   onAtualizarCarreira,
   onPraticar,
+  nivelTitulo = 1,
 }: CredencialViewProps) {
+  const Titulo = nivelTitulo === 2 ? 'h2' : 'h1'
   const [jsonVerificar, setJsonVerificar] = useState('')
   const [nomeArquivo, setNomeArquivo] = useState('')
   const [resultado, setResultado] = useState<ResultadoVerificacaoCurriculo | null>(null)
@@ -83,7 +87,7 @@ export function CredencialView({
   return (
     <div className="page credencial">
       <div className="page-head">
-        <h1 className="h1">Credencial</h1>
+        <Titulo className={nivelTitulo === 2 ? 'h2' : 'h1'}>Credencial</Titulo>
         <p className="lead">
           Seu progresso e o Currículo Vivo. A assinatura ECDSA P-256 mostra que o arquivo gerado pelo servidor não foi
           alterado depois da exportação. Não é diploma técnico nem certificação de terceiros.
