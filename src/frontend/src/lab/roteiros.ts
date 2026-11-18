@@ -4,7 +4,7 @@ import { chamadoFechado, incidenteMassivoRestabelecido } from './estadoDoCenario
 export type FerramentaLab = 'itsm' | 'chat' | 'simudesk'
 
 /** Passos que o App ja deriva dos eventos do motor (politica, token e recusa do reset). */
-export interface PassosNivel1 {
+export interface PassosTriagem {
   politica: boolean
   token: boolean
   recusado: boolean
@@ -12,7 +12,7 @@ export interface PassosNivel1 {
 
 export interface ContextoRoteiro {
   sessao: SessaoProjecao
-  passosNivel1: PassosNivel1
+  passosTriagem: PassosTriagem
 }
 
 export interface PassoRoteiro {
@@ -120,14 +120,14 @@ const ROTEIROS: Record<string, Roteiro> = {
         titulo: 'Consultar a política de segurança',
         detalhe: 'Leia a política KB-001 sobre reset de senha.',
         ferramenta: 'itsm',
-        concluido: (ctx) => ctx.passosNivel1.politica,
+        concluido: (ctx) => ctx.passosTriagem.politica,
       },
       {
         id: 'token',
         titulo: 'Verificar o token do solicitante',
         detalhe: 'Peça o token corporativo antes de qualquer decisão.',
         ferramenta: 'itsm',
-        concluido: (ctx) => ctx.passosNivel1.token,
+        concluido: (ctx) => ctx.passosTriagem.token,
       },
       {
         id: 'nota-interna',
@@ -141,7 +141,7 @@ const ROTEIROS: Record<string, Roteiro> = {
         titulo: 'Responder ao pedido de reset conforme a política',
         detalhe: 'Escolha a decisão no painel de segurança do ITSM.',
         ferramenta: 'itsm',
-        concluido: (ctx) => ctx.passosNivel1.recusado,
+        concluido: (ctx) => ctx.passosTriagem.recusado,
       },
       resolverChamado,
     ],

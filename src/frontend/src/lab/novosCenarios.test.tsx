@@ -50,7 +50,7 @@ function sessaoDe(
 }
 
 function passosFeitos(sessao: SessaoProjecao): number {
-  const contexto = { sessao, passosNivel1: { politica: false, token: false, recusado: false } }
+  const contexto = { sessao, passosTriagem: { politica: false, token: false, recusado: false } }
   return roteiroDoCenario(sessao.meta.cenarioId).passos.filter((passo) => passo.concluido(contexto)).length
 }
 
@@ -107,7 +107,7 @@ describe('Roteiro e dica de reset-senha-desbloqueio', () => {
     const passo = roteiroDoCenario('reset-senha-desbloqueio').passos.find((item) => item.id === 'identidade-titular')
     const contexto = {
       sessao: sessaoDe('reset-senha-desbloqueio', { identidadeValidada: true, acessoRemotoLiberado: false }),
-      passosNivel1: { politica: false, token: false, recusado: false },
+      passosTriagem: { politica: false, token: false, recusado: false },
     }
     expect(passo?.concluido(contexto)).toBe(true)
   })
@@ -146,7 +146,7 @@ describe('Roteiro e dica de incidente-massivo com a Causa externa', () => {
   const passoServico = (sessao: SessaoProjecao) =>
     roteiroDoCenario('incidente-massivo').passos.find((passo) => passo.id === 'servico')?.concluido({
       sessao,
-      passosNivel1: { politica: false, token: false, recusado: false },
+      passosTriagem: { politica: false, token: false, recusado: false },
     })
 
   it.each([

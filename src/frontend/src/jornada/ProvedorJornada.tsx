@@ -87,7 +87,7 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
   const [gaveta, setGaveta] = useState<'notas' | 'tutor' | null>(null)
   const [ocupado, setOcupado] = useState(false)
   const [aviso, setAviso] = useState<string | null>(null)
-  const [nivel1Passos, setNivel1Passos] = useState({ politica: false, token: false, recusado: false })
+  const [passosTriagem, setPassosTriagem] = useState({ politica: false, token: false, recusado: false })
   const [historicoTerminal, setHistoricoTerminal] = useState<
     { cmd: string; saida: string; priv: string }[]
   >([])
@@ -168,7 +168,7 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
     definirSessao(id, proj)
     setRegistroRecente(null)
     setFalhaRegistro(false)
-    setNivel1Passos({ politica: false, token: false, recusado: false })
+    setPassosTriagem({ politica: false, token: false, recusado: false })
     setHistoricoTerminal([])
     setAba('itsm')
   }
@@ -296,13 +296,13 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
         } else if (ev.tipo === 'AcessoPastaRestabelecido') {
           setAviso('Pasta Financeiro restabelecida! Agora resolva o chamado no ITSM com nota pública.')
         } else if (ev.tipo === 'PoliticaSegurancaConsultada') {
-          setNivel1Passos((p) => ({ ...p, politica: true }))
+          setPassosTriagem((p) => ({ ...p, politica: true }))
           setAviso('Política KB-001 consultada: reset de senha exige validação de matrícula e ramal e token corporativo.')
         } else if (ev.tipo === 'TokenSolicitado') {
-          setNivel1Passos((p) => ({ ...p, token: true }))
+          setPassosTriagem((p) => ({ ...p, token: true }))
           setAviso('Token corporativo verificado: solicitante NAO possui token valido (alerta de engenharia social!).')
         } else if (ev.tipo === 'ResetRecusado') {
-          setNivel1Passos((p) => ({ ...p, recusado: true }))
+          setPassosTriagem((p) => ({ ...p, recusado: true }))
           setAviso('Reset fraudulento recusado com seguranca! Abra "Juiz 360º e Replay" para conferir sua avaliacao.')
         } else if (ev.tipo === 'SenhaResetadaIndevidamente') {
           setAviso('ALERTA: Senha resetada sem verificacao! Incidente de seguranca registrado.')
@@ -371,7 +371,7 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
     ocupado,
     aviso,
     setAviso,
-    nivel1Passos,
+    passosTriagem,
     historicoTerminal,
     artigoKbSelecionado,
     abrirKbDoItsm,

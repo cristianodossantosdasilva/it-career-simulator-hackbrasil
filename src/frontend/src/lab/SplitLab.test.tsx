@@ -65,8 +65,8 @@ function criarSessao(chamado: Partial<ChamadoDto> = {}, cenarioId = 'triagem-eng
   }
 }
 
-function contexto(sessao: SessaoProjecao, passosNivel1 = { politica: false, token: false, recusado: false }): ContextoRoteiro {
-  return { sessao, passosNivel1 }
+function contexto(sessao: SessaoProjecao, passosTriagem = { politica: false, token: false, recusado: false }): ContextoRoteiro {
+  return { sessao, passosTriagem }
 }
 
 describe('roteiro da missao', () => {

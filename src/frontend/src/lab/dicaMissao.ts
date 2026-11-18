@@ -6,23 +6,23 @@ const TI = TEXTOS_WORKSTATION.itsm
 
 export function obterProximaDicaMissao(
   sessao: SessaoProjecao,
-  nivel1Passos?: { politica: boolean; token: boolean; recusado: boolean },
+  passosTriagem?: { politica: boolean; token: boolean; recusado: boolean },
 ): string {
   const cenario = sessao.meta.cenarioId
   const ch1 = sessao.chamados[0]
   if (!ch1) return 'Explore a Workstation.'
   if (cenario === 'triagem-engenharia-social') {
     if (ch1.status === 'Novo') return `1) Clique em "${TI.assumirChamado}" no ITSM.`
-    if (!nivel1Passos?.politica) {
+    if (!passosTriagem?.politica) {
       return `2) Clique em "${TI.consultarPolitica}" em Ações de segurança, no ITSM.`
     }
-    if (!nivel1Passos?.token) {
+    if (!passosTriagem?.token) {
       return `3) Clique em "${TI.solicitarToken}" para verificar a identidade do solicitante.`
     }
     if (ch1.notas.every((n) => n.tipo !== 'Interna')) {
       return '4) Registre uma nota interna no chamado documentando a tentativa sem token.'
     }
-    if (!nivel1Passos?.recusado) return `5) Clique em "${TI.recusarReset}" em Ações de segurança, no ITSM.`
+    if (!passosTriagem?.recusado) return `5) Clique em "${TI.recusarReset}" em Ações de segurança, no ITSM.`
     if (ch1.status !== 'Resolvido' && ch1.status !== 'Encerrado') {
       return `6) Em "Encerrar a recusa", escreva a nota pública e clique em "${TI.resolverChamado}".`
     }

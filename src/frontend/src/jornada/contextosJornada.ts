@@ -8,7 +8,7 @@ import type { IdMissao } from './catalogos/catalogoRotas'
 export type Aba = 'itsm' | 'chat' | 'simudesk' | 'kb'
 
 
-export interface PassosNivel1 {
+export interface PassosTriagem {
   politica: boolean
   token: boolean
   recusado: boolean
@@ -47,7 +47,7 @@ export interface ValorVoo {
   ocupado: boolean
   aviso: string | null
   setAviso: Dispatch<SetStateAction<string | null>>
-  nivel1Passos: PassosNivel1
+  passosTriagem: PassosTriagem
   historicoTerminal: { cmd: string; saida: string; priv: string }[]
   artigoKbSelecionado: string | null
   abrirKbDoItsm: (artigoId: string) => void

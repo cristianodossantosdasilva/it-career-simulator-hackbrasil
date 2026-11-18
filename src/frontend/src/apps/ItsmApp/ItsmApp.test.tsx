@@ -20,7 +20,7 @@ Object.assign(sessao, {
   problemas: [], estacao: {}, dialogo: {}, meta: { cenarioId: 'demo', semente: 1, nivel: 'N1', versaoManifesto: '1', minutoSimulado: 4, ultimoSeq: 1 }, ultimoSeq: 1,
 })
 
-const sessaoNivel1 = { ...sessao, meta: { ...sessao.meta, cenarioId: 'triagem-engenharia-social' } } as SessaoProjecao
+const sessaoTriagem = { ...sessao, meta: { ...sessao.meta, cenarioId: 'triagem-engenharia-social' } } as SessaoProjecao
 
 describe('ItsmApp W22', () => {
   it('mantém a seleção da fila e não apresenta violações axe-core', async () => {
@@ -75,7 +75,7 @@ describe('ItsmApp W22', () => {
   it('apresenta as quatro decisões de segurança com o mesmo peso e abre o KB-001 ao consultar a política', async () => {
     const onAcao = vi.fn(async () => {})
     const onAbrirKb = vi.fn()
-    render(<ItsmApp sessao={sessaoNivel1} onAcao={onAcao} ocupado={false} onAbrirKb={onAbrirKb} />)
+    render(<ItsmApp sessao={sessaoTriagem} onAcao={onAcao} ocupado={false} onAbrirKb={onAbrirKb} />)
     const decisoes = [T.consultarPolitica, T.solicitarToken, T.recusarReset, T.resetarSenha].map((nome) =>
       screen.getByRole('button', { name: nome }),
     )
@@ -93,7 +93,7 @@ describe('ItsmApp W22', () => {
 
   it('consulta a política sem o callback e continua enviando a ação ao motor', async () => {
     const onAcao = vi.fn(async () => {})
-    render(<ItsmApp sessao={sessaoNivel1} onAcao={onAcao} ocupado={false} />)
+    render(<ItsmApp sessao={sessaoTriagem} onAcao={onAcao} ocupado={false} />)
     fireEvent.click(screen.getByRole('button', { name: T.consultarPolitica }))
     await waitFor(() => expect(onAcao).toHaveBeenCalledWith('seguranca.consultar_politica'))
   })

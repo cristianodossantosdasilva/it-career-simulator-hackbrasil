@@ -53,8 +53,8 @@ export function ItsmApp({ sessao, onAcao, ocupado, onAbrirKb }: Props) {
 
   const chamado: ChamadoDto | undefined =
     sessao.chamados.find((c) => c.id === selecionadoId) ?? sessao.chamados[0]
-  const ehNivel1 = sessao.meta.cenarioId === 'triagem-engenharia-social'
-  const ehNivel3 = sessao.meta.cenarioId === 'incidente-massivo'
+  const ehTriagem = sessao.meta.cenarioId === 'triagem-engenharia-social'
+  const ehIncidenteMassivo = sessao.meta.cenarioId === 'incidente-massivo'
   const minutoAtual = sessao.meta.minutoSimulado
 
   async function consultarPolitica() {
@@ -177,7 +177,7 @@ export function ItsmApp({ sessao, onAcao, ocupado, onAbrirKb }: Props) {
               </div>
             )}
 
-            {ehNivel1 && (
+            {ehTriagem && (
               <div className="itsm-bloco">
                 <h3>Ações de segurança</h3>
                 <ol className="itsm-checklist">
@@ -203,7 +203,7 @@ export function ItsmApp({ sessao, onAcao, ocupado, onAbrirKb }: Props) {
               </div>
             )}
 
-            {!ehNivel1 && chamado.status !== 'Resolvido' && chamado.status !== 'Encerrado' && (
+            {!ehTriagem && chamado.status !== 'Resolvido' && chamado.status !== 'Encerrado' && (
               <div className="itsm-bloco">
                 <h3>Classificação e SLA</h3>
                 <div className="form-grid">
@@ -310,12 +310,12 @@ export function ItsmApp({ sessao, onAcao, ocupado, onAbrirKb }: Props) {
 
             {(chamado.status === 'EmAtendimento' || chamado.status === 'Escalonado') && (
               <div className="itsm-bloco">
-                <h3>{ehNivel1 ? 'Encerrar a recusa' : 'Resolução'}</h3>
+                <h3>{ehTriagem ? 'Encerrar a recusa' : 'Resolução'}</h3>
                 <div className="form-row">
                   <input
                     aria-label={T.notaResolucao}
                     placeholder={
-                      ehNivel1
+                      ehTriagem
                         ? 'Ex.: Solicitação recusada conforme política KB-001 (sem validação).'
                         : 'Descreva a solução aplicada (nota pública obrigatória)...'
                     }
@@ -363,7 +363,7 @@ export function ItsmApp({ sessao, onAcao, ocupado, onAbrirKb }: Props) {
               )}
             </div>
 
-            {ehNivel3 && (
+            {ehIncidenteMassivo && (
               <div className="itsm-bloco">
                 <h3>Gestão de problema ITIL ({sessao.problemas.length})</h3>
                 {sessao.problemas.length === 0 ? (

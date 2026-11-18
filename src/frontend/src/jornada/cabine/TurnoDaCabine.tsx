@@ -37,7 +37,7 @@ export function TurnoDaCabine() {
     ocupado,
     aviso,
     setAviso,
-    nivel1Passos,
+    passosTriagem,
     historicoTerminal,
     artigoKbSelecionado,
     abrirKbDoItsm,
@@ -51,8 +51,8 @@ export function TurnoDaCabine() {
   if (!sessaoId || !sessao) return null
 
   const cenarioDaSessao = sessao.meta.cenarioId
-  // Missões sem módulo de aulas (nivelPorCenarioId devolve null) usam o título do catálogo de rotas e
-  // guardam as notas numa página própria, sem nível, em vez de cair no primeiro módulo.
+  // Toda Missão do catálogo tem nível de estudo. Só um cenário fora do catálogo (nivelPorCenarioId devolve
+  // null) usa o título do catálogo e uma página de notas própria, sem cair no primeiro módulo.
   const nivelSessao = nivelPorCenarioId(cenarioDaSessao)
   const textosMissao = textosDaMissao(cenarioDaSessao)
   const nomeDasNotas = nivelSessao?.nome ?? textosMissao.titulo
@@ -70,8 +70,8 @@ export function TurnoDaCabine() {
     notes: '',
     summary: '',
   }
-  const dicaAtual = obterProximaDicaMissao(sessao, nivel1Passos)
-  const contextoRoteiro = { sessao, passosNivel1: nivel1Passos }
+  const dicaAtual = obterProximaDicaMissao(sessao, passosTriagem)
+  const contextoRoteiro = { sessao, passosTriagem: passosTriagem }
   const roteiroAtual = roteiroDoCenario(sessao.meta.cenarioId)
   const passosFeitos = roteiroAtual.passos.filter((passo) => passo.concluido(contextoRoteiro)).length
   const enderecoCaixaPreta = enderecoDe({ pagina: 'caixa-preta', sessao: sessaoId })
