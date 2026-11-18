@@ -99,6 +99,35 @@ public static partial class Juiz360
             "Resolva o chamado somente depois de restabelecer o acesso e registre o que foi feito em nota publica.",
             "kb://itsm/resolucao-chamado"));
 
+        var h9 = false;
+        var h10 = false;
+        if (causa == "CONTA_BLOQUEADA")
+        {
+            // H9: achou a origem antes de desbloquear e a conta nao bloqueou de novo.
+            var origem = eventos.FirstOrDefault(e => e.Tipo == "OrigemBloqueioIdentificada");
+            var desbloqueio = eventos.FirstOrDefault(e => e.Tipo == "ContaDesbloqueada");
+            var bloqueouDeNovo = eventos.FirstOrDefault(e => e.Tipo == "ContaBloqueadaNovamente");
+            h9 = origem is not null && desbloqueio is not null && origem.Seq < desbloqueio.Seq && bloqueouDeNovo is null;
+            criterios.Add(new("H9", "Achou a origem do bloqueio antes de desbloquear e a conta nao bloqueou de novo", h9, origem?.Seq ?? bloqueouDeNovo?.Seq,
+                h9 ? "Origem das tentativas identificada antes do desbloqueio." : "Desbloqueio sem identificar a origem das tentativas, ou a conta bloqueou de novo.",
+                "Leia os eventos de seguranca (eventos-seguranca) para achar a origem das tentativas antes de desbloquear.",
+                "kb://acesso/reset-desbloqueio-e-troca"));
+
+            // H10: orientou a titular, em nota publica, sobre o dispositivo com a senha antiga.
+            var termosDispositivo = new[] { "celular", "telefone", "dispositivo", "movel", "smartphone" };
+            var notaOrientacao = principal?.Notas.FirstOrDefault(n =>
+            {
+                if (n.Tipo != TipoNota.Publica) return false;
+                var texto = Normalizar(n.Texto);
+                return texto.Contains("senha", StringComparison.Ordinal) && termosDispositivo.Any(t => texto.Contains(t, StringComparison.Ordinal));
+            });
+            h10 = notaOrientacao is not null;
+            criterios.Add(new("H10", "Orientou a titular sobre o celular com a senha antiga", h10, notaOrientacao?.Seq,
+                h10 ? "Nota publica orienta atualizar a senha no celular." : "Nenhuma nota publica orientou a titular sobre o dispositivo com a senha antiga.",
+                "Registre em nota publica que o celular com a senha antiga em cache precisa ser atualizado.",
+                "kb://acesso/reset-desbloqueio-e-troca"));
+        }
+
         var atendidos = criterios.Count(c => c.Atendido);
         var todosNoSla = estado.Itsm.Chamados.All(c => !c.SlaVencido);
         var xp = Math.Max(0, atendidos * 10 + (todosNoSla && h8 ? 10 : 0));
@@ -107,7 +136,7 @@ public static partial class Juiz360
         if (h1 && h2) competencias.Add("Verificacao de Identidade");
         if (h3) competencias.Add("Diagnostico de Conta e Acesso");
         if (h5 && h6) competencias.Add("Atendimento de Menor Acao Necessaria");
-
+        if (h9 && h10) competencias.Add("Analise de Origem de Bloqueio");
         var concluida = principal?.Status is StatusChamado.Resolvido or StatusChamado.Encerrado;
         return new RelatorioAvaliacao(
             concluida,

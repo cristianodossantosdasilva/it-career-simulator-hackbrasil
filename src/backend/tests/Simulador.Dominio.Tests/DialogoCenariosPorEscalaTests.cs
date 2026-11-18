@@ -105,4 +105,26 @@ public class DialogoCenariosPorEscalaTests
         var r = await Dialogo.ResponderAsync(s.Estado, "cliente", "Qual a matricula?");
         Assert.Contains("AUR-1042", r.Mensagem);
     }
+
+    [Theory]
+    [InlineData(false, "Não digitei errado hoje")]
+    [InlineData(true, "conta dela está bloqueada")]
+    public async Task Cliente_ContaBloqueada_RespondeOSintomaSemCitarAOrigem(bool porTerceiro, string trecho)
+    {
+        var s = ResetSenhaTests.Nova("CONTA_BLOQUEADA", porTerceiro);
+        var r = await Dialogo.ResponderAsync(s.Estado, "cliente", "Qual o problema?");
+        Assert.Contains(trecho, r.Mensagem);
+        Assert.DoesNotContain("MOB-FIN-017", r.Mensagem);
+        Assert.DoesNotContain("celular", r.Mensagem, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("CONTA_BLOQUEADA", r.Mensagem);
+
+        var comNivel1 = s.Estado with
+        {
+            Dialogo = s.Estado.Dialogo with { Mensagens = [new MensagemDialogo(1, "techlead", "primeira orientação", 0)] }
+        };
+        var dica = await Dialogo.ResponderAsync(comNivel1, "techlead", "E agora?");
+        Assert.Contains("eventos de segurança", dica.Mensagem);
+        Assert.DoesNotContain("celular", dica.Mensagem, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("MOB-FIN-017", dica.Mensagem);
+    }
 }

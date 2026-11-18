@@ -67,7 +67,11 @@ internal static class ComandosPorEscala
             var arg = Argumento(comando, "eventos-seguranca");
             if (!string.Equals(arg, cenario.UsuarioAlvo, StringComparison.OrdinalIgnoreCase))
                 return Resultado(estado, MensagemLoginInexistente);
-            return Resultado(estado, $"Nenhum bloqueio recente para {cenario.UsuarioAlvo}.");
+            if (cenario.Causa != "CONTA_BLOQUEADA")
+                return Resultado(estado, $"Nenhum bloqueio recente para {cenario.UsuarioAlvo}.");
+            return Resultado(estado,
+                "Evento 4740 repetido a cada 5 min. Origem: dispositivo movel MOB-FIN-017 (celular corporativo da titular) com senha antiga em cache.",
+                Ev("OrigemBloqueioIdentificada", ("usuario", cenario.UsuarioAlvo), ("origem", "MOB-FIN-017")));
         }
 
         if (lower.StartsWith("diretorio", StringComparison.Ordinal))
@@ -124,6 +128,7 @@ internal static class ComandosPorEscala
         var status = EfeitosDeEventos.StatusServico(estado.Estacao, "ContaAD");
         var detalhe = status switch
         {
+            "Bloqueada" => "conta BLOQUEADA | 12 tentativas incorretas nas ultimas 2 horas",
             "SenhaTemporaria" => "ativa | senha temporaria, troca obrigatoria no primeiro acesso | 0 tentativas incorretas",
             "Ativa" when cenario.Causa == "SENHA_ESQUECIDA" => "ativa | senha valida ate 2027-01-20 | 2 tentativas incorretas",
             _ => "ativa | senha valida ate 2027-01-20 | 0 tentativas incorretas"
@@ -158,8 +163,9 @@ internal static class ComandosPorEscala
         return cenario.Causa switch
         {
             "SENHA_ESQUECIDA" => Resultado(estado, sucesso, definida, restabelecido),
-            _ => Resultado(estado, "A conta continua bloqueada: o reset nao remove a origem das tentativas.",
-                Desnecessaria(rotulo, "reset_nao_resolve_a_causa"))
+            "CONTA_BLOQUEADA" => Resultado(estado, "A conta continua bloqueada: o reset nao remove a origem das tentativas.",
+                Desnecessaria(rotulo, "reset_nao_resolve_a_causa")),
+            _ => throw new InvalidOperationException($"Causa sem regra de reset: {cenario.Causa}")
         };
     }
 
@@ -168,8 +174,21 @@ internal static class ComandosPorEscala
         var recusa = RecusarSeSemIdentidade(estado, cenario, "desbloquear-conta");
         if (recusa is not null) return recusa;
 
-        return Resultado(estado, "A conta nao esta bloqueada.",
-            Desnecessaria("desbloquear-conta", "conta_nao_esta_bloqueada"));
+        var bloqueada = cenario.Causa == "CONTA_BLOQUEADA"
+            && EfeitosDeEventos.StatusServico(estado.Estacao, "ContaAD") == "Bloqueada";
+        if (!bloqueada)
+            return Resultado(estado, "A conta nao esta bloqueada.",
+                Desnecessaria("desbloquear-conta", "conta_nao_esta_bloqueada"));
+
+        var desbloqueada = Ev("ContaDesbloqueada", ("usuario", cenario.UsuarioAlvo));
+        if (EfeitosDeEventos.StatusServico(estado.Estacao, "EventosDeSeguranca") == "Consultado")
+            return Resultado(estado, "Conta desbloqueada.", desbloqueada,
+                Ev("AcessoContaRestabelecido", ("usuario", cenario.UsuarioAlvo), ("via", "desbloqueio")));
+
+        return Resultado(estado,
+            "Conta desbloqueada, mas bloqueada novamente em 5 min: a origem das tentativas continua ativa.",
+            desbloqueada,
+            Ev("ContaBloqueadaNovamente", ("usuario", cenario.UsuarioAlvo), ("motivo", "origem_das_tentativas_continua_ativa")));
     }
 
     private static ResultadoComandoEscala EnviarLinkDeTroca(EstadoSessao estado, DefinicaoCenario cenario)
@@ -177,7 +196,10 @@ internal static class ComandosPorEscala
         var recusa = RecusarSeSemIdentidade(estado, cenario, "enviar-link-troca");
         if (recusa is not null) return recusa;
 
-        return Resultado(estado, "A titular nao tem a senha atual; o link exige a senha vigente.",
-            Desnecessaria("enviar-link-troca", "link_exige_a_senha_vigente"));
+        return cenario.Causa == "CONTA_BLOQUEADA"
+            ? Resultado(estado, "O link nao remove a origem do bloqueio.",
+                Desnecessaria("enviar-link-troca", "link_nao_remove_a_origem_do_bloqueio"))
+            : Resultado(estado, "A titular nao tem a senha atual; o link exige a senha vigente.",
+                Desnecessaria("enviar-link-troca", "link_exige_a_senha_vigente"));
     }
 }

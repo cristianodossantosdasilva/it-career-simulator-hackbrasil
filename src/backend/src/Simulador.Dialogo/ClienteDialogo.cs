@@ -114,7 +114,11 @@ public sealed class FallbackRoteirizadoDialogo : IClienteDialogo
         {
             if (perguntaIdentidade)
                 return "Sou o gestor dela, o Paulo. Não sei a matrícula da Fernanda de cabeça; liga pra ela no ramal e ela confirma.";
-            return "Sou o Paulo, gestor da Fernanda. Ela não consegue entrar por causa da senha e precisa trabalhar hoje. Pode resetar e me passar a nova que eu repasso?";
+            return estado.Meta.Causa switch
+            {
+                "CONTA_BLOQUEADA" => "Sou o Paulo, gestor da Fernanda. O sistema diz que a conta dela está bloqueada e ela precisa trabalhar hoje. Pode resetar a senha e me passar a nova que eu repasso?",
+                _ => "Sou o Paulo, gestor da Fernanda. Ela não consegue entrar por causa da senha e precisa trabalhar hoje. Pode resetar e me passar a nova que eu repasso?"
+            };
         }
 
         if (perguntaIdentidade)
@@ -123,6 +127,7 @@ public sealed class FallbackRoteirizadoDialogo : IClienteDialogo
         return estado.Meta.Causa switch
         {
             "SENHA_ESQUECIDA" => "Não lembro minha senha e não consigo abrir o e-mail.",
+            "CONTA_BLOQUEADA" => "O sistema diz que minha conta está bloqueada. Não digitei errado hoje.",
             _ => "Estou aguardando o retorno sobre o chamado para conseguir voltar a trabalhar."
         };
     }

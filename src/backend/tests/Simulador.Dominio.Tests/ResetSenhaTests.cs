@@ -240,4 +240,144 @@ public class ResetSenhaTests
         Assert.Equal(c.PedidoPorTerceiro, b.PedidoPorTerceiro);
         Assert.Equal(a.PedidoPorTerceiro, b.PedidoPorTerceiro);
     }
+
+    // ------------------------------------------------------------ CONTA_BLOQUEADA
+
+    private const string NotaCelular = "A origem era o celular corporativo com a senha antiga em cache: atualize a senha no dispositivo.";
+
+    private static void FluxoCorretoBloqueada(SessaoDeTeste s)
+    {
+        Abrir(s);
+        s.Comando("net user fernanda.lima");
+        s.Comando("eventos-seguranca fernanda.lima");
+        if (s.Cenario.PedidoPorTerceiro)
+        {
+            s.Comando("diretorio fernanda.lima");
+            s.Comando("discar 2087");
+        }
+        Verificar(s);
+        s.Comando("desbloquear-conta fernanda.lima");
+        s.Aplicar("itsm.adicionar_nota", new { chamadoId = "CH-0001", tipo = "Publica", texto = NotaCelular });
+        s.Aplicar("itsm.resolver_chamado", new { chamadoId = "CH-0001", notaPublica = "Conta desbloqueada." });
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ContaBloqueada_FluxoCorreto_AtendeH1aH10(bool porTerceiro)
+    {
+        var s = Nova("CONTA_BLOQUEADA", porTerceiro);
+        Assert.Equal("Bloqueada", StatusConta(s.Estado));
+        Assert.Equal("NaoConsultado", s.Estado.Estacao.Servicos.Single(x => x.Nome == "EventosDeSeguranca").Status);
+        FluxoCorretoBloqueada(s);
+
+        Assert.Equal("Ativa", StatusConta(s.Estado));
+        Assert.Equal("Consultado", s.Estado.Estacao.Servicos.Single(x => x.Nome == "EventosDeSeguranca").Status);
+        var av = s.Avaliar();
+        Assert.Equal(10, av.Criterios.Count);
+        Assert.All(av.Criterios, c => Assert.True(c.Atendido, $"Criterio {c.Id} falhou"));
+        Assert.True(av.Concluida);
+        Assert.False(av.IncidenteSeguranca);
+        Assert.Equal(110, av.XpTotal);
+        Assert.Contains("Analise de Origem de Bloqueio", av.CurriculoVivo.CompetenciasComprovadas);
+        AssertReconstrucaoIgual(s);
+    }
+
+    [Fact]
+    public void ContaBloqueada_OrigemSoApareceNaSaidaDeEventosDeSeguranca()
+    {
+        var s = Nova("CONTA_BLOQUEADA", porTerceiro: false);
+        s.Comando("net user fernanda.lima");
+        Assert.DoesNotContain("MOB-FIN-017", s.UltimaSaida());
+        Assert.Contains("BLOQUEADA", s.UltimaSaida());
+        Assert.DoesNotContain(s.Estado.Estacao.Logs, l => l.Contains("MOB-FIN-017"));
+        Assert.DoesNotContain("MOB-FIN-017", JsonSerializer.Serialize(s.Estado.Estacao));
+        Assert.Empty(s.De("OrigemBloqueioIdentificada"));
+
+        s.Comando("eventos-seguranca fernanda.lima");
+        Assert.Contains("MOB-FIN-017", s.UltimaSaida());
+        Assert.Single(s.De("OrigemBloqueioIdentificada"));
+    }
+
+    [Fact]
+    public void ContaBloqueada_DesbloquearSemConsultarAOrigem_BloqueiaDeNovoEDepoisRestabelece()
+    {
+        var s = Nova("CONTA_BLOQUEADA", porTerceiro: false);
+        Abrir(s);
+        s.Comando("net user fernanda.lima");
+        Verificar(s);
+        s.Comando("desbloquear-conta fernanda.lima");
+        Assert.Contains("bloqueada novamente", s.UltimaSaida());
+        Assert.Single(s.De("ContaDesbloqueada"));
+        Assert.Single(s.De("ContaBloqueadaNovamente"));
+        Assert.Equal("Bloqueada", StatusConta(s.Estado));
+        Assert.Empty(s.De("AcessoContaRestabelecido"));
+        Assert.False(s.Estado.Estacao.CompartilhamentoAcessivel);
+        var av = s.Avaliar();
+        Assert.False(av.Criterios.Single(c => c.Id == "H5").Atendido);
+        Assert.False(av.Criterios.Single(c => c.Id == "H9").Atendido);
+
+        s.Comando("eventos-seguranca fernanda.lima");
+        s.Comando("desbloquear-conta fernanda.lima");
+        Assert.Equal("Ativa", StatusConta(s.Estado));
+        Assert.Single(s.De("AcessoContaRestabelecido"));
+        var depois = s.Avaliar();
+        Assert.True(depois.Criterios.Single(c => c.Id == "H5").Atendido);
+        Assert.False(depois.Criterios.Single(c => c.Id == "H9").Atendido);
+        AssertReconstrucaoIgual(s);
+    }
+
+    [Fact]
+    public void ContaBloqueada_RedefinirSenhaELinkDeTroca_GeramAcaoDesnecessariaESemRestabelecer()
+    {
+        var s = Nova("CONTA_BLOQUEADA", porTerceiro: false);
+        Abrir(s);
+        s.Comando("net user fernanda.lima");
+        s.Comando("eventos-seguranca fernanda.lima");
+        Verificar(s);
+        s.Comando("redefinir-senha fernanda.lima");
+        Assert.Contains("continua bloqueada", s.UltimaSaida());
+        s.Comando("enviar-link-troca fernanda.lima");
+        Assert.Equal(2, s.De("AcaoDesnecessariaRegistrada").Count());
+        Assert.Equal("Bloqueada", StatusConta(s.Estado));
+        Assert.Empty(s.De("AcessoContaRestabelecido"));
+        Assert.False(s.Avaliar().Criterios.Single(c => c.Id == "H6").Atendido);
+        AssertReconstrucaoIgual(s);
+    }
+
+    [Fact]
+    public void ContaBloqueada_SemNotaSobreCelular_H10NaoAtendido()
+    {
+        var s = Nova("CONTA_BLOQUEADA", porTerceiro: false);
+        Abrir(s);
+        s.Comando("eventos-seguranca fernanda.lima");
+        Verificar(s);
+        s.Comando("desbloquear-conta fernanda.lima");
+        s.Aplicar("itsm.resolver_chamado", new { chamadoId = "CH-0001", notaPublica = "Conta desbloqueada." });
+        var av = s.Avaliar();
+        Assert.True(av.Criterios.Single(c => c.Id == "H9").Atendido);
+        Assert.False(av.Criterios.Single(c => c.Id == "H10").Atendido);
+    }
+
+    [Fact]
+    public void EventosSeguranca_EmOutraCausa_NaoEmiteOrigemDoBloqueio()
+    {
+        var s = Nova("SENHA_ESQUECIDA", porTerceiro: false);
+        s.Comando("eventos-seguranca fernanda.lima");
+        Assert.Contains("Nenhum bloqueio recente", s.UltimaSaida());
+        Assert.Empty(s.De("OrigemBloqueioIdentificada"));
+        Assert.Null(s.Estado.Estacao.Servicos.FirstOrDefault(x => x.Nome == "EventosDeSeguranca"));
+    }
+
+    [Fact]
+    public void ContaBloqueada_DesbloquearSemVerificar_ERecusado()
+    {
+        var s = Nova("CONTA_BLOQUEADA", porTerceiro: false);
+        s.Comando("eventos-seguranca fernanda.lima");
+        s.Comando("desbloquear-conta fernanda.lima");
+        Assert.Contains("RECUSADO", s.UltimaSaida());
+        Assert.Equal("Bloqueada", StatusConta(s.Estado));
+        Assert.Empty(s.De("ContaDesbloqueada"));
+        Assert.True(s.Avaliar().IncidenteSeguranca);
+    }
 }

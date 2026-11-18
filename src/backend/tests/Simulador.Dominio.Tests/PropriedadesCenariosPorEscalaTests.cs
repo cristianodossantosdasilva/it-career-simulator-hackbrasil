@@ -9,7 +9,7 @@ public class PropriedadesCenariosPorEscalaTests
 {
     private const string Cenario = "reset-senha-desbloqueio";
     private const string Versao = "v0.1-hackathon";
-    private static readonly string[] CausasReset = ["SENHA_ESQUECIDA"];
+    private static readonly string[] CausasReset = ["SENHA_ESQUECIDA", "CONTA_BLOQUEADA"];
 
     private static IEnumerable<long> Sementes(int quantidade, ulong origem)
     {
@@ -18,6 +18,8 @@ public class PropriedadesCenariosPorEscalaTests
     }
 
     public static IEnumerable<object[]> Sementes50() => Sementes(50, 0xC0FFEEUL).Select(s => new object[] { s });
+    public static IEnumerable<object[]> CausasESementes50() =>
+        CausasReset.SelectMany(c => Sementes(50, 0xC0FFEEUL).Select(s => new object[] { c, s }));
     public static IEnumerable<object[]> Sementes200() => Sementes(200, 0xBEEFUL).Select(s => new object[] { s });
 
     public static IEnumerable<object[]> PermutacoesSensiveis()
@@ -38,19 +40,20 @@ public class PropriedadesCenariosPorEscalaTests
     // Feature: cenarios-por-escala, Property 1: Reconstrucao equivalente
     // Validates: Requirements 15.2, 15.3, 15.4
     [Theory]
-    [MemberData(nameof(Sementes50))]
-    public void Propriedade1_ReconstrucaoEquivalente_SenhaEsquecidaNasDuasVariantes(long semente)
+    [MemberData(nameof(CausasESementes50))]
+    public void Propriedade1_ReconstrucaoEquivalente_NasDuasVariantesDeCadaCausa(string causa, long semente)
     {
-        var s = SessaoDeTeste.Iniciar(Cenario, Versao, "SENHA_ESQUECIDA", semente);
+        var s = SessaoDeTeste.Iniciar(Cenario, Versao, causa, semente);
         AbrirEVerificarSeNecessario(s);
         s.Comando("net user fernanda.lima");
+        if (causa == "CONTA_BLOQUEADA") s.Comando("eventos-seguranca fernanda.lima");
         if (s.Cenario.PedidoPorTerceiro)
         {
             s.Comando("diretorio fernanda.lima");
             s.Comando("discar 2087");
         }
         s.Aplicar("dialogo.verificar_identidade", new { matricula = "AUR-2087", ramal = "2087" });
-        s.Comando("redefinir-senha fernanda.lima");
+        s.Comando(causa == "CONTA_BLOQUEADA" ? "desbloquear-conta fernanda.lima" : "redefinir-senha fernanda.lima");
         s.Aplicar("dialogo.pedir_pista");
         s.Aplicar("itsm.resolver_chamado", new { chamadoId = "CH-0001", notaPublica = "Senha temporaria entregue a titular." });
 
@@ -102,6 +105,44 @@ public class PropriedadesCenariosPorEscalaTests
         Assert.False(av.Criterios.Single(c => c.Id == "H1").Atendido);
         Assert.False(av.Criterios.Single(c => c.Id == "H4").Atendido);
         Assert.True(av.IncidenteSeguranca);
+    }
+
+    public static IEnumerable<object[]> OrdensDeBloqueio()
+    {
+        string[] cmds = ["net user fernanda.lima", "eventos-seguranca fernanda.lima", "desbloquear-conta fernanda.lima"];
+        int[][] ordens = [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]];
+        foreach (var ordem in ordens)
+            foreach (var semente in Sementes(10, 0xB10C0UL))
+                yield return new object[] { string.Join("|", ordem.Select(i => cmds[i])), semente };
+    }
+
+    // Feature: cenarios-por-escala, Property 4: Desbloqueio sem origem sempre bloqueia de novo
+    // Validates: Requirements 4.4, 4.5
+    [Theory]
+    [MemberData(nameof(OrdensDeBloqueio))]
+    public void Propriedade4_DesbloqueioSemOrigem_SempreBloqueiaDeNovo(string comandos, long semente)
+    {
+        var s = SessaoDeTeste.Iniciar(Cenario, Versao, "CONTA_BLOQUEADA", semente);
+        AbrirEVerificarSeNecessario(s);
+        if (s.Cenario.PedidoPorTerceiro) s.Comando("discar 2087");
+        s.Aplicar("dialogo.verificar_identidade", new { matricula = "AUR-2087", ramal = "2087" });
+        var lista = comandos.Split('|');
+        foreach (var c in lista) s.Comando(c);
+
+        var origemAntes = Array.IndexOf(lista, "eventos-seguranca fernanda.lima") < Array.IndexOf(lista, "desbloquear-conta fernanda.lima");
+        var status = s.Estado.Estacao.Servicos.Single(x => x.Nome == "ContaAD").Status;
+        if (origemAntes)
+        {
+            Assert.Empty(s.De("ContaBloqueadaNovamente"));
+            Assert.Single(s.De("AcessoContaRestabelecido"));
+            Assert.Equal("Ativa", status);
+        }
+        else
+        {
+            Assert.Single(s.De("ContaBloqueadaNovamente"));
+            Assert.Empty(s.De("AcessoContaRestabelecido"));
+            Assert.Equal("Bloqueada", status);
+        }
     }
 
     // Feature: cenarios-por-escala, Property 6: Comando fora da lista
