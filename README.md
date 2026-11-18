@@ -1,128 +1,157 @@
-# IT Flight Simulator — Simulador Prático de Carreira em TI (Hack Brasil 2026)
+# IT Flight Simulator
 
-Plataforma interativa de simulação prática de carreira em TI desenvolvida pelo time **CVE-K** *(Cristiano dos Santos da Silva, Enzo Modesto Nascimento dos Santos e Kauan Soares Dantas)* para o **Hack Brasil 2026** (Trilha: **Acesso à educação**).
+Escola técnica digital de aprender fazendo. A pessoa pratica a rotina real de uma profissão de TI, com chamados, ferramentas e decisões em um ambiente simulado, e revê o que fez depois.
 
-- **Demo Pública Oficial (sem login):** `https://it-flight-simulator-hackbrasil.vercel.app`
-- **Licença:** [MIT](LICENSE) · **Integração Contínua:** [GitHub Actions CI](.github/workflows/ci.yml)
+Projeto do time **CVE-K** (Cristiano dos Santos da Silva, Enzo Modesto Nascimento dos Santos e Kauan Soares Dantas) para o **Hack Brasil 2026**, trilha **Acesso à educação**, rota **Suporte de TI**.
 
-Em vez de aulas passivas ou quizzes genéricos de múltipla escolha, o participante atua em uma **Workstation Corporativa Unificada** com **Tema Claro Educacional** (e alternância para tema escuro), **Missão 0 guiada em 4 passos** e **Glossário rápido** dentro do navegador na empresa fictícia **Aurora Logística** (`aurora.local`), em uma jornada projetada para evolução de **Técnico de Suporte Júnior (4 meses / 280h)** até **Técnico Pleno N2 e 3 Vertentes N3 (8 meses / 560h)** e operando no MVP:
+- **Demonstração pública (sem login):** https://it-flight-simulator-hackbrasil.vercel.app
+- **Licença:** proprietária, todos os direitos reservados. Veja [LICENSE](LICENSE) e a seção [Licença](#licença).
+- **Integração contínua:** [GitHub Actions](.github/workflows/ci.yml)
 
-- **ITSM Próprio:** fila de chamados, SLA em tempo real, classificação, notas públicas/internas, solicitações de aprovação, escalonamento e vinculação de Problemas ITIL.
-- **Comunicador Corporativo:** atendimento a usuários simulados e orientação em 3 atos via Tech Lead (consulta livre à Base de Conhecimento, pedido de pista sem punição automática e escalonamento com evidência).
-- **SimuDesk (Acesso Remoto):** terminal interativo com separação de contexto (sessão do usuário vs. privilégio elevado) e painéis administrativos (Diretório, Serviços, DNS, Logs, Cluster Kubernetes simulado e Console SQL somente leitura), todos governados por um **motor determinístico puro**.
-- **Chaos Injector:** causas raiz sorteadas por semente e eventos de engenharia social para exigir investigação real em vez de receitas decoradas.
-- **Juiz 360º, Debrief da Caixa-Preta, Replay e Currículo Vivo:** avaliação auditável por critérios binários observáveis na trilha de eventos (*Event Sourcing*), linha do tempo navegável, resumo pedagógico pós-sessão e exportação de portfólio verificável offline via **JCS (RFC 8785) + SHA-256 + assinatura ECDSA P-256**.
+## Por que existe
 
----
+Faltam pessoas na base da área de TI: técnicos de suporte, atendentes de service desk e operadores de infraestrutura. Quem quer entrar na área costuma abandonar a formação antes de ver o trabalho de perto, por escolher o curso sem saber como é a rotina.
 
-## Implementado Hoje (MVP Hackathon) vs. Roadmap (Ondas 1–4)
+O IT Flight Simulator ataca os dois pontos:
 
-| Camada / Capacidade | Status Atual (`main` / Produção Hackathon) | Roadmap Pós-Hackathon (Ondas 1–4) |
-| :--- | :--- | :--- |
-| **Motor Determinístico, ITSM, SimuDesk e Chaos Injector** | **Implementado e testado:** 5 cenários completos (`triagem-engenharia-social`, `pasta-rede-inacessivel`, `incidente-massivo`, `sre-cloud-latencia`, `diagnostico-sql-readonly`). | Expansão para **80 cenários** (`LAB-UC1-01` a `LAB-UC8-10`) e **8 Laboratórios Dedicados (`UC1` a `UC8`, 560h)**. |
-| **Interface Educacional, Missão 0 e Acessibilidade** | **Implementado:** Tema Claro Educacional (com alternância Escuro), Missão 0 em 4 passos, Glossário rápido, Caixa-Preta Replay com Debrief e contraste WCAG AA (`>= 4.5:1`). | Microaulas interativas + Flashcards `SM-2`, Caderno Cornell, Mentor Feynman/STAR e `HardwareWorkbenchLab` / `NetworkCablingWifiDesignLab`. |
-| **Integridade do Currículo Vivo e Segurança da API** | **Implementado:** JCS (RFC 8785 UTF-8) + SHA-256 + assinatura assimétrica **ECDSA P-256**, `UseForwardedHeaders`, limite de payload `32 KB` / dados `16 KB`, trava `Demo:PermitirParametrosDeTeste` e expurgo de sessões antigas. | Contas multi-tenant (SSO/OAuth), emissão de Certificado de Conclusão de Curso Livre e painel B2B para turmas. |
-| **Simulador Multimodal (Voz/Vídeo IA)** | **Modo Determinístico (R\$ 0,00):** `Dialogo:HabilitarLlm=false` ativo por padrão para disponibilidade e custo zero à banca. | **Onda 4:** Chamada em vídeo/voz ao vivo com teto de minutos para usuários simulados, P1, *Vishing* e entrevistas STAR. |
+- **Aprender fazendo.** Cada missão é um chamado da empresa fictícia Aurora Logística. A pessoa investiga, age, escala e registra, como num posto de trabalho.
+- **Consultoria vocacional antes da formação.** O Check-in indica por onde começar, a partir de respostas curtas, e deixa a pessoa experimentar o trabalho antes de se comprometer. Isso reduz a evasão causada por escolha às cegas.
 
----
+## A narrativa do voo
 
-## Matriz Formativa e Progressão de Carreira (560h em até 8 Meses · Prontidão Jr em 4 Meses)
+Todo o produto usa a metáfora de um voo. A pessoa evolui de **Passageiro** a **Copiloto** e a **Piloto**: primeiro observa e faz o Check-in, depois atua com apoio, e por fim conduz o atendimento sozinha.
 
-O estudo de caso inaugural segue densidade técnica equivalente a um curso técnico profissionalizante em **2 Ciclos Formativos** (**260h Teoria e Fixação + 300h Laboratórios Práticos = 560h / 80 laboratórios**), combinando o **Ciclo Cognitivo de 4 Etapas** (*Aprender → Fixar → Praticar → Explicar*), **8 Laboratórios Interativos Dedicados** (1 por UC: Hardware/UPS, Multi-OS, Cabeamento/Rack `U` + Estúdio Wi-Fi inspirado no UniFi Design, Corporativo M365/AD/ICP-Brasil, Servidores/GPO, Multi-Vendor Cisco/MikroTik/UniFi + Firewall Fortinet NGFW com GeoIP/Content Filter/Gateway AV + Zabbix/K8s, Data Center 42U/RAID/iSCSI + Cloud Backup WORM, e Blue Team IAM/Antivírus-EDR/SQL) e **trilha preparatória de certificações de mercado**. Na edição Hackathon, 5 cenários-chefe executam de ponta a ponta no motor determinístico:
+O **Comandante** acompanha o voo em quatro papéis:
 
-| Ciclo / Unidade Curricular (CBO) | Cenário MVP / Foco | Foco Pedagógico e Técnico |
-| :--- | :--- | :--- |
-| **Ciclo 1 — Meses 1 a 4 (280h): Prontidão Rápida Júnior e Field Service** | | |
-| **UC1 — Bancada Física, Hardware e Energia (70h)**<br>*(`CBO 3132-20`)* | `Bancada Física 2D` (`LAB-UC1-01` a `LAB-UC1-10`) | Segurança ESD, fontes ATX e UPS/Nobreaks, placa-mãe/POST/UEFI, RAM DDR4/5, SSD NVMe/SMART, preventiva térmica de desktop/notebook e montagem completa. |
-| **UC2 — Sistemas Operacionais Windows e Linux (70h)**<br>*(`CBO 3172-10`)* | `Simulador OS` (`LAB-UC2-01` a `LAB-UC2-10`) | Boot GPT/UEFI/BCD, BitLocker, Registro, Perfil Temporário, Sysinternals, `DISM`/`SFC`, diagnóstico de BSOD, PowerShell e Linux (`systemd`, SSH, disco). |
-| **UC3 — Redes TCP/IP, Cabeamento, Wi-Fi e VPN (70h)**<br>*(`CBO 3172-10 / 3132-20`)* | `pasta-rede-inacessivel` (`LAB-UC3-01` a `LAB-UC3-10`) | Crimpagem RJ-45 T568A/B, Patch Panel e PoE; *Chaos Injector* com 3 causas raiz por semente (Grupo AD, DNS + escalonamento N2 + `flushdns`, serviço `LanmanWorkstation`), DHCP/APIPA, Wi-Fi e VPN. |
-| **UC4 — Ambientes Corporativos, M365, Impressão, A1/A3 e ITIL/LGPD (70h)**<br>*(`CBO 3172-10`)* | `triagem-engenharia-social` (`LAB-UC4-01` a `LAB-UC4-10`) | AD N1, Microsoft 365 (`.ost`/OneDrive), Spooler/Scanner SMB, Certificados ICP-Brasil A1/A3, matriz Urgência x Impacto, LGPD e defesa contra engenharia social + **Capstone Jr**. |
-| **Ciclo 2 — Meses 5 a 8 (+280h = 560h): Técnico Pleno N2 e 3 Vertentes N3** | | |
-| **UC5 — Técnico Pleno N2: Sustentação, Servidores e GPO (80h)**<br>*(`CBO 2124-20`)* | `incidente-massivo` (`LAB-UC5-01` a `LAB-UC5-10`) | Correlação de múltiplos incidentes em Problema ITIL, análise de logs, restauração de `AuroraGateway`, RCA, File Server Share/NTFS, GPO (`LSDOU`), Lockout `4740` e PowerShell. |
-| **UC6 — Vertente N3-A: Infraestrutura, Redes, Zabbix e Cloud (65h)**<br>*(`CBO 2124-10 / 3171-05`)* | `sre-cloud-latencia` (`LAB-UC6-01` a `LAB-UC6-10`) | Switches VLAN `802.1Q`/STP/LACP, Firewall/NAT, VPN IPsec, Zabbix, cluster Cloud/Kubernetes (`OOM_KILLED`, `POOL_EXHAUSTED`, `CERT_EXPIRED`), comandos `kubectl`, `curl -I` e GMUD. |
-| **UC7 — Vertente N3-B: Data Center, Storage, RAID e Backup (70h)**<br>*(`CBO 3172-05 / 2124-20`)* | *Matriz 560h (`LAB-UC7-01` a `LAB-UC7-10` · Onda 1–3)* | Rack `U`/PDUs A+B, discos S.M.A.R.T., RAID `0/1/5/6/10` + Hot Spare, SAN iSCSI (`SAN Policy`/MPIO), Datastores e Snapshots VM, Backup **3-2-1-1-0**, VSS, `RPO`/`RTO`, WORM e Teste de Restore/DRP. |
-| **UC8 — Vertente N3-C: Cibersegurança Blue Team e Auditoria SQL (65h)**<br>*(`CBO 2123-05 / 3172-10`)* | `diagnostico-sql-readonly` (`LAB-UC8-01` a `LAB-UC8-10`) | IAM/MFA/Acesso Condicional, OAuth, SPF/DKIM/DMARC, BEC/*Inbox Rules*, EDR/NIST e auditoria financeira via parser SQL *fail-closed* restrito a `SELECT` / `EXPLAIN SELECT` (anti-injeção) + **Capstone Final**. |
+| Papel | O que faz |
+| --- | --- |
+| Consultor | Explica o Check-in, mostra o que cada rota pratica e indica o próximo passo. |
+| Instrutor | Explica as escalas, as missões e o que libera a próxima etapa. |
+| Copiloto | Dá dicas durante o atendimento, na Cabine. |
+| Mentor | Ajuda a ler a linha do tempo do voo e a planejar o próximo treino. |
 
-> **Evolução Futura (Onda 4):** Módulo de **Chamada em Vídeo e Voz ao Vivo com Agentes de IA** interpretando clientes ansiosos, gestores P1, tentativas de *Vishing* em vídeo e bancas de entrevista técnica baseadas no Currículo Vivo.
+O Comandante orienta, não altera estado e não avalia. A avaliação técnica vem do Juiz 360º, que lê eventos observáveis calculados pelo motor determinístico.
 
----
+## Páginas
 
-## Arquitetura e Stack Tecnológica
+| Rota | Página | Função |
+| --- | --- | --- |
+| `/` | Início | Apresenta a proposta e o atalho para experimentar. |
+| `/check-in` | Check-in | Consultoria vocacional: respostas curtas e indicação de rota. |
+| `/plano-de-voo` | Plano de voo | Rota indicada, escalas e modo de demonstração. |
+| `/cabine/:missao` | Cabine | Atendimento da missão, com ITSM, Chat, SimuDesk e Intranet. |
+| `/caixa-preta/:sessao` | Caixa-preta | Replay e debrief da sessão, com o Juiz 360º. |
+| `/breve` | Brevê | Voos registrados e acompanhamento do brevê de piloto. |
+| `/hangar` | Hangar | Catálogo de escalas, vertentes e referências de certificação. |
+| `/aulas` | Aulas | Microaulas por nível. |
+| `/aulas/treino` | Treino de explicação | Prática de explicar o conteúdo com as próprias palavras. |
+| `/caderno` | Caderno | Anotações e plano de estudos. |
+| `/comandante` | Comandante | Conversa com os quatro papéis do guia. |
 
-- **Backend (`.NET 10`, C#):** Monólito modular separado em:
-  - `Simulador.Dominio` — Motor puro (`Aplicar`) e subsistemas isolados com Event Sourcing.
-  - `Simulador.Cenarios` — Catálogo de cenários, sementes (`SplitMix64`) e estado inicial determinístico.
-  - `Simulador.Itsm` — Gestão enxuta de chamados, SLA, notas, escalonamento e Problemas ITIL.
-  - `Simulador.Avaliacao` — Juiz 360º determinístico, projeção de Replay, canonicalização **JCS (RFC 8785 UTF-8)** + `SHA-256` e assinatura **ECDSA P-256**.
-  - `Simulador.Dialogo` — Interface `IClienteDialogo` com modo roteirizado determinístico por padrão (`Dialogo:HabilitarLlm=false`).
-  - `Simulador.Infra` — Persistência em PostgreSQL (`JSONB` *append-only* com TTL e expurgo de sessões expiradas `> 2 dias`) e provedor `InMemory` para execução leve e testes.
-  - `Simulador.Api` — API REST, health checks (`/health/live`, `/health/ready`), `UseForwardedHeaders`, limites de body (`32 KB`) / dados (`16 KB`), guarda `Demo:PermitirParametrosDeTeste` e rate limiting por IP real.
-- **Frontend (`React 19` + `TypeScript` + `Vite`):** Workstation Corporativa em Tema Claro Educacional (e modo escuro opcional), **Missão 0 guiada**, **Glossário rápido**, 4 aplicativos integrados (`ItsmApp`, `ChatApp`, `SimuDeskApp`, `IntranetApp`), visualizador de Replay/Debrief da Caixa-Preta e Verificador Offline de Currículo Vivo em `/verificar` (JCS + SHA-256 + ECDSA P-256 via WebCrypto).
-- **Banco de Dados:** `PostgreSQL 17` (via Docker Compose ou serviço gerenciado) ou modo em memória para desenvolvimento e demonstração rápida.
+## Escalas e cenários
 
----
+A rota **Suporte de TI** tem quatro escalas. A N3 Sênior se divide em três vertentes. Os sete cenários jogáveis rodam de ponta a ponta no motor determinístico. Cada cenário sorteia a causa por semente, ou aceita uma causa forçada.
 
-## Como Executar Localmente
+| Escala | Cenário | Causas |
+| --- | --- | --- |
+| Help Desk N1 | `reset-senha-desbloqueio` | `SENHA_ESQUECIDA`, `CONTA_BLOQUEADA`, `SENHA_EXPIRADA` |
+| Service Desk N1 Jr | `pasta-rede-inacessivel` | `C1`, `C2`, `C3`, `C4` |
+| N2 Pleno | `incidente-massivo` | `PATCH_MASSIVO` (apelido `GATEWAY`), `EMAIL_PROVEDOR`, `DOMINIO_SUSPENSO` |
+| N3-A Redes e Nuvem | `sre-cloud-latencia` | `OOM_KILLED`, `POOL_EXHAUSTED`, `CERT_EXPIRED` |
+| N3-B Data Center e Backup | `falha-backup-restore` | `REPOSITORIO_CHEIO`, `CADEIA_CORROMPIDA` |
+| N3-C Segurança e Dados | `triagem-engenharia-social` | sem causas sorteadas |
+| N3-C Segurança e Dados | `diagnostico-sql-readonly` | sem causas sorteadas |
 
-### Opção 1: Execução Direta (Backend e Frontend)
+A tabela completa, com comandos, eventos e critérios do Juiz 360º de cada causa, está em [docs/CENARIOS_POR_ESCALA.md](docs/CENARIOS_POR_ESCALA.md).
 
-#### Backend (.NET 10)
+## Modo de demonstração para a banca
+
+Quem avalia não precisa fazer o Check-in completo. O atalho **Experimentar**, na página Início, leva ao Check-in rápido e depois à Cabine com a missão de demonstração (`pasta-rede-inacessivel`). O modo também pode ser ligado e desligado no Plano de voo.
+
+O modo de demonstração fica isolado: não grava Registro de Voo e usa uma chave própria no navegador (`itfs_modo_demonstracao`). Os dados são sintéticos e as sessões são anônimas.
+
+## Arquitetura
+
+- **Motor determinístico como autoridade única.** Mudança de estado, acesso remoto, comandos simulados, SLA e avaliação são decididos em `Simulador.Dominio` e `Simulador.Avaliacao`. O diálogo (`Simulador.Dialogo`) não altera estado nem avalia.
+- **Event sourcing.** Cada ação gera eventos imutáveis (*append-only*), o que permite reconstruir o estado, rever a sessão em ordem cronológica e auditar a avaliação.
+- **Juiz 360º.** Avalia por critérios binários observáveis na trilha de eventos, sem opinião de modelo de linguagem.
+- **Currículo Vivo verificável.** O resumo é canonicalizado por **JCS (RFC 8785)**, tem hash **SHA-256** e assinatura **ECDSA P-256**. Qualquer pessoa verifica no navegador, sem rede, com os vetores de [docs/vetores-jcs-sha256.json](docs/vetores-jcs-sha256.json).
+- **Fidelidade declarada.** A interface não imita sistemas proprietários. Os comandos suportados são declarados por cenário, e comandos fora do escopo recebem resposta honesta.
+- **Custo zero no hackathon.** O diálogo roteirizado é o padrão (`Dialogo:HabilitarLlm=false`), sem chamada a IA externa.
+
+| Projeto | Papel |
+| --- | --- |
+| `Simulador.Dominio` | Motor puro (`Aplicar`) e subsistemas isolados. |
+| `Simulador.Cenarios` | Catálogo, sementes (`SplitMix64`) e estado inicial. |
+| `Simulador.Itsm` | Chamados, SLA, notas, escalonamento e Problemas ITIL. |
+| `Simulador.Avaliacao` | Juiz 360º, projeção de Replay, JCS, SHA-256 e ECDSA P-256. |
+| `Simulador.Dialogo` | Interface `IClienteDialogo` com modo roteirizado. |
+| `Simulador.Infra` | PostgreSQL (`JSONB`, *append-only*, expurgo de sessões antigas) e provedor em memória. |
+| `Simulador.Api` | API REST, health checks, limites de corpo e de dados, rate limit por IP. |
+
+O frontend usa React 19, TypeScript e Vite.
+
+## Como rodar
+
+Requisitos: .NET 10, Node.js e, opcionalmente, Docker.
+
 ```bash
-cd src/backend
-dotnet test Simulador.slnx
-dotnet run --project src/Simulador.Api --urls http://localhost:8080
-```
-- **Health checks:** `GET /health/live` e `GET /health/ready`
-- **TTL de Sessão:** `Sessao:TtlDias` (padrão `30` dias)
-- **Rate Limit:** 120 req/min por IP (`429 Too Many Requests`, isentando `/health/*`)
-- **Integridade do Currículo Vivo:** `POST /api/carreira/resumo` calcula `SHA-256` sobre JSON canônico **JCS (RFC 8785)** (`{cargoAtual, xpTotal, competencias[], sessoesConfirmadas[]}` sem `apelido` e sem `hash`), verificável offline na rota `/verificar` com os vetores em `docs/vetores-jcs-sha256.json`.
+# Backend (porta 8080)
+dotnet run --project src/backend/src/Simulador.Api --urls http://localhost:8080
 
-#### Frontend (React 19 + TypeScript + Vite)
-```bash
+# Frontend (porta 5173)
 cd src/frontend
 npm.cmd install
-npm.cmd run lint
-npm.cmd test -- --run
-npm.cmd run build
 npm.cmd run dev
 ```
 
-### Opção 2: Docker Compose (PostgreSQL 17 + Backend + Frontend)
+Com Docker: `docker compose up --build` sobe PostgreSQL 17, backend e frontend. Sem banco, o backend usa o provedor em memória.
+
+Verificações de saúde: `GET /health/live` e `GET /health/ready`. Limite de 120 requisições por minuto por IP (`429` acima disso, exceto `/health/*`).
+
+## Como testar
+
 ```bash
-docker compose up --build
+dotnet test src/backend/Simulador.slnx
+
+cd src/frontend
+npm.cmd run lint
+npm.cmd test -- --run
+npm.cmd run build
 ```
-- Frontend: `http://localhost:5173`
-- Backend API: `http://localhost:8080`
 
----
+Contagens medidas em **2026-11-18**, branch `jornada-de-voo`:
 
-## Suítes de Testes
+| Suíte | Resultado |
+| --- | --- |
+| `dotnet test src/backend/Simulador.slnx` | 2344 testes aprovados, 0 falhas (`Simulador.Dominio.Tests` 2316 e `Simulador.Api.Tests` 28) |
+| `npm.cmd test -- --run` em `src/frontend` | 385 testes aprovados em 49 arquivos, 0 falhas |
 
-- **Backend (`xUnit`):** `dotnet test src/backend/Simulador.slnx` (**69 casos** ativos na solução: `50` em `Simulador.Dominio.Tests` + `19` em `Simulador.Api.Tests`, além da suíte de integração `Simulador.Infra.IntegrationTests` executada no CI contra `PostgreSQL 17`) cobre o motor determinístico, os 5 cenários, ações prejudiciais, gramática SQL fail-closed, assinatura ECDSA P-256, rate limit via `X-Forwarded-For`, bloqueio de parâmetros de teste e vetores JCS/SHA-256 em UTF-8.
-- **Frontend (`Oxlint` + `Vitest` + `axe-core` + `check-bundle-secrets`):** (**25 casos Vitest** em `7` arquivos + `0` avisos/erros no `oxlint`) valida componentes dos aplicativos, verificação JCS/ECDSA P-256 offline, contraste WCAG AA em Tema Claro/Escuro, acessibilidade automatizada (`axe-core`) e ausência de chaves no bundle compilado.
-- **E2E (`Playwright`):** `src/frontend/e2e/jornadas.spec.ts` cobre **11 jornadas** de ponta a ponta (fluxos felizes N1–N4b, prompt injection bloqueado, verificação de JSON adulterado/incompleto, bloqueio de `DROP`/`UNION` em SQL e navegação por teclado/responsividade nos viewports `375px`, `768px` e `1280px`).
-
----
+`Simulador.Infra.IntegrationTests` roda no CI contra PostgreSQL 17 e não entrou nessa medição local. Os testes de ponta a ponta (Playwright) ficam em `src/frontend/e2e`.
 
 ## Documentação
 
-- [Planejamento Pedagógico, Regulação MEC/CBO/LPI, Certificações, Custos e Matriz Curricular 560h (8 Laboratórios e 80 Cenários)](docs/PLANEJAMENTO_PEDAGOGICO_E_MATRIZ_560H.md)
-- [Contexto e Compliance — Hack Brasil 2026](docs/CONTEXTO_HACK_BRASIL_2026.md)
-- [PRD — Product Requirements Document](docs/PRD_HACKATHON.md)
-- [Arquitetura Técnica](docs/ARQUITETURA_HACKATHON.md)
-- [Cronograma de Execução e Roadmap](docs/CRONOGRAMA_HACKATHON.md)
-- [Guia de Deploy e Roteiro de Vídeo](docs/DEPLOY_E_VIDEO.md)
-- [Licença MIT](LICENSE)
-- [Workflow de Integração Contínua (GitHub Actions)](.github/workflows/ci.yml)
-- [Concepção e RFC Consolidado](docs/rfc/PROJETO_SIMULADOR_CARREIRA_TI_DISCUSSAO_IAS.md)
-- [Manifesto N2: Pasta de Rede Inacessível (`v1.1`)](docs/rfc/MANIFESTO_PASTA_REDE_INACESSIVEL_v1.1.md)
-- [Manifesto N4: Diagnóstico SRE/Cloud](docs/rfc/MANIFESTO_N4_SRE.md)
-- [Manifesto N4b: Diagnóstico SQL Read-Only](docs/rfc/MANIFESTO_N4B_SQL.md)
-
----
+- [Cenários por escala](docs/CENARIOS_POR_ESCALA.md)
+- [PRD](docs/PRD_HACKATHON.md)
+- [Arquitetura técnica](docs/ARQUITETURA_HACKATHON.md)
+- [Planejamento pedagógico e matriz de 560 horas](docs/PLANEJAMENTO_PEDAGOGICO_E_MATRIZ_560H.md)
+- [Contexto e conformidade do Hack Brasil 2026](docs/CONTEXTO_HACK_BRASIL_2026.md)
+- [Cronograma](docs/CRONOGRAMA_HACKATHON.md)
+- [Deploy e roteiro de vídeo](docs/DEPLOY_E_VIDEO.md)
+- [Sistema de design](docs/design/DESIGN.md)
 
 ## Conformidade
 
-- Repositório criado especificamente para o **Hack Brasil 2026**, sem aproveitamento de código privado anterior.
-- Dados **100% sintéticos** e empresa fictícia (**Aurora Logística**), com sessões anônimas e sem coleta de dados pessoais reais.
-- Custo de IA externo **zero por padrão** (`Dialogo:HabilitarLlm=false`), garantindo disponibilidade integral para a banca avaliadora.
+- Dados 100% sintéticos: a empresa Aurora Logística (`aurora.local`), as pessoas, os servidores, os logs e os conjuntos de dados são fictícios.
+- Sem coleta de dados pessoais reais.
+- Repositório criado para o Hack Brasil 2026, sem aproveitamento de código privado anterior.
+- Chaves de API, se houver, ficam só no servidor, por variáveis de ambiente.
+
+## Licença
+
+O software é **proprietário, com todos os direitos reservados** ao Time CVE-K. O texto completo está em [LICENSE](LICENSE). Em resumo:
+
+- Jurados, organizadores e a equipe técnica do Hack Brasil 2026 podem ler, clonar, compilar, executar e testar o software para avaliar o projeto.
+- Qualquer pessoa pode ler o código publicado, mas copiar, modificar, redistribuir ou usar o software, comercialmente ou não, exige autorização prévia e por escrito.
+- As versões publicadas antes do commit que introduziu esta licença foram distribuídas sob a licença MIT e continuam regidas por ela.
+- Pedidos de licença: abra uma issue neste repositório.
