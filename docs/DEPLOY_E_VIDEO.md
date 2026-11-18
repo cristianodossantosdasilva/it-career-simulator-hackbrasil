@@ -61,9 +61,9 @@ Os antigos "Nível 1" a "Nível 4b" aparecem como escalas: **Help Desk N1**, **S
   - Três perguntas, uma por vez, com volta à pergunta anterior. Indicação **Suporte de TI** com a regra em tela: pontos fixos por resposta, sem IA, a decisão é do aluno.
   - Confirmar e mostrar o Cartão de Embarque.
 - **0:35 – 0:50 | Plano de voo `/plano-de-voo`**
-  - As 4 escalas: Help Desk N1 com a Missão em preparação, Service Desk N1 Jr liberada, N2 Pleno e N3 Sênior com "Bloqueada", ícone e a escala necessária. As três Vertentes da N3 e a contagem de Causas. Certificações como referência de mercado.
+  - As 4 escalas: Help Desk N1 com a missão Reset de senha e desbloqueio disponível, Service Desk N1 Jr, N2 Pleno e N3 Sênior com "Bloqueada", ícone e a escala necessária. As três Vertentes da N3 e a contagem de Causas. Certificações como referência de mercado.
   - Missão 0 guiada e Glossário rápido, que estão nesta página.
-  - Ativar "Liberar todas as escalas para demonstração": selos "Liberada para demonstração" nas 4 escalas, indicador na barra de contexto e o aviso de que a liberação não conta como voo concluído.
+  - Ativar "Liberar todas as escalas para demonstração": selos "Liberada para demonstração" nas 3 escalas que estavam bloqueadas, indicador na barra de contexto e o aviso de que a liberação não conta como voo concluído.
 - **0:50 – 1:10 | Cabine, Service Desk N1 Jr**
   - `pasta-rede-inacessivel`: validar a identidade da Maria (`AUR-1042`) no Comunicador para liberar o SimuDesk remoto, diagnosticar antes de alterar, corrigir a causa e resolver o chamado. Comandante no papel Copiloto.
 - **1:10 – 1:30 | Cabine, N2 Pleno**
