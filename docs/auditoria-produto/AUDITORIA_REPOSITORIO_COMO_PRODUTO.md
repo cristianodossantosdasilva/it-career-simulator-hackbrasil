@@ -22,6 +22,22 @@ Ordem: por impacto na nota. Severidade: alta, média ou baixa.
 | R10 | C1 (regulamento) | baixa, a confirmar | A licença é proprietária. README e LICENSE são coerentes entre si, e a permissão cobre jurados e organizadores para ler, executar e testar. O documento interno de contexto exige só repositório público. Se o regulamento oficial pedir licença aberta, o projeto fica fora dessa exigência. | LICENSE:1-30. docs/CONTEXTO_HACK_BRASIL_2026.md:22. | Confirmar no regulamento oficial. Nenhuma mudança no repositório antes disso. |
 | R11 | C3 | baixa | O impacto está descrito (público, problema e rota), mas não há dado de uso. O pitch admite isso: "Não há parceria firmada hoje" e a validação com pessoas está pendente. A admissão é honesta e fica como está. | docs/pitch/05_PERGUNTAS_DA_BANCA.md:45 e :75. docs/pitch/06_ROADMAP.md:12. | Se houver, incluir um dado de teste com usuários ou de uma turma. Caso contrário, manter a formulação atual. |
 
+## Status das correções
+Atualizado depois da auditoria, na branch `jornada-de-voo`. As seções acima descrevem o estado no momento da auditoria.
+| Id | Status | O que foi feito |
+| --- | --- | --- |
+| R1 | Corrigido | README, `docs/DEPLOY_E_VIDEO.md` e `docs/pitch/04_ROTEIRO_DEMONSTRACAO.md` dizem que o modo não cria Registro de Voo por si só e que um voo concluído grava Registro com o modo ligado ou não. Os demais documentos do pitch não tinham a frase. |
+| R2 | Corrigido | O roteiro e o quadro rápido dizem que a semente 42 gera a causa C2 (DNS em `10.10.99.250`), com a recomendação de confirmar no ensaio. |
+| R3 | Corrigido | README com `npm` e nota sobre `npm.cmd` e `npx.cmd` no Windows. Os guias de vídeo e de pitch também. `AGENTS.md` mantém `npm.cmd`, por ser instrução para agentes no Windows. O `playwright.config.ts` escolhe `npm` ou `npm.cmd` pela plataforma. |
+| R4 | Corrigido | Job `e2e` em `.github/workflows/ci.yml`: API em segundo plano, build do frontend, `vite preview`, Chromium do Playwright, projetos `chromium`, `mobile-375` e `desktop-1440`, relatório como artefato só em falha. `playwright.config.ts` reaproveita os servidores quando `E2E_SERVIDORES_EXTERNOS=1`. Simulado localmente na mesma sequência: 71 aprovados e 3 ignorados por desenho. O job ainda não rodou no GitHub. |
+| R5 | Corrigido | PRD, Arquitetura, Cronograma, Planejamento e guia de vídeo deixam de trazer contagens próprias e apontam para a medição do README e para a CI. |
+| R6 | Não corrigido | Reescrever histórico é proibido neste fluxo. A limitação fica registrada: o commit `6e6d0c0` não compila sozinho. O HEAD não é afetado. |
+| R7 | Corrigido | `check-bundle-secrets.mjs` varre todo o `dist` (inclui `index.html`), ignora só arquivos binários e cobre também AWS (`AKIA`, `ASIA`), chave privada PEM, tokens GitHub (`ghp_` e similares), Google (`AIza`), Anthropic e Slack. Aceita um diretório como argumento, usado para testar com amostras. O build atual passa sem falso positivo. |
+| R8 | Corrigido | Removidos `react.svg`, `vite.svg` e `hero.png`, sem referência em `src` (conferido com `git grep`). |
+| R9 | Corrigido em parte | O README informa que `docs/auditoria-*` e `docs/rfc` são registro histórico do processo. Os símbolos e emojis dentro desses documentos não foram removidos. |
+| R10 | Aceito | A licença fica como está até a confirmação no regulamento oficial. |
+| R11 | Aceito | A formulação atual do pitch sobre a ausência de dados de uso fica. |
+
 ## Verificado sem achado
 
 - Sementes do roteiro de reset de senha (docs/pitch/04_ROTEIRO_DEMONSTRACAO.md, seção Passo 3 e quadro rápido), conferidas na API local. Semente 3: solicitante Paulo Andrade (terceiro), log "senha incorreta, abaixo do limite de bloqueio" (SENHA_ESQUECIDA). Semente 42: solicitante Paulo Andrade, log "conta bloqueada" (CONTA_BLOQUEADA). Semente 7: solicitante Fernanda Lima (pedido direto), log de senha incorreta (SENHA_ESQUECIDA). As três afirmações do roteiro batem com o comportamento.
