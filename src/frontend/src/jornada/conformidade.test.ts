@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 /**
- * Conformidade textual da jornada: varre os fontes por import.meta.glob e falha se aparecer E comercial
+ * Conformidade textual da jornada e do sistema de temas: varre os fontes por import.meta.glob e falha se aparecer E comercial
  * em texto ou nome de arquivo, emoji, estilo inline, cor hexadecimal fora de index.css ou a chave do modo
  * de demonstração fora do módulo dele.
  */
@@ -16,17 +16,21 @@ const ALTERADOS_FORA_DA_JORNADA = [
   '/src/educacao/AulasView.tsx',
   '/src/educacao/MentorView.tsx',
   '/src/workstation/CredencialView.tsx',
+  '/src/shell/AppShell.tsx',
+  '/src/shell/BotaoAparencia.tsx',
+  '/src/shell/PainelAparencia.tsx',
+  '/src/shell/MenuPerfil.tsx',
+  '/src/apps/SimuDeskApp/SimuDeskApp.tsx',
 ]
 
 const ehTeste = (caminho: string) => /\.test\.tsx?$/.test(caminho)
 
-/** Fontes de produção da jornada e dos arquivos alterados por ela. */
-const ESCOPO = Object.entries(FONTES).filter(
-  ([caminho]) => !ehTeste(caminho) && (caminho.startsWith('/src/jornada/') || ALTERADOS_FORA_DA_JORNADA.includes(caminho)),
-)
-const ESCOPO_COM_TESTES = Object.entries(FONTES).filter(
-  ([caminho]) => caminho.startsWith('/src/jornada/') || ALTERADOS_FORA_DA_JORNADA.includes(caminho),
-)
+const noEscopo = (caminho: string) =>
+  caminho.startsWith('/src/jornada/') || caminho.startsWith('/src/tema/') || ALTERADOS_FORA_DA_JORNADA.includes(caminho)
+
+/** Fontes de produção da jornada, do sistema de temas e dos arquivos alterados por eles. */
+const ESCOPO = Object.entries(FONTES).filter(([caminho]) => !ehTeste(caminho) && noEscopo(caminho))
+const ESCOPO_COM_TESTES = Object.entries(FONTES).filter(([caminho]) => noEscopo(caminho))
 
 // Montados por código para o próprio arquivo não conter o caractere proibido.
 const E_COMERCIAL = String.fromCharCode(38)
@@ -45,6 +49,7 @@ describe('Conformidade da jornada', () => {
     expect(ESCOPO.length).toBeGreaterThan(50)
     expect(caminhos).toContain('/src/jornada/ProvedorJornada.tsx')
     expect(caminhos).toContain('/src/jornada/paginas/PaginaCabine.tsx')
+    expect(caminhos).toContain('/src/tema/resolvedor.ts')
     for (const alterado of ALTERADOS_FORA_DA_JORNADA) expect(caminhos, alterado).toContain(alterado)
   })
 

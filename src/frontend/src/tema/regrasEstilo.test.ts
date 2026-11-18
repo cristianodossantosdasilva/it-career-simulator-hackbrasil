@@ -1,3 +1,6 @@
+import { readFileSync, readdirSync } from 'node:fs'
+import { dirname, join, relative } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { type Gerador, paraTodo } from '../testes/propriedade'
 import { hexForaDeBlocos, seletoresComTemaForaDeBloco } from './regrasEstilo.ts'
@@ -107,5 +110,33 @@ describe('varredura de hexadecimais, propriedade', () => {
     paraTodo('hex em TypeScript', montarTs, ({ texto, esperadas }) => {
       expect(hexForaDeBlocos('src/x.ts', texto).map((o) => o.linha)).toEqual(esperadas)
     })
+  })
+})
+
+describe('nomes antigos de tema', () => {
+  const raiz = join(dirname(fileURLToPath(import.meta.url)), '..', '..')
+  const EXCECOES = ['persistencia.test.ts', 'regrasEstilo.test.ts']
+  const PADRAO = /corporate\b|tactical|itfs_theme/
+
+  function listar(pasta: string): string[] {
+    return readdirSync(pasta, { withFileTypes: true }).flatMap((entrada) => {
+      const caminho = join(pasta, entrada.name)
+      if (entrada.isDirectory()) return listar(caminho)
+      return /\.(ts|tsx|css|html|mjs)$/.test(entrada.name) ? [caminho] : []
+    })
+  }
+
+  it('src, index.html, plugins e scripts não citam corporate, tactical nem itfs_theme fora das duas exceções', () => {
+    const arquivos = [...listar(join(raiz, 'src')), ...listar(join(raiz, 'scripts')), ...listar(join(raiz, 'plugins')), join(raiz, 'index.html')]
+    const achados: string[] = []
+    for (const arquivo of arquivos) {
+      if (EXCECOES.some((excecao) => arquivo.endsWith(excecao))) continue
+      readFileSync(arquivo, 'utf8')
+        .split('\n')
+        .forEach((linha, indice) => {
+          if (PADRAO.test(linha)) achados.push(`${relative(raiz, arquivo)}:${indice + 1}`)
+        })
+    }
+    expect(achados).toEqual([])
   })
 })
