@@ -32,3 +32,5 @@ export const ROTULO_CONFIRMAR_CHECKIN_RAPIDO = 'Confirmar e embarcar'
 export const ROTULO_CHECKIN_COMPLETO = 'Fazer o check-in completo'
 export const AVISO_CARTAO_NO_CHECKIN_RAPIDO =
   'Você já tem cartão de embarque. Para experimentar um voo sem trocar o cartão, use o botão abaixo.'
+export const AVISO_CARTAO_DO_CHECKIN_RAPIDO = 'Cartão gerado pelo check-in rápido, com respostas padrão.'
+export const TEXTO_INDICADOR_MODO = 'Modo de demonstração ativo'

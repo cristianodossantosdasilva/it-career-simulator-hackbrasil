@@ -9,11 +9,14 @@ import { PrimeiroVoo } from '../../workstation/PrimeiroVoo'
 import { type IdMissao, ehIdMissao, rotaPorId } from '../catalogos/catalogoRotas'
 import { ROTA_PADRAO_DE_EMBARQUE } from '../catalogos/regrasIndicacao'
 import { PainelComandante } from '../comandante/PainelComandante'
+import { AvisoHonesto } from '../componentes/AvisoHonesto'
 import { ConviteCopiloto } from '../componentes/ConviteCopiloto'
 import { ListaEscalas } from '../componentes/ListaEscalas'
 import { OpcoesAvancadas } from '../componentes/OpcoesAvancadas'
 import { useArmazenamentoJornada } from '../contextoArmazenamentoJornada'
 import { useAcademia, useVoo } from '../contextosJornada'
+import { ControleModoDemonstracao } from '../demonstracao/ControleModoDemonstracao'
+import { AVISO_CARTAO_DO_CHECKIN_RAPIDO, ROTULO_CHECKIN_COMPLETO } from '../demonstracao/textosDemonstracao'
 import { navegar } from '../navegacao/navegador'
 import { NOME_PAGINA, enderecoDe } from '../navegacao/rotas'
 import { type VisaoEscala, calcularProgressoRota } from '../progressoRota'
@@ -81,6 +84,12 @@ export function PaginaPlanoDeVoo() {
           {rota ? `Rota ${rota.nome}. ` : ''}Cada escala libera a seguinte quando os voos dela ficam registrados neste navegador.
         </p>
       </header>
+      <ControleModoDemonstracao />
+      {cartao?.origem === 'checkin-rapido' && (
+        <AvisoHonesto acoes={[{ tipo: 'link', rotulo: ROTULO_CHECKIN_COMPLETO, href: '/check-in' }]}>
+          {AVISO_CARTAO_DO_CHECKIN_RAPIDO}
+        </AvisoHonesto>
+      )}
       <PrimeiroVoo
         temProgresso={temProgresso}
         sessaoAtiva={sessaoAtiva}

@@ -1,4 +1,5 @@
 import { Icone } from '../../ui/Icone'
+import { BotaoExperimentar } from '../demonstracao/BotaoExperimentar'
 import { DemonstracaoCheckIn } from '../componentes/DemonstracaoCheckIn'
 import { JORNADA, TEXTOS_HOME } from '../catalogos/catalogoVocacional'
 import { useArmazenamentoJornada } from '../contextoArmazenamentoJornada'
@@ -36,6 +37,7 @@ export function PaginaInicio() {
             </LinkInterno>
           )}
         </div>
+        <BotaoExperimentar />
       </header>
 
       <section className="secao-jornada" aria-labelledby="inicio-passos">

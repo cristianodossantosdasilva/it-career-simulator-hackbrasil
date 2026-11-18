@@ -42,6 +42,7 @@ import {
   Plane,
   PlaneTakeoff,
   Plus,
+  Presentation,
   Puzzle,
   RotateCw,
   Route,
@@ -51,6 +52,8 @@ import {
   Star,
   Target,
   Ticket,
+  ToggleLeft,
+  ToggleRight,
   Trash,
   TriangleAlert,
   Warehouse,
@@ -121,6 +124,9 @@ export const ICONES = {
   breve: Award,
   mais: Ellipsis,
   pendente: CircleDashed,
+  demonstracao: Presentation,
+  'modo-ativo': ToggleRight,
+  'modo-inativo': ToggleLeft,
 } satisfies Record<string, LucideIcon>
 
 export type NomeIcone = keyof typeof ICONES

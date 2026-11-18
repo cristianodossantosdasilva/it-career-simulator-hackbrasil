@@ -1,5 +1,6 @@
 import { useId } from 'react'
 import { Icone, type NomeIcone } from '../../ui/Icone'
+import { SeloDemonstracao } from '../demonstracao/SeloDemonstracao'
 import { textoLiberadaSoParaDemonstracao } from '../demonstracao/textosDemonstracao'
 import type { VisaoEscala } from '../progressoRota'
 import { CartaoMissao } from './CartaoMissao'
@@ -26,6 +27,7 @@ function EscalaDoPlano({ visao, anterior }: { visao: VisaoEscala; anterior: Visa
           <Icone nome={estado.icone} tamanho={16} />
           <span>{estado.texto}</span>
         </span>
+        {visao.seloDemonstracao && <SeloDemonstracao />}
       </div>
       <p className="escala-nota">{visao.escala.descricao}</p>
       {bloqueada && visao.escalaNecessaria && (

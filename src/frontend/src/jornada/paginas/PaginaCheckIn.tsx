@@ -16,6 +16,7 @@ import { AvisoHonesto } from '../componentes/AvisoHonesto'
 import { CartaoEmbarque } from '../componentes/CartaoEmbarque'
 import { SeloStatus } from '../componentes/SeloStatus'
 import { useArmazenamentoJornada } from '../contextoArmazenamentoJornada'
+import { CheckInRapido } from '../demonstracao/CheckInRapido'
 import { LinkInterno } from '../navegacao/LinkInterno'
 import { NOME_PAGINA, type RotaResolvida } from '../navegacao/rotas'
 
@@ -143,11 +144,14 @@ export function PaginaCheckIn({ rota }: { rota: RotaCheckIn }) {
       <header>
         <h1 className="h1">{NOME_PAGINA['check-in']}</h1>
         <p className="pagina-jornada-texto">
-          Três perguntas curtas indicam por onde começar. Não há resposta certa, e nada é enviado para fora deste navegador.
+          {rota.rapido
+            ? 'Caminho curto: confirme as respostas padrão e embarque. Nada é enviado para fora deste navegador.'
+            : 'Três perguntas curtas indicam por onde começar. Não há resposta certa, e nada é enviado para fora deste navegador.'}
         </p>
       </header>
 
-      {comPerguntas && semCartao && (
+      {rota.rapido && <CheckInRapido />}
+      {!rota.rapido && comPerguntas && semCartao && (
         <AvisoHonesto
           acoes={[{ tipo: 'botao', rotulo: 'Ir para a primeira pergunta', aoClicar: () => refLegenda.current?.focus() }]}
         >
@@ -155,14 +159,14 @@ export function PaginaCheckIn({ rota }: { rota: RotaCheckIn }) {
         </AvisoHonesto>
       )}
 
-      {comPerguntas && cartao && estado.indice === 0 && respostas === null && (
+      {!rota.rapido && comPerguntas && cartao && estado.indice === 0 && respostas === null && (
         <AvisoHonesto acoes={[{ tipo: 'link', rotulo: 'Ir para o Plano de voo', href: '/plano-de-voo' }]}>
           Você já tem um cartão de embarque. Se refizer o check-in e confirmar, o cartão novo substitui o anterior e os seus voos
           registrados continuam guardados.
         </AvisoHonesto>
       )}
 
-      {comPerguntas && pergunta && (
+      {!rota.rapido && comPerguntas && pergunta && (
         <PerguntaAtual
           key={estado.indice}
           pergunta={pergunta}
@@ -176,7 +180,7 @@ export function PaginaCheckIn({ rota }: { rota: RotaCheckIn }) {
         />
       )}
 
-      {estado.fase === 'indicacao' && indicacao && rotaIndicada && (
+      {!rota.rapido && estado.fase === 'indicacao' && indicacao && rotaIndicada && (
         <section className="indicacao-checkin" aria-labelledby="checkin-indicacao-titulo">
           <h2 id="checkin-indicacao-titulo" ref={refTitulo} tabIndex={-1}>
             Rota indicada: {rotaIndicada.nome}
@@ -212,7 +216,7 @@ export function PaginaCheckIn({ rota }: { rota: RotaCheckIn }) {
         </section>
       )}
 
-      {estado.fase === 'cartao' && emitido && (
+      {!rota.rapido && estado.fase === 'cartao' && emitido && (
         <section className="secao-jornada" aria-labelledby="checkin-concluido-titulo">
           <h2 id="checkin-concluido-titulo" ref={refTitulo} tabIndex={-1}>
             Check-in concluído

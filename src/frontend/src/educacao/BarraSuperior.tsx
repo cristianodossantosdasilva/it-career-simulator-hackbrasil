@@ -1,6 +1,7 @@
 import { type ReactNode, useEffect, useId, useRef, useState } from 'react'
 import { ITENS_MENU, type ItemMenu, hrefDoItem, itemAtivoDoMenu } from '../jornada/catalogos/catalogoNavegacao'
 import type { IdMissao } from '../jornada/catalogos/catalogoRotas'
+import { IndicadorModoDemonstracao } from '../jornada/demonstracao/IndicadorModoDemonstracao'
 import { LinkInterno } from '../jornada/navegacao/LinkInterno'
 import { type IdPagina, NOME_PAGINA } from '../jornada/navegacao/rotas'
 import { AlternadorTema } from '../shell/AlternadorTema'
@@ -14,6 +15,8 @@ interface BarraSuperiorProps {
   paginaAtual: IdPagina
   /** Missão do voo ativo. Sem ela, o item Cabine não aparece. */
   missaoAtiva: IdMissao | null
+  /** Modo de demonstração ativo: a barra de contexto mostra o indicador em toda página. */
+  modoDemonstracao?: boolean
   estado: EstadoAcademia
   xpOficial?: number
   onMudarFoco?: (nivel: NivelId) => void
@@ -57,6 +60,7 @@ function LinkDoMenu({ item, href, ativo, aoSeguir }: PropsLinkDoMenu) {
 export function BarraSuperior({
   paginaAtual,
   missaoAtiva,
+  modoDemonstracao = false,
   estado,
   xpOficial,
   onMudarFoco,
@@ -166,6 +170,7 @@ export function BarraSuperior({
           <span className="barra-contexto-local">{rotuloLocal ?? NOME_PAGINA[paginaAtual]}</span>
         </p>
         <div className="barra-contexto-acoes">
+          {modoDemonstracao && <IndicadorModoDemonstracao />}
           {slotDireitoSessao}
           <MenuPerfil
             estado={estado}

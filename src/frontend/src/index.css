@@ -585,6 +585,7 @@ a.nav-item { display: inline-flex; align-items: center; justify-content: center;
   /* As ações mantêm o tamanho natural e o título cede espaço, para a barra caber em 375 px. */
   .barra-contexto-trilha { flex: 1 1 0; }
   .barra-contexto-acoes { flex: 0 0 auto; }
+  .indicador-modo-demonstracao { max-width: 7.5rem; padding: 0 var(--space-1); font-size: var(--font-size-xs); line-height: 1.2; }
   .dado-contexto { padding: 0 var(--space-1); }
   .menu-perfil-painel {
     max-height: calc(100dvh - var(--context-bar-height) - var(--bottom-bar-height) - var(--space-4));
@@ -1452,6 +1453,21 @@ input[aria-label="Buscar na Base de Conhecimento"] { min-width: 260px; }
 .selo-status-disponivel { background: var(--status-success-surface); border-color: var(--status-success); color: var(--status-success-text); }
 .selo-status-em-preparacao { background: var(--status-warning-surface); border-color: var(--status-warning-border); color: var(--status-warning-text); }
 .selo-status-futuro { background: var(--bg-elevated); border-color: var(--border-control); color: var(--text-secondary); }
+/* Modo de demonstração: informação (cor de acento), nunca a cor de sucesso */
+.selo-demonstracao { background: var(--accent-surface); border-color: var(--accent-primary); color: var(--accent-text); }
+.controle-modo-demonstracao { display: inline-flex; align-items: center; align-self: flex-start; gap: var(--space-2); min-height: var(--touch-target); max-width: 100%; padding: var(--space-2) var(--space-4); background: var(--bg-elevated); border: 1px solid var(--border-control); border-radius: var(--radius-md); color: var(--text-primary); font: inherit; font-weight: var(--font-weight-semibold); text-align: left; cursor: pointer; }
+.controle-modo-demonstracao .icone { flex: none; color: var(--text-secondary); }
+.controle-modo-demonstracao[aria-checked='true'] { background: var(--accent-surface); border-color: var(--accent-primary); }
+.controle-modo-demonstracao[aria-checked='true'] .icone { color: var(--accent-text); }
+.controle-modo-demonstracao-estado { margin-left: var(--space-2); padding-left: var(--space-3); border-left: 1px solid var(--border-control); color: var(--accent-text); white-space: nowrap; }
+.indicador-modo-demonstracao { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--touch-target); padding: 0 var(--space-2); background: var(--accent-surface); border: 1px solid var(--accent-primary); border-radius: var(--radius-md); color: var(--accent-text); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); text-decoration: none; }
+.indicador-modo-demonstracao .icone { flex: none; }
+.atalho-experimentar { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+.atalho-experimentar-apoio { margin: 0; max-width: var(--measure); }
+.respostas-checkin-rapido { margin: 0; display: flex; flex-direction: column; gap: var(--space-3); max-width: var(--measure); }
+.resposta-checkin-rapido { padding: var(--space-3) var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md); }
+.resposta-checkin-rapido dt { color: var(--text-secondary); font-size: var(--font-size-base); }
+.resposta-checkin-rapido dd { margin: var(--space-1) 0 0; color: var(--text-primary); font-weight: var(--font-weight-semibold); }
 
 /* Escalas, vertentes e cartões de missão */
 .lista-escalas { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-5); }
@@ -1533,6 +1549,9 @@ input[aria-label="Buscar na Base de Conhecimento"] { min-width: 260px; }
   .escala, .grupo-vertente, .breve-piloto, .cartao-embarque, .indicacao-checkin, .demonstracao-checkin { padding: var(--space-4); }
   .lista-cartoes, .lista-rotas-hangar { grid-template-columns: minmax(0, 1fr); }
   .acoes-linha .btn, .aviso-honesto-acoes .btn { flex: 1 1 100%; }
+  .controle-modo-demonstracao { align-self: stretch; flex-wrap: wrap; }
+  .controle-modo-demonstracao-estado { margin-left: 0; padding-left: 0; border-left: 0; white-space: normal; }
+  .atalho-experimentar .btn { align-self: stretch; }
 }
 @media (prefers-reduced-motion: reduce) {
   .opcao-checkin { transition: none; }

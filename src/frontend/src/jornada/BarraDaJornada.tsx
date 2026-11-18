@@ -14,7 +14,7 @@ import { type IdPagina, enderecoDe } from './navegacao/rotas'
 export function BarraDaJornada({ pagina }: { pagina: IdPagina }) {
   const { estadoAcademia, atualizarEstadoAcademia, resumoCarreira, pomodoro } = useAcademia()
   const { sessao, sessaoId } = useVoo()
-  const { voosAtivos } = useArmazenamentoJornada()
+  const { voosAtivos, modoDemonstracao } = useArmazenamentoJornada()
   const cenarioEmMemoria = sessao?.meta.cenarioId
   const missaoAtiva =
     cenarioEmMemoria && ehIdMissao(cenarioEmMemoria) ? cenarioEmMemoria : voosAtivos.ultimaMissao
@@ -58,6 +58,7 @@ export function BarraDaJornada({ pagina }: { pagina: IdPagina }) {
     <BarraSuperior
       paginaAtual={pagina}
       missaoAtiva={missaoAtiva}
+      modoDemonstracao={modoDemonstracao}
       estado={estadoAcademia}
       xpOficial={xpExibido}
       onMudarFoco={(nivel) => atualizarEstadoAcademia((anterior) => ({ ...anterior, focus: nivel }))}
