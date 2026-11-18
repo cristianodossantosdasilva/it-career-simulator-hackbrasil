@@ -42,7 +42,7 @@ Requisito do regulamento Hack Brasil 2026: aplicação acessível publicamente p
 
 A aplicação tem endereços próprios: Início `/`, Check-in `/check-in`, Plano de voo `/plano-de-voo`, Cabine `/cabine/:missao`, Caixa-preta `/caixa-preta/:sessao`, Brevê `/breve`, Hangar, Aulas, Treino, Caderno e Comandante. O endereço `/verificar` **não existe**: o **Verificador offline** do Currículo Vivo fica no **Brevê**. A **Missão 0 guiada** e o **Glossário rápido** ficam no **Plano de voo**, não no início.
 
-Os antigos "Nível 1" a "Nível 4b" aparecem como escalas: **Help Desk N1**, **Service Desk N1 Jr**, **N2 Pleno** e **N3 Sênior**. A N3 Sênior tem três Vertentes: **N3-A Redes e Nuvem** (`sre-cloud-latencia`), **N3-B Data Center e Backup** e **N3-C Segurança e Dados**, que reúne a triagem de engenharia social (`triagem-engenharia-social`) e o diagnóstico SQL somente leitura (`diagnostico-sql-readonly`).
+Os antigos "Nível 1" a "Nível 4b" aparecem como escalas: **Help Desk N1**, **Service Desk N1 Jr**, **N2 Pleno** e **N3 Sênior**. A N3 Sênior tem três Vertentes: **N3-A Redes e Nuvem** (`sre-cloud-latencia`), **N3-B Data Center e Backup** e **N3-C Segurança e Dados**, que reúne a triagem de engenharia social (`triagem-engenharia-social`) e o diagnóstico SQL somente leitura (`diagnostico-sql-readonly`). As Aulas seguem a mesma trilha, na mesma ordem e com os mesmos nomes (seis níveis: Help Desk N1, Service Desk N1 Jr, N2 Pleno, N3-A, N3-B e N3-C). O Praticar das Aulas e da Credencial respeita o portão da Cabine: com a escala bloqueada, mostra o aviso e leva ao Plano de voo.
 
 ### Preparação antes de gravar
 

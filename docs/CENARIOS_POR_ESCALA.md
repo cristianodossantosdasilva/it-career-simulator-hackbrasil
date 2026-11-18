@@ -49,7 +49,7 @@ Artigos novos, no backend (`KbCatalogo.cs`) e no frontend (`src/frontend/src/dat
 ## Pontos de atenção para o Frontend (fora desta spec, não verificados na interface)
 
 - `lab/dicaMissao.ts` e `lab/roteiros.ts` não têm roteiro nem dica para as Causas novas (C4, `EMAIL_PROVEDOR`, `DOMINIO_SUSPENSO`, e as três Causas de `reset-senha-desbloqueio` e as duas de `falha-backup-restore`). Como a ativação já aconteceu, uma sessão sem Causa forçada pode cair em uma delas.
-- `educacao/catalogoEducacional.ts` não tem nível para os 2 cenários novos, e `nivelPorCenarioId` devolve o primeiro nível quando não encontra o `cenarioId`.
+- Resolvido na correção da trilha de estudo: `educacao/catalogoEducacional.ts` deriva os níveis das escalas e Vertentes do Catálogo de Rotas. Os 2 cenários novos têm nível (Help Desk N1 e N3-B Data Center e Backup), e `nivelPorCenarioId` devolve `null` só para um identificador fora do catálogo.
 - O Replay e a lista de Eventos podem não ter rótulo para os Eventos novos. O comportamento sem rótulo não foi verificado.
 - O Catálogo de Rotas chama a Causa do gateway de `GATEWAY`. O backend aceita o apelido de entrada e grava `PATCH_MASSIVO`.
 - O nível exibido pelo backend para os cenários novos é `Help Desk (N1)` (`reset-senha-desbloqueio`) e `Especialista Data Center e Backup (N3-B)` (`falha-backup-restore`). `incidente-massivo` continua em `Analista Pleno (N2)`.
