@@ -51,6 +51,19 @@ public class IncidenteExternoTests
         ResolverEmLote(s);
     }
 
+    internal static void FluxoCorretoDominio(SessaoDeTeste s)
+    {
+        Classificar(s);
+        s.Comando("whois aurora-logistica.example");
+        CriarProblemaEVincular(s);
+        s.Comando("acionar fornecedor");
+        s.Comando("acionar financeiro");
+        NotaPublica(s, "Site e e-mail externos fora do ar; fornecedor e financeiro acionados.");
+        s.Comando("acompanhar fornecedor");
+        s.Aplicar("itsm.registrar_causa_raiz", new { problemaId = "PRB-0001", causaRaiz = "Dominio suspenso pelo registrador por inadimplencia da fatura." });
+        ResolverEmLote(s, "Dominio reativado apos o pagamento da fatura.");
+    }
+
     // ---------------------------------------------------------------- EMAIL_PROVEDOR
 
     [Fact]
@@ -362,5 +375,178 @@ public class IncidenteExternoTests
         for (long semente = 0; semente < 20; semente++)
             Assert.Equal("PATCH_MASSIVO", catalogo.Obter(Cenario, Versao, null, semente).Causa);
         Assert.Equal("PATCH_MASSIVO", catalogo.Obter(Cenario, Versao, "CAUSA_INEXISTENTE", 5).Causa);
+    }
+
+    // ---------------------------------------------------------------- DOMINIO_SUSPENSO
+
+    [Fact]
+    public void Criacao_DominioSuspenso_DefineServicosLogsChamadosEComandosDeclarados()
+    {
+        var s = Nova("DOMINIO_SUSPENSO");
+        Assert.Equal("DOMINIO_SUSPENSO", s.Estado.Meta.Causa);
+        Assert.Equal("Analista Pleno (N2)", s.Estado.Meta.Nivel);
+        Assert.Equal("Running", Status(s.Estado, "AuroraGateway"));
+        Assert.Equal("Suspenso", Status(s.Estado, "DominioPublico"));
+        Assert.Equal("Pendente", Status(s.Estado, "AreaFornecedor"));
+        Assert.Equal("Pendente", Status(s.Estado, "AreaFinanceiro"));
+        Assert.Equal(["sc query", "ping", "nslookup", "whois", "acionar", "acompanhar"], s.Estado.Estacao.ComandosSuportados.ToArray());
+        Assert.Equal("www.aurora-logistica.example", s.Cenario.HostAlvo);
+        Assert.Equal("DominioPublico", s.Cenario.ServicoAlvo);
+        Assert.Empty(s.Estado.Estacao.DnsServidor);
+        Assert.Equal(3, s.Estado.Itsm.Chamados.Count);
+        Assert.Equal("Site institucional fora do ar", s.Estado.Itsm.Chamados[0].Titulo);
+        Assert.Equal("E-mail corporativo sem entrega - Logistica", s.Estado.Itsm.Chamados[1].Titulo);
+        Assert.Equal("Clientes relatam dominio inacessivel - Comercial", s.Estado.Itsm.Chamados[2].Titulo);
+        Assert.Single(s.Estado.Estacao.Logs);
+    }
+
+    [Fact]
+    public void FluxoCorreto_DominioSuspenso_AtendeF1aF9ComXp100()
+    {
+        var s = Nova("DOMINIO_SUSPENSO");
+        FluxoCorretoDominio(s);
+
+        Assert.Equal("Restabelecido", Status(s.Estado, "DominioPublico"));
+        Assert.Equal("Acionada", Status(s.Estado, "AreaFornecedor"));
+        Assert.Equal("Acionada", Status(s.Estado, "AreaFinanceiro"));
+        Assert.True(s.Estado.Estacao.CompartilhamentoAcessivel);
+
+        var av = s.Avaliar();
+        Assert.True(av.Concluida);
+        Assert.False(av.IncidenteSeguranca);
+        Assert.Equal(["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9"], av.Criterios.Select(c => c.Id).ToArray());
+        Assert.All(av.Criterios, c => Assert.True(c.Atendido, $"Criterio {c.Id} falhou"));
+        Assert.Equal(100, av.XpTotal);
+        AssertReconstrucaoIgual(s);
+    }
+
+    [Fact]
+    public void Whois_ComODominioDaEmpresaConfirmaEvidencia_OutroDominioNao()
+    {
+        var s = Nova("DOMINIO_SUSPENSO");
+        s.Comando("whois outro-dominio.example");
+        Assert.Equal("Dominio nao encontrado.", s.UltimaSaida());
+        s.Comando("whois");
+        Assert.Equal("Uso: whois <dominio>", s.UltimaSaida());
+        Assert.Empty(s.De("EvidenciaExternaConfirmada"));
+
+        s.Comando("whois aurora-logistica.example");
+        Assert.Contains("clientHold", s.UltimaSaida());
+        Assert.Contains("Registro Exemplo Ltda", s.UltimaSaida());
+        Assert.Equal("whois", s.De("EvidenciaExternaConfirmada").Single().Dados["fonte"]);
+    }
+
+    [Fact]
+    public void AcompanharComSoUmaAreaAcionada_DevolveAAreaQueFaltaSemEvento()
+    {
+        var s = Nova("DOMINIO_SUSPENSO");
+        s.Comando("acionar fornecedor");
+        var antes = JsonSerializer.Serialize(s.Estado.Estacao);
+        s.Comando("acompanhar fornecedor");
+        Assert.Equal("Falta acionar: Financeiro.", s.UltimaSaida());
+        Assert.Empty(s.De("AcompanhamentoRegistrado"));
+        Assert.Empty(s.De("ServicoExternoRestabelecido"));
+        Assert.Equal(antes, JsonSerializer.Serialize(s.Estado.Estacao));
+
+        var s2 = Nova("DOMINIO_SUSPENSO");
+        s2.Comando("acionar financeiro");
+        Assert.Equal("Financeiro acionado: pagamento da fatura do registrador em andamento.", s2.UltimaSaida());
+        s2.Comando("acompanhar fornecedor");
+        Assert.Equal("O fornecedor ainda nao foi acionado.", s2.UltimaSaida());
+        Assert.Equal("Suspenso", Status(s2.Estado, "DominioPublico"));
+
+        s2.Comando("acionar fornecedor");
+        s2.Comando("acompanhar fornecedor");
+        Assert.Equal("Restabelecido", Status(s2.Estado, "DominioPublico"));
+        s2.Comando("acompanhar fornecedor");
+        Assert.Contains("nada a acompanhar", s2.UltimaSaida());
+        Assert.Single(s2.De("ServicoExternoRestabelecido"));
+    }
+
+    [Fact]
+    public void NslookupEPing_RespondemHostNaoEncontradoSemTextoInventado()
+    {
+        var s = Nova("DOMINIO_SUSPENSO");
+        s.Comando("nslookup www.aurora-logistica.example");
+        Assert.Equal("Host 'www.aurora-logistica.example' nao encontrado no DNS.", s.UltimaSaida());
+        s.Comando("ping www.aurora-logistica.example");
+        Assert.Equal("A solicitacao ping nao pode encontrar o host www.aurora-logistica.example.", s.UltimaSaida());
+    }
+
+    [Fact]
+    public void EstadoInicial_NaoCitaClientHoldNemAFatura()
+    {
+        var s = Nova("DOMINIO_SUSPENSO");
+        s.Comando("sc query");
+        var textos = s.Estado.Estacao.Logs.Append(s.UltimaSaida())
+            .Concat(s.Estado.Itsm.Chamados.SelectMany(c => new[] { c.Titulo, c.Descricao }))
+            .Concat(s.Estado.Estacao.Servicos.Select(x => x.Status)).ToList();
+        Assert.All(textos, t =>
+        {
+            Assert.DoesNotContain("clientHold", t, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("fatura", t, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("inadimpl", t, StringComparison.OrdinalIgnoreCase);
+        });
+    }
+
+    [Fact]
+    public void AcionarSoOFornecedor_OuCausaRaizSemFatura_DeixaF4eF7NaoAtendidos()
+    {
+        var s = Nova("DOMINIO_SUSPENSO");
+        Classificar(s);
+        s.Comando("whois aurora-logistica.example");
+        CriarProblemaEVincular(s);
+        s.Comando("acionar fornecedor");
+        s.Comando("acionar financeiro");
+        NotaPublica(s);
+        s.Comando("acompanhar fornecedor");
+        s.Aplicar("itsm.registrar_causa_raiz", new { problemaId = "PRB-0001", causaRaiz = "Dominio suspenso no registrador." });
+        ResolverEmLote(s);
+        var av = s.Avaliar();
+        Assert.False(av.Criterios.Single(c => c.Id == "F7").Atendido);
+        Assert.True(av.Criterios.Single(c => c.Id == "F4").Atendido);
+
+        var s2 = Nova("DOMINIO_SUSPENSO");
+        Classificar(s2);
+        s2.Comando("whois aurora-logistica.example");
+        s2.Comando("acionar fornecedor");
+        Assert.False(s2.Avaliar().Criterios.Single(c => c.Id == "F4").Atendido);
+    }
+
+    [Fact]
+    public void CausaRaizDeEmailNaoServeParaDominio_ENemaDeDominioParaEmail()
+    {
+        var dominio = Nova("DOMINIO_SUSPENSO");
+        Classificar(dominio);
+        CriarProblemaEVincular(dominio);
+        dominio.Aplicar("itsm.registrar_causa_raiz", new { problemaId = "PRB-0001", causaRaiz = "Falha no provedor de e-mail." });
+        Assert.False(dominio.Avaliar().Criterios.Single(c => c.Id == "F7").Atendido);
+
+        var email = Nova("EMAIL_PROVEDOR");
+        Classificar(email);
+        CriarProblemaEVincular(email);
+        email.Aplicar("itsm.registrar_causa_raiz", new { problemaId = "PRB-0001", causaRaiz = "Dominio suspenso no registrador por falta de pagamento da fatura." });
+        Assert.False(email.Avaliar().Criterios.Single(c => c.Id == "F7").Atendido);
+    }
+
+    [Fact]
+    public void ReiniciarServicoEmDominio_NaoRestabeleceEDeixaF8NaoAtendido()
+    {
+        var s = Nova("DOMINIO_SUSPENSO");
+        s.Aplicar("estacao.elevar_privilegio");
+        s.Aplicar("estacao.reiniciar_servico", new { servico = "AuroraGateway" });
+        Assert.False(s.Estado.Estacao.CompartilhamentoAcessivel);
+        Assert.False(s.Avaliar().Criterios.Single(c => c.Id == "F8").Atendido);
+    }
+
+    [Fact]
+    public void ComandoForaDaLista_EmDominio_GeraComandoNaoSuportado()
+    {
+        var s = Nova("DOMINIO_SUSPENSO");
+        var antes = JsonSerializer.Serialize(s.Estado.Estacao);
+        s.Comando($"curl -i {UrlStatus}");
+        Assert.Single(s.De("ComandoNaoSuportado"));
+        Assert.Empty(s.De("EvidenciaExternaConfirmada"));
+        Assert.Equal(antes, JsonSerializer.Serialize(s.Estado.Estacao));
     }
 }

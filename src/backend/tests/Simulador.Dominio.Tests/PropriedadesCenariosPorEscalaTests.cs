@@ -383,4 +383,61 @@ public class PropriedadesCenariosPorEscalaTests
         Assert.Single(obtido.EstacaoInicial.Servicos);
         Assert.Equal("AuroraGateway", obtido.EstacaoInicial.Servicos[0].Nome);
     }
+
+    // Feature: cenarios-por-escala, Property 1: Reconstrucao equivalente (DOMINIO_SUSPENSO)
+    // Validates: Requirements 15.2, 15.3
+    [Theory]
+    [MemberData(nameof(Sementes50))]
+    public void Propriedade1_ReconstrucaoEquivalente_DominioSuspenso(long semente)
+    {
+        var s = SessaoDeTeste.Iniciar(CenarioIncidente, Versao, "DOMINIO_SUSPENSO", semente);
+        IncidenteExternoTests.FluxoCorretoDominio(s);
+        s.Aplicar("dialogo.pedir_pista");
+        AssertReconstrucaoIgual(s);
+    }
+
+    public static IEnumerable<object[]> CausasExternasESementes50() =>
+        new[] { "EMAIL_PROVEDOR", "DOMINIO_SUSPENSO" }.SelectMany(c => Sementes(50, 0xC0FFEEUL).Select(s => new object[] { c, s }));
+
+    // Feature: cenarios-por-escala, Property 7: Pistas e respostas nao vazam a Causa (incidente-massivo, Causas externas)
+    // Validates: Requirements 14.3, 15.6
+    [Theory]
+    [MemberData(nameof(CausasExternasESementes50))]
+    public async Task Propriedade7_PistasERespostasDeIncidenteExterno_NaoVazamACausa(string causa, long semente)
+    {
+        var s = SessaoDeTeste.Iniciar(CenarioIncidente, Versao, causa, semente);
+        for (var i = 0; i < 3; i++) s.Aplicar("dialogo.pedir_pista");
+        var textos = s.De("PistaSolicitada").Select(e => e.Dados["texto"]!.ToString()!).ToList();
+
+        var dialogo = new FallbackRoteirizadoDialogo();
+        string[] perguntas = ["Qual o problema?", "O que devo fazer?", "Como diagnosticar?", "Qual a causa?", "Quem devo acionar?"];
+        foreach (var persona in new[] { "cliente", "techlead" })
+            foreach (var pergunta in perguntas)
+                textos.Add((await dialogo.ResponderAsync(s.Estado, persona, pergunta)).Mensagem);
+
+        Assert.Equal(3 + 2 * perguntas.Length, textos.Count);
+        Assert.All(textos, t =>
+        {
+            Assert.DoesNotContain("EMAIL_PROVEDOR", t, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("DOMINIO_SUSPENSO", t, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("PATCH_MASSIVO", t, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("clientHold", t, StringComparison.OrdinalIgnoreCase);
+        });
+    }
+
+    // Feature: cenarios-por-escala, Property 9: Criterios do Juiz_360 deterministicos (incidente-massivo, Causas externas)
+    // Validates: Requirements 10.5, 15.3, 17.3
+    [Theory]
+    [MemberData(nameof(CausasExternasESementes50))]
+    public void Propriedade9_Juiz360DeIncidenteExterno_EDeterministicoETodoLinkKbExisteNoCatalogo(string causa, long semente)
+    {
+        var s = SessaoDeTeste.Iniciar(CenarioIncidente, Versao, causa, semente);
+        if (causa == "EMAIL_PROVEDOR") IncidenteExternoTests.FluxoCorretoEmail(s); else IncidenteExternoTests.FluxoCorretoDominio(s);
+        var a = s.Avaliar();
+        var b = s.Avaliar();
+        Assert.Equal(JsonSerializer.Serialize(a), JsonSerializer.Serialize(b));
+        Assert.Equal(a.CurriculoVivo.HashAuditoriaSha256, b.CurriculoVivo.HashAuditoriaSha256);
+        Assert.Equal(9, a.Criterios.Count);
+        Assert.All(a.Criterios, c => Assert.Contains(c.LinkKb!, Simulador.Avaliacao.KbCatalogo.UriParaId.Keys));
+    }
 }
