@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import type { ReplayResponse } from '../api/types'
-import { nomeDaEscalaDaMissao } from '../jornada/catalogos/catalogoRotas'
+import { nomeDoNivelDaMissao } from '../jornada/catalogos/catalogoRotas'
 import { TEXTOS_WORKSTATION } from '../textos/workstation'
 import { Icone } from '../ui/Icone'
 import { CredentialCard } from './CredentialCard'
@@ -128,7 +128,7 @@ export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetorno
 
       {curriculo && (
         <div className="replay-selo">
-          <CredentialCard curriculo={curriculo} nivel={nomeDaEscalaDaMissao(meta.cenarioId) ?? meta.nivel} />
+          <CredentialCard curriculo={curriculo} nivel={nomeDoNivelDaMissao(meta.cenarioId) ?? meta.nivel} />
         </div>
       )}
       </div>

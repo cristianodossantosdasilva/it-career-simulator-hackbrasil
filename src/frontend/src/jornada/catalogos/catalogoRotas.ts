@@ -248,9 +248,8 @@ export function ehIdMissao(valor: string): valor is IdMissao {
   return escalaDaMissao(valor) !== null
 }
 
-/** Escala e Vertente da Missão para exibição, por exemplo `N3 Sênior, N3-A Redes e Nuvem`. Nulo se a Missão não existe. */
-export function nomeDaEscalaDaMissao(missao: string): string | null {
+/** Nome do nível de estudo da Missão: a Vertente na N3 Sênior, senão a escala. Nulo se a Missão não existe. */
+export function nomeDoNivelDaMissao(missao: string): string | null {
   const local = escalaDaMissao(missao)
-  if (!local) return null
-  return [local.escala.nome, local.vertente?.nome].filter(Boolean).join(', ')
+  return local ? (local.vertente?.nome ?? local.escala.nome) : null
 }

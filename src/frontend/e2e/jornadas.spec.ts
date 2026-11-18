@@ -171,7 +171,7 @@ test.describe('IT Flight Simulator: jornadas E2E', () => {
     // O Brevê não consulta o servidor sozinho: o resumo da carreira se atualiza pelo botão da Credencial.
     await menu(page).getByRole('link', { name: 'Brevê' }).click()
     await page.getByRole('button', { name: 'Atualizar resumo' }).click()
-    await expect(page.getByText('N2 OK')).toBeVisible()
+    await expect(page.getByText('Pasta de Rede Inacessível (Simulador de Causas) OK')).toBeVisible()
     const downloadPromise = page.waitForEvent('download')
     await page.getByRole('button', { name: /Exportar Curr[ií]culo Vivo \(JSON\)/i }).click()
     const download = await downloadPromise
@@ -409,6 +409,32 @@ test.describe('IT Flight Simulator: jornadas E2E', () => {
     await mensagem.fill('Quando começou a lentidão?')
     await page.keyboard.press('Enter')
     await expect(page.getByRole('log', { name: 'Mensagens da conversa' })).toContainText('Quando começou a lentidão?')
+  })
+  test('Aulas 1: a primeira aula leva a Cabine de reset-senha-desbloqueio sem aviso de bloqueio', async ({ page }) => {
+    await semear(page, { [CHAVE_CARTAO_EMBARQUE]: CARTAO })
+    await page.goto('/aulas')
+    await expect(page.getByRole('heading', { level: 1, name: 'Aulas' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Help Desk N1' })).toHaveAttribute('aria-current', 'page')
+    await expect(page.getByRole('heading', { level: 2, name: 'O que faz o Suporte de TI (e o que é um chamado)' })).toBeVisible()
+    await page.getByRole('button', { name: /mostrar alternativas/i }).click()
+    await page.getByRole('button', { name: /^B\)/ }).click()
+    await page.getByRole('button', { name: /^Bom/ }).click()
+    await page.getByRole('button', { name: 'Praticar agora' }).click()
+    await expect(page).toHaveURL(/\/cabine\/reset-senha-desbloqueio/)
+    await expect(page.getByRole('heading', { level: 1, name: 'Cabine' })).toBeVisible()
+    await expect(page.getByRole('navigation', { name: 'Aplicativos da Cabine' })).toBeVisible()
+    await expect(page.getByText(/ainda não está liberada/)).toHaveCount(0)
+    await expect(page.locator('.dado-contexto').filter({ hasText: 'Nível Help Desk N1' })).toBeVisible()
+  })
+
+  test('Aulas 2: com a escala bloqueada, Praticar mostra o estado e leva ao Plano de voo, nunca a Cabine', async ({ page }) => {
+    await semear(page, { [CHAVE_CARTAO_EMBARQUE]: CARTAO })
+    await page.goto('/aulas?nivel=n2-pleno')
+    await expect(page.getByText(/A escala N2 Pleno ainda não está liberada/)).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Praticar no laboratório' })).toHaveCount(0)
+    await page.getByRole('button', { name: 'Ver o Plano de voo' }).click()
+    await expect(page).toHaveURL(/\/plano-de-voo$/)
+    await expect(page.getByRole('heading', { level: 1, name: 'Plano de voo' })).toBeVisible()
   })
   test('Reset 1: reset-senha-desbloqueio (pedido direto, senha esquecida) abre o console sem ID nem PIN e conclui pela menor ação', async ({ page }) => {
     await embarcar(page, 'reset-senha-desbloqueio', { semente: 2, causa: 'SENHA_ESQUECIDA' })
