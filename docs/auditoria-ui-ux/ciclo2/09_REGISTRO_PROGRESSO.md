@@ -25,7 +25,7 @@ Observação sobre a decisão 1 a 5: o usuário respondeu "aprovado" ao plano fi
 | E6 | sim2-implementador | concluída (2 commits locais, sem push) | ver Registro, E6 |
 | E6b | sim2-implementador | concluída (1 commit local, sem push) | ver Registro, E6b |
 | E7 | sim2-validador | aprovada na rodada 2 (rodada 1 reprovada por 2 alvos de 44 px, corrigidos na E6b; sem regressão) | ver Registro, E7, rodada 2 |
-| E8 | sim2-fechamento | pendente | |
+| E8 | sim2-fechamento | concluída (main em 19bbb18, publicada, CI verde, Vercel success) | ver Registro, E8 |
 
 ## Registro
 
@@ -217,3 +217,13 @@ Aulas (desktop-1440__corporate__aulas.png e desktop-1440__tactical__aulas.png) e
 - Achados: P2, inspeção visual dos PNG depois da E6 e da E6b não feita (pedido proíbe abrir os PNG); P2, elementos não calculáveis +3 por viewport frente à linha de base (informativo, causa não verificada); P3, textos sem acento vindos do backend, sem reverificação nesta rodada.
 - Veredito: aprovado. Pendências não bloqueantes: zoom de 200 por cento, leitor de tela e inspeção visual dos PNG.
 - Próxima ação: aceite do usuário para seguir à E8 (fechamento). A E8 só começa com esse aceite.
+
+### E8, fechamento (2026-11-16)
+
+- Git: dois commits de fechamento na branch ux-ciclo-2, cada um com confirmação textual do usuário e sem trailer de coautoria. 9cde7ae "docs(ciclo2): relatorio de validacao, registro e handoff" (09, 11 e 12). 19bbb18 "chore(docs): remover json da linha de base do versionamento" (git rm --cached do 10_linha_de_base.json, 1,7 MB, e uma linha de nota no 10_LINHA_DE_BASE.md; o JSON segue no histórico em 2d29ef6 e a cópia local ficou como arquivo não rastreado). Preflight: git fetch sem mudança, main e origin/main em a88988c, relação 0 e 0. Varredura do diff (3.835 linhas adicionadas, mais os três documentos e o JSON) pelo caractere E comercial montado por [char]38 e pelas formas passadas de sair: zero. Sem segredos, test-results, node_modules nem temporários no diff.
+- Integração: git switch main e git merge --ff-only ux-ciclo-2, avanço rápido de a88988c para 19bbb18 (13 commits, 29 arquivos no diff de código e documentos). Push sem força: git push origin main, a88988c..19bbb18, depois git fetch com main e origin/main iguais (0 e 0).
+- CI: GitHub Actions run 43885281331 concluído com sucesso, jobs Backend (.NET 10 e PostgreSQL 17) e Frontend (React 19, Vitest e Oxlint) verdes. Vercel: status do commit 19bbb18 em success (Deployment has completed), pela API de status do commit.
+- Itens alheios: README.md, docs/rfc/PROJETO_SIMULADOR_CARREIRA_TI_DISCUSSAO_IAS.md, docs/rfc/PROMPT_ORQUESTRACAO_CONSULTOR_VOCACIONAL.md e docs/consultor-vocacional/ nunca entraram em stage nem em commit e continuam como alterações locais.
+- Esta linha de registro e a mudança da tabela de etapas ficam como alteração local, sem commit, para não mexer na main além do que o pedido autorizou. Entram no próximo commit de documentação, se o usuário quiser.
+- Pendências do usuário, não bloqueantes: conferir https://it-flight-simulator-hackbrasil.vercel.app em 375 px e 1440 px nos temas tactical e corporate; zoom em 200 por cento; leitor de tela; inspeção visual dos PNG de depois da E6 e da E6b (80 PNG em src/frontend/test-results/visual, ignorados pelo Git). Fora do ciclo: atualizar a URL no painel do Hack Brasil 2026 e gravar o vídeo de até 3 minutos antes de 30/nov/2026.
+- Próxima ação: conferência manual na Vercel. DevLedger registrado em seguida (checkpoint, handoff e estado).
