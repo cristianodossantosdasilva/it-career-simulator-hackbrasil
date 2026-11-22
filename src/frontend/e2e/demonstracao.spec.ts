@@ -88,7 +88,7 @@ test.afterEach(() => {
 test.describe('Modo de demonstração', () => {
   test('atalho sem cartão: check-in rápido, Cabine, modo ativo e uma única sessão', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: 'Experimentar um voo agora' }).click()
+    await page.getByRole('button', { name: 'Atender meu primeiro chamado' }).click()
     await expect(page).toHaveURL(/\/check-in\?modo=rapido$/)
     await expect(page.getByRole('heading', { level: 2, name: 'Check-in rápido' })).toBeVisible()
     for (const pergunta of ROTEIRO_CHECKIN.perguntas) {
@@ -112,7 +112,7 @@ test.describe('Modo de demonstração', () => {
   test('atalho com cartão: Cabine direta, cartão intacto e voltar leva ao Início', async ({ page }) => {
     await semear(page, { [CHAVE_CARTAO_EMBARQUE]: CARTAO })
     await page.goto('/')
-    await page.getByRole('button', { name: 'Experimentar um voo agora' }).click()
+    await page.getByRole('button', { name: 'Atender meu primeiro chamado' }).click()
     await expect(page).toHaveURL(/\/cabine\/pasta-rede-inacessivel$/)
     expect(await lerChave(page, CHAVE_CARTAO_EMBARQUE)).toBe(CARTAO)
     expect(JSON.parse((await lerChave(page, CHAVE_MODO_DEMONSTRACAO)) ?? 'null')).toMatchObject({ ativo: true })

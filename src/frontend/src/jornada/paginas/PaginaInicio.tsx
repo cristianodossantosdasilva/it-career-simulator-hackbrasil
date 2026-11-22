@@ -18,9 +18,9 @@ export function PaginaInicio() {
         <p className="h2">{TEXTOS_HOME.titulo}</p>
         <p className="pagina-jornada-texto">{TEXTOS_HOME.lead}</p>
         <p className="muted">{TEXTOS_HOME.contexto}</p>
-        <div className="acoes-linha">
-          {cartao ? (
-            <>
+        {cartao ? (
+          <>
+            <div className="acoes-linha">
               <LinkInterno href="/plano-de-voo" className="btn btn-primary btn-lg">
                 <Icone nome="plano-de-voo" tamanho={20} />
                 <span>Ir para o Plano de voo</span>
@@ -29,15 +29,20 @@ export function PaginaInicio() {
                 <Icone nome="check-in" tamanho={20} />
                 <span>Refazer o check-in</span>
               </LinkInterno>
-            </>
-          ) : (
-            <LinkInterno href="/check-in" className="btn btn-primary btn-lg">
-              <Icone nome="check-in" tamanho={20} />
-              <span>Fazer o check-in</span>
-            </LinkInterno>
-          )}
-        </div>
-        <BotaoExperimentar />
+            </div>
+            <BotaoExperimentar />
+          </>
+        ) : (
+          <>
+            <BotaoExperimentar destaque />
+            <div className="acoes-linha">
+              <LinkInterno href="/check-in" className="btn btn-secondary btn-lg">
+                <Icone nome="check-in" tamanho={20} />
+                <span>Fazer o check-in completo</span>
+              </LinkInterno>
+            </div>
+          </>
+        )}
       </header>
 
       <section className="secao-jornada" aria-labelledby="inicio-passos">

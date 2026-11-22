@@ -316,7 +316,7 @@ test.describe('Regras de layout e acessibilidade', () => {
     await abrir(page, '/plano-de-voo', 'Plano de voo')
     await conferirAlvoEFoco(page, page.getByRole('switch', { name: NOME_CONTROLE }), 'interruptor do modo')
     await abrir(page, '/', 'Início')
-    await conferirAlvoEFoco(page, page.getByRole('button', { name: 'Experimentar um voo agora' }), 'atalho Experimentar')
+    await conferirAlvoEFoco(page, page.getByRole('button', { name: 'Atender meu primeiro chamado' }), 'atalho Experimentar')
   })
 
   test('zoom de 200 por cento (viewport 640 por 450 px): sem rolagem horizontal, sem corte e sem perda de função, nos quatro temas', async ({ browser }, testInfo) => {

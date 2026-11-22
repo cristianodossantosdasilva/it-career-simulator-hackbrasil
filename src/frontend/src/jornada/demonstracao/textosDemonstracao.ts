@@ -14,7 +14,7 @@ export const ROTULO_CONTROLE_MODO = 'Liberar todas as escalas para demonstraçã
 export const ESTADO_MODO_ATIVADO = 'Ativado'
 export const ESTADO_MODO_DESATIVADO = 'Desativado'
 export const EXPLICACAO_MODO =
-  'Atalho de avaliação para a banca do Hack Brasil 2026. Libera o embarque em todas as escalas. A liberação não conta como voo concluído e não muda a avaliação do Juiz 360º.'
+  'Atalho para conhecer todas as escalas. Libera o embarque em todas elas. A liberação não conta como voo concluído e não muda a avaliação do Juiz 360º.'
 
 export const TEXTO_SELO_DEMONSTRACAO = 'Liberada para demonstração'
 
@@ -23,9 +23,9 @@ export function textoLiberadaSoParaDemonstracao(escalaAnterior: string): string 
   return `Liberada só para demonstração. Conclua ${escalaAnterior} para liberar pelos voos.`
 }
 
-export const ROTULO_ATALHO_EXPERIMENTAR = 'Experimentar um voo agora'
+export const ROTULO_ATALHO_EXPERIMENTAR = 'Atender meu primeiro chamado'
 export const APOIO_ATALHO_EXPERIMENTAR =
-  'Atalho para a banca: check-in rápido com respostas padrão e um voo na escala Service Desk N1 Jr, com todas as escalas liberadas. Não conta como voo concluído.'
+  'Leva ao check-in rápido, com respostas padrão, e depois ao seu primeiro chamado de suporte. Não conta como voo concluído.'
 
 export const TITULO_CHECKIN_RAPIDO = 'Check-in rápido'
 export const ROTULO_CONFIRMAR_CHECKIN_RAPIDO = 'Confirmar e embarcar'

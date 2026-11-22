@@ -8,14 +8,14 @@ import { APOIO_ATALHO_EXPERIMENTAR, ROTULO_ATALHO_EXPERIMENTAR } from './textosD
  * Atalho_Experimentar da Página Início. É botão e não link porque, com cartão, a ação também ativa o
  * modo. Sem cartão, leva ao Check-in_Rápido. Nunca troca o cartão.
  */
-export function BotaoExperimentar() {
+export function BotaoExperimentar({ destaque = false }: { destaque?: boolean }) {
   const armazenamento = useArmazenamentoJornada()
   const idApoio = useId()
   return (
     <div className="atalho-experimentar">
       <button
         type="button"
-        className="btn btn-secondary btn-lg"
+        className={destaque ? 'btn btn-primary btn-lg' : 'btn btn-secondary btn-lg'}
         aria-describedby={idApoio}
         onClick={() => executarPlanoDemonstracao(planejarAtalho(armazenamento.cartao), armazenamento)}
       >

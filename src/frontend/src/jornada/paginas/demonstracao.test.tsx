@@ -73,7 +73,7 @@ describe('Plano de voo: controle do modo de demonstração', () => {
     const controle = screen.getByRole('switch', { name: NOME_CONTROLE })
     expect(controle).toHaveAttribute('aria-checked', 'false')
     expect(controle).toHaveTextContent('Desativado')
-    expect(controle).toHaveAccessibleDescription(/Atalho de avaliação para a banca do Hack Brasil 2026/)
+    expect(controle).toHaveAccessibleDescription(/Atalho para conhecer todas as escalas/)
     expect(controle).toHaveAccessibleDescription(/não conta como voo concluído/)
     expect(screen.getByRole('heading', { level: 2, name: 'Modo de demonstração' })).toBeInTheDocument()
     expect(screen.queryByText('Liberada para demonstração')).not.toBeInTheDocument()
@@ -160,8 +160,8 @@ describe('Plano de voo: controle do modo de demonstração', () => {
 describe('Início: Atalho_Experimentar', () => {
   it('sem cartão leva ao Check-in_Rápido sem gravar cartão nem modo', () => {
     abrirApp('/')
-    const atalho = screen.getByRole('button', { name: 'Experimentar um voo agora' })
-    expect(atalho).toHaveAccessibleDescription(/Atalho para a banca/)
+    const atalho = screen.getByRole('button', { name: 'Atender meu primeiro chamado' })
+    expect(atalho).toHaveAccessibleDescription(/check-in rápido, com respostas padrão/)
     fireEvent.click(atalho)
     expect(enderecoAtual()).toBe('/check-in?modo=rapido')
     expect(screen.getByRole('heading', { level: 2, name: 'Check-in rápido' })).toBeInTheDocument()
@@ -172,7 +172,7 @@ describe('Início: Atalho_Experimentar', () => {
   it('com cartão ativa o modo, abre a Cabine e deixa o cartão exatamente como estava', async () => {
     const chamadas = simularApi({ missao: 'pasta-rede-inacessivel' })
     abrirApp('/', { [CHAVE_CARTAO_EMBARQUE]: CARTAO })
-    fireEvent.click(screen.getByRole('button', { name: 'Experimentar um voo agora' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Atender meu primeiro chamado' }))
     expect(enderecoAtual()).toBe('/cabine/pasta-rede-inacessivel')
     await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
     expect(window.localStorage.getItem(CHAVE_CARTAO_EMBARQUE)).toBe(CARTAO)
@@ -198,7 +198,7 @@ describe('Check-in_Rápido', () => {
   it('Confirmar e embarcar grava o cartão rápido, ativa o modo e termina na Cabine sem passar pelo portão', async () => {
     const chamadas = simularApi({ missao: 'pasta-rede-inacessivel' })
     abrirApp('/')
-    fireEvent.click(screen.getByRole('button', { name: 'Experimentar um voo agora' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Atender meu primeiro chamado' }))
     const enderecos: string[] = []
     for (const metodo of ['pushState', 'replaceState'] as const) {
       const original = window.history[metodo].bind(window.history)
@@ -227,7 +227,7 @@ describe('Check-in_Rápido', () => {
     abrirApp('/check-in?modo=rapido', { [CHAVE_CARTAO_EMBARQUE]: CARTAO })
     expect(screen.getByText(/Você já tem cartão de embarque\. Para experimentar um voo sem trocar o cartão/)).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Confirmar e embarcar' })).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Experimentar um voo agora' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Atender meu primeiro chamado' }))
     expect(enderecoAtual()).toBe('/cabine/pasta-rede-inacessivel')
     await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
     expect(window.localStorage.getItem(CHAVE_CARTAO_EMBARQUE)).toBe(CARTAO)
