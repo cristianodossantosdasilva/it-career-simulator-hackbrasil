@@ -154,8 +154,18 @@ export function TurnoDaCabine() {
                 'simudesk',
                 'remoto',
                 'SimuDesk Remoto',
-                <span className={`dock-contagem ${sessao.dialogo.acessoRemotoLiberado || semAcessoRemoto(cenarioDaSessao) ? 'ok' : ''}`}>
+                <span
+                  className={`dock-contagem ${sessao.dialogo.acessoRemotoLiberado || semAcessoRemoto(cenarioDaSessao) ? 'ok' : ''}`}
+                  title={
+                    !semAcessoRemoto(cenarioDaSessao) && !sessao.dialogo.acessoRemotoLiberado
+                      ? 'Libera depois de validar a identidade do usuário no Comunicador'
+                      : undefined
+                  }
+                >
                   {semAcessoRemoto(cenarioDaSessao) ? 'Console' : sessao.dialogo.acessoRemotoLiberado ? 'Liberado' : 'Bloqueado'}
+                  {!semAcessoRemoto(cenarioDaSessao) && !sessao.dialogo.acessoRemotoLiberado && (
+                    <span className="sr-only">: libera depois de validar a identidade do usuário no Comunicador</span>
+                  )}
                 </span>,
               )}
               {botaoDaFerramenta('kb', 'base', 'Intranet / KB')}

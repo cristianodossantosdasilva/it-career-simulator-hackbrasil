@@ -21,12 +21,6 @@ export function DadosDaSessao() {
         <span className="dado-mono">{sessao.meta.minutoSimulado} min</span>
         <span className="sr-only">de tempo simulado</span>
       </span>
-      <span className="dado-contexto hide-sm">
-        <span className="dado-contexto-rotulo">Semente</span> <span className="dado-mono">{sessao.meta.semente}</span>
-      </span>
-      <span className="dado-contexto hide-sm">
-        <span className="dado-contexto-rotulo">Seq</span> <span className="dado-mono">{sessao.ultimoSeq}</span>
-      </span>
       <button
         type="button"
         className="botao-contexto"
