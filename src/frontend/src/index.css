@@ -26,7 +26,7 @@
   --touch-target: 44px;
 
   /* Estrutura do shell */
-  --rail-width: 88px;
+  --rail-width: 56px;
   --context-bar-height: 44px;
   --bottom-bar-height: 56px;
   --z-shell: 40;
@@ -852,8 +852,10 @@ a.nav-item { display: inline-flex; align-items: center; justify-content: center;
 }
 
 
-/* Desktop: o rótulo de cada destino fica sempre visível abaixo do ícone, sem depender de hover. */
-@media (min-width: 768px) {
+/* Desktop largo: o rótulo de cada destino fica sempre visível abaixo do ícone, sem depender de hover.
+   A partir de 1024 px, para a Cabine não estourar a largura em tablet (768 px), onde o menu segue só com ícones. */
+@media (min-width: 1024px) {
+  :root { --rail-width: 88px; }
   .nav-principal-lista { padding: 0 var(--space-1); }
   .nav-principal-lista > li { width: 100%; }
   .nav-item {

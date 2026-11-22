@@ -163,9 +163,6 @@ export function TurnoDaCabine() {
                   }
                 >
                   {semAcessoRemoto(cenarioDaSessao) ? 'Console' : sessao.dialogo.acessoRemotoLiberado ? 'Liberado' : 'Bloqueado'}
-                  {!semAcessoRemoto(cenarioDaSessao) && !sessao.dialogo.acessoRemotoLiberado && (
-                    <span className="sr-only">: libera depois de validar a identidade do usuário no Comunicador</span>
-                  )}
                 </span>,
               )}
               {botaoDaFerramenta('kb', 'base', 'Intranet / KB')}
