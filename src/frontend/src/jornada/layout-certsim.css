@@ -23,3 +23,4 @@
 .lista-revisao-criterios{display:grid;gap:var(--space-2);margin:0;padding:0;list-style:none}
 .revisao-criterio-resumo{min-height:var(--touch-target);display:flex;align-items:center;gap:var(--space-3);padding:0 var(--space-4);background:var(--bg-elevated);border-radius:var(--radius-md);cursor:pointer}
 .revisao-criterio-corpo{padding:var(--space-3) var(--space-4);color:var(--text-secondary)}
+.cartao-modo-missao-ativo .muted,.chip-dominio-ativo .muted{color:var(--accent-text)}

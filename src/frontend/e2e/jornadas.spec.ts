@@ -210,10 +210,10 @@ test.describe('IT Career Simulator: jornadas E2E', () => {
   test('Feliz 3: N2 Pleno (incidente massivo) cria Problema, restaura AuroraGateway e resolve em lote', async ({ page }) => {
     await iniciarMissao(page, 'incidente-massivo', { modo: true, causa: 'GATEWAY' })
     for (const id of ['CH-0001', 'CH-0002', 'CH-0003']) {
-      await page.getByRole('button', { name: new RegExp(`^${id}\\b`) }).click()
+      await page.locator('button.ticket-item', { hasText: id }).click()
       await page.getByRole('button', { name: T.itsm.salvarClassificacao }).click()
     }
-    await page.getByRole('button', { name: /^CH-0001\b/ }).click()
+    await page.locator('button.ticket-item', { hasText: 'CH-0001' }).click()
     await page.getByRole('button', { name: T.itsm.assumirChamado }).click()
     await page.getByRole('button', { name: T.itsm.criarProblema }).click()
     await page.getByRole('button', { name: 'Vincular CH-0001' }).click()

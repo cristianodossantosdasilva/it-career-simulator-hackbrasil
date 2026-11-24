@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { Icone } from '../../ui/Icone'
 import { SlaMeter } from '../../ui/SlaMeter'
 import { textosDaMissao } from '../componentes/textosDaMissao'
@@ -23,6 +24,12 @@ const NOTA_DO_MODO: Record<ModoMesa, string> = {
 /** Cabeçalho da Mesa de Trabalho: "Chamado X de N", barra de progresso, SLA, modo e Sair com progresso salvo. */
 export function CabecalhoDaMesa({ missao, modo, aoMudarModo, focoId }: Props) {
   const { sessao } = useMissao()
+  const titulo = useRef<HTMLHeadingElement>(null)
+  const temSessao = Boolean(sessao)
+  // O h1 da página de espera é substituído por este: devolve o foco ao título novo se ele ficou no corpo da página.
+  useEffect(() => {
+    if (temSessao && (!document.activeElement || document.activeElement === document.body)) titulo.current?.focus()
+  }, [temSessao])
   if (!sessao) return null
   const total = sessao.chamados.length
   const emFoco = chamadoEmFoco(sessao.chamados, focoId)
@@ -32,7 +39,7 @@ export function CabecalhoDaMesa({ missao, modo, aoMudarModo, focoId }: Props) {
   return (
     <header className="mesa-titulo">
       <div className="mesa-titulo-linha">
-        <h1>{NOME_PAGINA['mesa-de-trabalho']}</h1>
+        <h1 ref={titulo} tabIndex={-1}>{NOME_PAGINA['mesa-de-trabalho']}</h1>
         <span className="dado-contexto">{textosDaMissao(missao).titulo}</span>
         <DadosDaSessao />
       </div>
