@@ -17,11 +17,11 @@ Requisito do regulamento Hack Brasil 2026: aplicação acessível publicamente p
    - Criar projeto gratuito em [neon.tech](https://neon.tech).
    - Copiar a *Connection String* (`postgresql://...sslmode=require`). O backend normaliza o formato URI automaticamente em `PostgresEventStore`.
 2. **Render Free (Backend `.NET 10` via `render.yaml`):**
-   - Serviço ativo: `it-flight-simulator-api` conectado via [render.yaml](../render.yaml) (plano `free`, `runtime: docker`, health check `/health/live`). *(O serviço paralelo `vitru-agent-gateway` foi preventivamente suspenso na Render com backup versionado para concentrar 100% das horas gratuitas no backend da avaliação).*
-   - Configurar `ConnectionStrings__Postgres` com a URL do Neon e `Cors__AllowedOrigins` com o domínio oficial do frontend: `https://it-flight-simulator-hackbrasil.vercel.app`.
+   - Serviço ativo: `it-career-simulator-api` conectado via [render.yaml](../render.yaml) (plano `free`, `runtime: docker`, health check `/health/live`). *(O serviço paralelo `vitru-agent-gateway` foi preventivamente suspenso na Render com backup versionado para concentrar 100% das horas gratuitas no backend da avaliação).*
+   - Configurar `ConnectionStrings__Postgres` com a URL do Neon e `Cors__AllowedOrigins` com o domínio oficial do frontend: `https://it-career-simulator-hackbrasil.vercel.app`.
 3. **Vercel Free (Frontend React/Vite):**
    - Importar o diretório `src/frontend` no Vercel (utiliza [vercel.json](../src/frontend/vercel.json) para headers de segurança HTTP e fallback SPA).
-   - URL pública oficial de submissão: `https://it-flight-simulator-hackbrasil.vercel.app` (com `VITE_API_BASE_URL` apontando para a URL pública do backend no Render).
+   - URL pública oficial de submissão: `https://it-career-simulator-hackbrasil.vercel.app` (com `VITE_API_BASE_URL` apontando para a URL pública do backend no Render).
 
 ### Armazenamento das sessões
 - Cada ação do participante vira um evento imutável no **Event Store em PostgreSQL** (Neon no passo a passo acima). A sessão expira **30 dias** depois, conforme Sessao__TtlDias em [render.yaml](../render.yaml). O que fica só no navegador é o Cartão de Perfil, os Registros de Missão, o progresso de estudo e o modo de demonstração, em localStorage.
@@ -78,7 +78,7 @@ Os antigos "Nível 1" a "Nível 4b" aparecem como etapas: **Help Desk N1**, **Se
   - No Portfólio, só as missões concluídas, agrupadas por etapa, e o **Verificador offline** do Currículo Vivo (JCS RFC 8785, SHA-256 e ECDSA P-256 no navegador, sem rede), incluindo a detecção de JSON adulterado.
 - **2:30 – 2:50 | Arquitetura, testes e encerramento**
   - Motor determinístico com Event Sourcing em `.NET 10` e `PostgreSQL 17`, frontend em `React 19` e `TypeScript`, modo de demonstração só no navegador e sem efeito na avaliação.
-  - Contagem de testes lida do CI no dia da gravação (ver a medição abaixo) e links do repositório e da demo pública (`https://it-flight-simulator-hackbrasil.vercel.app`).
+  - Contagem de testes lida do CI no dia da gravação (ver a medição abaixo) e links do repositório e da demo pública (`https://it-career-simulator-hackbrasil.vercel.app`).
   - Destacar o custo zero em IA externa (`Dialogo:HabilitarLlm=false`).
 
 ### Caminho curto para a banca

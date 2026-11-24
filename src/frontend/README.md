@@ -1,4 +1,4 @@
-# Frontend do IT Flight Simulator
+# Frontend do IT Career Simulator
 
 Interface web do simulador. Ela mostra o estado e envia as ações do participante à API. Quem decide estado, comandos simulados, SLA e avaliação é o motor determinístico do backend.
 

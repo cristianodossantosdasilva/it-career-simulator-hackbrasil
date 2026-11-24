@@ -166,7 +166,7 @@ O cartão da missão no Plano de Carreira mostra `titulo` e `desc` do nível de 
 ### Decisão 3: publicação
 
 - `src/frontend/vercel.json` na `main` já tem `rewrites: [{ source: "/(.*)", destination: "/index.html" }]`. A Vercel verifica arquivos estáticos antes de aplicar reescritas, então `/assets/*` continua servido e qualquer outro caminho recebe o documento da aplicação. O Requirement 1.5 já está atendido sem alteração.
-- `render.yaml` descreve só o serviço `it-flight-simulator-api` (Docker, `/health/live`). Não serve o frontend. Não precisa mudar.
+- `render.yaml` descreve só o serviço `it-career-simulator-api` (Docker, `/health/live`). Não serve o frontend. Não precisa mudar.
 - No ambiente local, o servidor de desenvolvimento do Vite usa fallback de SPA por padrão (`appType` padrão), então o Playwright consegue abrir endereços profundos sem configuração extra.
 - Limitação conhecida: endereços desconhecidos respondem HTTP 200 com o documento, e a Página_404 é exibida no cliente. Isso é comportamento normal de SPA e não afeta os requisitos.
 - Persistência de sessões: o `requirements.md` e o `render.yaml` concordam. O backend publicado usa o Event Store com `EventStore__Provedor: Postgres` e `Sessao__TtlDias: "30"`, e o provedor em memória só vale em desenvolvimento local sem provedor configurado. Depois do prazo ou de um reinício local, o backend devolve 404 (`sessao_nao_encontrada`) ou 410 (`sessao_expirada`) nas linhas 222, 223, 245 e 246 de `Program.cs`. O frontend trata os dois códigos igualmente, e o Aviso_Honesto diz que a sessão "não está mais disponível no servidor", sem afirmar que o servidor reiniciou. Nada muda no backend.

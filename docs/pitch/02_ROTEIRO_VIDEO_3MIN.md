@@ -63,7 +63,7 @@ Regras de fala: frases curtas, cerca de 2,5 palavras por segundo, tom calmo. Nad
 
 - **Tela:** diagrama curto do motor e dos eventos. Contagem de testes lida do CI. Links do repositório e da demo.
 - **Fala:** "Por dentro, um motor determinístico com registro de eventos, em .NET 10 e PostgreSQL, e React no navegador. Sem custo de inteligência artificial externa. Testado e no ar, sem login. IT Career Simulator, time CVE-K."
-- **Tela final (5 s):** `https://it-flight-simulator-hackbrasil.vercel.app` e o link do repositório.
+- **Tela final (5 s):** `https://it-career-simulator-hackbrasil.vercel.app` e o link do repositório.
 
 ## Correspondência com os critérios
 

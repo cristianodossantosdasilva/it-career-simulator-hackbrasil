@@ -59,7 +59,7 @@ Sem números financeiros.
 
 ## Pedido (4:40 a 5:00)
 
-- **Fala:** "Pedimos três coisas: olhar crítico sobre a nossa avaliação, contatos de instituições de ensino interessadas em testar com uma turma, e mentoria técnica para escalar com segurança. A demo está no ar agora, em `it-flight-simulator-hackbrasil.vercel.app`. Obrigado."
+- **Fala:** "Pedimos três coisas: olhar crítico sobre a nossa avaliação, contatos de instituições de ensino interessadas em testar com uma turma, e mentoria técnica para escalar com segurança. A demo está no ar agora, em `it-career-simulator-hackbrasil.vercel.app`. Obrigado."
 - **Tela:** endereço da demo grande, sem login, e o link do repositório.
 - Terminar na hora. Não abrir novo assunto.
 

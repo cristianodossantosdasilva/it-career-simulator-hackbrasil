@@ -1,6 +1,6 @@
 # Roteiro de demonstração para a banca
 
-Caminho passo a passo na demo pública: `https://it-flight-simulator-hackbrasil.vercel.app`. Sem login. Dados 100% sintéticos (Aurora Logística, `aurora.local`).
+Caminho passo a passo na demo pública: `https://it-career-simulator-hackbrasil.vercel.app`. Sem login. Dados 100% sintéticos (Aurora Logística, `aurora.local`).
 
 
 ## Antes de começar

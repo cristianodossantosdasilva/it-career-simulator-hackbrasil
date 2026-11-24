@@ -27,7 +27,7 @@ Este é o repositório oficial do **IT Career Simulator — Simulador Prático d
 ## 5. Entregáveis Obrigatórios até 30/nov 23h59
 1. Nome, frase de apresentação, descrição do projeto e trilha (`Acesso à educação`).
 2. Link do repositório público no GitHub com documentação clara e instruções de execução.
-3. Link da **demo pública oficial funcionando no ar**: `https://it-flight-simulator-hackbrasil.vercel.app` (Vercel no frontend conectado à API `it-flight-simulator-api` no Render e PostgreSQL no Neon — sem barreira de login para a banca testar; o serviço não relacionado `vitru-agent-gateway` foi preventivamente suspenso na Render com backup versionado para preservar 100% da cota gratuita durante a avaliação).
+3. Link da **demo pública oficial funcionando no ar**: `https://it-career-simulator-hackbrasil.vercel.app` (Vercel no frontend conectado à API `it-career-simulator-api` no Render e PostgreSQL no Neon — sem barreira de login para a banca testar; o serviço não relacionado `vitru-agent-gateway` foi preventivamente suspenso na Render com backup versionado para preservar 100% da cota gratuita durante a avaliação).
 4. Link de **vídeo de até 3 minutos**, acessível sem login, demonstrando o produto em funcionamento.
 
 ## 6. Critérios de Avaliação (40 pontos — peso igual 0–10 cada; mín. 20 pts)

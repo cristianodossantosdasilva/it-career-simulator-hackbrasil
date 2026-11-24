@@ -4,7 +4,7 @@ Escola técnica digital de aprender fazendo. A pessoa pratica a rotina real de u
 
 Projeto do time **CVE-K** (Cristiano dos Santos da Silva, Enzo Modesto Nascimento dos Santos e Kauan Soares Dantas) para o **Hack Brasil 2026**, trilha **Acesso à educação**, rota **Suporte de TI**.
 
-- **Demonstração pública (sem login):** https://it-flight-simulator-hackbrasil.vercel.app
+- **Demonstração pública (sem login):** https://it-career-simulator-hackbrasil.vercel.app
 - **Licença:** proprietária, todos os direitos reservados. Veja [LICENSE](LICENSE) e a seção [Licença](#licença).
 - **Integração contínua:** [GitHub Actions](.github/workflows/ci.yml)
 

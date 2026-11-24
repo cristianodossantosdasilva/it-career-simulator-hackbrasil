@@ -3,7 +3,7 @@
 **Produto:** IT Career Simulator — Simulador Prático de Carreira em TI  
 **Time:** CVE-K (Cristiano Silva, Enzo Santos e Kauan Dantas — 3 integrantes ativos)  
 **Trilha:** Acesso à educação (Hack Brasil 2026)  
-**Demo Pública Oficial:** `https://it-flight-simulator-hackbrasil.vercel.app`  
+**Demo Pública Oficial:** `https://it-career-simulator-hackbrasil.vercel.app`  
 **Prazo de entrega:** 30/nov/2026 às 23h59 (BRT)  
 
 ---
