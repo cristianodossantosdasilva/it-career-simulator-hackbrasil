@@ -150,7 +150,7 @@ describe('Plano de Carreira: controle do modo de demonstração', () => {
   })
 
   it('cartão gerado pelo diagnóstico rápido mostra o aviso e o link para o diagnóstico completo', () => {
-    const rapido = serializarCartao({ ...CARTAO_DE_TESTE, origem: 'checkin-rapido' })
+    const rapido = serializarCartao({ ...CARTAO_DE_TESTE, origem: 'diagnostico-rapido' })
     abrirApp('/plano-de-carreira', { [CHAVE_CARTAO_PERFIL]: rapido })
     expect(screen.getByText('Cartão gerado pelo diagnóstico rápido, com respostas padrão.')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Fazer o diagnóstico completo' })).toHaveAttribute('href', '/diagnostico')
@@ -213,7 +213,7 @@ describe('Diagnóstico_Rápido', () => {
     expect(window.history.length).toBe(entradas)
     expect(enderecos.some((endereco) => endereco.includes('motivo=sem-cartao'))).toBe(false)
     const cartao = JSON.parse(window.localStorage.getItem(CHAVE_CARTAO_PERFIL) ?? 'null') as { origem: string; rotaId: string }
-    expect(cartao).toMatchObject({ origem: 'checkin-rapido', rotaId: 'suporte-ti' })
+    expect(cartao).toMatchObject({ origem: 'diagnostico-rapido', rotaId: 'suporte-ti' })
     expect(modoGravado()).toMatchObject({ ativo: true, origem: 'atalho-experimentar' })
     expect(window.localStorage.getItem(CHAVE_REGISTROS_MISSAO)).toBeNull()
     await screen.findByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })

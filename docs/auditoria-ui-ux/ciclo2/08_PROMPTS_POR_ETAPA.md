@@ -1,6 +1,6 @@
 # Ciclo 2: prompts por etapa
 
-Uma etapa por sessão. Abra o terminal na raiz D:\Projetos\Ativos\it-flight-simulator-hackbrasil e execute o comando indicado. Todos os prompts apontam para 07_PLANO_FINAL.md e registram o progresso em 09_REGISTRO_PROGRESSO.md. Participam apenas Kiro CLI, Codex e Copilot.
+Uma etapa por sessão. Abra o terminal na raiz D:\Projetos\Ativos\it-career-simulator-hackbrasil e execute o comando indicado. Todos os prompts apontam para 07_PLANO_FINAL.md e registram o progresso em 09_REGISTRO_PROGRESSO.md. Participam apenas Kiro CLI, Codex e Copilot.
 
 | Etapa | Agente | Modelo | Sessão nova | Resultado esperado |
 |---|---|---|---|---|
@@ -47,13 +47,13 @@ Execute a etapa E2 do ciclo 2 do simulador-carreira-ti. Responda em português. 
 
 Carregue economia-desenvolvimento. Confirme a branch ux-ciclo-2 e que a E1 está concluída em docs/auditoria-ui-ux/ciclo2/09_REGISTRO_PROGRESSO.md. Leia somente a seção "E2" e a seção 4 de docs/auditoria-ui-ux/ciclo2/07_PLANO_FINAL.md.
 
-Objetivo: nenhuma missão selecionada ao abrir, focus inicial coerente com o Primeiro Voo e botão Decolar com guarda real.
+Objetivo: nenhuma missão selecionada ao abrir, focus inicial coerente com o Primeiro Missão e botão Iniciar com guarda real.
 
 Arquivos permitidos: src/frontend/src/workstation/TelaInicial.tsx, src/frontend/src/workstation/TabelaMissoes.tsx, src/frontend/src/educacao/catalogoEducacional.ts, src/frontend/src/App.test.tsx e, se um seletor quebrar, src/frontend/e2e/jornadas.spec.ts.
 
 Faça:
 - TelaInicial.tsx:73: estado inicial de cenario vazio; guarda no onDecolar que não faz nada sem cenário.
-- TabelaMissoes.tsx: botão "Decolar no Simulador" com aria-disabled verdadeiro enquanto não houver seleção (não usar o atributo disabled para esse caso), texto de apoio visível "Escolha uma missão" ligado por aria-describedby; o clique e a tecla Enter não iniciam missão nesse estado.
+- TabelaMissoes.tsx: botão "Iniciar no Simulador" com aria-disabled verdadeiro enquanto não houver seleção (não usar o atributo disabled para esse caso), texto de apoio visível "Escolha uma missão" ligado por aria-describedby; o clique e a tecla Enter não iniciam missão nesse estado.
 - catalogoEducacional.ts:761: focus inicial estagiario. Não migrar quem já tem n1 salvo (carregarEstadoAcademia continua respeitando o valor salvo). Não renomear ids. Acrescente um comentário curto documentando a correspondência dos ids estagiario, n1, n2, n3, esp com Nível 1, 2, 3, 4 e 4b.
 - Testes Vitest: sem rádio marcado em estado limpo; aria-disabled e texto de apoio; clique e Enter sem chamada de início; seleção libera o início; Demo rápida inicia Nível 2 com C1; focus inicial estagiario e Aulas abre em Estagiário; carregamento com n1 salvo permanece n1.
 
@@ -98,15 +98,15 @@ Execute a etapa E4 do ciclo 2 do simulador-carreira-ti. Responda em português. 
 
 Carregue economia-desenvolvimento. Confirme a branch ux-ciclo-2 e a E3 concluída no registro. Leia somente a seção "E4" do plano final (docs/auditoria-ui-ux/ciclo2/07_PLANO_FINAL.md).
 
-Objetivo: a Missão 0 aparece logo depois do Primeiro Voo e antes da tabela de missões.
+Objetivo: a Missão 0 aparece logo depois do Primeiro Missão e antes da tabela de missões.
 
 Arquivos permitidos: src/frontend/src/workstation/TelaInicial.tsx, opcionalmente src/frontend/src/workstation/MissaoZero.tsx, src/frontend/src/index.css (só se faltar estilo, reutilizando tokens) e src/frontend/src/App.test.tsx.
 
 Faça:
-- Ordem no DOM: Primeiro Voo, Missão 0, Missões, Glossário, Transparência.
+- Ordem no DOM: Primeiro Missão, Missão 0, Missões, Glossário, Transparência.
 - Missão 0 em details: aberta quando temProgresso é falso (a mesma variável de TelaInicial.tsx, por volta das linhas 161 a 165) e recolhida quando é verdadeiro. Não persistir a escolha manual (documente isso em comentário curto).
-- Título e texto de apoio que diferenciem da seção Primeiro Voo: a Missão 0 orienta o que fazer dentro do chamado.
-- Testes: ordem dos headings, abertura conforme progresso, Tab percorre Primeiro Voo, Missão 0 e Missões nessa ordem, sem rolagem horizontal em 375 px. A altura total é só registrada, sem limite.
+- Título e texto de apoio que diferenciem da seção Primeiro Missão: a Missão 0 orienta o que fazer dentro do chamado.
+- Testes: ordem dos headings, abertura conforme progresso, Tab percorre Primeiro Missão, Missão 0 e Missões nessa ordem, sem rolagem horizontal em 375 px. A altura total é só registrada, sem limite.
 
 Verificações mínimas: App.test.tsx; npm.cmd run lint; npx.cmd playwright test e2e/visual.spec.ts -g "missoes" nos projetos desktop-1440 e mobile-375, nos dois temas (confira as portas antes). Abra no máximo os 4 PNG resultantes e cite os nomes.
 

@@ -51,7 +51,7 @@ describe('planoDemonstracao', () => {
         expect(cartao.rotaId).toBe('suporte-ti')
         expect(cartao.rotaIndicadaId).toBe(indicarRota(DIAGNOSTICO_RAPIDO.respostas).rotaId)
         expect(cartao.respostas).toEqual(DIAGNOSTICO_RAPIDO.respostas)
-        expect(cartao.origem).toBe('checkin-rapido')
+        expect(cartao.origem).toBe('diagnostico-rapido')
         expect(cartao.emitidoEm).toBe(agora.toISOString())
       },
     )

@@ -44,9 +44,9 @@ export function planejarConclusaoDiagnosticoRapido(agora: Date): PlanoDemonstrac
     versaoRoteiro: VERSAO_ROTEIRO,
     rotaIndicadaId: rotaId,
     rotaId,
-    primeiraEscalaId: rotaPorId(rotaId)?.etapas[0]?.id ?? '',
+    primeiraEtapaId: rotaPorId(rotaId)?.etapas[0]?.id ?? '',
     respostas: { ...DIAGNOSTICO_RAPIDO.respostas },
-    origem: 'checkin-rapido',
+    origem: 'diagnostico-rapido',
     emitidoEm: agora.toISOString(),
   }
   return { gravarCartao: cartao, ativarModo: true, destino: DESTINO_MISSAO_DEMONSTRACAO, substituirHistorico: true }

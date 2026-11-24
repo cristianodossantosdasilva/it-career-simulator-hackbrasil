@@ -2,7 +2,7 @@ import { type IdMissao, ehIdMissao } from '../catalogos/catalogoRotas'
 import { PADRAO_SESSAO } from '../navegacao/rotas'
 import { analisarObjetoJson, ehObjeto, gravarChave, lerChave } from './leituraSegura'
 
-export const CHAVE_MISSOES_ATIVAS = 'itfs_voos_ativos'
+export const CHAVE_MISSOES_ATIVAS = 'itfs_missoes_ativas'
 
 /** Sessão aberta por missão, para que a Mesa de Trabalho retome a missão em vez de criar outro (Requirement 7.2). */
 export interface MissoesAtivas {

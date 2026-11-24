@@ -64,8 +64,8 @@ describe('SeloStatus e GrupoVertente', () => {
 
 describe('SecaoPortfolioAnalista e CartaoPerfil', () => {
   const exigencias = [
-    { escalaId: 'help-desk-n1', rotulo: 'Ao menos uma missão em Help Desk N1', cumprida: false, aguardaPreparacao: true },
-    { escalaId: 'service-desk-n1-jr', rotulo: 'Ao menos uma missão em Service Desk N1 Jr', cumprida: true, aguardaPreparacao: false },
+    { etapaId: 'help-desk-n1', rotulo: 'Ao menos uma missão em Help Desk N1', cumprida: false, aguardaPreparacao: true },
+    { etapaId: 'service-desk-n1-jr', rotulo: 'Ao menos uma missão em Service Desk N1 Jr', cumprida: true, aguardaPreparacao: false },
   ]
 
   it('pendente: texto, exigências cumprida e pendente e o aguardo da missão em preparação', () => {

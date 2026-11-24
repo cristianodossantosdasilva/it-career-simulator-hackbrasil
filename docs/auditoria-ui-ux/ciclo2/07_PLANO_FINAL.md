@@ -10,7 +10,7 @@ Medições recalculadas por mim nesta consolidação (script temporário em TEMP
 |---|---|---|---|---|
 | P1 (rádio n1 e focus n1, estado e não CSS) | confirmado | confirmado | confirmado | Fato firme. |
 | focus persistido e n1 salvo permanece | confirmado | confirmado | confirmado | Fato firme. |
-| Aulas abre em N1, Primeiro Voo em Estagiário | confirmado | confirmado | confirmado | Fato firme. Duas fontes de verdade. |
+| Aulas abre em N1, Primeiro Missão em Estagiário | confirmado | confirmado | confirmado | Fato firme. Duas fontes de verdade. |
 | P2 ordem | confirmado | confirmado | confirmado | Fato firme. |
 | F 20% por notas semeadas | confirmado | confirmado | confirmado | Fato firme. |
 | text-muted sobre hover abaixo de 4,5 em corporate e tactical | confirmado | confirmado | confirmado | Fato firme (4,22 e 4,02). |
@@ -35,7 +35,7 @@ Medições recalculadas por mim nesta consolidação (script temporário em TEMP
 | F 20%: como corrigir | comparar com o texto semeado | prefere marcador de edição | prefere marcador ou regra por ação | Mantenho a comparação com o texto semeado, sem alterar o esquema salvo. Justificativa: texto igual ao exemplo não é progresso do aluno, então o caso "copiou o exemplo" e o caso "restaurou o exemplo" devem mesmo contar zero. Apagar a nota também conta zero (menos de 20 caracteres). Um marcador novo exigiria versão de esquema e migração, mais custo sem ganho de comportamento. Critérios de teste: limpo, semeado sem edição, editado, igual ao semeado, apagado e dado legado salvo. | Médio: uma edição mínima do exemplo conta como progresso | Médio (marcador depois exige esquema) |
 | Dividir E2 | E2 junta seleção e progresso | recomenda dividir | recomenda dividir | Aceito: seleção e focus numa etapa, progresso e rótulos T, F, P noutra. Isola regressões. | Baixo | Baixo |
 | Rótulos T 0%, F 20%, P 0% | listado nas lacunas | listado | listado | Aceito: trocar por Teoria, Fixação e Prática por extenso (igual à Credencial) na etapa de progresso, porque mexe no mesmo componente. | Baixo | Baixo |
-| Missão 0: critério de altura de 5% | proposto | contra | contra | Aceito: remover como gate. A altura vira só medida informativa. Gates: ordem DOM e de headings, abertura conforme temProgresso (a mesma variável do Primeiro Voo), foco e teclado, sem rolagem horizontal em 375 px. | Baixo | Baixo |
+| Missão 0: critério de altura de 5% | proposto | contra | contra | Aceito: remover como gate. A altura vira só medida informativa. Gates: ordem DOM e de headings, abertura conforme temProgresso (a mesma variável do Primeiro Missão), foco e teclado, sem rolagem horizontal em 375 px. | Baixo | Baixo |
 | Definição de progresso na Missão 0 | não definido | pede definição única | não citou | Aceito: usar exatamente a variável temProgresso de TelaInicial.tsx:161 a 165. | Baixo | Baixo |
 | Limiares 2,0 e 1,4 | critérios de projeto | política precisa de aprovação | concorda | Mantidos, submetidos à pergunta 5. Gate de fundos fechado na seção 4 (surface e canvas nos dois temas; elevated só informativo). | Baixo | Baixo |
 | Separar controle de texto | não separado no aceite | pede | pede | Aceito, ver seção 4. | Baixo | Baixo |
@@ -47,7 +47,7 @@ Medições recalculadas por mim nesta consolidação (script temporário em TEMP
 | Commits menores dentro da etapa | por etapa | pede | concorda | Aceito: uma etapa pode ter mais de um commit (E5: tokens, depois literais mais teste). | Baixo | Baixo |
 | dotnet build na validação | incluído | não citou | questiona | Mantido, como portão de integração: o servidor do Playwright usa dotnet run com a opção de não compilar, então o binário precisa existir. Rotulado como tal no relatório. | Baixo | Baixo |
 | Mensagens de commit sem acento | seguir histórico | prefere acentos | não citou | Mantido sem acento, para ficar coerente com o histórico (por exemplo "validacao"). Custo trivial. | Baixo | Baixo |
-| Cobertura de teclado, zoom e leitor de tela | não citado | pede | cita teclado | Parcial: gates automáticos de teclado nos fluxos tocados (Enter e Tab no botão Decolar, foco visível). Zoom e leitor de tela ficam como verificação manual não bloqueante, registrada na E7. | Baixo | Baixo |
+| Cobertura de teclado, zoom e leitor de tela | não citado | pede | cita teclado | Parcial: gates automáticos de teclado nos fluxos tocados (Enter e Tab no botão Iniciar, foco visível). Zoom e leitor de tela ficam como verificação manual não bloqueante, registrada na E7. | Baixo | Baixo |
 | Tactical sem inspeção visual | parcial | parcial | não verificável | Aceito: E1 e E6 geram e inspecionam tactical e corporate, nunca só um tema. | Baixo | Baixo |
 
 ## 3. Plano final
@@ -59,7 +59,7 @@ Convenção: cada etapa é uma sessão nova. Branch ux-ciclo-2, criada a partir 
 | E1 | Branch, grafo, higiene de captura, spec de contraste e contorno, linha de base | sim2-medicao | claude-sonnet-5.5 | nada |
 | E2 | Nenhuma missão pré-selecionada, focus inicial, botão com guarda | sim2-implementador | claude-sonnet-5.5 | E1, pergunta 1 |
 | E3 | Progresso real (notas semeadas) e rótulos Teoria, Fixação, Prática | sim2-implementador | claude-sonnet-5.5 | E2 |
-| E4 | Missão 0 depois do Primeiro Voo e antes das missões | sim2-implementador | claude-sonnet-5.5 | E3 |
+| E4 | Missão 0 depois do Primeiro Missão e antes das missões | sim2-implementador | claude-sonnet-5.5 | E3 |
 | E5 | Tokens de contorno e texto, cores literais, teste de tokens real | sim2-implementador | claude-sonnet-5.5 | E1, pergunta 5 |
 | E6 | Ajustes por tela guiados pelos PNG dos dois temas | sim2-implementador | claude-sonnet-5.5 | E4, E5 |
 | E7 | Revalidação completa e comparação com a baseline, só relata | sim2-validador | claude-haiku-5.5 | E6 |
@@ -78,7 +78,7 @@ Convenção: cada etapa é uma sessão nova. Branch ux-ciclo-2, criada a partir 
 ### E2. Seleção inicial e focus
 
 - Arquivos exatos: src/frontend/src/workstation/TelaInicial.tsx (estado cenario inicial vazio, guarda no onDecolar), src/frontend/src/workstation/TabelaMissoes.tsx (aria-disabled, texto de apoio "Escolha uma missão", id e aria-describedby), src/frontend/src/educacao/catalogoEducacional.ts (focus inicial estagiario), src/frontend/src/App.test.tsx e, se algum seletor quebrar, src/frontend/e2e/jornadas.spec.ts.
-- Aceite mensurável: em estado limpo nenhum rádio de missão fica marcado; o botão Decolar tem aria-disabled igual a true, texto de apoio visível e referenciado por aria-describedby; clique e tecla Enter com o botão nessa condição não iniciam missão (teste prova que não houve chamada de início); depois de escolher um rádio, aria-disabled some e o início funciona; Demo rápida continua iniciando Nível 2 com C1; Primeiro Voo continua iniciando Estagiário; focus inicial estagiario e a aba Aulas abre em Estagiário em estado limpo; usuário com n1 salvo continua em n1 (teste de carregamento); ids dos níveis intactos; um comentário no código documenta a tabela de ids e rótulos (estagiario, n1, n2, n3, esp contra Nível 1, 2, 3, 4, 4b).
+- Aceite mensurável: em estado limpo nenhum rádio de missão fica marcado; o botão Iniciar tem aria-disabled igual a true, texto de apoio visível e referenciado por aria-describedby; clique e tecla Enter com o botão nessa condição não iniciam missão (teste prova que não houve chamada de início); depois de escolher um rádio, aria-disabled some e o início funciona; Demo rápida continua iniciando Nível 2 com C1; Primeiro Missão continua iniciando Estagiário; focus inicial estagiario e a aba Aulas abre em Estagiário em estado limpo; usuário com n1 salvo continua em n1 (teste de carregamento); ids dos níveis intactos; um comentário no código documenta a tabela de ids e rótulos (estagiario, n1, n2, n3, esp contra Nível 1, 2, 3, 4, 4b).
 - Testes: npm.cmd test -- --run src/App.test.tsx e o arquivo de teste novo; npm.cmd run lint; playwright jornadas.spec.ts nos testes "Feliz 1" e no de 375 px, no projeto chromium e no mobile-375.
 - Riscos: seletores por role e texto; foco do teclado.
 
@@ -92,7 +92,7 @@ Convenção: cada etapa é uma sessão nova. Branch ux-ciclo-2, criada a partir 
 ### E4. Missão 0
 
 - Arquivos exatos: src/frontend/src/workstation/TelaInicial.tsx (ordem), opcional src/frontend/src/workstation/MissaoZero.tsx, src/frontend/src/index.css só se faltar estilo, testes em src/frontend/src/App.test.tsx.
-- Aceite mensurável: ordem no DOM Primeiro Voo, Missão 0, Missões, Glossário, Transparência (teste lê a ordem dos headings); sem progresso (temProgresso falso) a Missão 0 vem aberta; com progresso vem recolhida, sem persistir a escolha manual; título e texto de apoio diferenciam de "Iniciar primeiro voo" (orientação dentro do chamado); navegação por Tab percorre Primeiro Voo, Missão 0 e Missões nessa ordem; sem rolagem horizontal em 375 px. A altura total é só registrada, sem limite.
+- Aceite mensurável: ordem no DOM Primeiro Missão, Missão 0, Missões, Glossário, Transparência (teste lê a ordem dos headings); sem progresso (temProgresso falso) a Missão 0 vem aberta; com progresso vem recolhida, sem persistir a escolha manual; título e texto de apoio diferenciam de "Iniciar primeiro missão" (orientação dentro do chamado); navegação por Tab percorre Primeiro Missão, Missão 0 e Missões nessa ordem; sem rolagem horizontal em 375 px. A altura total é só registrada, sem limite.
 - Testes: App.test.tsx; lint; playwright visual.spec.ts do projeto desktop-1440 e do mobile-375, tela "missoes", nos dois temas.
 - Riscos: testes que dependem de posição; details sem estado persistido reabre a cada visita (aceito e documentado).
 

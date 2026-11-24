@@ -76,7 +76,7 @@ describe('Página Diagnóstico', () => {
     expect(screen.getByRole('link', { name: /Ir para o Plano de Carreira/ })).toHaveAttribute('href', '/plano-de-carreira')
     expect(armazenamento.gravacoes.map((g) => g.chave)).toEqual([CHAVE_CARTAO_PERFIL])
     const gravado = analisarCartao(armazenamento.dados.get(CHAVE_CARTAO_PERFIL) ?? null)
-    expect(gravado).toMatchObject({ rotaId: 'suporte-ti', rotaIndicadaId: 'suporte-ti', origem: 'checkin' })
+    expect(gravado).toMatchObject({ rotaId: 'suporte-ti', rotaIndicadaId: 'suporte-ti', origem: 'diagnostico' })
     expect(gravado?.respostas).toEqual({
       interesse: 'ajudar-pessoas',
       situacao: 'perguntar-o-que-aparece',
@@ -117,7 +117,7 @@ describe('Página Diagnóstico', () => {
     ativarPeloTeclado(screen.getByRole('button', { name: 'Iniciar em Suporte de TI' }))
 
     const novo = analisarCartao(armazenamento.dados.get(CHAVE_CARTAO_PERFIL) ?? null)
-    expect(novo).toMatchObject({ rotaIndicadaId: 'desenvolvimento', rotaId: 'suporte-ti', primeiraEscalaId: 'help-desk-n1' })
+    expect(novo).toMatchObject({ rotaIndicadaId: 'desenvolvimento', rotaId: 'suporte-ti', primeiraEtapaId: 'help-desk-n1' })
     expect(novo?.respostas.ritmo).toBe('estudar')
     expect(armazenamento.dados.get(CHAVE_REGISTROS_MISSAO)).toBe(registros)
     expect(armazenamento.gravacoes.every((g) => g.chave === CHAVE_CARTAO_PERFIL)).toBe(true)

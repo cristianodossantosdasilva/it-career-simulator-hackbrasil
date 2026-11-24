@@ -10,8 +10,8 @@ Selecionei os seletores existentes nos testes (`App.test.tsx`, `ChatApp.test.tsx
 
 | Seletor usado hoje | Onde | Regra na refatoração |
 |---|---|---|
-| `radio` com nome `/Nível 1 · Estagiário/` e botão `/Decolar no Simulador/` | `App.test.tsx` 45, e2e 10 a 19 | A Home nova precisa manter um grupo de rádio de cenário e o botão de iniciar com esse nome. A linha de cenário (`MissionRow`) pode ser um `radio` visualmente estilizado como linha, e "Iniciar primeiro voo" chama o mesmo handler. O nome do botão de início do cenário selecionado continua "Decolar no Simulador". |
-| `heading` `/IT Flight Simulator/` e `/Missão 0/` | `App.test.tsx` 39 e 40 | Se o título mudar para "Seu primeiro turno...", atualizar o teste no mesmo commit. Manter um `h1` com "IT Flight Simulator" (pode ficar visualmente na marca). |
+| `radio` com nome `/Nível 1 · Estagiário/` e botão `/Iniciar no Simulador/` | `App.test.tsx` 45, e2e 10 a 19 | A Home nova precisa manter um grupo de rádio de cenário e o botão de iniciar com esse nome. A linha de cenário (`MissionRow`) pode ser um `radio` visualmente estilizado como linha, e "Iniciar primeiro missão" chama o mesmo handler. O nome do botão de início do cenário selecionado continua "Iniciar no Simulador". |
+| `heading` `/IT Career Simulator/` e `/Missão 0/` | `App.test.tsx` 39 e 40 | Se o título mudar para "Seu primeiro turno...", atualizar o teste no mesmo commit. Manter um `h1` com "IT Career Simulator" (pode ficar visualmente na marca). |
 | Textos "Assumir Chamado", "Consultar Politica KB-001", "Solicitar Token Corporativo", "Registrar Nota", "Recusar Reset sem Validacao", "Resolver Chamado", "Salvar Classificacao" | e2e 32 a 63 | A correção ortográfica e a nova copy mudam esses nomes. Criar `src/textos/workstation.ts` e importar a mesma constante nos componentes e nos testes. Assim os testes não ficam presos a texto errado. |
 | `getByLabel('Texto da nota')`, `'Nota publica de resolucao'`, `/Matrícula/`, `/Ramal/` | e2e, ItsmApp | Manter `aria-label` exatos, ou atualizar pela mesma constante. |
 | `button` `/Juiz 360º e Replay/`, `/Comunicador IA/` | e2e 45 e 65 | A nova aba pode chamar "Replay" e "Chat"; atualizar constante. |
@@ -36,7 +36,7 @@ Ordem pensada para entregar valor visual cedo e manter o projeto verde a cada co
 | 4 | `catalogoEducacional.ts` | Campo `icon` (emoji) vira `iconeNome` (string de ícone). 9 ocorrências. Testes de `AulasView`: nenhum depende do emoji. | Baixo |
 | 5 | `BarraSuperior.tsx` | Reduzir a barra de contexto, tirar emojis, faixa e legenda. Seletor de nível em foco vai para a Home. Manter a prop `visaoAtual` e callbacks. | Médio (App.test usa botões da barra) |
 | 6 | `src/shell/AppShell.tsx`, `NavRail.tsx`, `BottomNav.tsx` (novos) | Casca única. `App.tsx` passa a renderizar o conteúdo dentro do shell, inclusive a Workstation (hoje é um ramo separado). | Médio |
-| 7 | `TelaInicial.tsx` | Trocar por `MissionHome` com tabela de cenários. Mover carreira e verificador para `CredentialsPage`. Pomodoro e plano para `ProfileMenu`. Preservar rádios, "Decolar no Simulador" e "Demo Rápida". | Alto: arquivo de 874 linhas e usado por testes |
+| 7 | `TelaInicial.tsx` | Trocar por `MissionHome` com tabela de cenários. Mover carreira e verificador para `CredentialsPage`. Pomodoro e plano para `ProfileMenu`. Preservar rádios, "Iniciar no Simulador" e "Demo Rápida". | Alto: arquivo de 874 linhas e usado por testes |
 | 8 | `App.tsx` (636 linhas) | Extrair o bloco de dock e gavetas (linhas ~437 a 600) para `Workstation.tsx`, `ToolTabs.tsx`, `NotesDrawer.tsx`, `TutorDrawer.tsx`. Manter estado e contratos de API. | Alto |
 | 9 | `ItsmApp.tsx` | Reorganizar em `ItsmConsole`: `TicketTable`, `TicketDetail`, `Composer`. Mesmos `onAcao` e payloads. | Médio |
 | 10 | `ChatApp.tsx` | `ChatThread`, `RequesterCard`, `QuickReplies`. Mantém `role="log"`. | Baixo |
@@ -259,7 +259,7 @@ interface MissionRowProps {
   nivel: string               // 'Nível 1 · Estagiário' (texto de acessibilidade)
   titulo: string
   minutos: number
-  estado: 'comecar' | 'continuar' | 'concluido' | 'em-breve'
+  estado: 'comecar' | 'continuar' | 'concluido' | 'em-portfólio'
   selecionado: boolean
   aoSelecionar: (id: string) => void
 }
@@ -268,11 +268,11 @@ const TEXTO_ESTADO = {
   comecar: 'Começar',
   continuar: 'Continuar',
   concluido: 'Concluído',
-  'em-breve': 'Em breve',
+  'em-portfólio': 'Em portfólio',
 } as const
 
 export function MissionRow(p: MissionRowProps) {
-  const desabilitado = p.estado === 'em-breve'
+  const desabilitado = p.estado === 'em-portfólio'
   return (
     <label className="mission-row" data-selected={p.selecionado} data-estado={p.estado}>
       <input

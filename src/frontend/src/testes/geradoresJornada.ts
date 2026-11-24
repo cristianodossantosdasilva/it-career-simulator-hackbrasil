@@ -35,12 +35,12 @@ export function gerarDataIso(g: Gerador): string {
 export function gerarCartao(g: Gerador): CartaoPerfil {
   return {
     versao: 1,
-    versaoRoteiro: g.escolher(['checkin-v1', 'checkin-v2']),
+    versaoRoteiro: g.escolher(['diagnostico-v1', 'diagnostico-v2']),
     rotaIndicadaId: g.escolher(IDS_ROTA),
     rotaId: 'suporte-ti',
-    primeiraEscalaId: g.escolher(ROTA_SUPORTE.etapas).id,
+    primeiraEtapaId: g.escolher(ROTA_SUPORTE.etapas).id,
     respostas: { interesse: g.texto(12), situacao: g.texto(12), ritmo: g.texto(12) },
-    origem: g.escolher(['checkin', 'checkin-rapido'] as const),
+    origem: g.escolher(['diagnostico', 'diagnostico-rapido'] as const),
     emitidoEm: gerarDataIso(g),
   }
 }
@@ -77,7 +77,7 @@ export function gerarRegistro(g: Gerador, sessaoId: string, missao: IdMissao = g
     missao,
     versaoCenario: g.escolher(['1.0.0', '2.1.0']),
     rotaId: 'suporte-ti',
-    escalaId: divergente ? 'help-desk-n1' : (local?.etapa.id ?? 'help-desk-n1'),
+    etapaId: divergente ? 'help-desk-n1' : (local?.etapa.id ?? 'help-desk-n1'),
     vertenteId: divergente ? null : (local?.vertente?.id ?? null),
     concluidoEm: gerarDataIso(g),
     resultado: {

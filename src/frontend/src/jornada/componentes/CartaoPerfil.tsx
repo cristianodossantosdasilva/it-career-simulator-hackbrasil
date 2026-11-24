@@ -11,8 +11,8 @@ interface PropsCartaoPerfil {
 }
 
 const ORIGENS: Record<DadosDoCartao['origem'], string> = {
-  checkin: 'Diagnóstico completo',
-  'checkin-rapido': 'Diagnóstico rápido, com respostas padrão',
+  diagnostico: 'Diagnóstico completo',
+  'diagnostico-rapido': 'Diagnóstico rápido, com respostas padrão',
 }
 
 function formatarData(iso: string): string {
@@ -24,7 +24,7 @@ function formatarData(iso: string): string {
 export function CartaoPerfil({ cartao, children }: PropsCartaoPerfil) {
   const idTitulo = useId()
   const rota = rotaPorId(cartao.rotaId)
-  const etapa = rota?.etapas.find((item) => item.id === cartao.primeiraEscalaId)
+  const etapa = rota?.etapas.find((item) => item.id === cartao.primeiraEtapaId)
   return (
     <section className="cartao-perfil" aria-labelledby={idTitulo}>
       <h2 className="cartao-perfil-titulo" id={idTitulo}>
@@ -38,7 +38,7 @@ export function CartaoPerfil({ cartao, children }: PropsCartaoPerfil) {
         </div>
         <div>
           <dt>Primeira etapa</dt>
-          <dd>{etapa?.nome ?? cartao.primeiraEscalaId}</dd>
+          <dd>{etapa?.nome ?? cartao.primeiraEtapaId}</dd>
         </div>
         <div>
           <dt>Emitido em</dt>

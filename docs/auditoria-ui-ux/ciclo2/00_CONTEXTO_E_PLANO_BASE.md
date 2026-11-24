@@ -12,7 +12,7 @@ Origem: análise do Claude em 2026-11-16, feita por leitura de código, tokens e
 
 ## Estado verificado (2026-11-16)
 
-- Repositório: `D:\Projetos\Ativos\it-flight-simulator-hackbrasil`. Remoto: `github.com/cristianodossantosdasilva/it-flight-simulator-hackbrasil`.
+- Repositório: `D:\Projetos\Ativos\it-career-simulator-hackbrasil`. Remoto: `github.com/cristianodossantosdasilva/it-career-simulator-hackbrasil`.
 - `main` = `origin/main` = `a88988c` (merge fast-forward da branch `redesign-ui-ux`, 8 commits). CI run `43833833580` verde. Status Vercel do commit: `success` (via `gh api .../commits/a88988c/status`).
 - DevLedger, projeto `simulador-carreira-ti`, etapa `C0-CONCEPCAO`: estado atual `01a1e38d-d617-76f7-aa20-42355fd03e50` no HEAD `a88988c`, integridade ok, 0 violações de chave estrangeira. Banco: `D:\GitHub\cristianodossantosdasilva\DevLedger\data\devledger.db`.
 - Último ciclo: Vitest 58 de 58, Playwright 27 de 27 em 5 projetos (`chromium`, `mobile-375`, `tablet-768`, `desktop-1280`, `desktop-1440`), lint e build ok.
@@ -37,14 +37,14 @@ Origem: análise do Claude em 2026-11-16, feita por leitura de código, tokens e
 - `TelaInicial.tsx:73`: `useState('pasta-rede-inacessivel')`. Esse cenário é o item `n1` do catálogo, exibido como "Nível 2: Analista Jr (N1)".
 - `catalogoEducacional.ts:761`: o estado inicial da Academia tem `focus: 'n1'`. Isso também pré-seleciona "Nível em foco" no menu de perfil (`MenuPerfil.tsx:86`), o preenchimento STAR do Mentor (`MentorView.tsx:440`) e as páginas novas do Caderno.
 - É estado, não CSS: acontece igual nos dois temas.
-- Há dois botões primários com destinos diferentes. "Iniciar primeiro voo" inicia o Estagiário (`TelaInicial.tsx:166`). "Decolar no Simulador" (`TabelaMissoes.tsx:118`) inicia o cenário pré-selecionado.
+- Há dois botões primários com destinos diferentes. "Iniciar primeiro missão" inicia o Estagiário (`TelaInicial.tsx:166`). "Iniciar no Simulador" (`TabelaMissoes.tsx:118`) inicia o cenário pré-selecionado.
 - Os ids e os rótulos divergem: `estagiario` = Nível 1, `n1` = Nível 2, `n2` = Nível 3, `n3` = Nível 4, `esp` = Nível 4b. Não renomear ids (localStorage e testes dependem deles). Documentar.
-- Todo E2E clica em um rádio de nível antes de "Decolar" (`jornadas.spec.ts`, `visual.spec.ts:77`), exceto a "Demo rápida". `App.test.tsx:123-126` também clica antes de verificar. Remover a pré-seleção não quebra esses testes.
+- Todo E2E clica em um rádio de nível antes de "Iniciar" (`jornadas.spec.ts`, `visual.spec.ts:77`), exceto a "Demo rápida". `App.test.tsx:123-126` também clica antes de verificar. Remover a pré-seleção não quebra esses testes.
 - A verificar: se o `focus` é persistido em localStorage (`itfs_academia_v3`) e como tratar usuários que já têm `n1` salvo.
 
 ### P2. A Missão 0 aparece abaixo das outras missões
 
-Ordem atual em `TelaInicial.tsx` (linhas 270 a 312): Primeiro Voo, tabela das 5 missões (numeradas de 1 a 5), seção "Missão 0: como funciona em 4 passos", Glossário, Transparência do escopo. A página corporativa em 1440 px mede 2004 px de altura.
+Ordem atual em `TelaInicial.tsx` (linhas 270 a 312): Primeiro Missão, tabela das 5 missões (numeradas de 1 a 5), seção "Missão 0: como funciona em 4 passos", Glossário, Transparência do escopo. A página corporativa em 1440 px mede 2004 px de altura.
 
 ### P3. O tema corporativo precisa de validação visual para corrigir contrastes e contornos
 
@@ -66,7 +66,7 @@ Outros achados:
 - Cores fixas fora dos tokens em `index.css`: `.btn-white` (249 e 250), seletor de arquivo (732 e 733), `.banner-notice` (1056), `.alert-success` (1057) e `.alert-danger` (1058). Não acompanham o tema escuro. `.banner-notice` e `.alert-danger` aparecem na tela inicial. A confirmar nos PNG `tactical`.
 - Os testes `axe.run` rodam no jsdom sem configurar `color-contrast`. O jsdom não calcula cores renderizadas, então "0 violações" não prova contraste. Só existe um teste de pares de tokens em `App.test.tsx`. Contraste real exige navegador. `axe-core` já é devDependency: avaliar injetá-lo com `page.addScriptTag` no Playwright, sem pacote novo.
 - Há 80 PNG em `src/frontend/test-results/visual` (ignorados pelo Git, nomes `projeto__tema__tela.png`). Foram abertos só `desktop-1440__corporate__missoes` e `desktop-1440__corporate__laboratorio-itsm`. Neles, cards "Missões" e "Fila de chamados" e os separadores de linha ficam achatados, e o texto auxiliar monoespaçado ("T 0%, F 20%, P 0%") é pequeno. É impressão visual, não medida.
-- A verificar, sem afirmar defeito: em estado limpo, Nível 1 e Nível 2 aparecem como "Em andamento" com F 20% e o Primeiro Voo diz "Teoria em 0%". Conferir `calcularProgressoNivel` e se a spec semeia estado.
+- A verificar, sem afirmar defeito: em estado limpo, Nível 1 e Nível 2 aparecem como "Em andamento" com F 20% e o Primeiro Missão diz "Teoria em 0%". Conferir `calcularProgressoNivel` e se a spec semeia estado.
 
 ## Plano-base (ponto de partida para criticar)
 
@@ -83,8 +83,8 @@ Branch nova `ux-ciclo-2` a partir da `main` `a88988c`. Uma etapa por sessão.
 
 ## Decisões padrão recomendadas (contestar com evidência)
 
-- **D1, pré-seleção:** nenhuma missão selecionada ao abrir. "Decolar no Simulador" fica desabilitado com texto de apoio ("Escolha uma missão"). O `focus` padrão passa a `estagiario`, para continuar válido nos consumidores. A "Demo rápida: Nível 2, C1" permanece como atalho explícito. Alternativa: pré-selecionar o Nível 1.
-- **D2, Missão 0:** acima da tabela de missões, logo depois do Primeiro Voo. Expandida sem progresso e recolhida (`details`) com progresso. Avaliar a sobreposição com o fluxo de 3 passos do Primeiro Voo.
+- **D1, pré-seleção:** nenhuma missão selecionada ao abrir. "Iniciar no Simulador" fica desabilitado com texto de apoio ("Escolha uma missão"). O `focus` padrão passa a `estagiario`, para continuar válido nos consumidores. A "Demo rápida: Nível 2, C1" permanece como atalho explícito. Alternativa: pré-selecionar o Nível 1.
+- **D2, Missão 0:** acima da tabela de missões, logo depois do Primeiro Missão. Expandida sem progresso e recolhida (`details`) com progresso. Avaliar a sobreposição com o fluxo de 3 passos do Primeiro Missão.
 - **D3, contornos do corporativo:** subir `--border-subtle` e `--border-strong` dos containers com valores medidos, manter `--border-control`, trocar cores fixas por tokens e corrigir o `--text-muted` sobre `--bg-hover`.
 
 ## Perguntas que dependem do usuário

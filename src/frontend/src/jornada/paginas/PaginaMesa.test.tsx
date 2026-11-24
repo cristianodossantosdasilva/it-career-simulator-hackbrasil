@@ -173,11 +173,11 @@ describe('Página Mesa de Trabalho', () => {
     expect(screen.getAllByText('Reset de senha e desbloqueio de conta').length).toBeGreaterThan(0)
     expect(document.body.textContent).not.toContain('Minhas notas: Reset de senha e desbloqueio de conta')
   })
-  it('a gaveta do Mentor usa o papel Copiloto', async () => {
+  it('a gaveta do Mentor usa o papel Acompanhante', async () => {
     simularApi({ missao: 'pasta-rede-inacessivel' })
     montar('pasta-rede-inacessivel')
     await screen.findByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })
     fireEvent.click(screen.getByRole('button', { name: /Mentor/ }))
-    expect(await screen.findByRole('heading', { name: /Mentor, papel Copiloto/ })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /Mentor, papel Acompanhante/ })).toBeInTheDocument()
   })
 })

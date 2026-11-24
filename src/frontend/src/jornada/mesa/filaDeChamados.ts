@@ -3,8 +3,8 @@ import type { ChamadoDto } from '../../api/types'
 export type ModoMesa = 'treino' | 'missao'
 export type FiltroMapa = 'todos' | 'abertos' | 'resolvidos' | 'revisar'
 
-export const CHAVE_MODO_MESA = 'itfs_modo_cabine'
-export const PREFIXO_REVISAR_MESA = 'itfs_cabine_revisar:'
+export const CHAVE_MODO_MESA = 'itfs_modo_mesa'
+export const PREFIXO_REVISAR_MESA = 'itfs_mesa_revisar:'
 
 export const FILTROS_MAPA: readonly { id: FiltroMapa; rotulo: string }[] = [
   { id: 'todos', rotulo: 'Todos' },

@@ -9,12 +9,12 @@ using Simulador.Infra;
 
 namespace Simulador.Api.Tests;
 
-public class CenariosPorEscalaApiTests : IClassFixture<WebApplicationFactory<Program>>
+public class CenariosPorEtapaApiTests : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly HttpClient _client;
     private readonly WebApplicationFactory<Program> _factory;
 
-    public CenariosPorEscalaApiTests(WebApplicationFactory<Program> factory)
+    public CenariosPorEtapaApiTests(WebApplicationFactory<Program> factory)
     {
         _factory = factory;
         _client = factory.CreateClient();
@@ -178,11 +178,11 @@ public class CenariosPorEscalaApiTests : IClassFixture<WebApplicationFactory<Pro
     }
 
     /// <summary>
-    /// Sessao gravada antes do alinhamento das escalas (prazo de 30 dias no Postgres): o meta e o evento SessaoIniciada
-    /// guardam o rotulo antigo. O evento nao e reescrito; a leitura devolve o nome da escala atual.
+    /// Sessao gravada antes do alinhamento das etapas (prazo de 30 dias no Postgres): o meta e o evento SessaoIniciada
+    /// guardam o rotulo antigo. O evento nao e reescrito; a leitura devolve o nome da etapa atual.
     /// </summary>
     [Fact]
-    public async Task SessaoLegada_ComRotuloAntigo_SaiComNomeDaEscalaNaLeituraSemReescreverOEvento()
+    public async Task SessaoLegada_ComRotuloAntigo_SaiComNomeDaEtapaNaLeituraSemReescreverOEvento()
     {
         var catalogo = new CatalogoCenarios();
         var cenario = catalogo.Obter("pasta-rede-inacessivel", "v1.1", null, 7);

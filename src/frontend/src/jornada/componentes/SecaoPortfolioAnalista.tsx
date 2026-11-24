@@ -29,7 +29,7 @@ export function SecaoPortfolioAnalista({ visao, nivelTitulo = 2 }: PropsSecaoPor
       <ul className="portfolio-analista-lista">
         {visao.exigencias.map((exigencia) => (
           <li
-            key={exigencia.escalaId}
+            key={exigencia.etapaId}
             className={exigencia.cumprida ? 'portfolio-exigencia portfolio-exigencia-cumprida' : 'portfolio-exigencia'}
           >
             <Icone nome={exigencia.cumprida ? 'status-disponivel' : 'pendente'} tamanho={16} />

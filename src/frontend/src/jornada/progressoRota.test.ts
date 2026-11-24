@@ -195,7 +195,7 @@ describe('calcularPortfolioAnalista', () => {
       .map((etapa, i) => registroDeTeste(disponiveisDa(etapa)[0].missao.id, `s-${i}`))
     const portfolio = calcularPortfolioAnalista(ROTA_SUPORTE, todas)
     expect(portfolio.conquistado).toBe(false)
-    expect(portfolio.exigencias.map((e) => e.escalaId)).toEqual(ROTA_SUPORTE.etapas.map((e) => e.id))
+    expect(portfolio.exigencias.map((e) => e.etapaId)).toEqual(ROTA_SUPORTE.etapas.map((e) => e.id))
     expect(portfolio.exigencias[0]).toMatchObject({ cumprida: false, aguardaPreparacao: false })
     expect(portfolio.exigencias.slice(1).every((e) => e.cumprida)).toBe(true)
     expect(portfolio.exigencias[3].rotulo).toBe('Ao menos uma missão em uma das vertentes da N3 Sênior')
@@ -205,7 +205,7 @@ describe('calcularPortfolioAnalista', () => {
     paraTodo('portfólio de analista', gerarCenario, ({ rota, registros }) => {
       const portfolio = calcularPortfolioAnalista(rota, registros)
       const comRegistro = new Set(registros.map((r) => r.missao))
-      expect(portfolio.exigencias.map((e) => e.escalaId)).toEqual(rota.etapas.map((e) => e.id))
+      expect(portfolio.exigencias.map((e) => e.etapaId)).toEqual(rota.etapas.map((e) => e.id))
       portfolio.exigencias.forEach((exigencia, i) => {
         const etapa = rota.etapas[i]
         const cumprida = missoesDaEtapa(etapa).some((item) => comRegistro.has(item.missao.id))

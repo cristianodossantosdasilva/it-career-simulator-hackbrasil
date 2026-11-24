@@ -95,7 +95,7 @@ export const RESPOSTAS_FOCO: Readonly<Record<string, string>> = {
 }
 
 /** Versão gravada no Cartão_de_Perfil. Muda quando perguntas, opções ou pesos mudam. */
-export const VERSAO_ROTEIRO = 'checkin-v1'
+export const VERSAO_ROTEIRO = 'diagnostico-v1'
 
 export interface OpcaoDiagnostico {
   id: string
@@ -203,9 +203,9 @@ export function rotuloDaResposta(pergunta: IdPerguntaDiagnostico, opcaoId: strin
   return alvo?.opcoes.find((opcao) => opcao.id === opcaoId)?.rotulo ?? null
 }
 
-/** Convite_Copiloto: bloco informativo do Plano de Carreira, sem formulário e sem envio de dados. */
-export const CONVITE_COPILOTO = {
-  titulo: 'Seja copiloto do projeto',
+/** Convite_Mentor: bloco informativo do Plano de Carreira, sem formulário e sem envio de dados. */
+export const CONVITE_MENTOR = {
+  titulo: 'Seja mentor do projeto',
   texto:
     'O IT Career Simulator procura pessoas que queiram ajudar a escrever cenários, revisar textos e testar missões. Este convite é só informativo: não há formulário e nada sai deste navegador.',
 } as const

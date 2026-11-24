@@ -2,7 +2,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test'
 import { CHAVE_CARTAO_PERFIL, serializarCartao } from '../src/jornada/armazenamento/cartaoPerfil'
 import { CARTAO_DE_TESTE } from '../src/testes/armazenamentoFalso'
 
-const CHAVE_VOOS_ATIVOS = 'itfs_voos_ativos'
+const CHAVE_MISSOES_ATIVAS = 'itfs_missoes_ativas'
 const MISSAO_LIBERADA_SEM_REGISTROS = 'reset-senha-desbloqueio'
 
 /** Semeia o Cartão_de_Embarque antes de cada carga da página, sem sobrescrever o que a aplicação gravou. */
@@ -252,10 +252,10 @@ test.describe('Fluxo completo com o servidor local', () => {
     // Revisão e Portfólio abrem depois de uma missão liberada sem registros anteriores.
     const sessaoId = await page.evaluate(
       ([chave, missao]) => {
-        const voos = JSON.parse(window.localStorage.getItem(chave) ?? '{}') as { porMissao?: Record<string, string> }
-        return voos.porMissao?.[missao] ?? null
+        const missoes = JSON.parse(window.localStorage.getItem(chave) ?? '{}') as { porMissao?: Record<string, string> }
+        return missoes.porMissao?.[missao] ?? null
       },
-      [CHAVE_VOOS_ATIVOS, MISSAO_LIBERADA_SEM_REGISTROS] as const,
+      [CHAVE_MISSOES_ATIVAS, MISSAO_LIBERADA_SEM_REGISTROS] as const,
     )
     expect(sessaoId).toMatch(/^[A-Za-z0-9-]{1,64}$/)
     await page.goto(`/revisao/${sessaoId}`)

@@ -1,6 +1,6 @@
 # Entregavel 05 — Especificacao de Codigo e Prototipo de Alta Fidelidade
 
-> **Auditoria Especializada de UI/UX e Design System — IT Flight Simulator**  
+> **Auditoria Especializada de UI/UX e Design System — IT Career Simulator**  
 > **Auditor Responsavel:** Lovable  
 > **Data:** Novembro de 2026  
 > **Pasta Oficial do Entregavel:** `docs/auditoria-ui-ux/lovable/05_ESPECIFICACAO_CODIGO_E_PROTOTIPO_ALTA_FIDELIDADE.md`  
@@ -19,7 +19,7 @@ A refatoracao do frontend mantem intactos todos os contratos com a API C# (`/api
 | :--- | :--- | :--- | :--- |
 | `src/frontend/src/index.css` | 800+ linhas de estilos misturados com gradiente arco-iris e cards repetitivos | Substituir tokens por variaveis semanticas limpas, remover `.topnav::after` arco-iris e adicionar classes utilitarias de split-screen | Baixo. Manter classes legadas como alias durante a transicao |
 | `src/frontend/src/educacao/BarraSuperior.tsx` | Barra superior com 11 emojis e navegacao fragmentada | Adotar icones vetoriais SVG (`lucide-react`), tipografia de precisao e indicador de status compacto | Baixo. Preservar `visaoAtual`, `onSelecionarVisao` e `onAlternarTema` |
-| `src/frontend/src/App.tsx` | Gerencia abas verticais da Workstation e faixa de missao solta | Implementar layout Split-Screen (`SplitLabWorkspace`) unindo o Guia do Tech Lead e o Cockpit | Medio. Manter estado da sessao e chamadas `apiClient` identicas |
+| `src/frontend/src/App.tsx` | Gerencia abas verticais da Workstation e faixa de missao solta | Implementar layout Split-Screen (`SplitLabWorkspace`) unindo o Guia do Tech Lead e o Mesa de Trabalho | Medio. Manter estado da sessao e chamadas `apiClient` identicas |
 | `src/frontend/src/apps/ItsmApp/ItsmApp.tsx` | Botoes de seguranca desprotegidos e acoes sem visualizacao de KB | Transformar tabela em console denso, adicionar modal de visualizacao da KB-001 e isolar reset de senha em card de alerta | Baixo. Botoes continuam disparando as mesmas acoes no backend |
 | `src/frontend/src/apps/ChatApp/ChatApp.tsx` | Mensageiro simples com texto vazio didatico | Estilizar no formato corporativo (Slack/Teams) com ficha lateral da usuaria (matricula e ramal) | Baixo. Preserva `onChat` e `onAcao` |
 | `src/frontend/src/replay/ReplayView.tsx` | Lista textual basica de eventos e resumo de carreira | Inserir timeline grafica interativa de eventos e bloco de credencial auditavel | Baixo. Utiliza o mesmo objeto `ReplayResponse` retornado pela API |
@@ -60,7 +60,7 @@ export function BarraSuperior({
           <Wrench size={18} aria-hidden="true" />
         </div>
         <div>
-          <span className="brand-title">IT Flight Simulator</span>
+          <span className="brand-title">IT Career Simulator</span>
           <span className="brand-badge">Hack Brasil 2026</span>
         </div>
       </div>
@@ -138,7 +138,7 @@ interface SplitLabWorkspaceProps {
   sessao: SessaoProjecao
   dicaAtual: string
   nivel1Passos: { politica: boolean; token: boolean; recusado: boolean }
-  children: React.ReactNode // Cockpit operacional (ITSM, Chat, SimuDesk ou KB)
+  children: React.ReactNode // Mesa de Trabalho operacional (ITSM, Chat, SimuDesk ou KB)
   onAbrirArtigoKb: (id: string) => void
   onPedirPista: () => void
 }
@@ -156,7 +156,7 @@ export function SplitLabWorkspace({
 
   return (
     <div className="split-workspace-container">
-      {/* PAINEL ESQUERDO: Roteiro de Voo e Orientacao Pedagogica (35%) */}
+      {/* PAINEL ESQUERDO: Roteiro de Missão e Orientacao Pedagogica (35%) */}
       <aside className="workspace-guide-panel" aria-label="Roteiro do Turno">
         <div className="guide-header">
           <span className="guide-subtitle">Turno em Andamento</span>
@@ -234,8 +234,8 @@ export function SplitLabWorkspace({
         </div>
       </aside>
 
-      {/* PAINEL DIREITO: Cockpit Operacional (65%) */}
-      <main className="workspace-cockpit-panel" aria-label="Ferramentas Operacionais">
+      {/* PAINEL DIREITO: Mesa de Trabalho Operacional (65%) */}
+      <main className="workspace-mesa de trabalho-panel" aria-label="Ferramentas Operacionais">
         {children}
       </main>
     </div>
@@ -409,7 +409,7 @@ export function SplitLabWorkspace({
   margin-bottom: 10px;
 }
 
-.workspace-cockpit-panel {
+.workspace-mesa de trabalho-panel {
   overflow-y: auto;
   padding: 18px;
 }

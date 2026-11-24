@@ -70,7 +70,7 @@ Nao usar uma unica classe de card para as duas superficies.
 
 ## Tipografia e grid
 
-- Escala: 12, 13, 14, 15, 17, 20, 24, 30, 36.
+- Etapa: 12, 13, 14, 15, 17, 20, 24, 30, 36.
 - Corpo com 15 px e line-height 1.6.
 - Titulos em sentence case, peso 650 ou 700.
 - Leitura entre 65 e 72ch.

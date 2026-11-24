@@ -1,17 +1,17 @@
 namespace Simulador.Dominio;
 
-internal sealed record EventoEscala(string Tipo, IReadOnlyDictionary<string, object?> Dados);
+internal sealed record EventoEtapa(string Tipo, IReadOnlyDictionary<string, object?> Dados);
 
-internal sealed record ResultadoComandoEscala(EstadoSessao NovoEstado, string Saida, IReadOnlyList<EventoEscala> Eventos);
+internal sealed record ResultadoComandoEtapa(EstadoSessao NovoEstado, string Saida, IReadOnlyList<EventoEtapa> Eventos);
 
 /// <summary>
-/// Comandos declarados dos cenarios por escala. O estado novo e sempre o resultado de dobrar,
+/// Comandos declarados dos cenarios por etapa. O estado novo e sempre o resultado de dobrar,
 /// em ordem, os Eventos emitidos com <see cref="EfeitosDeEventos.Aplicar"/>.
 /// </summary>
-internal static class ComandosPorEscala
+internal static class ComandosPorEtapa
 {
-    /// <summary>Devolve null quando o comando nao pertence a nenhum cenario por escala (segue para o fluxo generico).</summary>
-    internal static ResultadoComandoEscala? TentarExecutar(EstadoSessao estado, string comando, DefinicaoCenario cenario)
+    /// <summary>Devolve null quando o comando nao pertence a nenhum cenario por etapa (segue para o fluxo generico).</summary>
+    internal static ResultadoComandoEtapa? TentarExecutar(EstadoSessao estado, string comando, DefinicaoCenario cenario)
     {
         var texto = comando.Trim();
         return cenario.CenarioId switch
@@ -25,25 +25,25 @@ internal static class ComandosPorEscala
     }
 
     /// <summary>Atalho de seguranca.resetar_senha em cenarios com Titular: mesma regra do comando redefinir-senha.</summary>
-    internal static ResultadoComandoEscala RedefinirSenha(EstadoSessao estado, DefinicaoCenario cenario) =>
+    internal static ResultadoComandoEtapa RedefinirSenha(EstadoSessao estado, DefinicaoCenario cenario) =>
         RedefinirSenhaDaTitular(estado, cenario, "seguranca.resetar_senha");
 
     // ---------------------------------------------------------------- utilidades
 
-    private static EventoEscala Ev(string tipo, params (string Chave, object? Valor)[] dados)
+    private static EventoEtapa Ev(string tipo, params (string Chave, object? Valor)[] dados)
     {
         var d = new Dictionary<string, object?>();
         foreach (var (chave, valor) in dados) d[chave] = valor;
-        return new EventoEscala(tipo, d);
+        return new EventoEtapa(tipo, d);
     }
 
-    private static ResultadoComandoEscala Resultado(EstadoSessao estado, string saida, params EventoEscala[] eventos)
+    private static ResultadoComandoEtapa Resultado(EstadoSessao estado, string saida, params EventoEtapa[] eventos)
     {
         var estacao = estado.Estacao;
         var dialogo = estado.Dialogo;
         foreach (var ev in eventos)
             (estacao, dialogo) = EfeitosDeEventos.Aplicar(estacao, dialogo, ev.Tipo, ev.Dados);
-        return new ResultadoComandoEscala(estado with { Estacao = estacao, Dialogo = dialogo }, saida, eventos);
+        return new ResultadoComandoEtapa(estado with { Estacao = estacao, Dialogo = dialogo }, saida, eventos);
     }
 
     private static string Argumento(string comando, string prefixo) =>
@@ -53,7 +53,7 @@ internal static class ComandosPorEscala
 
     private const string MensagemLoginInexistente = "O nome de usuario nao foi encontrado.";
 
-    private static ResultadoComandoEscala? ExecutarResetSenha(EstadoSessao estado, string comando, DefinicaoCenario cenario)
+    private static ResultadoComandoEtapa? ExecutarResetSenha(EstadoSessao estado, string comando, DefinicaoCenario cenario)
     {
         var lower = comando.ToLowerInvariant();
 
@@ -141,7 +141,7 @@ internal static class ComandosPorEscala
     }
 
     /// <summary>Regra de Acao_Sensivel: sem identidade validada a acao e recusada e registrada, antes de qualquer regra por Causa.</summary>
-    private static ResultadoComandoEscala? RecusarSeSemIdentidade(EstadoSessao estado, DefinicaoCenario cenario, string rotulo)
+    private static ResultadoComandoEtapa? RecusarSeSemIdentidade(EstadoSessao estado, DefinicaoCenario cenario, string rotulo)
     {
         if (estado.Dialogo.IdentidadeValidada) return null;
         return Resultado(estado,
@@ -152,10 +152,10 @@ internal static class ComandosPorEscala
                 ("motivo", "Acao sensivel executada sem verificar a identidade da titular.")));
     }
 
-    private static EventoEscala Desnecessaria(string rotulo, string motivo) =>
+    private static EventoEtapa Desnecessaria(string rotulo, string motivo) =>
         Ev("AcaoDesnecessariaRegistrada", ("comando", rotulo), ("motivo", motivo));
 
-    private static ResultadoComandoEscala RedefinirSenhaDaTitular(EstadoSessao estado, DefinicaoCenario cenario, string rotulo)
+    private static ResultadoComandoEtapa RedefinirSenhaDaTitular(EstadoSessao estado, DefinicaoCenario cenario, string rotulo)
     {
         var recusa = RecusarSeSemIdentidade(estado, cenario, rotulo);
         if (recusa is not null) return recusa;
@@ -175,7 +175,7 @@ internal static class ComandosPorEscala
         };
     }
 
-    private static ResultadoComandoEscala DesbloquearContaDaTitular(EstadoSessao estado, DefinicaoCenario cenario)
+    private static ResultadoComandoEtapa DesbloquearContaDaTitular(EstadoSessao estado, DefinicaoCenario cenario)
     {
         var recusa = RecusarSeSemIdentidade(estado, cenario, "desbloquear-conta");
         if (recusa is not null) return recusa;
@@ -197,7 +197,7 @@ internal static class ComandosPorEscala
             Ev("ContaBloqueadaNovamente", ("usuario", cenario.UsuarioAlvo), ("motivo", "origem_das_tentativas_continua_ativa")));
     }
 
-    private static ResultadoComandoEscala EnviarLinkDeTroca(EstadoSessao estado, DefinicaoCenario cenario)
+    private static ResultadoComandoEtapa EnviarLinkDeTroca(EstadoSessao estado, DefinicaoCenario cenario)
     {
         var recusa = RecusarSeSemIdentidade(estado, cenario, "enviar-link-troca");
         if (recusa is not null) return recusa;
@@ -230,7 +230,7 @@ internal static class ComandosPorEscala
     /// net use: unico comando novo do cenario. Em C1 a C3 e so diagnostico (erro honesto, sem efeito);
     /// em C4 mapear Z: para o Financeiro e a correcao. Os demais comandos seguem o fluxo generico.
     /// </summary>
-    private static ResultadoComandoEscala? ExecutarPastaRede(EstadoSessao estado, string comando, DefinicaoCenario cenario)
+    private static ResultadoComandoEtapa? ExecutarPastaRede(EstadoSessao estado, string comando, DefinicaoCenario cenario)
     {
         const string prefixo = "net use";
         if (!comando.StartsWith(prefixo, StringComparison.OrdinalIgnoreCase)) return null;
@@ -278,7 +278,7 @@ internal static class ComandosPorEscala
     private const string MensagemExigeElevado = "Erro: a operacao exige privilegio Elevado.";
     private const string CaminhoRestauracao = @"\\fileserver.aurora.local\Financeiro";
 
-    private static ResultadoComandoEscala ExecutarBackup(EstadoSessao estado, string comando, DefinicaoCenario cenario)
+    private static ResultadoComandoEtapa ExecutarBackup(EstadoSessao estado, string comando, DefinicaoCenario cenario)
     {
         var partes = comando.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         var sub = partes.Length > 1 ? partes[1].ToLowerInvariant() : "";
@@ -355,7 +355,7 @@ internal static class ComandosPorEscala
             _ => throw new InvalidOperationException($"Causa sem estado de repositorio: {cenario.Causa}")
         };
 
-    private static ResultadoComandoEscala ExpandirRepositorio(EstadoSessao estado, DefinicaoCenario cenario)
+    private static ResultadoComandoEtapa ExpandirRepositorio(EstadoSessao estado, DefinicaoCenario cenario)
     {
         if (cenario.Causa == "CADEIA_CORROMPIDA")
             return Resultado(estado, "O repositorio tem espaco; expansao desnecessaria.");
@@ -365,7 +365,7 @@ internal static class ComandosPorEscala
             Ev("RepositorioExpandido", ("privilegio", estado.Estacao.Privilegio.ToString())));
     }
 
-    private static ResultadoComandoEscala ExecutarJob(EstadoSessao estado, DefinicaoCenario cenario)
+    private static ResultadoComandoEtapa ExecutarJob(EstadoSessao estado, DefinicaoCenario cenario)
     {
         if (cenario.Causa == "CADEIA_CORROMPIDA")
             return Resultado(estado, "Job continua falhando: cadeia incremental corrompida.");
@@ -385,7 +385,7 @@ internal static class ComandosPorEscala
             _ => throw new InvalidOperationException($"Causa sem verificacao de cadeia: {cenario.Causa}")
         };
 
-    private static ResultadoComandoEscala Restaurar(EstadoSessao estado, string comando, DefinicaoCenario cenario)
+    private static ResultadoComandoEtapa Restaurar(EstadoSessao estado, string comando, DefinicaoCenario cenario)
     {
         var partes = comando.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         string? origem = null, destino = null;
@@ -427,7 +427,7 @@ internal static class ComandosPorEscala
     /// Comandos das Causas externas (EMAIL_PROVEDOR e DOMINIO_SUSPENSO). PATCH_MASSIVO e os comandos
     /// genericos (sc query, ping, nslookup) seguem o fluxo generico: devolve null.
     /// </summary>
-    private static ResultadoComandoEscala? ExecutarIncidenteExterno(EstadoSessao estado, string comando, DefinicaoCenario cenario)
+    private static ResultadoComandoEtapa? ExecutarIncidenteExterno(EstadoSessao estado, string comando, DefinicaoCenario cenario)
     {
         var email = cenario.Causa == "EMAIL_PROVEDOR";
         if (!email && cenario.Causa != "DOMINIO_SUSPENSO") return null;
@@ -473,7 +473,7 @@ internal static class ComandosPorEscala
         }
     }
 
-    private static ResultadoComandoEscala AcionarArea(EstadoSessao estado, DefinicaoCenario cenario, string arg)
+    private static ResultadoComandoEtapa AcionarArea(EstadoSessao estado, DefinicaoCenario cenario, string arg)
     {
         var email = cenario.Causa == "EMAIL_PROVEDOR";
         var fornecedor = string.Equals(arg, "fornecedor", StringComparison.OrdinalIgnoreCase);
@@ -494,7 +494,7 @@ internal static class ComandosPorEscala
             evento);
     }
 
-    private static ResultadoComandoEscala AcompanharFornecedor(EstadoSessao estado, DefinicaoCenario cenario, string arg)
+    private static ResultadoComandoEtapa AcompanharFornecedor(EstadoSessao estado, DefinicaoCenario cenario, string arg)
     {
         if (!string.Equals(arg, "fornecedor", StringComparison.OrdinalIgnoreCase))
             return Resultado(estado, "Uso: acompanhar fornecedor");

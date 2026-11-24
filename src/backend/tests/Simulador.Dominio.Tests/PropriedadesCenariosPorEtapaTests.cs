@@ -5,7 +5,7 @@ using Simulador.Dialogo;
 namespace Simulador.Dominio.Tests;
 
 /// <summary>Propriedades "para toda entrada valida" com sementes geradas por SplitMix64 fixo, sem biblioteca nova.</summary>
-public class PropriedadesCenariosPorEscalaTests
+public class PropriedadesCenariosPorEtapaTests
 {
     private const string Cenario = "reset-senha-desbloqueio";
     private const string Versao = "v0.1-hackathon";
@@ -37,7 +37,7 @@ public class PropriedadesCenariosPorEscalaTests
         s.Aplicar("itsm.classificar_chamado", new { chamadoId = "CH-0001", categoria = "Acesso", urgencia = "Alta", impacto = "Medio" });
     }
 
-    // Feature: cenarios-por-escala, Property 1: Reconstrucao equivalente
+    // Feature: cenarios-por-etapa, Property 1: Reconstrucao equivalente
     // Validates: Requirements 15.2, 15.3, 15.4
     [Theory]
     [MemberData(nameof(CausasESementes50))]
@@ -70,7 +70,7 @@ public class PropriedadesCenariosPorEscalaTests
             Simulador.Avaliacao.Juiz360.Avaliar(rec, s.Eventos).CurriculoVivo.HashAuditoriaSha256);
     }
 
-    // Feature: cenarios-por-escala, Property 2: Determinismo do Sorteio
+    // Feature: cenarios-por-etapa, Property 2: Determinismo do Sorteio
     // Validates: Requirements 1.4, 1.5
     [Theory]
     [MemberData(nameof(Sementes200))]
@@ -90,7 +90,7 @@ public class PropriedadesCenariosPorEscalaTests
         }
     }
 
-    // Feature: cenarios-por-escala, Property 3: Acao sensivel sem identidade nunca restabelece
+    // Feature: cenarios-por-etapa, Property 3: Acao sensivel sem identidade nunca restabelece
     // Validates: Requirements 2.10, 6.4
     [Theory]
     [MemberData(nameof(PermutacoesSensiveis))]
@@ -121,7 +121,7 @@ public class PropriedadesCenariosPorEscalaTests
                 yield return new object[] { string.Join("|", ordem.Select(i => cmds[i])), semente };
     }
 
-    // Feature: cenarios-por-escala, Property 4: Desbloqueio sem origem sempre bloqueia de novo
+    // Feature: cenarios-por-etapa, Property 4: Desbloqueio sem origem sempre bloqueia de novo
     // Validates: Requirements 4.4, 4.5
     [Theory]
     [MemberData(nameof(OrdensDeBloqueio))]
@@ -150,7 +150,7 @@ public class PropriedadesCenariosPorEscalaTests
         }
     }
 
-    // Feature: cenarios-por-escala, Property 9: Criterios do Juiz_360 deterministicos
+    // Feature: cenarios-por-etapa, Property 9: Criterios do Juiz_360 deterministicos
     // Validates: Requirements 6.7, 15.3, 17.3
     [Theory]
     [MemberData(nameof(CausasESementes50))]
@@ -167,7 +167,7 @@ public class PropriedadesCenariosPorEscalaTests
         Assert.All(a.Criterios, c => Assert.Contains(c.LinkKb!, Simulador.Avaliacao.KbCatalogo.UriParaId.Keys));
     }
 
-    // Feature: cenarios-por-escala, Property 6: Comando fora da lista
+    // Feature: cenarios-por-etapa, Property 6: Comando fora da lista
     // Validates: Requirements 1.7, 19.4
     [Theory]
     [MemberData(nameof(Sementes200))]
@@ -184,7 +184,7 @@ public class PropriedadesCenariosPorEscalaTests
         Assert.Equal(antes, JsonSerializer.Serialize(s.Estado.Estacao) + JsonSerializer.Serialize(s.Estado.Dialogo));
     }
 
-    // Feature: cenarios-por-escala, Property 7: Pistas e respostas nao vazam a Causa
+    // Feature: cenarios-por-etapa, Property 7: Pistas e respostas nao vazam a Causa
     // Validates: Requirements 14.3, 15.6
     [Theory]
     [MemberData(nameof(Sementes50))]
@@ -209,7 +209,7 @@ public class PropriedadesCenariosPorEscalaTests
         });
     }
 
-    // Feature: cenarios-por-escala, Property 8: Sorteio de pasta-rede-inacessivel apos a ativacao (C1 a C4, calculo independente)
+    // Feature: cenarios-por-etapa, Property 8: Sorteio de pasta-rede-inacessivel apos a ativacao (C1 a C4, calculo independente)
     // Validates: Requirements 16.2, 18.4
     [Theory]
     [MemberData(nameof(Sementes200Sequenciais))]
@@ -223,7 +223,7 @@ public class PropriedadesCenariosPorEscalaTests
 
     public static IEnumerable<object[]> Sementes200Sequenciais() => Enumerable.Range(0, 200).Select(s => new object[] { (long)s });
 
-    // Feature: cenarios-por-escala, Property 1: Reconstrucao equivalente (C4)
+    // Feature: cenarios-por-etapa, Property 1: Reconstrucao equivalente (C4)
     // Validates: Requirements 15.2, 15.3
     [Theory]
     [MemberData(nameof(Sementes50))]
@@ -269,7 +269,7 @@ public class PropriedadesCenariosPorEscalaTests
     public static IEnumerable<object[]> CausasDoBackupESementes50() =>
         CausasBackupEntregues.SelectMany(c => Sementes(50, 0xC0FFEEUL).Select(s => new object[] { c, s }));
 
-    // Feature: cenarios-por-escala, Property 1: Reconstrucao equivalente (falha-backup-restore, as 2 Causas)
+    // Feature: cenarios-por-etapa, Property 1: Reconstrucao equivalente (falha-backup-restore, as 2 Causas)
     // Validates: Requirements 15.2, 15.3
     [Theory]
     [MemberData(nameof(CausasDoBackupESementes50))]
@@ -286,7 +286,7 @@ public class PropriedadesCenariosPorEscalaTests
             Simulador.Avaliacao.Juiz360.Avaliar(rec, s.Eventos).CurriculoVivo.HashAuditoriaSha256);
     }
 
-    // Feature: cenarios-por-escala, Property 2: Determinismo do Sorteio (falha-backup-restore)
+    // Feature: cenarios-por-etapa, Property 2: Determinismo do Sorteio (falha-backup-restore)
     // Validates: Requirements 11.2, 15.3
     [Theory]
     [MemberData(nameof(Sementes200))]
@@ -316,7 +316,7 @@ public class PropriedadesCenariosPorEscalaTests
         }
     }
 
-    // Feature: cenarios-por-escala, Property 5: Rejeicao nao muda estado
+    // Feature: cenarios-por-etapa, Property 5: Rejeicao nao muda estado
     // Validates: Requirement 15.5
     [Theory]
     [MemberData(nameof(AcoesInvalidasDoBackup))]
@@ -332,7 +332,7 @@ public class PropriedadesCenariosPorEscalaTests
         Assert.Equal(antes, depois);
     }
 
-    // Feature: cenarios-por-escala, Property 9: Criterios do Juiz_360 deterministicos (falha-backup-restore)
+    // Feature: cenarios-por-etapa, Property 9: Criterios do Juiz_360 deterministicos (falha-backup-restore)
     // Validates: Requirements 13.5, 15.3, 17.3
     [Theory]
     [MemberData(nameof(CausasDoBackupESementes50))]
@@ -360,7 +360,7 @@ public class PropriedadesCenariosPorEscalaTests
             Simulador.Avaliacao.Juiz360.Avaliar(rec, s.Eventos).CurriculoVivo.HashAuditoriaSha256);
     }
 
-    // Feature: cenarios-por-escala, Property 1: Reconstrucao equivalente (EMAIL_PROVEDOR)
+    // Feature: cenarios-por-etapa, Property 1: Reconstrucao equivalente (EMAIL_PROVEDOR)
     // Validates: Requirements 15.2, 15.3
     [Theory]
     [MemberData(nameof(Sementes50))]
@@ -372,7 +372,7 @@ public class PropriedadesCenariosPorEscalaTests
         AssertReconstrucaoIgual(s);
     }
 
-    // Feature: cenarios-por-escala, Property 8: Sorteio de incidente-massivo apos a ativacao (3 Causas, calculo independente)
+    // Feature: cenarios-por-etapa, Property 8: Sorteio de incidente-massivo apos a ativacao (3 Causas, calculo independente)
     // Validates: Requirements 16.3, 18.4
     [Theory]
     [MemberData(nameof(Sementes200Sequenciais))]
@@ -382,7 +382,7 @@ public class PropriedadesCenariosPorEscalaTests
         var obtido = new CatalogoCenarios().Obter(CenarioIncidente, Versao, null, semente);
         Assert.Equal(sorteio[new SplitMix64(semente).NextInt(3)], obtido.Causa);
     }
-    // Feature: cenarios-por-escala, Property 1: Reconstrucao equivalente (DOMINIO_SUSPENSO)
+    // Feature: cenarios-por-etapa, Property 1: Reconstrucao equivalente (DOMINIO_SUSPENSO)
     // Validates: Requirements 15.2, 15.3
     [Theory]
     [MemberData(nameof(Sementes50))]
@@ -397,7 +397,7 @@ public class PropriedadesCenariosPorEscalaTests
     public static IEnumerable<object[]> CausasExternasESementes50() =>
         new[] { "EMAIL_PROVEDOR", "DOMINIO_SUSPENSO" }.SelectMany(c => Sementes(50, 0xC0FFEEUL).Select(s => new object[] { c, s }));
 
-    // Feature: cenarios-por-escala, Property 7: Pistas e respostas nao vazam a Causa (incidente-massivo, Causas externas)
+    // Feature: cenarios-por-etapa, Property 7: Pistas e respostas nao vazam a Causa (incidente-massivo, Causas externas)
     // Validates: Requirements 14.3, 15.6
     [Theory]
     [MemberData(nameof(CausasExternasESementes50))]
@@ -423,7 +423,7 @@ public class PropriedadesCenariosPorEscalaTests
         });
     }
 
-    // Feature: cenarios-por-escala, Property 9: Criterios do Juiz_360 deterministicos (incidente-massivo, Causas externas)
+    // Feature: cenarios-por-etapa, Property 9: Criterios do Juiz_360 deterministicos (incidente-massivo, Causas externas)
     // Validates: Requirements 10.5, 15.3, 17.3
     [Theory]
     [MemberData(nameof(CausasExternasESementes50))]
@@ -439,7 +439,7 @@ public class PropriedadesCenariosPorEscalaTests
         Assert.All(a.Criterios, c => Assert.Contains(c.LinkKb!, Simulador.Avaliacao.KbCatalogo.UriParaId.Keys));
     }
 
-    // Feature: cenarios-por-escala, Property 8 (segunda metade): sessoes gravadas com Causa C1 a C3 reconstroem igual
+    // Feature: cenarios-por-etapa, Property 8 (segunda metade): sessoes gravadas com Causa C1 a C3 reconstroem igual
     // Validates: Requirements 16.2, 18.4
     [Theory]
     [MemberData(nameof(Sementes50))]

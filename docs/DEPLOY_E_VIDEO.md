@@ -65,7 +65,7 @@ Os antigos "Nível 1" a "Nível 4b" aparecem como etapas: **Help Desk N1**, **Se
   - Missão 0 guiada e Glossário rápido, que estão nesta página.
   - Ativar "Liberar todas as etapas para demonstração": selos "Liberada para demonstração" nas 3 etapas que estavam bloqueadas, indicador na barra de contexto e o aviso de que a liberação não conta como missão concluída.
 - **0:50 – 1:10 | Mesa de Trabalho, Service Desk N1 Jr**
-  - `pasta-rede-inacessivel`: validar a identidade da Maria (`AUR-1042`) no Comunicador para liberar o SimuDesk remoto, diagnosticar antes de alterar, corrigir a causa e resolver o chamado. Mentor no papel Copiloto.
+  - `pasta-rede-inacessivel`: validar a identidade da Maria (`AUR-1042`) no Comunicador para liberar o SimuDesk remoto, diagnosticar antes de alterar, corrigir a causa e resolver o chamado. Mentor no papel de apoio na bancada.
 - **1:10 – 1:30 | Mesa de Trabalho, N2 Pleno**
   - `incidente-massivo`, liberado pelo modo: Problema ITIL com 3 chamados vinculados, `AuroraGateway` restaurado e resolução em lote.
 - **1:30 – 1:50 | Mesa de Trabalho, N3-C Segurança e Dados**
@@ -91,7 +91,7 @@ Para o texto de submissão e o README, fora do vídeo:
 4. Ir ao Plano de Carreira: N2 Pleno e N3 Sênior já estão liberadas para visualização.
 5. Para ver os portões funcionando, desativar o controle no Plano de Carreira: as etapas voltam a seguir as missões concluídas.
 
-### Testes (medição de 17/nov/2026, branch `jornada-de-voo`)
+### Testes (medição de 17/nov/2026, branch `jornada-de-carreira`)
 
 Os números mudam a cada commit. A referência é o CI; no dia da gravação, ler o último run verde.
 

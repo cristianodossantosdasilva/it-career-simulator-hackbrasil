@@ -2,11 +2,11 @@
 
 ## Introduction
 
-Esta funcionalidade entrega no Backend (.NET 10, `src/backend`) os cenários e as Causas que a spec `jornada-de-voo` marca como em preparação: 2 cenários novos e 8 Causas novas, cada item com Motor, Juiz_360, pistas e testes. O Frontend não muda aqui. A tarefa 18 da `jornada-de-voo` troca os status no Catálogo_de_Rotas depois que cada item chega ao Backend.
+Esta funcionalidade entrega no Backend (.NET 10, `src/backend`) os cenários e as Causas que a spec `jornada-de-carreira` marca como em preparação: 2 cenários novos e 8 Causas novas, cada item com Motor, Juiz_360, pistas e testes. O Frontend não muda aqui. A tarefa 18 da `jornada-de-carreira` troca os status no Catálogo_de_Rotas depois que cada item chega ao Backend.
 
 Itens entregues, na ordem de implementação (cada item é entregável sozinho, com checkpoint e commit local):
 
-1. `reset-senha-desbloqueio` (Escala Help Desk N1), com a Causa SENHA_ESQUECIDA.
+1. `reset-senha-desbloqueio` (Etapa Help Desk N1), com a Causa SENHA_ESQUECIDA.
 2. Causa CONTA_BLOQUEADA de `reset-senha-desbloqueio`.
 3. Causa SENHA_EXPIRADA de `reset-senha-desbloqueio`.
 4. Causa C4 (unidade de rede não mapeada) de `pasta-rede-inacessivel`.
@@ -18,9 +18,9 @@ Itens entregues, na ordem de implementação (cada item é entregável sozinho, 
 
 Prazo: tudo commitado antes de 30 de novembro de 2026, 23h59 (congelamento do repositório). Push e merge só com autorização explícita do usuário.
 
-### Decisões confirmadas na spec `jornada-de-voo` (texto de origem)
+### Decisões confirmadas na spec `jornada-de-carreira` (texto de origem)
 
-- Escala 1, Help Desk N1: cenário `reset-senha-desbloqueio`, com verificação de identidade antes de agir. A triagem de engenharia social sai do N1.
+- Etapa 1, Help Desk N1: cenário `reset-senha-desbloqueio`, com verificação de identidade antes de agir. A triagem de engenharia social sai do N1.
 - `reset-senha-desbloqueio`:
   - SENHA_ESQUECIDA: reset com senha temporária e troca obrigatória no primeiro acesso, só depois de verificar a identidade.
   - CONTA_BLOQUEADA: desbloqueio e identificação da origem das tentativas, um celular com a senha antiga. Desbloquear sem achar a origem faz a conta bloquear de novo.
@@ -33,12 +33,12 @@ Prazo: tudo commitado antes de 30 de novembro de 2026, 23h59 (congelamento do re
 ### Escopo
 
 - Dentro: `Simulador.Cenarios` (`CatalogoCenarios`), `Simulador.Dominio` (Motor, Projeção, estado, comandos e pistas), `Simulador.Avaliacao` (Juiz_360 e `KbCatalogo`), `Simulador.Dialogo` (personas), testes em `src/backend/tests` e a documentação de entrega em `docs/`.
-- Fora: qualquer arquivo de `src/frontend`, exceto a exceção única e condicionada da Decisão 2 (arquivo de dados `src/frontend/src/data/kbCatalogo.ts`); `docs/vetores-jcs-sha256.json` e `src/frontend/src/utils/jcs.ts` (não são tocados, logo continuam sincronizados); `render.yaml`; pacotes novos; a troca de status do Catálogo_de_Rotas (tarefa 18 da `jornada-de-voo`); roteiros e dicas do Frontend (`lab/dicaMissao.ts`, `lab/roteiros.ts`).
+- Fora: qualquer arquivo de `src/frontend`, exceto a exceção única e condicionada da Decisão 2 (arquivo de dados `src/frontend/src/data/kbCatalogo.ts`); `docs/vetores-jcs-sha256.json` e `src/frontend/src/utils/jcs.ts` (não são tocados, logo continuam sincronizados); `render.yaml`; pacotes novos; a troca de status do Catálogo_de_Rotas (tarefa 18 da `jornada-de-carreira`); roteiros e dicas do Frontend (`lab/dicaMissao.ts`, `lab/roteiros.ts`).
 - Decisão de modelagem: nenhuma ação nova na API. As interações novas são comandos declarados do terminal (`estacao.executar_comando`) e ações que o Frontend já envia (`dialogo.verificar_identidade`, `itsm.*`, `estacao.ler_logs`, `estacao.elevar_privilegio`, `seguranca.resetar_senha`). Assim a interface atual consegue jogar os itens novos sem controle novo.
 
 ### Decisões do usuário (pendentes, com padrão adotado)
 
-1. Branch e worktree: padrão adotado é a branch `cenarios-por-escala` em uma worktree própria criada a partir de `jornada-de-voo`, para não disputar o índice do Git com o trabalho do Frontend. Alternativa: commitar direto em `jornada-de-voo`.
+1. Branch e worktree: padrão adotado é a branch `cenarios-por-etapa` em uma worktree própria criada a partir de `jornada-de-carreira`, para não disputar o índice do Git com o trabalho do Frontend. Alternativa: commitar direto em `jornada-de-carreira`.
 2. Artigos de KB novos: o contrato Juiz_360 e Frontend exige os mesmos ids e URIs nos dois lados (teste `LinksJuiz360_ResolvemNoCatalogoCompartilhadoComFrontend`). Padrão adotado: acrescentar KB-027 a KB-032 no Backend e no arquivo de dados `src/frontend/src/data/kbCatalogo.ts`, como exceção única de escopo. Alternativa: reutilizar só as URIs atuais (KB-001 a KB-026), com critérios do Juiz_360 apontando para artigos menos precisos.
 3. Ativação no sorteio das Causas novas de cenários existentes (C4, EMAIL_PROVEDOR, DOMINIO_SUSPENSO): padrão adotado é ativar só no fim (tarefa 19), depois da confirmação do usuário, porque os roteiros e as dicas atuais do Frontend foram escritos para C1 a C3 e para o gateway. Antes da ativação essas Causas só nascem com `causaForcada`.
 4. Variante do pedido por terceiro: padrão adotado é sortear pela semente (cerca de metade das sessões). Alternativa para a demonstração: sempre por terceiro.
@@ -59,7 +59,7 @@ Prazo: tudo commitado antes de 30 de novembro de 2026, 23h59 (congelamento do re
 - **Projeção**: `Projecao.Reconstruir`, que refaz o estado a partir dos Eventos e do Catálogo_de_Cenários.
 - **Replay**: leitura cronológica dos Eventos de uma sessão, com a Causa oculta até a conclusão.
 - **Comando_Declarado**: prefixo de comando listado em `ComandosSuportados` da estação do Cenário. Comando fora da lista recebe `ComandoNaoSuportado` com resposta honesta, sem saída inventada.
-- **Comandos_por_Escala**: módulo novo `ComandosPorEscala` em `Simulador.Dominio` que executa os comandos específicos dos itens desta spec.
+- **Comandos_por_Etapa**: módulo novo `ComandosPorEtapa` em `Simulador.Dominio` que executa os comandos específicos dos itens desta spec.
 - **Titular**: pessoa dona da conta no Cenário `reset-senha-desbloqueio` (a colaboradora Fernanda Lima, login `fernanda.lima`, matrícula `AUR-2087`, ramal cadastrado `2087`).
 - **Solicitante**: pessoa que abriu o chamado principal. Pode ser a Titular ou o gestor Paulo Andrade.
 - **Pedido_por_Terceiro**: variante em que o Solicitante é o gestor pedindo pela Titular.
@@ -84,7 +84,7 @@ Prazo: tudo commitado antes de 30 de novembro de 2026, 23h59 (congelamento do re
 
 ### Requirement 1: Cenário reset-senha-desbloqueio no catálogo
 
-**User Story:** Como participante da Escala Help Desk N1, quero abrir uma sessão de reset de senha e desbloqueio de conta, para treinar o atendimento mais frequente do N1.
+**User Story:** Como participante da Etapa Help Desk N1, quero abrir uma sessão de reset de senha e desbloqueio de conta, para treinar o atendimento mais frequente do N1.
 
 #### Acceptance Criteria
 
@@ -105,9 +105,9 @@ Prazo: tudo commitado antes de 30 de novembro de 2026, 23h59 (congelamento do re
 
 1. WHILE a variante é Pedido_por_Terceiro, THE Definição SHALL abrir o chamado principal com Solicitante `Paulo Andrade (gestor)` e descrição que pede a ação em nome da Titular.
 2. WHILE a variante não é Pedido_por_Terceiro, THE Definição SHALL abrir o chamado principal com Solicitante `Fernanda Lima`.
-3. WHEN o participante executa `diretorio fernanda.lima`, THE Comandos_por_Escala SHALL responder com o nome da Titular, o ramal do Canal_Cadastrado, o gestor e a política de verificação, sem gravar mudança de estado.
-4. WHEN o participante executa `discar` com o ramal do Canal_Cadastrado, THE Comandos_por_Escala SHALL emitir o Evento `TitularContatado` e SHALL marcar `Dialogo.TitularContatado` como verdadeiro.
-5. IF o participante executa `discar` com qualquer outro número, THEN THE Comandos_por_Escala SHALL responder que o número está fora do cadastro corporativo e SHALL NOT emitir `TitularContatado`.
+3. WHEN o participante executa `diretorio fernanda.lima`, THE Comandos_por_Etapa SHALL responder com o nome da Titular, o ramal do Canal_Cadastrado, o gestor e a política de verificação, sem gravar mudança de estado.
+4. WHEN o participante executa `discar` com o ramal do Canal_Cadastrado, THE Comandos_por_Etapa SHALL emitir o Evento `TitularContatado` e SHALL marcar `Dialogo.TitularContatado` como verdadeiro.
+5. IF o participante executa `discar` com qualquer outro número, THEN THE Comandos_por_Etapa SHALL responder que o número está fora do cadastro corporativo e SHALL NOT emitir `TitularContatado`.
 6. WHEN o participante envia `dialogo.verificar_identidade` com a matrícula e o ramal da Titular, o chamado principal está `EmAtendimento` e a variante não é Pedido_por_Terceiro ou `TitularContatado` é verdadeiro, THE Motor SHALL emitir `IdentidadeVerificada` e SHALL marcar `IdentidadeValidada` como verdadeiro.
 7. WHEN o Motor emite `IdentidadeVerificada` num Cenário com Titular, THE Motor SHALL NOT liberar acesso remoto nem emitir `AcessoRemotoLiberado`.
 8. IF a variante é Pedido_por_Terceiro e `TitularContatado` é falso, THEN THE Motor SHALL emitir `IdentidadeNaoConfere` com o motivo de que o Solicitante é terceiro e a Titular precisa ser contatada pelo Canal_Cadastrado, mesmo quando a matrícula e o ramal enviados estão corretos.
@@ -124,10 +124,10 @@ Prazo: tudo commitado antes de 30 de novembro de 2026, 23h59 (congelamento do re
 #### Acceptance Criteria
 
 1. WHEN a Causa é SENHA_ESQUECIDA, THE Definição SHALL iniciar a estação com `ContaAD` no status `Ativa` e com o log de tentativas de senha incorreta abaixo do limite de bloqueio.
-2. WHEN o participante executa `net user fernanda.lima`, THE Comandos_por_Escala SHALL responder com o estado da conta (ativa, não bloqueada, senha dentro da validade) e o número de tentativas incorretas.
-3. WHEN o participante executa `redefinir-senha fernanda.lima` com `IdentidadeValidada` verdadeiro, THE Comandos_por_Escala SHALL emitir `SenhaTemporariaDefinida` com `trocaObrigatoria` verdadeiro e, em seguida, `AcessoContaRestabelecido` com `via` igual a `reset`.
+2. WHEN o participante executa `net user fernanda.lima`, THE Comandos_por_Etapa SHALL responder com o estado da conta (ativa, não bloqueada, senha dentro da validade) e o número de tentativas incorretas.
+3. WHEN o participante executa `redefinir-senha fernanda.lima` com `IdentidadeValidada` verdadeiro, THE Comandos_por_Etapa SHALL emitir `SenhaTemporariaDefinida` com `trocaObrigatoria` verdadeiro e, em seguida, `AcessoContaRestabelecido` com `via` igual a `reset`.
 4. WHEN o Motor emite `SenhaTemporariaDefinida`, THE Motor SHALL mudar `ContaAD` para `SenhaTemporaria` e SHALL marcar `CompartilhamentoAcessivel` como verdadeiro, e a saída do comando SHALL informar que a senha temporária foi entregue por canal seguro, sem exibir senha em saída ou Evento.
-5. WHEN o participante executa `desbloquear-conta` ou `enviar-link-troca` nesta Causa, THE Comandos_por_Escala SHALL responder que a ação não resolve a causa e SHALL emitir `AcaoDesnecessariaRegistrada`, sem restabelecer o acesso.
+5. WHEN o participante executa `desbloquear-conta` ou `enviar-link-troca` nesta Causa, THE Comandos_por_Etapa SHALL responder que a ação não resolve a causa e SHALL emitir `AcaoDesnecessariaRegistrada`, sem restabelecer o acesso.
 6. THE Motor SHALL tratar `dialogo.confirmar_com_usuario` com a regra existente (aceita só com `CompartilhamentoAcessivel` verdadeiro).
 
 ### Requirement 4: Causa CONTA_BLOQUEADA
@@ -137,13 +137,13 @@ Prazo: tudo commitado antes de 30 de novembro de 2026, 23h59 (congelamento do re
 #### Acceptance Criteria
 
 1. WHEN a Causa é CONTA_BLOQUEADA, THE Definição SHALL iniciar a estação com `ContaAD` no status `Bloqueada`, `EventosDeSeguranca` no status `NaoConsultado` e logs que não citam a Origem_do_Bloqueio.
-2. WHEN o participante executa `net user fernanda.lima`, THE Comandos_por_Escala SHALL responder que a conta está bloqueada e o número de tentativas incorretas recentes, sem citar a Origem_do_Bloqueio.
-3. WHEN o participante executa `eventos-seguranca fernanda.lima` nesta Causa, THE Comandos_por_Escala SHALL responder com a Origem_do_Bloqueio (o celular corporativo `MOB-FIN-017` tentando entrar a cada 5 minutos com a senha antiga em cache), SHALL emitir `OrigemBloqueioIdentificada` e SHALL mudar `EventosDeSeguranca` para `Consultado`.
-4. WHEN o participante executa `desbloquear-conta fernanda.lima` com `IdentidadeValidada` verdadeiro e `EventosDeSeguranca` igual a `Consultado`, THE Comandos_por_Escala SHALL emitir `ContaDesbloqueada` e `AcessoContaRestabelecido` com `via` igual a `desbloqueio`, mudar `ContaAD` para `Ativa` e marcar `CompartilhamentoAcessivel` como verdadeiro.
-5. IF o participante executa `desbloquear-conta` com `IdentidadeValidada` verdadeiro e `EventosDeSeguranca` igual a `NaoConsultado`, THEN THE Comandos_por_Escala SHALL emitir `ContaDesbloqueada` seguido de `ContaBloqueadaNovamente`, SHALL manter `ContaAD` em `Bloqueada` e SHALL NOT emitir `AcessoContaRestabelecido`.
-6. WHEN o participante executa `redefinir-senha` ou `enviar-link-troca` nesta Causa, THE Comandos_por_Escala SHALL responder que a ação não remove a origem do bloqueio e SHALL emitir `AcaoDesnecessariaRegistrada`, sem restabelecer o acesso.
-7. THE Comandos_por_Escala SHALL permitir `eventos-seguranca` e `net user` antes da Verificação_de_Identidade.
-8. WHEN o participante executa `eventos-seguranca` em outra Causa, THE Comandos_por_Escala SHALL responder que não há bloqueios recentes e SHALL NOT emitir `OrigemBloqueioIdentificada`.
+2. WHEN o participante executa `net user fernanda.lima`, THE Comandos_por_Etapa SHALL responder que a conta está bloqueada e o número de tentativas incorretas recentes, sem citar a Origem_do_Bloqueio.
+3. WHEN o participante executa `eventos-seguranca fernanda.lima` nesta Causa, THE Comandos_por_Etapa SHALL responder com a Origem_do_Bloqueio (o celular corporativo `MOB-FIN-017` tentando entrar a cada 5 minutos com a senha antiga em cache), SHALL emitir `OrigemBloqueioIdentificada` e SHALL mudar `EventosDeSeguranca` para `Consultado`.
+4. WHEN o participante executa `desbloquear-conta fernanda.lima` com `IdentidadeValidada` verdadeiro e `EventosDeSeguranca` igual a `Consultado`, THE Comandos_por_Etapa SHALL emitir `ContaDesbloqueada` e `AcessoContaRestabelecido` com `via` igual a `desbloqueio`, mudar `ContaAD` para `Ativa` e marcar `CompartilhamentoAcessivel` como verdadeiro.
+5. IF o participante executa `desbloquear-conta` com `IdentidadeValidada` verdadeiro e `EventosDeSeguranca` igual a `NaoConsultado`, THEN THE Comandos_por_Etapa SHALL emitir `ContaDesbloqueada` seguido de `ContaBloqueadaNovamente`, SHALL manter `ContaAD` em `Bloqueada` e SHALL NOT emitir `AcessoContaRestabelecido`.
+6. WHEN o participante executa `redefinir-senha` ou `enviar-link-troca` nesta Causa, THE Comandos_por_Etapa SHALL responder que a ação não remove a origem do bloqueio e SHALL emitir `AcaoDesnecessariaRegistrada`, sem restabelecer o acesso.
+7. THE Comandos_por_Etapa SHALL permitir `eventos-seguranca` e `net user` antes da Verificação_de_Identidade.
+8. WHEN o participante executa `eventos-seguranca` em outra Causa, THE Comandos_por_Etapa SHALL responder que não há bloqueios recentes e SHALL NOT emitir `OrigemBloqueioIdentificada`.
 
 ### Requirement 5: Causa SENHA_EXPIRADA
 
@@ -152,10 +152,10 @@ Prazo: tudo commitado antes de 30 de novembro de 2026, 23h59 (congelamento do re
 #### Acceptance Criteria
 
 1. WHEN a Causa é SENHA_EXPIRADA, THE Definição SHALL iniciar a estação com `ContaAD` no status `SenhaExpirada` e com o log de logon recusado por senha expirada (política de 90 dias).
-2. WHEN o participante executa `net user fernanda.lima`, THE Comandos_por_Escala SHALL responder que a senha expirou e a data de expiração.
-3. WHEN o participante executa `enviar-link-troca fernanda.lima` com `IdentidadeValidada` verdadeiro, THE Comandos_por_Escala SHALL emitir `OrientacaoRegistrada` (tema `troca_pela_titular`), `SenhaTrocadaPelaPessoa` e `AcessoContaRestabelecido` com `via` igual a `troca_pela_titular`, mudar `ContaAD` para `Ativa` e marcar `CompartilhamentoAcessivel` como verdadeiro.
-4. WHEN o participante executa `redefinir-senha fernanda.lima` com `IdentidadeValidada` verdadeiro nesta Causa, THE Comandos_por_Escala SHALL emitir `SenhaTemporariaDefinida`, `AcessoContaRestabelecido` com `via` igual a `reset` e `AcaoDesnecessariaRegistrada`.
-5. WHEN o participante executa `desbloquear-conta` nesta Causa, THE Comandos_por_Escala SHALL responder que a conta não está bloqueada e SHALL emitir `AcaoDesnecessariaRegistrada`.
+2. WHEN o participante executa `net user fernanda.lima`, THE Comandos_por_Etapa SHALL responder que a senha expirou e a data de expiração.
+3. WHEN o participante executa `enviar-link-troca fernanda.lima` com `IdentidadeValidada` verdadeiro, THE Comandos_por_Etapa SHALL emitir `OrientacaoRegistrada` (tema `troca_pela_titular`), `SenhaTrocadaPelaPessoa` e `AcessoContaRestabelecido` com `via` igual a `troca_pela_titular`, mudar `ContaAD` para `Ativa` e marcar `CompartilhamentoAcessivel` como verdadeiro.
+4. WHEN o participante executa `redefinir-senha fernanda.lima` com `IdentidadeValidada` verdadeiro nesta Causa, THE Comandos_por_Etapa SHALL emitir `SenhaTemporariaDefinida`, `AcessoContaRestabelecido` com `via` igual a `reset` e `AcaoDesnecessariaRegistrada`.
+5. WHEN o participante executa `desbloquear-conta` nesta Causa, THE Comandos_por_Etapa SHALL responder que a conta não está bloqueada e SHALL emitir `AcaoDesnecessariaRegistrada`.
 
 ### Requirement 6: Avaliação do Juiz_360 em reset-senha-desbloqueio
 
@@ -179,8 +179,8 @@ Prazo: tudo commitado antes de 30 de novembro de 2026, 23h59 (congelamento do re
 
 1. WHEN a Causa_Forçada é C4, THE Catálogo_de_Cenários SHALL retornar a Definição com grupo, DNS e serviço íntegros, `UnidadeRedeZ` no status `NaoMapeada` e o chamado principal descrito como solicitação de mapeamento da unidade Z: para `\\fileserver.aurora.local\Financeiro`.
 2. THE Definição de `pasta-rede-inacessivel` SHALL declarar `net use` entre os Comandos_Declarados de todas as Causas (C1 a C4), para que a lista não revele a Causa.
-3. WHEN o participante executa `net use z: \\fileserver.aurora.local\Financeiro` na Causa C4, THE Comandos_por_Escala SHALL emitir `UnidadeRedeMapeada` e `AcessoPastaRestabelecido`, mudar `UnidadeRedeZ` para `Mapeada` e marcar `CompartilhamentoAcessivel` como verdadeiro.
-4. WHEN o participante executa `net use z:` com o caminho do Financeiro nas Causas C1, C2 ou C3, THE Comandos_por_Escala SHALL responder com o erro coerente com a Causa (acesso negado, caminho de rede não encontrado ou serviço Workstation parado) e SHALL manter o estado.
+3. WHEN o participante executa `net use z: \\fileserver.aurora.local\Financeiro` na Causa C4, THE Comandos_por_Etapa SHALL emitir `UnidadeRedeMapeada` e `AcessoPastaRestabelecido`, mudar `UnidadeRedeZ` para `Mapeada` e marcar `CompartilhamentoAcessivel` como verdadeiro.
+4. WHEN o participante executa `net use z:` com o caminho do Financeiro nas Causas C1, C2 ou C3, THE Comandos_por_Etapa SHALL responder com o erro coerente com a Causa (acesso negado, caminho de rede não encontrado ou serviço Workstation parado) e SHALL manter o estado.
 5. WHILE a Causa é C4, THE Motor SHALL manter `CompartilhamentoAcessivel` falso em `net start`, `ipconfig /flushdns`, `estacao.adicionar_usuario_grupo` e `estacao.reiniciar_servico` até a unidade estar mapeada.
 6. WHEN a Causa é C4, THE Juiz_360 SHALL acrescentar o critério J6 (a categoria da classificação do chamado principal contém "solicit" depois de normalizada) aos critérios J1 a J5, sem alterar os critérios das Causas C1 a C3.
 7. THE Motor SHALL preservar o comportamento e a saída dos comandos existentes de C1, C2 e C3.
@@ -193,10 +193,10 @@ Prazo: tudo commitado antes de 30 de novembro de 2026, 23h59 (congelamento do re
 
 1. WHEN a Causa_Forçada é EMAIL_PROVEDOR, THE Catálogo_de_Cenários SHALL retornar a Definição de `incidente-massivo` com 3 chamados simultâneos de falha de e-mail corporativo, `AuroraGateway` no status `Running` e `ProvedorEmail` no status `Indisponivel`.
 2. THE Definição SHALL declarar nesta Causa os Comandos_Declarados `sc query`, `ping`, `nslookup`, `curl -i`, `acionar` e `acompanhar`.
-3. WHEN o participante executa `curl -i https://status.provedor-email.example`, THE Comandos_por_Escala SHALL responder com o incidente do provedor (HTTP 503) e SHALL emitir `EvidenciaExternaConfirmada`.
-4. WHEN o participante executa `acionar fornecedor`, THE Comandos_por_Escala SHALL emitir `AreaAcionada` com `area` igual a `Fornecedor` e mudar `ProvedorEmail` para `Acionado`.
-5. IF o participante executa `acompanhar fornecedor` antes de `acionar fornecedor`, THEN THE Comandos_por_Escala SHALL responder que o fornecedor ainda não foi acionado e SHALL NOT restabelecer o serviço.
-6. WHEN o participante executa `acompanhar fornecedor` depois de acionar o fornecedor, THE Comandos_por_Escala SHALL emitir `AcompanhamentoRegistrado` e `ServicoExternoRestabelecido`, mudar `ProvedorEmail` para `Restabelecido` e marcar `CompartilhamentoAcessivel` como verdadeiro.
+3. WHEN o participante executa `curl -i https://status.provedor-email.example`, THE Comandos_por_Etapa SHALL responder com o incidente do provedor (HTTP 503) e SHALL emitir `EvidenciaExternaConfirmada`.
+4. WHEN o participante executa `acionar fornecedor`, THE Comandos_por_Etapa SHALL emitir `AreaAcionada` com `area` igual a `Fornecedor` e mudar `ProvedorEmail` para `Acionado`.
+5. IF o participante executa `acompanhar fornecedor` antes de `acionar fornecedor`, THEN THE Comandos_por_Etapa SHALL responder que o fornecedor ainda não foi acionado e SHALL NOT restabelecer o serviço.
+6. WHEN o participante executa `acompanhar fornecedor` depois de acionar o fornecedor, THE Comandos_por_Etapa SHALL emitir `AcompanhamentoRegistrado` e `ServicoExternoRestabelecido`, mudar `ProvedorEmail` para `Restabelecido` e marcar `CompartilhamentoAcessivel` como verdadeiro.
 7. WHEN o participante tenta corrigir internamente com `estacao.reiniciar_servico`, THE Motor SHALL manter o comportamento atual dessa ação, e o Juiz_360 SHALL registrar a tentativa no critério F8. O comando `net start` não faz parte dos Comandos_Declarados desta Causa.
 8. THE Motor SHALL manter o comportamento atual da Causa PATCH_MASSIVO.
 
@@ -209,10 +209,10 @@ Prazo: tudo commitado antes de 30 de novembro de 2026, 23h59 (congelamento do re
 1. WHEN a Causa_Forçada é DOMINIO_SUSPENSO, THE Catálogo_de_Cenários SHALL retornar a Definição de `incidente-massivo` com 3 chamados simultâneos de site e e-mail corporativo fora do ar, `AuroraGateway` no status `Running`, `DominioPublico` no status `Suspenso`, `AreaFornecedor` e `AreaFinanceiro` no status `Pendente`.
 2. THE Definição SHALL declarar nesta Causa os Comandos_Declarados `sc query`, `ping`, `nslookup`, `whois`, `acionar` e `acompanhar`.
 3. WHEN o participante executa `nslookup` ou `ping` para `www.aurora-logistica.example`, THE Motor SHALL responder pelo comportamento existente de host não encontrado, sem inventar resposta.
-4. WHEN o participante executa `whois aurora-logistica.example`, THE Comandos_por_Escala SHALL responder com o status `clientHold` e o motivo de suspensão por fatura não paga, e SHALL emitir `EvidenciaExternaConfirmada`.
-5. WHEN o participante executa `acionar fornecedor` ou `acionar financeiro`, THE Comandos_por_Escala SHALL emitir `AreaAcionada` com a `area` correspondente e mudar o status da área para `Acionada`.
-6. IF o participante executa `acompanhar fornecedor` sem que as duas áreas estejam `Acionada`, THEN THE Comandos_por_Escala SHALL responder qual área falta e SHALL NOT restabelecer o serviço.
-7. WHEN o participante executa `acompanhar fornecedor` com as duas áreas `Acionada`, THE Comandos_por_Escala SHALL emitir `AcompanhamentoRegistrado` e `ServicoExternoRestabelecido`, mudar `DominioPublico` para `Restabelecido` e marcar `CompartilhamentoAcessivel` como verdadeiro.
+4. WHEN o participante executa `whois aurora-logistica.example`, THE Comandos_por_Etapa SHALL responder com o status `clientHold` e o motivo de suspensão por fatura não paga, e SHALL emitir `EvidenciaExternaConfirmada`.
+5. WHEN o participante executa `acionar fornecedor` ou `acionar financeiro`, THE Comandos_por_Etapa SHALL emitir `AreaAcionada` com a `area` correspondente e mudar o status da área para `Acionada`.
+6. IF o participante executa `acompanhar fornecedor` sem que as duas áreas estejam `Acionada`, THEN THE Comandos_por_Etapa SHALL responder qual área falta e SHALL NOT restabelecer o serviço.
+7. WHEN o participante executa `acompanhar fornecedor` com as duas áreas `Acionada`, THE Comandos_por_Etapa SHALL emitir `AcompanhamentoRegistrado` e `ServicoExternoRestabelecido`, mudar `DominioPublico` para `Restabelecido` e marcar `CompartilhamentoAcessivel` como verdadeiro.
 8. THE Definição SHALL usar o domínio `aurora-logistica.example` apenas como domínio público fictício e SHALL manter `aurora.local` como domínio interno.
 
 ### Requirement 10: Avaliação do Juiz_360 em incidente-massivo com Causa externa
@@ -236,13 +236,13 @@ Prazo: tudo commitado antes de 30 de novembro de 2026, 23h59 (congelamento do re
 1. THE Catálogo_de_Cenários SHALL aceitar o par (`falha-backup-restore`, `v0.1-hackathon`) e retornar a Definição com nível `Especialista Data Center e Backup (N3-B)`, `UsuarioAlvo` igual a `backup.oncall`, `ServicoAlvo` igual a `JobBackupFinanceiro` e chamado principal do Gerente do Financeiro.
 2. WHEN não há Causa_Forçada válida, THE Catálogo_de_Cenários SHALL sortear a Causa entre REPOSITORIO_CHEIO e CADEIA_CORROMPIDA com `SplitMix64(semente)`.
 3. THE Definição SHALL declarar os Comandos_Declarados `backup status`, `backup log`, `backup repo`, `backup cadeia`, `backup job` e `backup restore`, iguais nas duas Causas.
-4. WHEN a Causa é REPOSITORIO_CHEIO, THE Comandos_por_Escala SHALL responder `backup log` com a falha do job por falta de espaço no repositório (capacidade 100 por cento).
-5. WHEN o participante executa `backup repo expandir` com privilégio Elevado nesta Causa, THE Comandos_por_Escala SHALL emitir `RepositorioExpandido` e mudar `RepositorioBackup` para `Expandido`.
-6. IF o participante executa `backup repo expandir`, `backup restore` ou `backup repo limpar` sem privilégio Elevado, THEN THE Comandos_por_Escala SHALL responder que a operação exige privilégio Elevado e SHALL manter o estado.
-7. WHEN o participante executa `backup job executar` com `RepositorioBackup` igual a `Expandido` nesta Causa, THE Comandos_por_Escala SHALL emitir `BackupConcluido`, mudar `JobBackupFinanceiro` para `Succeeded` e marcar `CompartilhamentoAcessivel` como verdadeiro.
-8. IF o participante executa `backup job executar` com o repositório ainda cheio, THEN THE Comandos_por_Escala SHALL responder que o job falhou por falta de espaço e SHALL manter o estado.
-9. WHEN o participante executa `backup repo limpar` com privilégio Elevado, THE Comandos_por_Escala SHALL emitir `AcaoPrejudicialRegistrada` (categoria `backup`, remoção de pontos de restauração compromete a retenção) e SHALL NOT liberar o repositório.
-10. IF o participante executa `backup restore --origem imutavel` nesta Causa com privilégio Elevado, THEN THE Comandos_por_Escala SHALL emitir `AcaoPrejudicialRegistrada` (sobrescreve dados íntegros) e SHALL manter o estado.
+4. WHEN a Causa é REPOSITORIO_CHEIO, THE Comandos_por_Etapa SHALL responder `backup log` com a falha do job por falta de espaço no repositório (capacidade 100 por cento).
+5. WHEN o participante executa `backup repo expandir` com privilégio Elevado nesta Causa, THE Comandos_por_Etapa SHALL emitir `RepositorioExpandido` e mudar `RepositorioBackup` para `Expandido`.
+6. IF o participante executa `backup repo expandir`, `backup restore` ou `backup repo limpar` sem privilégio Elevado, THEN THE Comandos_por_Etapa SHALL responder que a operação exige privilégio Elevado e SHALL manter o estado.
+7. WHEN o participante executa `backup job executar` com `RepositorioBackup` igual a `Expandido` nesta Causa, THE Comandos_por_Etapa SHALL emitir `BackupConcluido`, mudar `JobBackupFinanceiro` para `Succeeded` e marcar `CompartilhamentoAcessivel` como verdadeiro.
+8. IF o participante executa `backup job executar` com o repositório ainda cheio, THEN THE Comandos_por_Etapa SHALL responder que o job falhou por falta de espaço e SHALL manter o estado.
+9. WHEN o participante executa `backup repo limpar` com privilégio Elevado, THE Comandos_por_Etapa SHALL emitir `AcaoPrejudicialRegistrada` (categoria `backup`, remoção de pontos de restauração compromete a retenção) e SHALL NOT liberar o repositório.
+10. IF o participante executa `backup restore --origem imutavel` nesta Causa com privilégio Elevado, THEN THE Comandos_por_Etapa SHALL emitir `AcaoPrejudicialRegistrada` (sobrescreve dados íntegros) e SHALL manter o estado.
 
 ### Requirement 12: Causa CADEIA_CORROMPIDA
 
@@ -251,12 +251,12 @@ Prazo: tudo commitado antes de 30 de novembro de 2026, 23h59 (congelamento do re
 #### Acceptance Criteria
 
 1. WHEN a Causa é CADEIA_CORROMPIDA, THE Definição SHALL iniciar a estação com `PastaFinanceiro` no status `Indisponivel` e o chamado principal pedindo a restauração do fechamento do Financeiro.
-2. WHEN o participante executa `backup log` nesta Causa, THE Comandos_por_Escala SHALL responder com o ponto incremental inválido e a cadeia corrompida.
-3. WHEN o participante executa `backup cadeia verificar`, THE Comandos_por_Escala SHALL responder com a integridade da cadeia incremental e da Cópia_Imutável (nesta Causa, cadeia inválida e cópia íntegra).
-4. WHEN o participante executa `backup restore --origem imutavel --destino \\fileserver.aurora.local\Financeiro` com privilégio Elevado, THE Comandos_por_Escala SHALL emitir `PastaFinanceiroRestaurada` com `origem` igual a `imutavel`, mudar `PastaFinanceiro` para `Restaurada` e marcar `CompartilhamentoAcessivel` como verdadeiro.
-5. WHEN o participante executa `backup restore --origem incremental` nesta Causa, THE Comandos_por_Escala SHALL responder que a restauração falhou por cadeia corrompida e SHALL manter o estado.
-6. WHEN o participante executa `backup job executar` nesta Causa, THE Comandos_por_Escala SHALL responder que o job continua falhando por cadeia corrompida e SHALL manter o estado.
-7. WHEN o participante executa `backup repo expandir` nesta Causa, THE Comandos_por_Escala SHALL responder que o repositório tem espaço e SHALL manter o estado.
+2. WHEN o participante executa `backup log` nesta Causa, THE Comandos_por_Etapa SHALL responder com o ponto incremental inválido e a cadeia corrompida.
+3. WHEN o participante executa `backup cadeia verificar`, THE Comandos_por_Etapa SHALL responder com a integridade da cadeia incremental e da Cópia_Imutável (nesta Causa, cadeia inválida e cópia íntegra).
+4. WHEN o participante executa `backup restore --origem imutavel --destino \\fileserver.aurora.local\Financeiro` com privilégio Elevado, THE Comandos_por_Etapa SHALL emitir `PastaFinanceiroRestaurada` com `origem` igual a `imutavel`, mudar `PastaFinanceiro` para `Restaurada` e marcar `CompartilhamentoAcessivel` como verdadeiro.
+5. WHEN o participante executa `backup restore --origem incremental` nesta Causa, THE Comandos_por_Etapa SHALL responder que a restauração falhou por cadeia corrompida e SHALL manter o estado.
+6. WHEN o participante executa `backup job executar` nesta Causa, THE Comandos_por_Etapa SHALL responder que o job continua falhando por cadeia corrompida e SHALL manter o estado.
+7. WHEN o participante executa `backup repo expandir` nesta Causa, THE Comandos_por_Etapa SHALL responder que o repositório tem espaço e SHALL manter o estado.
 
 ### Requirement 13: Avaliação do Juiz_360 em falha-backup-restore
 
@@ -335,7 +335,7 @@ Prazo: tudo commitado antes de 30 de novembro de 2026, 23h59 (congelamento do re
 3. THE ordem de implementação SHALL seguir a lista da Introdução, de modo que o corte por falta de tempo comece pelo último item.
 4. WHEN a tarefa de Ativação_no_Sorteio é executada, THE Backend SHALL incluir C4 em `CausasPastaRede` e EMAIL_PROVEDOR e DOMINIO_SUSPENSO no Sorteio de `incidente-massivo`, SHALL atualizar o teste `Semente48_...` para uma semente que continue sorteando C3 e SHALL provar por teste que uma sessão gravada antes da ativação, com Causa C1, C2 ou C3 em `SessaoIniciada`, continua reconstruindo a mesma Definição e o mesmo estado.
 5. IF o usuário não confirma a Ativação_no_Sorteio, THEN THE Backend SHALL manter as Causas novas de cenários existentes acessíveis só por Causa_Forçada.
-6. THE Backend SHALL registrar, num documento em `docs/`, a tabela de entrega para a tarefa 18 da `jornada-de-voo`: Cenário, Causa, identificador, comandos, Eventos e estado de disponibilidade no Backend.
+6. THE Backend SHALL registrar, num documento em `docs/`, a tabela de entrega para a tarefa 18 da `jornada-de-carreira`: Cenário, Causa, identificador, comandos, Eventos e estado de disponibilidade no Backend.
 7. THE entrega SHALL estar commitada antes de 30 de novembro de 2026, 23h59. Depois dessa data, a troca de status no Frontend fica fora da entrega do hackathon.
 
 ### Requirement 19: Conformidade com o AGENTS.md

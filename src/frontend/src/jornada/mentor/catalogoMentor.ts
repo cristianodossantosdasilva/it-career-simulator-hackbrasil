@@ -1,10 +1,10 @@
 import type { IdPagina } from '../navegacao/rotas'
 
-export type PapelMentor = 'consultor' | 'instrutor' | 'copiloto' | 'mentor'
+export type PapelMentor = 'consultor' | 'instrutor' | 'acompanhante' | 'mentor'
 
 export interface DefinicaoPapel {
   id: PapelMentor
-  nome: 'Consultor' | 'Instrutor' | 'Copiloto' | 'Mentor'
+  nome: 'Consultor' | 'Instrutor' | 'Acompanhante' | 'Mentor'
   resumo: string
   faz: readonly string[]
   naoFaz: readonly string[]
@@ -57,14 +57,14 @@ export const PAPEIS: Readonly<Record<PapelMentor, DefinicaoPapel>> = {
       },
     ],
   },
-  copiloto: {
-    id: 'copiloto',
-    nome: 'Copiloto',
+  acompanhante: {
+    id: 'acompanhante',
+    nome: 'Acompanhante',
     resumo: 'Acompanha a missão na Mesa de Trabalho e sugere o próximo passo do atendimento.',
     faz: ['Sugere o próximo passo pela situação do chamado', 'Explica termos técnicos da missão'],
     naoFaz: ['Não executa ações no simulador', 'Não resolve o chamado por você'],
     abertura: {
-      'mesa-de-trabalho': 'Sou o Mentor no papel Copiloto. Pergunte "O que faço agora?" se travar.',
+      'mesa-de-trabalho': 'Sou o Mentor no papel Acompanhante. Pergunte "O que faço agora?" se travar.',
     },
     sugestoes: [
       {
@@ -104,7 +104,7 @@ export const PAPEL_POR_PAGINA: Partial<Record<IdPagina, PapelMentor>> = {
   inicio: 'consultor',
   'diagnostico': 'consultor',
   'plano-de-carreira': 'instrutor',
-  'mesa-de-trabalho': 'copiloto',
+  'mesa-de-trabalho': 'acompanhante',
   'revisao': 'mentor',
   'portfolio': 'mentor',
 }

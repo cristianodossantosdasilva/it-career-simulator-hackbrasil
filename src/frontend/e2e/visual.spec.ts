@@ -256,9 +256,9 @@ test.describe('Regras de layout e acessibilidade', () => {
     await abrir(page, '/plano-de-carreira', 'Plano de Carreira')
     const itens = page.locator('nav[aria-label="Navegação principal"] .nav-item:visible')
     // Sem missão ativo a Mesa de Trabalho não aparece. Abaixo de 768 px ficam os principais e o Mais; a partir dele, todos.
-    const semCabine = ITENS_MENU.filter((item) => item.pagina !== 'mesa-de-trabalho')
+    const semMesa = ITENS_MENU.filter((item) => item.pagina !== 'mesa-de-trabalho')
     const celular = (page.viewportSize()?.width ?? 0) < LARGURA_MINIMA_DESKTOP
-    const esperados = celular ? semCabine.filter((item) => item.grupo === 'principal').length + 1 : semCabine.length
+    const esperados = celular ? semMesa.filter((item) => item.grupo === 'principal').length + 1 : semMesa.length
     await expect(itens).toHaveCount(esperados)
     const caixas = await itens.evaluateAll((nos) =>
       nos.map((no) => {

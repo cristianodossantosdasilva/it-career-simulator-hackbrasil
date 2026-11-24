@@ -75,7 +75,7 @@ describe('Páginas de estudo', () => {
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     expect(screen.getByRole('heading', { level: 1, name: 'Mentor' })).toBeInTheDocument()
     const papeis = screen.getAllByRole('heading', { level: 3 }).map((titulo) => titulo.textContent)
-    expect(papeis).toEqual(['Consultor', 'Instrutor', 'Copiloto', 'Mentor'])
+    expect(papeis).toEqual(['Consultor', 'Instrutor', 'Acompanhante', 'Mentor'])
     expect(screen.getByText('Atua em: Revisão e Portfólio.')).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2, name: 'O que este guia não faz' })).toBeInTheDocument()
     expect(screen.getByText('Não promete emprego, salário nem resultado.')).toBeInTheDocument()

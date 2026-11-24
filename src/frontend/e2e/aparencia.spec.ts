@@ -626,7 +626,7 @@ test.describe('Aparência com sessão em andamento', () => {
       await page.getByRole('button', { name: T.itsm.resolverChamado }).click()
       await trocarAparencia(page, /Acolhedor/, 'acolhedor', false)
       await page.getByRole('link', { name: /Juiz 360º e Replay/i }).click()
-      await expect(page).toHaveURL(/\/caixa-preta\//)
+      await expect(page).toHaveURL(/\/revisao\//)
       await expect(page.getByText(T.replay.concluida, { exact: true })).toBeVisible()
       await expect(html(page)).toHaveAttribute('data-theme', 'acolhedor')
     } finally {

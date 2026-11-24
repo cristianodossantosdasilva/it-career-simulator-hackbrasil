@@ -58,7 +58,7 @@ export function PainelMentor({ papel, pagina, dicaMissao = null }: PropsPainelMe
         ))}
       </div>
       <div className="suggest mt">
-        {papel === 'copiloto' && dicaMissao && (
+        {papel === 'acompanhante' && dicaMissao && (
           <button type="button" onClick={() => perguntar('O que faço agora?')}>
             O que faço agora?
           </button>

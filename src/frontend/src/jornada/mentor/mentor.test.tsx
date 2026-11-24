@@ -38,7 +38,7 @@ describe('Mentor', () => {
       inicio: 'consultor',
       'diagnostico': 'consultor',
       'plano-de-carreira': 'instrutor',
-      'mesa-de-trabalho': 'copiloto',
+      'mesa-de-trabalho': 'acompanhante',
       'revisao': 'mentor',
       'portfolio': 'mentor',
     }
@@ -96,8 +96,8 @@ describe('Mentor', () => {
     expect(screen.getAllByText(new RegExp(AVISO_JUIZ)).length).toBeGreaterThan(0)
     cleanup()
     const fetch = vi.spyOn(globalThis, 'fetch')
-    render(<PainelMentor papel="copiloto" pagina="mesa-de-trabalho" dicaMissao="Abra o chamado no ITSM." />)
-    expect(screen.getByRole('heading', { level: 2, name: 'Mentor, papel Copiloto' })).toBeInTheDocument()
+    render(<PainelMentor papel="acompanhante" pagina="mesa-de-trabalho" dicaMissao="Abra o chamado no ITSM." />)
+    expect(screen.getByRole('heading', { level: 2, name: 'Mentor, papel Acompanhante' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'O que faço agora?' }))
     expect(screen.getByText('Próximo passo: Abra o chamado no ITSM.')).toBeInTheDocument()
     expect(fetch).not.toHaveBeenCalled()

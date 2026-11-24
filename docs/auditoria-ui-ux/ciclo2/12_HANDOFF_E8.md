@@ -4,7 +4,7 @@ Data: 2026-11-16. Participam apenas Kiro CLI, Codex e Copilot. Este arquivo exis
 
 ## Estado
 
-- Repositório: D:\Projetos\Ativos\it-flight-simulator-hackbrasil. Remoto: github.com/cristianodossantosdasilva/it-flight-simulator-hackbrasil.
+- Repositório: D:\Projetos\Ativos\it-career-simulator-hackbrasil. Remoto: github.com/cristianodossantosdasilva/it-career-simulator-hackbrasil.
 - Branch de trabalho: ux-ciclo-2, HEAD 694d3c1, 11 commits à frente da main (a88988c). Nada foi enviado ao remoto. A main local e a origin/main estão em a88988c.
 - Etapas E1 a E7 concluídas. A E7 (rodada 2) está aprovada: lint 0, Vitest 109 de 109, build ok, dotnet build 0 avisos, Playwright 43 de 43 em 5 projetos, contraste 120 de 120 células sem violação, varreduras zeradas, sem regressão contra a baseline.
 - Falta somente a E8 (fechamento). Plano: 07_PLANO_FINAL.md. Relatório: 11_RELATORIO_VALIDACAO.md. Registro: 09_REGISTRO_PROGRESSO.md. Prompt da etapa: 08_PROMPTS_POR_ETAPA.md, seção E8.
@@ -45,6 +45,6 @@ afbbf59 fix(ux): estado inicial sem missao selecionada e focus coerente
 2. Varrer o diff da branch pelo caractere E comercial (montado com [char]38) e pelas formas passadas do verbo sair.
 3. Commit dos documentos pendentes (09, 11 e 12) com git add de caminhos explícitos: "docs(ciclo2): relatorio de validacao, registro e handoff". Sem trailer de coautoria.
 4. git switch main e git merge --ff-only ux-ciclo-2. Se não for avanço rápido, parar.
-5. git push origin main. Acompanhar o CI com gh run list e gh run watch e conferir o status do commit com gh api repos/cristianodossantosdasilva/it-flight-simulator-hackbrasil/commits/<HEAD>/status.
+5. git push origin main. Acompanhar o CI com gh run list e gh run watch e conferir o status do commit com gh api repos/cristianodossantosdasilva/it-career-simulator-hackbrasil/commits/<HEAD>/status.
 6. DevLedger, projeto simulador-carreira-ti (banco D:\GitHub\cristianodossantosdasilva\DevLedger\data\devledger.db): checkpoint, handoff e estado, append-only, com o módulo D:\GitHub\cristianodossantosdasilva\DevLedger\module\DevLedger.psm1. Descobrir os parâmetros com Get-Command e Get-Help. Verificar o código de saída.
 7. Atualizar o registro de progresso e informar os passos manuais do usuário.

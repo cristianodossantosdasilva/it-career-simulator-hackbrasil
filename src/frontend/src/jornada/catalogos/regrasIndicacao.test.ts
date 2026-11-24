@@ -102,10 +102,10 @@ describe('Feature: jornada-de-missao, Property 5: Cartão emitido sempre inicia 
       const indicada = indicarRota(respostas).rotaId
       expect(cartao.rotaIndicadaId, JSON.stringify(respostas)).toBe(indicada)
       expect(rotaPorId(cartao.rotaId)?.status, JSON.stringify(respostas)).toBe('disponivel')
-      expect(cartao.origem).toBe('checkin')
+      expect(cartao.origem).toBe('diagnostico')
       expect(cartao.versaoRoteiro).toBe(VERSAO_ROTEIRO)
       expect(cartao.respostas).toEqual(respostas)
-      expect(cartao.primeiraEscalaId).toBe(rotaPorId(cartao.rotaId)?.etapas[0]?.id)
+      expect(cartao.primeiraEtapaId).toBe(rotaPorId(cartao.rotaId)?.etapas[0]?.id)
       // O que é emitido precisa ser lido de volta pelo armazenamento.
       expect(analisarCartao(serializarCartao(cartao))).toEqual(cartao)
     }
@@ -121,6 +121,6 @@ describe('Feature: jornada-de-missao, Property 5: Cartão emitido sempre inicia 
     )
     expect(cartao.rotaIndicadaId).toBe('desenvolvimento')
     expect(cartao.rotaId).toBe('suporte-ti')
-    expect(cartao.primeiraEscalaId).toBe('help-desk-n1')
+    expect(cartao.primeiraEtapaId).toBe('help-desk-n1')
   })
 })

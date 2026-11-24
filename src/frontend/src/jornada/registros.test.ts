@@ -25,7 +25,7 @@ describe('Registro_de_Missão e agrupamento do Portfólio', () => {
           incidenteSeguranca: avaliacao.incidenteSeguranca,
           criterios: avaliacao.criterios.map(({ id, descricao, atendido }) => ({ id, descricao, atendido })),
         })
-        expect(registro?.escalaId).toBe(local?.etapa.id)
+        expect(registro?.etapaId).toBe(local?.etapa.id)
         expect(registro?.vertenteId).toBe(local?.vertente?.id ?? null)
         expect(registro?.versaoCenario).toBe(versao)
         expect(registro?.concluidoEm).toBe(AGORA.toISOString())

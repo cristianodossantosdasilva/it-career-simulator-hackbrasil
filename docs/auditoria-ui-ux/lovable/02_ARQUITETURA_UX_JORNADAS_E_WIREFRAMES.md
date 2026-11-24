@@ -1,6 +1,6 @@
 # Entregavel 02 — Arquitetura de UX, Jornadas do Aluno e Wireframes
 
-> **Auditoria Especializada de UI/UX e Design System — IT Flight Simulator**  
+> **Auditoria Especializada de UI/UX e Design System — IT Career Simulator**  
 > **Auditor Responsavel:** Lovable  
 > **Data:** Novembro de 2026  
 > **Pasta Oficial do Entregavel:** `docs/auditoria-ui-ux/lovable/02_ARQUITETURA_UX_JORNADAS_E_WIREFRAMES.md`  
@@ -11,7 +11,7 @@
 
 ## 1. Nova Arquitetura de Informacao e Shell de Produto
 
-Hoje o IT Flight Simulator apresenta uma quebra de navegacao: ao entrar na Workstation, o usuario parece entrar em outro sistema, as abas superiores (`Painel`, `Aulas`, `Caderno`, `Mentor`) somem e surgem botoes verticais de aplicativos (`ITSM`, `Chat`, `SimuDesk`, `KB`, `Replay`), sem que o aluno veja simultaneamente o roteiro pedagógico e a ferramenta que deve manipular.
+Hoje o IT Career Simulator apresenta uma quebra de navegacao: ao entrar na Workstation, o usuario parece entrar em outro sistema, as abas superiores (`Painel`, `Aulas`, `Caderno`, `Mentor`) somem e surgem botoes verticais de aplicativos (`ITSM`, `Chat`, `SimuDesk`, `KB`, `Replay`), sem que o aluno veja simultaneamente o roteiro pedagógico e a ferramenta que deve manipular.
 
 A nova arquitetura unifica o produto em um **App Shell Global Coeso**, inspirado nos padroes do **AWS Skill Builder**, **Microsoft Learn** e **TryHackMe**:
 
@@ -27,22 +27,22 @@ A nova arquitetura unifica o produto em um **App Shell Global Coeso**, inspirado
        +---> /turno/:sessaoId (Workstation Split-Screen — TryHackMe Style)
        |        |
        |        +--> Painel Esquerdo (35%): Guia do Turno / Missao / Mentor Tech Lead
-       |        +--> Painel Direito (65%): Cockpit de Aplicativos (ITSM / Chat / SimuDesk / KB)
+       |        +--> Painel Direito (65%): Mesa de Trabalho de Aplicativos (ITSM / Chat / SimuDesk / KB)
        |
-       +---> /turno/:sessaoId/debrief (Caixa-Preta Replay e Credencial Criptografica)
+       +---> /turno/:sessaoId/debrief (Revisão Replay e Credencial Criptografica)
        |
        +---> /curriculo/verificar (Verificador JCS e ECDSA P-256 Offline)
 ```
 
 ---
 
-## 2. Jornada do Aluno: Do Primeiro Voo ao Nivel Comercial
+## 2. Jornada do Aluno: Do Primeiro Missão ao Nivel Comercial
 
 A experiencia do participante de 15 a 22 anos (aluno de escola publica ou iniciante em transicao de carreira) e estruturada em quatro fases continuas:
 
-1. **Primeiros 30 Segundos (O "Primeiro Voo")**:
+1. **Primeiros 30 Segundos (O "Primeiro Missão")**:
    - O aluno nao le textos gigantes. Ele ve um card de destaque claro: *"Missao 01: Atendimento Inicial sob Engenharia Social"*.
-   - Botao primario unico e direto: `[ Decolar no Primeiro Turno (15 min) ]`.
+   - Botao primario unico e direto: `[ Iniciar no Primeiro Turno (15 min) ]`.
    - Um contador claro informa a empresa simulada: `Aurora Logistica — Estacao N1`.
 
 2. **Durante o Turno (Split-Screen sem Perda de Rumo)**:
@@ -54,8 +54,8 @@ A experiencia do participante de 15 a 22 anos (aluno de escola publica ou inicia
      - `[ ] 5. Recusar o reset indevido e encerrar com nota publica`
    - O painel direito alterna instantaneamente entre ITSM, Chat, SimuDesk e KB, mantendo o guia da missao sempre a vista.
 
-3. **Conclusao do Turno (Debriefing de Voo da Caixa-Preta)**:
-   - Apresentacao da telemetria de voo: precisao tecnica, adesao as normas de seguranca da informacao, tempo de SLA e qualidade da comunicacao com o usuario.
+3. **Conclusao do Turno (Debriefing de Missão da Revisão)**:
+   - Apresentacao da telemetria de missão: precisao tecnica, adesao as normas de seguranca da informacao, tempo de SLA e qualidade da comunicacao com o usuario.
    - Geracao do bloco assinado ECDSA P-256 do Curriculo Vivo.
 
 ---
@@ -80,7 +80,7 @@ A experiencia do participante de 15 a 22 anos (aluno de escola publica ou inicia
 | Cenario: Triagem de Chamado sob Tentativa de Engenharia Social   Duracao Estimada: 15 minutos    |
 | Objetivos: Validacao de identidade, consulta a KB-001 e bloqueio de reset fraudulento            |
 |                                                                                                  |
-| [ Decolar no Turno Pratico -> ]        [ Ver Teoria e Flashcards ]      Progresso do Nivel: 0%   |
+| [ Iniciar no Turno Pratico -> ]        [ Ver Teoria e Flashcards ]      Progresso do Nivel: 0%   |
 +--------------------------------------------------------------------------------------------------+
 |                                                                                                  |
 |  TRILHAS PROFISSIONALIZANTES (MATRIZ 560 HORAS)                                                  |
@@ -156,11 +156,11 @@ A experiencia do participante de 15 a 22 anos (aluno de escola publica ou inicia
 +---------------------------------------------------+----------------------------------------------+
 ```
 
-### 3.4. Tela 4: Caixa-Preta Replay e Credencial Curriculo Vivo (Desktop 1440px)
+### 3.4. Tela 4: Revisão Replay e Credencial Curriculo Vivo (Desktop 1440px)
 
 ```
 +--------------------------------------------------------------------------------------------------+
-| IT FLIGHT SIMULATOR    Debriefing de Voo: Sessao #4812    Nota Final: 95/100     [Salvar e Sair] |
+| IT FLIGHT SIMULATOR    Debriefing de Missão: Sessao #4812    Nota Final: 95/100     [Salvar e Sair] |
 +--------------------------------------------------------------------------------------------------+
 | RESUMO DE COMPETENCIAS OBSERVADAS                 | TIMELINE CRONOLOGICA DA CAIXA-PRETA          |
 |                                                   |                                              |
@@ -173,7 +173,7 @@ A experiencia do participante de 15 a 22 anos (aluno de escola publica ou inicia
 +---------------------------------------------------+----------------------------------------------+
 | CREDENCIAL CRIPTOGRAFICA DO CURRICULO VIVO (RFC 8785 JCS + ECDSA P-256)                          |
 |                                                                                                  |
-| Titular: Cristiano Silva                          Certificadora: IT Flight Simulator Engine      |
+| Titular: Cristiano Silva                          Certificadora: IT Career Simulator Engine      |
 | CBO Correspondente: 3172-10 (Tecnico de Suporte)  Hash SHA-256: e3b0c44298fc1c149afbf4c8996fb924|
 | Assinatura ECDSA: 3045022100a89f...               Status: Assinatura Valida (Auditavel Offline)  |
 |                                                                                                  |
@@ -189,7 +189,7 @@ A experiencia do participante de 15 a 22 anos (aluno de escola publica ou inicia
 +-----------------------------------+
 | MISSAO ATIVA                      |
 | Nivel 1: Engenharia Social        |
-| [ Decolar no Turno (15m) ]        |
+| [ Iniciar no Turno (15m) ]        |
 +-----------------------------------+
 | ETAPAS DO TURNO                   |
 | [✓] 1. Assumir chamado            |
@@ -222,4 +222,4 @@ A experiencia do participante de 15 a 22 anos (aluno de escola publica ou inicia
 | `App.tsx` (Barra topo) | "Missao Atual: 1) Clique em 'Assumir Chamado' no ITSM." | "Passo 1 de 5: Assuma o chamado CH-0001 na fila do ITSM" | Transforma texto solto em indicador de progresso estruturado |
 | `ItsmApp.tsx` (Acoes) | "Acoes de Seguranca (Engenharia Social): Passo a passo: 1) Assuma..." | "Protocolo de Seguranca Operacional — Verificacao Obrigatoria" | Elimina instrucoes redundantes dentro do formulario |
 | `ChatApp.tsx` (Vazio) | "Inicie o atendimento cumprimentando a usuaria ou peca orientacao ao Tech Lead." | "Conectado com Maria (Ramal 2042). Fila aguardando primeiro contato." | Simula estado autentico de mensageiro corporativo |
-| `TelaInicial.tsx` (Botao) | "Decolar no Simulador ->" | "Iniciar Turno no Simulador" | Mantem a metafora aeronautica sem parecer jogo arcade infantil |
+| `TelaInicial.tsx` (Botao) | "Iniciar no Simulador ->" | "Iniciar Turno no Simulador" | Mantem a metafora aeronautica sem parecer jogo arcade infantil |

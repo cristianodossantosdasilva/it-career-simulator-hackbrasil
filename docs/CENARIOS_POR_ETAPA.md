@@ -1,8 +1,8 @@
 # Cenários por etapa: tabela de entrega do backend
 
-Documento de entrega da spec `cenarios-por-escala` para a tarefa 18 da `jornada-de-voo` e para o Frontend. Fonte da verdade: o motor determinístico (`Simulador.Dominio`, `Simulador.Cenarios`, `Simulador.Avaliacao`). Todos os dados são sintéticos (empresa Aurora Logística, domínios `aurora.local` e `aurora-logistica.example`, hosts de documentação `*.example`).
+Documento de entrega da spec `cenarios-por-etapa` para a tarefa 18 da `jornada-de-carreira` e para o Frontend. Fonte da verdade: o motor determinístico (`Simulador.Dominio`, `Simulador.Cenarios`, `Simulador.Avaliacao`). Todos os dados são sintéticos (empresa Aurora Logística, domínios `aurora.local` e `aurora-logistica.example`, hosts de documentação `*.example`).
 
-Estado medido em 2026-11-17, branch `jornada-de-voo`. Tudo abaixo passou em `dotnet test src/backend/Simulador.slnx`. A disponibilidade `sorteada` significa que a Causa nasce quando a sessão é criada sem `causaForcada`. Toda Causa também nasce por `causaForcada`.
+Estado medido em 2026-11-17, branch `jornada-de-carreira`. Tudo abaixo passou em `dotnet test src/backend/Simulador.slnx`. A disponibilidade `sorteada` significa que a Causa nasce quando a sessão é criada sem `causaForcada`. Toda Causa também nasce por `causaForcada`.
 
 ## Itens entregues
 

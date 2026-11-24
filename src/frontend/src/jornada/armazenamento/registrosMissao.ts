@@ -10,7 +10,7 @@ import {
 import { PADRAO_SESSAO } from '../navegacao/rotas'
 import { analisarObjetoJson, ehDataIso, ehObjeto, ehTexto, gravarChave, lerChave } from './leituraSegura'
 
-export const CHAVE_REGISTROS_MISSAO = 'itfs_registros_voo'
+export const CHAVE_REGISTROS_MISSAO = 'itfs_registros_missao'
 
 export interface CriterioCopiado {
   id: string
@@ -34,7 +34,7 @@ export interface RegistroDeMissao {
   /** meta.versaoManifesto da projeção. */
   versaoCenario: string
   rotaId: IdRota
-  escalaId: string
+  etapaId: string
   /** Preenchida quando a etapa é a N3 Sênior. */
   vertenteId: IdVertente | null
   /** ISO 8601. */
@@ -70,10 +70,10 @@ function analisarResultado(valor: unknown): ResultadoJuizCopiado | null {
  */
 export function analisarRegistro(valor: unknown): RegistroDeMissao | null {
   if (!ehObjeto(valor) || valor.versao !== 1) return null
-  const { sessaoId, missao, versaoCenario, rotaId, escalaId, vertenteId, concluidoEm } = valor
+  const { sessaoId, missao, versaoCenario, rotaId, etapaId, vertenteId, concluidoEm } = valor
   if (!ehTexto(sessaoId) || !PADRAO_SESSAO.test(sessaoId)) return null
   if (!ehTexto(missao) || !ehIdMissao(missao)) return null
-  if (!ehTexto(versaoCenario) || !ehTexto(escalaId)) return null
+  if (!ehTexto(versaoCenario) || !ehTexto(etapaId)) return null
   if (!CATALOGO_ROTAS.some((rota) => rota.id === rotaId)) return null
   if (vertenteId !== null && !ehTexto(vertenteId)) return null
   if (!ehDataIso(concluidoEm)) return null
@@ -85,7 +85,7 @@ export function analisarRegistro(valor: unknown): RegistroDeMissao | null {
     missao,
     versaoCenario,
     rotaId: rotaId as IdRota,
-    escalaId,
+    etapaId,
     vertenteId: vertenteId as IdVertente | null,
     concluidoEm,
     resultado,
@@ -148,7 +148,7 @@ export function criarRegistro(
     missao: local.missao.id,
     versaoCenario: projecao.meta.versaoManifesto,
     rotaId: local.rota.id as IdRota,
-    escalaId: local.etapa.id,
+    etapaId: local.etapa.id,
     vertenteId: local.vertente?.id ?? null,
     concluidoEm: agora.toISOString(),
     resultado: {

@@ -265,7 +265,7 @@ export function TurnoDaMesa({ estado }: { estado: EstadoMesa }) {
                   <Icone nome="fechar" />
                 </button>
               </div>
-              <PainelMentor papel="copiloto" pagina="mesa-de-trabalho" dicaMissao={modo === 'treino' ? dicaAtual : null} />
+              <PainelMentor papel="acompanhante" pagina="mesa-de-trabalho" dicaMissao={modo === 'treino' ? dicaAtual : null} />
             </aside>
           ) : undefined
         }

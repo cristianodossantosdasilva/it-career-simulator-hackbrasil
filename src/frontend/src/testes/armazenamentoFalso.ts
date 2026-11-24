@@ -43,12 +43,12 @@ export function criarArmazenamentoFalso(
 
 export const CARTAO_DE_TESTE: CartaoPerfil = {
   versao: 1,
-  versaoRoteiro: 'checkin-v1',
+  versaoRoteiro: 'diagnostico-v1',
   rotaIndicadaId: 'suporte-ti',
   rotaId: 'suporte-ti',
-  primeiraEscalaId: 'help-desk-n1',
+  primeiraEtapaId: 'help-desk-n1',
   respostas: { interesse: 'ajudar-pessoas', situacao: 'comecando', ritmo: 'praticar' },
-  origem: 'checkin',
+  origem: 'diagnostico',
   emitidoEm: '2026-11-20T12:00:00.000Z',
 }
 
@@ -62,7 +62,7 @@ export function registroDeTeste(missao: IdMissao, sessaoId: string): RegistroDeM
     missao,
     versaoCenario: '1.0.0',
     rotaId: 'suporte-ti',
-    escalaId: local.etapa.id,
+    etapaId: local.etapa.id,
     vertenteId: local.vertente?.id ?? null,
     concluidoEm: '2026-11-20T12:30:00.000Z',
     resultado: {

@@ -52,7 +52,7 @@ export interface ValorMissao {
   artigoKbSelecionado: string | null
   abrirKbDoItsm: (artigoId: string) => void
   fecharArtigoKb: () => void
-  /** Usa a sessão em memória, retoma a registrada em `itfs_voos_ativos` ou cria outra. */
+  /** Usa a sessão em memória, retoma a registrada em `itfs_missoes_ativas` ou cria outra. */
   abrirMissao: (missao: IdMissao, opcoes: OpcoesAberturaMissao) => Promise<ResultadoAberturaMissao>
   /** Último Registro_de_Missão gravado a partir da avaliação do Juiz 360º nesta sessão. */
   registroRecente: RegistroDeMissao | null

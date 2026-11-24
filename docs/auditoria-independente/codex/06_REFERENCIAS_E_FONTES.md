@@ -7,7 +7,7 @@ Data de consulta: 15/11/2026. Prioridade a páginas oficiais. Preços devem ser 
 - Site, trilhas, calendário, submissão e parceiros: https://www.hackbrasil.com/
 - Regulamento, marcado como atualizado em 09/11/2026: https://www.hackbrasil.com/regulamento
 - Regras confirmadas: equipes de 1 a 4; uma submissão por time; trilha Acesso à educação; repo público novo após 04/11 às 21h e commits posteriores; código privado anterior não pode ser copiado; patrocinadores não são obrigatórios; repo, demo e vídeo acessível sem login de até 3 min; prazo 30/11 às 23h59 BRT; quatro critérios iguais e mínimo 20/40; finalistas anunciados 02/12; presença confirmada até 04/12; código congelado após submissão; final em 12/12.
-- Repo observado por CLI: https://github.com/cristianodossantosdasilva/it-flight-simulator-hackbrasil
+- Repo observado por CLI: https://github.com/cristianodossantosdasilva/it-career-simulator-hackbrasil
 
 ## Legislação e fontes públicas
 

@@ -2,7 +2,7 @@ import type { RegistroDeMissao } from '../armazenamento/registrosMissao'
 import { type IdEtapa, type Rota, missoesDaEtapa } from '../catalogos/catalogoRotas'
 
 export type ModoMesa = 'treino' | 'missao'
-export const CHAVE_MODO_MESA = 'itfs_modo_cabine'
+export const CHAVE_MODO_MESA = 'itfs_modo_mesa'
 
 export function lerModoMesa(): ModoMesa {
   try {

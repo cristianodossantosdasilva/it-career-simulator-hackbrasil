@@ -27,7 +27,7 @@ O **Mentor** acompanha a missão em quatro papéis:
 | --- | --- |
 | Consultor | Explica o Diagnóstico, mostra o que cada rota pratica e indica o próximo passo. |
 | Instrutor | Explica as etapas, as missões e o que libera a próxima etapa. |
-| Copiloto | Dá dicas durante o atendimento, na Mesa de Trabalho. |
+| Assistente | Dá dicas durante o atendimento, na Mesa de Trabalho. |
 | Mentor | Ajuda a ler a linha do tempo da missão e a planejar o próximo treino. |
 
 O Mentor orienta, não altera estado e não avalia. A avaliação técnica vem do Juiz 360º, que lê eventos observáveis calculados pelo motor determinístico.
@@ -62,7 +62,7 @@ A rota **Suporte de TI** tem quatro etapas. A N3 Sênior se divide em três vert
 | N3-C Segurança e Dados | `triagem-engenharia-social` | sem causas sorteadas |
 | N3-C Segurança e Dados | `diagnostico-sql-readonly` | sem causas sorteadas |
 
-A tabela completa, com comandos, eventos e critérios do Juiz 360º de cada causa, está em [docs/CENARIOS_POR_ESCALA.md](docs/CENARIOS_POR_ESCALA.md).
+A tabela completa, com comandos, eventos e critérios do Juiz 360º de cada causa, está em [docs/CENARIOS_POR_ETAPA.md](docs/CENARIOS_POR_ETAPA.md).
 
 ## Modo de demonstração para a banca
 
@@ -121,7 +121,7 @@ npm test -- --run
 npm run build
 ```
 
-Contagens medidas em **2026-11-18**, branch `jornada-de-voo`:
+Contagens medidas em **2026-11-18**, branch `jornada-de-carreira`:
 
 | Suíte | Resultado |
 | --- | --- |
@@ -132,7 +132,7 @@ Contagens medidas em **2026-11-18**, branch `jornada-de-voo`:
 
 ## Documentação
 
-- [Cenários por etapa](docs/CENARIOS_POR_ESCALA.md)
+- [Cenários por etapa](docs/CENARIOS_POR_ETAPA.md)
 - [PRD](docs/PRD_HACKATHON.md)
 - [Arquitetura técnica](docs/ARQUITETURA_HACKATHON.md)
 - [Planejamento pedagógico e matriz de 560 horas](docs/PLANEJAMENTO_PEDAGOGICO_E_MATRIZ_560H.md)

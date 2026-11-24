@@ -2,9 +2,9 @@
 
 ## Overview
 
-Este documento descreve como o Backend (`src/backend`, .NET 10) passa a oferecer os 2 cenários novos e as 8 Causas novas da spec `cenarios-por-escala`, seguindo os padrões dos cenários atuais: definição no `CatalogoCenarios`, estado inicial por Causa, comandos declarados, Eventos imutáveis, Projeção por replay, critérios binários no Juiz_360, pistas e personas roteirizadas.
+Este documento descreve como o Backend (`src/backend`, .NET 10) passa a oferecer os 2 cenários novos e as 8 Causas novas da spec `cenarios-por-etapa`, seguindo os padrões dos cenários atuais: definição no `CatalogoCenarios`, estado inicial por Causa, comandos declarados, Eventos imutáveis, Projeção por replay, critérios binários no Juiz_360, pistas e personas roteirizadas.
 
-Fonte de leitura (código da worktree `D:\Projetos\Ativos\it-flight-simulator-hackbrasil-jornada`, branch `jornada-de-voo`, commit `bc921f7`; `graphify update src` e `graphify explain "Motor"` executados, e leituras pontuais dos arquivos abaixo):
+Fonte de leitura (código da worktree `D:\Projetos\Ativos\it-career-simulator-jornada`, branch `jornada-de-carreira`, commit `bc921f7`; `graphify update src` e `graphify explain "Motor"` executados, e leituras pontuais dos arquivos abaixo):
 
 | Arquivo | Linhas lidas | Fato relevante |
 | --- | --- | --- |
@@ -25,13 +25,13 @@ Fonte de leitura (código da worktree `D:\Projetos\Ativos\it-flight-simulator-ha
 | Decisão | Motivo |
 | --- | --- |
 | Nenhuma ação nova na API. Comandos novos entram como Comandos_Declarados de `estacao.executar_comando`. | A interface atual envia só ações existentes. Comandos digitados no terminal funcionam sem controle novo, e `TabelaCustoMinutos` não muda (todo comando custa 2 minutos). |
-| Módulo novo `Simulador.Dominio/ComandosPorEscala.cs`, chamado pelo `Motor` antes de `ExecutarComandoEstacao`. | `Motor.cs` já tem 990 linhas. O módulo devolve vários Eventos por comando, o que a tupla de `ExecutarComandoEstacao` não permite sem reescrever dezenas de retornos. |
+| Módulo novo `Simulador.Dominio/ComandosPorEtapa.cs`, chamado pelo `Motor` antes de `ExecutarComandoEstacao`. | `Motor.cs` já tem 990 linhas. O módulo devolve vários Eventos por comando, o que a tupla de `ExecutarComandoEstacao` não permite sem reescrever dezenas de retornos. |
 | O novo estado de um comando é o resultado de aplicar, em ordem, os Eventos emitidos por uma função única `EfeitosDeEventos.Aplicar`, usada também pela `Projecao`. | A equivalência entre estado calculado e estado reconstruído passa a valer por construção. |
 | Estado dos itens novos fica em `EstadoEstacao.Servicos` (lista de `ServicoEstacao` com status em texto), como o N4 SRE faz com pods e TLS. | Zero mudança no formato de `EstadoEstacao` e no JSON público. O custo é que os status ficam visíveis em `ProjetarSessaoPublica`, como já acontece hoje. |
 | Campos novos em records existentes entram só como parâmetros finais com valor padrão. | Todo `new` e todo `with` existente continua compilando. |
 | Cenários novos usam a versão `v0.1-hackathon`. | É o padrão `_` de `Program.cs`, que fica sem alteração. |
 | `CatalogoCenarios` passa a `sealed partial class`, com um arquivo por cenário novo. | Mantém o arquivo atual pequeno e cada item revisável sozinho. |
-| `Juiz360` passa a `static partial class`, com `Juiz360.Escalas.cs`. | Idem. O teste de contrato de KB passa a ler todos os `.cs` da pasta. |
+| `Juiz360` passa a `static partial class`, com `Juiz360.Etapas.cs`. | Idem. O teste de contrato de KB passa a ler todos os `.cs` da pasta. |
 | Causas novas de cenários existentes nascem só por `causaForcada` até a tarefa de Ativação_no_Sorteio. | Protege o teste da semente 48 e evita que usuários reais recebam Causas sem roteiro no Frontend. |
 
 ## Architecture
@@ -39,7 +39,7 @@ Fonte de leitura (código da worktree `D:\Projetos\Ativos\it-flight-simulator-ha
 ```mermaid
 graph TD
     API[Simulador.Api\nProgram.cs sem alteracao] --> M[Motor.Aplicar]
-    M --> CE[ComandosPorEscala.TentarExecutar]
+    M --> CE[ComandosPorEtapa.TentarExecutar]
     M --> GEN[ExecutarComandoEstacao\ncomandos genericos]
     CE --> EF[EfeitosDeEventos.Aplicar]
     PR[Projecao.Reconstruir] --> EF
@@ -47,7 +47,7 @@ graph TD
     CAT --> PR
     M --> EV[(Eventos append-only)]
     EV --> PR
-    EV --> J[Juiz360 + Juiz360.Escalas]
+    EV --> J[Juiz360 + Juiz360.Etapas]
     J --> KB[KbCatalogo]
     D[ClienteDialogo] -.somente texto.-> API
     M --> P[PistasPorCenario]
@@ -58,17 +58,17 @@ graph TD
 | Arquivo | Mudança |
 | --- | --- |
 | `Simulador.Dominio/EstadoSessao.cs` | `IdentidadeTitular` (record novo); `DefinicaoCenario` ganha `IdentidadeTitular? Titular = null` e `bool PedidoPorTerceiro = false`; `EstadoMeta` ganha `bool PedidoPorTerceiro = false`; `EstadoDialogo` ganha `bool TitularContatado = false`. |
-| `Simulador.Dominio/ComandosPorEscala.cs` (novo) | Roteia e executa os comandos dos itens novos e `net use` de `pasta-rede-inacessivel`. |
+| `Simulador.Dominio/ComandosPorEtapa.cs` (novo) | Roteia e executa os comandos dos itens novos e `net use` de `pasta-rede-inacessivel`. |
 | `Simulador.Dominio/EfeitosDeEventos.cs` (novo) | Efeito de cada Evento novo sobre `EstadoEstacao` e `EstadoDialogo`. |
 | `Simulador.Dominio/PistasPorCenario.cs` (novo) | Textos das Pistas por Cenário e família de Causa. |
-| `Simulador.Dominio/Motor.cs` | (a) em `estacao.executar_comando`, chamada a `ComandosPorEscala.TentarExecutar` depois do filtro de comandos declarados; (b) `dialogo.verificar_identidade` usa `cenario.Titular`; (c) `seguranca.resetar_senha` delega para `ComandosPorEscala.RedefinirSenha` quando `cenario.Titular` existe; (d) `dialogo.pedir_pista` usa `PistasPorCenario`; (e) `VerificarCompartilhamentoOk` exige `UnidadeRedeZ` igual a `Mapeada` na Causa C4; (f) `AplicarEventosIniciais` copia `PedidoPorTerceiro`. |
+| `Simulador.Dominio/Motor.cs` | (a) em `estacao.executar_comando`, chamada a `ComandosPorEtapa.TentarExecutar` depois do filtro de comandos declarados; (b) `dialogo.verificar_identidade` usa `cenario.Titular`; (c) `seguranca.resetar_senha` delega para `ComandosPorEtapa.RedefinirSenha` quando `cenario.Titular` existe; (d) `dialogo.pedir_pista` usa `PistasPorCenario`; (e) `VerificarCompartilhamentoOk` exige `UnidadeRedeZ` igual a `Mapeada` na Causa C4; (f) `AplicarEventosIniciais` copia `PedidoPorTerceiro`. |
 | `Simulador.Dominio/Projecao.cs` | `default` do `switch` chama `EfeitosDeEventos.Aplicar`; `EstadoMeta` recebe `PedidoPorTerceiro`. |
 | `Simulador.Cenarios/CatalogoCenarios.cs` e arquivos parciais | Cenários novos, Causas novas, sorteios e comandos declarados. |
-| `Simulador.Avaliacao/Juiz360.cs`, `Juiz360.Escalas.cs` (novo), `KbCatalogo.cs` | Despacho por Cenário e Causa; critérios H, F e B; J6; KB-027 a KB-032. |
+| `Simulador.Avaliacao/Juiz360.cs`, `Juiz360.Etapas.cs` (novo), `KbCatalogo.cs` | Despacho por Cenário e Causa; critérios H, F e B; J6; KB-027 a KB-032. |
 | `Simulador.Dialogo/ClienteDialogo.cs` | Respostas de `cliente` e `techlead` dos itens novos. |
 | `tests/**` | Arquivos novos listados em Testing Strategy; ajuste do teste de contrato de KB. |
 | `src/frontend/src/data/kbCatalogo.ts` | Somente com a Decisão 2: 6 artigos novos. |
-| `docs/CENARIOS_POR_ESCALA.md` (novo) | Tabela de entrega para a tarefa 18 da `jornada-de-voo`. |
+| `docs/CENARIOS_POR_ETAPA.md` (novo) | Tabela de entrega para a tarefa 18 da `jornada-de-carreira`. |
 
 ## Components and Interfaces
 
@@ -90,36 +90,36 @@ public sealed record EstadoDialogo(/* campos atuais */, IReadOnlyList<MensagemDi
 
 `ProjetarSessaoPublica` serializa `estado.Dialogo` inteiro, então o JSON ganha `titularContatado` (campo aditivo; o Frontend ignora campo desconhecido). O `meta` público é montado campo a campo e não expõe `PedidoPorTerceiro`.
 
-### Integração do `ComandosPorEscala` no Motor
+### Integração do `ComandosPorEtapa` no Motor
 
 ```csharp
 // Motor.Aplicar, case "estacao.executar_comando", depois do filtro "suportado" e antes de ExecutarComandoEstacao
-var escala = ComandosPorEscala.TentarExecutar(novo, cmd, cenario);
-if (escala is not null)
+var etapa = ComandosPorEtapa.TentarExecutar(novo, cmd, cenario);
+if (etapa is not null)
 {
-    novo = escala.NovoEstado;
+    novo = etapa.NovoEstado;
     gerados.Add(new(++seqAtual, "ComandoExecutado", new Dictionary<string, object?>
     {
         ["comando"] = cmd,
         ["privilegio"] = novo.Estacao.Privilegio.ToString(),
-        ["saida"] = escala.Saida
+        ["saida"] = etapa.Saida
     }, minutoDestino));
-    foreach (var ev in escala.Eventos)
+    foreach (var ev in etapa.Eventos)
         gerados.Add(new(++seqAtual, ev.Tipo, ev.Dados, minutoDestino));
     break;
 }
 ```
 
 ```csharp
-internal sealed record EventoEscala(string Tipo, IReadOnlyDictionary<string, object?> Dados);
-internal sealed record ResultadoComandoEscala(EstadoSessao NovoEstado, string Saida, IReadOnlyList<EventoEscala> Eventos);
+internal sealed record EventoEtapa(string Tipo, IReadOnlyDictionary<string, object?> Dados);
+internal sealed record ResultadoComandoEtapa(EstadoSessao NovoEstado, string Saida, IReadOnlyList<EventoEtapa> Eventos);
 
-internal static class ComandosPorEscala
+internal static class ComandosPorEtapa
 {
     // Retorna null quando o comando não pertence a nenhum item desta spec (segue para o fluxo genérico).
-    internal static ResultadoComandoEscala? TentarExecutar(EstadoSessao estado, string comando, DefinicaoCenario cenario);
+    internal static ResultadoComandoEtapa? TentarExecutar(EstadoSessao estado, string comando, DefinicaoCenario cenario);
     // Usado por seguranca.resetar_senha em cenários com Titular.
-    internal static ResultadoComandoEscala RedefinirSenha(EstadoSessao estado, DefinicaoCenario cenario);
+    internal static ResultadoComandoEtapa RedefinirSenha(EstadoSessao estado, DefinicaoCenario cenario);
 }
 ```
 
@@ -183,7 +183,7 @@ Os nomes dos serviços são neutros (não citam a Causa) e a lista de serviços 
 
 ### Origem do bloqueio e das saídas
 
-Textos de saída ficam como constantes no `ComandosPorEscala`, sem acento, no mesmo padrão dos textos atuais. A Origem_do_Bloqueio aparece só na saída de `eventos-seguranca` e nunca em `Logs`, em `Servicos` nem em Pistas, porque `ProjetarSessaoPublica` expõe `Logs` e `Servicos` desde o início da sessão.
+Textos de saída ficam como constantes no `ComandosPorEtapa`, sem acento, no mesmo padrão dos textos atuais. A Origem_do_Bloqueio aparece só na saída de `eventos-seguranca` e nunca em `Logs`, em `Servicos` nem em Pistas, porque `ProjetarSessaoPublica` expõe `Logs` e `Servicos` desde o início da sessão.
 
 ## Item 1 a 3: reset-senha-desbloqueio
 
@@ -235,7 +235,7 @@ Logs iniciais (`EstadoEstacao.Logs`):
 
 Precedência: a regra "sem verificação" vale antes da regra por Causa. Com `IdentidadeValidada` falso, nenhum comando sensível produz efeito nem `AcaoDesnecessariaRegistrada`.
 
-`seguranca.resetar_senha` em cenário com `Titular` chama `ComandosPorEscala.RedefinirSenha`, que aplica a mesma tabela da linha `redefinir-senha`. Como a ação não é um comando, o Motor não emite `ComandoExecutado`: emite só os Eventos da linha. Nos demais cenários, o `case` atual fica intacto.
+`seguranca.resetar_senha` em cenário com `Titular` chama `ComandosPorEtapa.RedefinirSenha`, que aplica a mesma tabela da linha `redefinir-senha`. Como a ação não é um comando, o Motor não emite `ComandoExecutado`: emite só os Eventos da linha. Nos demais cenários, o `case` atual fica intacto.
 
 ### Verificação de identidade (`dialogo.verificar_identidade`)
 
@@ -353,7 +353,7 @@ XP = 20 por critério atendido, menos 25 se há Ação_Prejudicial, mínimo zero
 
 `nslookup` e `ping` usam o fluxo genérico: em EMAIL_PROVEDOR o host resolve e responde (o problema não é de rede interna); em DOMINIO_SUSPENSO o host não existe no DNS do cenário e o fluxo genérico responde `Host ... nao encontrado no DNS.` e `A solicitacao ping nao pode encontrar o host ...`, sem texto inventado.
 
-### Comandos (em `ComandosPorEscala`)
+### Comandos (em `ComandosPorEtapa`)
 
 | Comando | Pré-condição | Eventos | Saída |
 | --- | --- | --- | --- |
@@ -461,8 +461,8 @@ Comandos: `dotnet test src/backend/Simulador.slnx` (completo, no Checkpoint) e `
 | `tests/Simulador.Dominio.Tests/PastaRedeC4Tests.cs` | C4 completo, `net use` em C1 a C3, regressão de C1 a C3. |
 | `tests/Simulador.Dominio.Tests/BackupRestoreTests.cs` | Duas Causas, privilégio, ações prejudiciais, B1 a B7, reconstrução. |
 | `tests/Simulador.Dominio.Tests/IncidenteExternoTests.cs` | Duas Causas externas, F1 a F9, PATCH_MASSIVO inalterado, apelido GATEWAY, reconstrução. |
-| `tests/Simulador.Dominio.Tests/DialogoCenariosPorEscalaTests.cs` | Pistas (3 por família, sem identificador de Causa), personas, `EhTentativaDeInjecao`. |
-| `tests/Simulador.Api.Tests/CenariosPorEscalaApiTests.cs` | Criação de sessão para os 2 cenários novos e Causas forçadas, replay com Causa oculta, `carreira/resumo` com sessão nova, comando fora do escopo. |
+| `tests/Simulador.Dominio.Tests/DialogoCenariosPorEtapaTests.cs` | Pistas (3 por família, sem identificador de Causa), personas, `EhTentativaDeInjecao`. |
+| `tests/Simulador.Api.Tests/CenariosPorEtapaApiTests.cs` | Criação de sessão para os 2 cenários novos e Causas forçadas, replay com Causa oculta, `carreira/resumo` com sessão nova, comando fora do escopo. |
 
 Cada item acrescenta testes de exemplo obrigatórios de: criação, fluxo correto, pelo menos 2 fluxos errados com o critério do Juiz_360 que falha, reconstrução igual (estado e hash), comando fora do escopo. Os testes de propriedade são opcionais (`*` em `tasks.md`).
 
@@ -491,11 +491,11 @@ Propriedades do tipo "para toda entrada válida", implementadas como `[Theory]` 
 | `ProjetarSessaoPublica` expõe `Servicos` e `Logs` desde o início. | Estado revela pistas cedo. | Origem do bloqueio, causa do backup e saída de `whois` só em saída de comando; status de serviços neutros. |
 | `Dados` voltam como `JsonElement` do Event_Store. | `Convert` ou cast falham em produção, não em memória. | Ler com `?.ToString()` e comparar texto; teste de API com `PostgresEventStore` só se o ambiente do CI já o roda (não verificado nesta spec). |
 | Prazo de 30 de novembro de 2026. | Item incompleto na entrega. | Itens entregáveis sozinhos, commit local por Checkpoint, corte pelo fim da lista. |
-| Troca de status do Frontend (tarefa 18) acontece antes do item no Backend. | Botão Embarcar para Causa inexistente. | A tabela de entrega em `docs/CENARIOS_POR_ESCALA.md` só marca disponível o que passou no Checkpoint. |
+| Troca de status do Frontend (tarefa 18) acontece antes do item no Backend. | Botão Iniciar para Causa inexistente. | A tabela de entrega em `docs/CENARIOS_POR_ETAPA.md` só marca disponível o que passou no Checkpoint. |
 
-## Handoff para a tarefa 18 da jornada-de-voo e para o Frontend
+## Handoff para a tarefa 18 da jornada-de-carreira e para o Frontend
 
-Tabela mantida em `docs/CENARIOS_POR_ESCALA.md` (criada na tarefa 20), com uma linha por Item: Cenário, Causa, identificador gravado, disponibilidade no Backend (`forçada` ou `sorteada`), comandos declarados e Eventos novos. Pontos de atenção para o Frontend, fora desta spec e não verificados na interface:
+Tabela mantida em `docs/CENARIOS_POR_ETAPA.md` (criada na tarefa 20), com uma linha por Item: Cenário, Causa, identificador gravado, disponibilidade no Backend (`forçada` ou `sorteada`), comandos declarados e Eventos novos. Pontos de atenção para o Frontend, fora desta spec e não verificados na interface:
 
 - `lab/dicaMissao.ts` e `lab/roteiros.ts` não conhecem os cenários novos nem as Causas externas.
 - `educacao/catalogoEducacional.ts` não tem nível para os 2 cenários novos, e `nivelPorCenarioId` devolve o primeiro nível quando não encontra o `cenarioId`.

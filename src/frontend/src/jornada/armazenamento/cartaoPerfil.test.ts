@@ -20,7 +20,7 @@ const CORRUPCOES: readonly ((cartao: Record<string, unknown>) => void)[] = [
   (c) => (c.rotaId = 'dados'),
   (c) => (c.rotaId = 'infraestrutura-nuvem'),
   (c) => (c.rotaIndicadaId = 'qualquer'),
-  (c) => (c.primeiraEscalaId = 'etapa-fora'),
+  (c) => (c.primeiraEtapaId = 'etapa-fora'),
   (c) => (c.respostas = null),
   (c) => (c.respostas = { interesse: 'x', situacao: 3, ritmo: 'y' }),
   (c) => (c.origem = 'demonstracao'),

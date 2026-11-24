@@ -66,19 +66,19 @@ export function rotaDePerfil(indicada: IdRota): IdRota {
 export function montarCartaoDoDiagnostico(respostas: RespostasDiagnostico, emitidoEm: string): CartaoPerfil {
   const { rotaId: rotaIndicadaId } = indicarRota(respostas)
   const rotaId = rotaDePerfil(rotaIndicadaId)
-  const primeiraEscalaId = rotaPorId(rotaId)?.etapas[0]?.id ?? ''
+  const primeiraEtapaId = rotaPorId(rotaId)?.etapas[0]?.id ?? ''
   return {
     versao: 1,
     versaoRoteiro: VERSAO_ROTEIRO,
     rotaIndicadaId,
     rotaId,
-    primeiraEscalaId,
+    primeiraEtapaId,
     respostas: {
       interesse: respostas.interesse,
       situacao: respostas.situacao,
       ritmo: respostas.ritmo,
     },
-    origem: 'checkin',
+    origem: 'diagnostico',
     emitidoEm,
   }
 }

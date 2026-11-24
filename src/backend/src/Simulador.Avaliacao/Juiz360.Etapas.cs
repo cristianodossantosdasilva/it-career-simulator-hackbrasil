@@ -3,7 +3,7 @@ using Simulador.Itsm;
 
 namespace Simulador.Avaliacao;
 
-/// <summary>Criterios binarios dos cenarios por escala. Cada criterio e decidido so por Eventos ou pelo estado final.</summary>
+/// <summary>Criterios binarios dos cenarios por etapa. Cada criterio e decidido so por Eventos ou pelo estado final.</summary>
 public static partial class Juiz360
 {
     private static string? Dado(EnvelopeEvento ev, string chave) =>

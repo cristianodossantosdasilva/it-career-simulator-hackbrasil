@@ -14,7 +14,7 @@ import { ConfiguracaoModoMissao } from '../diagnostico/ConfiguracaoModoMissao'
 import { type ModoMesa, calcularDominiosDaRota, gravarModoMesa, lerModoMesa } from '../diagnostico/configuracaoMissao'
 import { PainelMentor } from '../mentor/PainelMentor'
 import { AvisoHonesto } from '../componentes/AvisoHonesto'
-import { ConviteCopiloto } from '../componentes/ConviteCopiloto'
+import { ConviteMentor } from '../componentes/ConviteMentor'
 import { ListaEtapas } from '../componentes/ListaEtapas'
 import { OpcoesAvancadas } from '../componentes/OpcoesAvancadas'
 import { useArmazenamentoJornada } from '../contextoArmazenamentoJornada'
@@ -31,7 +31,7 @@ function enderecoDaMesa(missao: IdMissao): string {
   return enderecoDe({ pagina: 'mesa-de-trabalho', missao, semente: null, causa: null, nova: false })
 }
 
-function missoesEmbarcaveis(visoes: readonly VisaoEtapa[]) {
+function missoesIniciaveis(visoes: readonly VisaoEtapa[]) {
   return visoes.flatMap((etapa) => etapa.grupos.flatMap((grupo) => grupo.missoes.filter((missao) => missao.podeIniciar)))
 }
 
@@ -57,7 +57,7 @@ export function PaginaPlanoDeCarreira() {
       ? visoes.filter((visao) => dominiosSelecionados.includes(visao.etapa.id))
       : visoes
 
-  const iniciaveis = missoesEmbarcaveis(visoesFiltradas)
+  const iniciaveis = missoesIniciaveis(visoesFiltradas)
   // Quem ainda não tem registro vem primeiro: o primeira missão é o primeiro que a rota libera e que falta fazer.
   const primeira = iniciaveis.find((missao) => missao.estado !== 'concluida') ?? iniciaveis[0] ?? null
 
@@ -121,7 +121,7 @@ export function PaginaPlanoDeCarreira() {
         </p>
       </header>
       <ControleModoDemonstracao />
-      {cartao?.origem === 'checkin-rapido' && (
+      {cartao?.origem === 'diagnostico-rapido' && (
         <AvisoHonesto acoes={[{ tipo: 'link', rotulo: ROTULO_DIAGNOSTICO_COMPLETO, href: '/diagnostico' }]}>
           {AVISO_CARTAO_DO_DIAGNOSTICO_RAPIDO}
         </AvisoHonesto>
@@ -188,7 +188,7 @@ export function PaginaPlanoDeCarreira() {
           ))}
         </div>
       </details>
-      <ConviteCopiloto />
+      <ConviteMentor />
       <PainelMentor papel="instrutor" pagina="plano-de-carreira" />
     </div>
   )

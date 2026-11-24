@@ -1719,7 +1719,7 @@ input[aria-label="Buscar na Base de Conhecimento"] { min-width: 260px; }
 .cartao-missao-texto { margin: 0; font-size: var(--font-size-base); color: var(--text-secondary); }
 .cartao-missao-acoes { margin-top: auto; display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .cartao-missao-acoes .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); }
-.convite-copiloto, .opcoes-avancadas { padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); }
+.convite-mentor, .opcoes-avancadas { padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); }
 .opcoes-avancadas summary { display: flex; align-items: center; min-height: var(--touch-target); cursor: pointer; font-weight: var(--font-weight-medium); color: var(--text-primary); }
 
 /* Diagnóstico */

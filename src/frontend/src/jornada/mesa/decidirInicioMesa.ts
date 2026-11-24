@@ -4,7 +4,7 @@ import type { IdMissao } from '../catalogos/catalogoRotas'
 export type DecisaoInicioMesa =
   /** A sessão em memória já é desta missão. */
   | { tipo: 'usar-memoria' }
-  /** Há sessão registrada para a missão em `itfs_voos_ativos`. */
+  /** Há sessão registrada para a missão em `itfs_missoes_ativas`. */
   | { tipo: 'retomar'; sessaoId: string }
   | { tipo: 'criar' }
 

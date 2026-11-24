@@ -186,7 +186,7 @@ describe('abrirMissao', () => {
     expect(registro).toMatchObject({
       sessaoId: 'sessao-nova',
       missao: 'sre-cloud-latencia',
-      escalaId: 'n3-senior',
+      etapaId: 'n3-senior',
       vertenteId: 'n3-a-redes-nuvem',
       versaoCenario: '1.2.0',
     })

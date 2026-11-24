@@ -149,10 +149,10 @@ describe('Página Plano de Carreira', () => {
     ])
   })
 
-  it('o convite ao copiloto não tem campo nem faz requisição', () => {
+  it('o convite ao mentor não tem campo nem faz requisição', () => {
     const rede = vi.spyOn(globalThis, 'fetch')
     abrir()
-    const convite = screen.getByRole('heading', { name: 'Seja copiloto do projeto' }).closest('section') as HTMLElement
+    const convite = screen.getByRole('heading', { name: 'Seja mentor do projeto' }).closest('section') as HTMLElement
     expect(within(convite).queryByRole('textbox')).not.toBeInTheDocument()
     expect(convite.querySelector('form, input, textarea, select, button')).toBeNull()
     expect(rede).not.toHaveBeenCalled()
@@ -194,7 +194,7 @@ describe('Página Plano de Carreira', () => {
 
     fireEvent.click(missao)
     expect(missao).toHaveAttribute('aria-pressed', 'true')
-    expect(window.localStorage.getItem('itfs_modo_cabine')).toBe('missao')
+    expect(window.localStorage.getItem('itfs_modo_mesa')).toBe('missao')
     expect(screen.getByRole('button', { name: 'Iniciar em Modo Missão' })).toBeInTheDocument()
 
     const regras = screen.getByRole('region', { name: 'Pronto para começar?' })

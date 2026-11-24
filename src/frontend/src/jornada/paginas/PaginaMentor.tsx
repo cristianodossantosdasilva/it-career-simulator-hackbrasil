@@ -2,7 +2,7 @@ import { PAPEIS, PAPEL_POR_PAGINA, AVISO_JUIZ, type PapelMentor } from '../mento
 import { TEXTOS_HOME } from '../catalogos/catalogoVocacional'
 import { NOME_PAGINA, type IdPagina } from '../navegacao/rotas'
 
-const ORDEM_DOS_PAPEIS: readonly PapelMentor[] = ['consultor', 'instrutor', 'copiloto', 'mentor']
+const ORDEM_DOS_PAPEIS: readonly PapelMentor[] = ['consultor', 'instrutor', 'acompanhante', 'mentor']
 
 function paginasDoPapel(papel: PapelMentor): string {
   const paginas = (Object.keys(PAPEL_POR_PAGINA) as IdPagina[]).filter((pagina) => PAPEL_POR_PAGINA[pagina] === papel)

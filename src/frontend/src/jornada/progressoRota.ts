@@ -252,7 +252,7 @@ export function agruparRegistros(rota: Rota, registros: readonly RegistroDeMissa
 
 export interface ExigenciaPortfolio {
   /** Uma exigência por etapa da rota, na ordem do catálogo. */
-  escalaId: string
+  etapaId: string
   rotulo: string
   cumprida: boolean
   /** Pendente e a etapa sem Missão disponível (Requirement 9.9). */
@@ -277,7 +277,7 @@ export function calcularPortfolioAnalista(rota: Rota, registros: readonly Regist
     const missoes = missoesDaEtapa(etapa)
     const cumprida = missoes.some((item) => comRegistro.has(item.missao.id))
     const semDisponivel = !missoes.some((item) => missaoDisponivel(item.missao))
-    return { escalaId: etapa.id, rotulo: rotuloExigencia(etapa), cumprida, aguardaPreparacao: !cumprida && semDisponivel }
+    return { etapaId: etapa.id, rotulo: rotuloExigencia(etapa), cumprida, aguardaPreparacao: !cumprida && semDisponivel }
   })
   return { conquistado: exigencias.length > 0 && exigencias.every((item) => item.cumprida), exigencias }
 }

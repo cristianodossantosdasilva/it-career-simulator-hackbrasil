@@ -1,4 +1,4 @@
-# Implementation Plan: Cenários por Escala
+# Implementation Plan: Cenários por Etapa
 
 ## Overview
 
@@ -7,12 +7,12 @@ Implementação em C# (.NET 10) em `src/backend`, sem mudança em `src/frontend`
 A ordem entrega valor primeiro e deixa cada Item pronto sozinho, com checkpoint e commit local por Item:
 
 1. Alicerce comum, sem mudança de comportamento (tarefas 1 e 2).
-2. Escala 1, Help Desk N1: `reset-senha-desbloqueio` com SENHA_ESQUECIDA, depois CONTA_BLOQUEADA, depois SENHA_EXPIRADA (tarefas 3 a 8). É o primeiro item porque o Brevê de piloto exige um voo na Escala 1.
+2. Etapa 1, Help Desk N1: `reset-senha-desbloqueio` com SENHA_ESQUECIDA, depois CONTA_BLOQUEADA, depois SENHA_EXPIRADA (tarefas 3 a 8). É o primeiro item porque o Brevê de analista exige uma missão na Etapa 1.
 3. Causa C4 de `pasta-rede-inacessivel` (tarefas 9 e 10), a menor entrega e a que não depende de nenhum item novo.
 4. Vertente N3-B: `falha-backup-restore` com REPOSITORIO_CHEIO, depois CADEIA_CORROMPIDA (tarefas 11 a 14).
 5. `incidente-massivo`: EMAIL_PROVEDOR, depois DOMINIO_SUSPENSO (tarefas 15 a 18).
 6. Ativação das Causas novas de cenários existentes no Sorteio, com portão de confirmação do usuário (tarefa 19).
-7. Validação final, documento de entrega para a tarefa 18 da `jornada-de-voo` e fechamento (tarefas 20 a 22).
+7. Validação final, documento de entrega para a tarefa 18 da `jornada-de-carreira` e fechamento (tarefas 20 a 22).
 
 Cada Item acrescenta a sua Causa ao Sorteio do cenário novo no mesmo commit que a entrega; as Causas novas de cenários existentes (C4, EMAIL_PROVEDOR, DOMINIO_SUSPENSO) só entram no Sorteio na tarefa 19, e antes dela nascem só por `causaForcada`.
 
@@ -24,12 +24,12 @@ Decisões pendentes do usuário (padrão adotado em cada uma, ver `requirements.
 
 - [x] 0. Preparar branch, linha de base e mapa de impacto
   - [x] 0.1 Conferir o estado de partida
-    - Em `D:\Projetos\Ativos\it-flight-simulator-hackbrasil-jornada`, somente leitura: `git status --short --branch`, `git log --oneline -3` e `git rev-parse HEAD`. Registrar o commit de partida
+    - Em `D:\Projetos\Ativos\it-career-simulator-jornada`, somente leitura: `git status --short --branch`, `git log --oneline -3` e `git rev-parse HEAD`. Registrar o commit de partida
     - Conferir que `docs/vetores-jcs-sha256.json`, `src/frontend/src/utils/jcs.ts` e `src/frontend/src/api` não têm alteração local
     - _Requirements: 16.6, 18.2_
   - [x] 0.2 Criar a branch de trabalho (Decisão 1)
-    - Padrão: `git worktree add D:\Projetos\Ativos\it-flight-simulator-hackbrasil-cenarios -b cenarios-por-escala jornada-de-voo`, depois `git status` limpo e `git rev-parse --abbrev-ref HEAD` igual a `cenarios-por-escala` na nova worktree
-    - Se o usuário escolher commitar em `jornada-de-voo`, não criar worktree e trabalhar na worktree atual. A pasta `.kiro` nunca entra em commit sem pedido do usuário
+    - Padrão: `git worktree add D:\Projetos\Ativos\it-career-simulator-hackbrasil-cenarios -b cenarios-por-etapa jornada-de-carreira`, depois `git status` limpo e `git rev-parse --abbrev-ref HEAD` igual a `cenarios-por-etapa` na nova worktree
+    - Se o usuário escolher commitar em `jornada-de-carreira`, não criar worktree e trabalhar na worktree atual. A pasta `.kiro` nunca entra em commit sem pedido do usuário
     - Nenhum `checkout`, `stash`, `reset` ou `push`
     - _Requirements: 18.2_
   - [x] 0.3 Medir a linha de base de testes
@@ -45,9 +45,9 @@ Decisões pendentes do usuário (padrão adotado em cada uma, ver `requirements.
     - `src/backend/src/Simulador.Dominio/EstadoSessao.cs`: acrescentar o record `IdentidadeTitular(string Nome, string Matricula, string Ramal, string NomeGestor)`; `DefinicaoCenario` ganha, no fim, `IdentidadeTitular? Titular = null` e `bool PedidoPorTerceiro = false`; `EstadoMeta` ganha, no fim, `bool PedidoPorTerceiro = false`; `EstadoDialogo` ganha, no fim, `bool TitularContatado = false`
     - `dotnet build src/backend/Simulador.slnx` sem erro e sem edição em nenhum outro arquivo (prova de que os valores padrão preservam todo `new` e `with` existente)
     - _Requirements: 16.5_
-  - [x] 1.2 Criar `EfeitosDeEventos` e `ComandosPorEscala` vazios e ligar ao Motor e à Projeção
+  - [x] 1.2 Criar `EfeitosDeEventos` e `ComandosPorEtapa` vazios e ligar ao Motor e à Projeção
     - `src/backend/src/Simulador.Dominio/EfeitosDeEventos.cs`: `internal static` com `Aplicar(EstadoEstacao, EstadoDialogo, string tipo, IReadOnlyDictionary<string, object?> dados)` que devolve a entrada sem mudança para qualquer tipo, mais o auxiliar `DefinirStatusServico(EstadoEstacao, string nome, string status)` (cria o serviço se não existir)
-    - `src/backend/src/Simulador.Dominio/ComandosPorEscala.cs`: `internal sealed record EventoEscala`, `internal sealed record ResultadoComandoEscala`, `TentarExecutar` que devolve `null` e `RedefinirSenha` que lança `NotSupportedException` (ainda sem chamador)
+    - `src/backend/src/Simulador.Dominio/ComandosPorEtapa.cs`: `internal sealed record EventoEtapa`, `internal sealed record ResultadoComandoEtapa`, `TentarExecutar` que devolve `null` e `RedefinirSenha` que lança `NotSupportedException` (ainda sem chamador)
     - `Motor.cs`, `case "estacao.executar_comando"`: inserir a chamada a `TentarExecutar` depois do filtro `suportado` e antes de `ExecutarComandoEstacao`, exatamente como no `design.md`
     - `Projecao.cs`: `default` do `switch` chama `EfeitosDeEventos.Aplicar` e atualiza `estacao` e `dialogo`; `EstadoMeta` final recebe `cenario.PedidoPorTerceiro`. `Motor.AplicarEventosIniciais` copia `cenario.PedidoPorTerceiro` para o `EstadoMeta`
     - _Requirements: 15.2, 16.5_
@@ -68,7 +68,7 @@ Decisões pendentes do usuário (padrão adotado em cada uma, ver `requirements.
 
 - [x] 2. Checkpoint do alicerce
   - `dotnet test src/backend/Simulador.slnx` com o mesmo total da linha de base e nenhuma expectativa alterada, exceto a leitura ampliada do teste de contrato de KB. Perguntar ao usuário se surgirem dúvidas
-  - Commit local pequeno: `refactor(backend): alicerce para cenarios por escala sem mudar comportamento`. `git add` por caminho, sem `.kiro`, sem push
+  - Commit local pequeno: `refactor(backend): alicerce para cenarios por etapa sem mudar comportamento`. `git add` por caminho, sem `.kiro`, sem push
 
 - [x] 3. Item 1: `reset-senha-desbloqueio` com a Causa SENHA_ESQUECIDA
   - [x] 3.1 Cadastrar o cenário e o artigo de KB
@@ -77,13 +77,13 @@ Decisões pendentes do usuário (padrão adotado em cada uma, ver `requirements.
     - `KbCatalogo.cs`: KB-027 (`kb://acesso/reset-desbloqueio-e-troca`). Com a Decisão 2, o mesmo artigo (id, uri, titulo, categoria, nivel e conteudo sintético) em `src/frontend/src/data/kbCatalogo.ts` e nenhum outro arquivo do Frontend. Sem a Decisão 2, usar só URIs de KB-001 a KB-026 nos critérios deste item
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.8, 17.1, 17.2, 17.4, 17.5_
   - [x] 3.2 Implementar identidade, comandos e Eventos de SENHA_ESQUECIDA
-    - `ComandosPorEscala.cs`: roteamento por `CenarioId` `reset-senha-desbloqueio`; comandos `net user`, `diretorio`, `discar`, `redefinir-senha`, `desbloquear-conta`, `enviar-link-troca`, e `eventos-seguranca` (resposta "nenhum bloqueio recente", pois a Causa de bloqueio ainda não existe); regra de Ação_Sensível sem `IdentidadeValidada` (`AcaoSensivelSemVerificacao` e `AcaoPrejudicialRegistrada`); `RedefinirSenha` para o atalho de `seguranca.resetar_senha`
+    - `ComandosPorEtapa.cs`: roteamento por `CenarioId` `reset-senha-desbloqueio`; comandos `net user`, `diretorio`, `discar`, `redefinir-senha`, `desbloquear-conta`, `enviar-link-troca`, e `eventos-seguranca` (resposta "nenhum bloqueio recente", pois a Causa de bloqueio ainda não existe); regra de Ação_Sensível sem `IdentidadeValidada` (`AcaoSensivelSemVerificacao` e `AcaoPrejudicialRegistrada`); `RedefinirSenha` para o atalho de `seguranca.resetar_senha`
     - `EfeitosDeEventos.cs`: casos de `TitularContatado`, `SenhaTemporariaDefinida`, `ContaDesbloqueada`, `ContaBloqueadaNovamente`, `SenhaTrocadaPelaPessoa`, `OrigemBloqueioIdentificada` e `AcessoContaRestabelecido`
-    - `Motor.cs`: `case "seguranca.resetar_senha"` chama `ComandosPorEscala.RedefinirSenha` só quando `cenario.Titular` existe; a saída dos eventos segue o `design.md`; nenhum comando deste cenário exige privilégio `Elevado`
+    - `Motor.cs`: `case "seguranca.resetar_senha"` chama `ComandosPorEtapa.RedefinirSenha` só quando `cenario.Titular` existe; a saída dos eventos segue o `design.md`; nenhum comando deste cenário exige privilégio `Elevado`
     - Nenhuma senha aparece em saída ou Evento
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.10, 2.11, 2.12, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 15.1, 15.2_
   - [x] 3.3 Implementar o Juiz_360 do cenário
-    - `src/backend/src/Simulador.Avaliacao/Juiz360.Escalas.cs` (novo, parcial): `AvaliarResetSenha` com H1 a H8, XP, competências, concluída e `IncidenteSeguranca` conforme o `design.md`; `Avaliar` ganha `"reset-senha-desbloqueio" => AvaliarResetSenha`
+    - `src/backend/src/Simulador.Avaliacao/Juiz360.Etapas.cs` (novo, parcial): `AvaliarResetSenha` com H1 a H8, XP, competências, concluída e `IncidenteSeguranca` conforme o `design.md`; `Avaliar` ganha `"reset-senha-desbloqueio" => AvaliarResetSenha`
     - Todo `LinkKb` presente em `KbCatalogo`
     - _Requirements: 6.1, 6.2, 6.4, 6.5, 6.6, 6.7_
   - [x] 3.4 Pistas e diálogo do cenário
@@ -91,9 +91,9 @@ Decisões pendentes do usuário (padrão adotado em cada uma, ver `requirements.
     - `ClienteDialogo.cs`: `cliente` por Causa para pedido direto e fluxo de pedido por terceiro (antes e depois de `TitularContatado`); `techlead` em 3 níveis; manter o ramo atual para cenários sem Titular
     - _Requirements: 14.1, 14.3, 14.4, 14.6, 14.7_
   - [x] 3.5 Escrever os testes de exemplo obrigatórios
-    - `tests/Simulador.Dominio.Tests/ResetSenhaTests.cs` e `tests/Simulador.Dominio.Tests/DialogoCenariosPorEscalaTests.cs`: criação com semente fixa; fluxo correto direto (assumir, classificar, `net user`, verificar, `redefinir-senha`, resolver) com H1 a H8 atendidos; fluxo correto por terceiro (`diretorio`, `discar 2087`, verificar, redefinir); por terceiro sem `discar` gera `IdentidadeNaoConfere` mesmo com dados certos; `redefinir-senha` sem verificação gera `AcaoSensivelSemVerificacao`, `AcaoPrejudicialRegistrada`, `ContaAD` inalterada e H1 e H4 não atendidos; `desbloquear-conta` e `enviar-link-troca` geram `AcaoDesnecessariaRegistrada` e H6 não atendido; `seguranca.resetar_senha` equivale a `redefinir-senha`; comando fora da lista gera `ComandoNaoSuportado`; Reconstruir iguala `Estacao`, `Dialogo`, `Meta` e hash; pistas não citam a Causa
-    - `tests/Simulador.Api.Tests/CenariosPorEscalaApiTests.cs`: `POST /api/sessoes` para `reset-senha-desbloqueio` com `causaForcada` `SENHA_ESQUECIDA` e semente 42 retorna 201 com versão `v0.1-hackathon`; replay oculta a Causa em andamento; `POST /api/carreira/resumo` com a sessão concluída soma XP sem erro e mantém `cargoAtual`
-    - `dotnet test src/backend/Simulador.slnx --filter "FullyQualifiedName~ResetSenha|FullyQualifiedName~DialogoCenariosPorEscala|FullyQualifiedName~CenariosPorEscalaApi"` verde
+    - `tests/Simulador.Dominio.Tests/ResetSenhaTests.cs` e `tests/Simulador.Dominio.Tests/DialogoCenariosPorEtapaTests.cs`: criação com semente fixa; fluxo correto direto (assumir, classificar, `net user`, verificar, `redefinir-senha`, resolver) com H1 a H8 atendidos; fluxo correto por terceiro (`diretorio`, `discar 2087`, verificar, redefinir); por terceiro sem `discar` gera `IdentidadeNaoConfere` mesmo com dados certos; `redefinir-senha` sem verificação gera `AcaoSensivelSemVerificacao`, `AcaoPrejudicialRegistrada`, `ContaAD` inalterada e H1 e H4 não atendidos; `desbloquear-conta` e `enviar-link-troca` geram `AcaoDesnecessariaRegistrada` e H6 não atendido; `seguranca.resetar_senha` equivale a `redefinir-senha`; comando fora da lista gera `ComandoNaoSuportado`; Reconstruir iguala `Estacao`, `Dialogo`, `Meta` e hash; pistas não citam a Causa
+    - `tests/Simulador.Api.Tests/CenariosPorEtapaApiTests.cs`: `POST /api/sessoes` para `reset-senha-desbloqueio` com `causaForcada` `SENHA_ESQUECIDA` e semente 42 retorna 201 com versão `v0.1-hackathon`; replay oculta a Causa em andamento; `POST /api/carreira/resumo` com a sessão concluída soma XP sem erro e mantém `cargoAtual`
+    - `dotnet test src/backend/Simulador.slnx --filter "FullyQualifiedName~ResetSenha|FullyQualifiedName~DialogoCenariosPorEtapa|FullyQualifiedName~CenariosPorEtapaApi"` verde
     - _Requirements: 1.1 a 1.8, 2.1 a 2.13, 3.1 a 3.6, 6.1 a 6.7, 14.3, 15.2, 15.3, 15.6, 16.7_
   - [x]* 3.6 Escrever testes de propriedade do item
     - **Property 1: Reconstrução equivalente** (SENHA_ESQUECIDA, as duas variantes, 50 sementes). **Validates: Requirements 15.2, 15.3, 15.4**
@@ -110,11 +110,11 @@ Decisões pendentes do usuário (padrão adotado em cada uma, ver `requirements.
     - `CatalogoCenarios.ResetSenha.cs`: acrescentar `CONTA_BLOQUEADA` ao conjunto sorteado e ao aceito como forçado; estado inicial `ContaAD` `Bloqueada`, `EventosDeSeguranca` `NaoConsultado`, logs sem a Origem_do_Bloqueio, chamado principal por variante
     - _Requirements: 1.4, 4.1_
   - [x] 5.2 Comandos e Eventos
-    - `ComandosPorEscala.cs`: `net user` e `eventos-seguranca` da Causa (a saída de `eventos-seguranca` cita `MOB-FIN-017` e emite `OrigemBloqueioIdentificada`); `desbloquear-conta` com origem consultada (`ContaDesbloqueada`, `AcessoContaRestabelecido` com `via` `desbloqueio`) e sem origem (`ContaDesbloqueada`, `ContaBloqueadaNovamente`); `redefinir-senha` e `enviar-link-troca` geram `AcaoDesnecessariaRegistrada` sem restabelecer
+    - `ComandosPorEtapa.cs`: `net user` e `eventos-seguranca` da Causa (a saída de `eventos-seguranca` cita `MOB-FIN-017` e emite `OrigemBloqueioIdentificada`); `desbloquear-conta` com origem consultada (`ContaDesbloqueada`, `AcessoContaRestabelecido` com `via` `desbloqueio`) e sem origem (`ContaDesbloqueada`, `ContaBloqueadaNovamente`); `redefinir-senha` e `enviar-link-troca` geram `AcaoDesnecessariaRegistrada` sem restabelecer
     - `EfeitosDeEventos.cs`: conferir que os casos de `OrigemBloqueioIdentificada`, `ContaDesbloqueada` e `ContaBloqueadaNovamente` da tarefa 3.2 produzem o estado esperado; corrigir se faltar
     - _Requirements: 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 15.1, 15.2_
   - [x] 5.3 Juiz_360
-    - `Juiz360.Escalas.cs`: H5 aceita `via` `desbloqueio` nesta Causa; acrescentar H9 e H10 (termos normalizados `celular`, `telefone`, `dispositivo`, `movel`, `smartphone` e `senha`); competência "Analise de Origem de Bloqueio"
+    - `Juiz360.Etapas.cs`: H5 aceita `via` `desbloqueio` nesta Causa; acrescentar H9 e H10 (termos normalizados `celular`, `telefone`, `dispositivo`, `movel`, `smartphone` e `senha`); competência "Analise de Origem de Bloqueio"
     - _Requirements: 6.2, 6.3_
   - [x] 5.4 Pistas e diálogo
     - `ClienteDialogo.cs`: respostas de `cliente` da Causa (conta bloqueada, "não digitei errado hoje") para pedido direto e por terceiro; `techlead` nível 1 menciona ler os eventos de segurança quando a conta estiver bloqueada, sem citar a origem
@@ -134,10 +134,10 @@ Decisões pendentes do usuário (padrão adotado em cada uma, ver `requirements.
     - `CatalogoCenarios.ResetSenha.cs`: acrescentar `SENHA_EXPIRADA` ao Sorteio e às forçadas; `ContaAD` `SenhaExpirada`; log de logon recusado por senha expirada; chamado principal por variante
     - _Requirements: 1.4, 5.1_
   - [x] 7.2 Comandos e Eventos
-    - `ComandosPorEscala.cs`: `net user` da Causa; `enviar-link-troca` com identidade (`OrientacaoRegistrada`, `SenhaTrocadaPelaPessoa`, `AcessoContaRestabelecido` com `via` `troca_pela_titular`); `redefinir-senha` (`SenhaTemporariaDefinida`, `AcessoContaRestabelecido` com `via` `reset`, `AcaoDesnecessariaRegistrada`); `desbloquear-conta` (`AcaoDesnecessariaRegistrada`)
+    - `ComandosPorEtapa.cs`: `net user` da Causa; `enviar-link-troca` com identidade (`OrientacaoRegistrada`, `SenhaTrocadaPelaPessoa`, `AcessoContaRestabelecido` com `via` `troca_pela_titular`); `redefinir-senha` (`SenhaTemporariaDefinida`, `AcessoContaRestabelecido` com `via` `reset`, `AcaoDesnecessariaRegistrada`); `desbloquear-conta` (`AcaoDesnecessariaRegistrada`)
     - _Requirements: 5.2, 5.3, 5.4, 5.5, 15.1, 15.2_
   - [x] 7.3 Juiz_360 e diálogo
-    - `Juiz360.Escalas.cs`: H5 aceita `via` `troca_pela_titular` nesta Causa; `reset` nesta Causa deixa H5 e H6 não atendidos, mesmo com o acesso restabelecido
+    - `Juiz360.Etapas.cs`: H5 aceita `via` `troca_pela_titular` nesta Causa; `reset` nesta Causa deixa H5 e H6 não atendidos, mesmo com o acesso restabelecido
     - `ClienteDialogo.cs`: resposta de `cliente` da Causa (senha vencida) para as duas variantes
     - _Requirements: 6.2, 14.4_
   - [x] 7.4 Testes de exemplo obrigatórios
@@ -156,7 +156,7 @@ Decisões pendentes do usuário (padrão adotado em cada uma, ver `requirements.
     - `KbCatalogo.cs`: KB-032 (`kb://itsm/solicitacao-de-servico`), e a mesma exceção da Decisão 2 em `kbCatalogo.ts`
     - _Requirements: 7.1, 7.2, 17.1, 17.2_
   - [x] 9.2 Comandos e Eventos
-    - `ComandosPorEscala.cs`: roteamento para `pasta-rede-inacessivel` e o comando `net use` conforme a tabela do `design.md` (C1 a C4; letra ou caminho diferente do solicitado); Eventos `UnidadeRedeMapeada` e `AcessoPastaRestabelecido`
+    - `ComandosPorEtapa.cs`: roteamento para `pasta-rede-inacessivel` e o comando `net use` conforme a tabela do `design.md` (C1 a C4; letra ou caminho diferente do solicitado); Eventos `UnidadeRedeMapeada` e `AcessoPastaRestabelecido`
     - `EfeitosDeEventos.cs`: caso de `UnidadeRedeMapeada`
     - `Motor.cs`: `VerificarCompartilhamentoOk` com a condição `unidadeOk` só para C4
     - Não alterar a saída de nenhum comando existente de C1, C2 e C3
@@ -167,7 +167,7 @@ Decisões pendentes do usuário (padrão adotado em cada uma, ver `requirements.
     - _Requirements: 7.6, 14.5_
   - [x] 9.4 Testes de exemplo obrigatórios
     - `tests/Simulador.Dominio.Tests/PastaRedeC4Tests.cs`: fluxo correto de C4 (assumir, classificar como "Solicitacao de Servico", `whoami /groups`, `net use z: \\fileserver.aurora.local\Financeiro`, resolver) com J1 a J6 atendidos; em C4, `net start Workstation` elevado e `ipconfig /flushdns` não restabelecem; `net use z:` em C1, C2 e C3 devolve o erro da tabela e não muda o estado; fluxos C1, C2 e C3 existentes continuam com 5 critérios; Reconstruir igual (estado e hash)
-    - `CenariosPorEscalaApiTests.cs`: sessão de `pasta-rede-inacessivel` com `causaForcada` `C4` e semente 42 retorna 201
+    - `CenariosPorEtapaApiTests.cs`: sessão de `pasta-rede-inacessivel` com `causaForcada` `C4` e semente 42 retorna 201
     - _Requirements: 7.1 a 7.7, 15.2, 16.1_
   - [x]* 9.5 Escrever testes de propriedade do item
     - **Property 8: Sorteio legado inalterado** (antes da ativação, sementes 0 a 199, cálculo independente por `SplitMix64(semente).NextInt(3)`). **Validates: Requirements 16.2**
@@ -183,18 +183,18 @@ Decisões pendentes do usuário (padrão adotado em cada uma, ver `requirements.
     - `KbCatalogo.cs`: KB-030 e KB-031; exceção da Decisão 2 em `kbCatalogo.ts` para os dois
     - _Requirements: 11.1, 11.2, 11.3, 17.1, 17.2_
   - [x] 11.2 Comandos e Eventos de REPOSITORIO_CHEIO
-    - `ComandosPorEscala.cs`: roteamento por `falha-backup-restore` e os comandos `backup status`, `backup log`, `backup repo`, `backup repo expandir`, `backup repo limpar`, `backup job executar`, `backup cadeia verificar` e `backup restore` conforme a tabela do `design.md`, incluindo a resposta de privilégio `Elevado` e os Eventos `RepositorioExpandido` e `BackupConcluido` (com `privilegio`) e as Ações_Prejudiciais de `backup repo limpar` e de `backup restore --origem imutavel` nesta Causa
+    - `ComandosPorEtapa.cs`: roteamento por `falha-backup-restore` e os comandos `backup status`, `backup log`, `backup repo`, `backup repo expandir`, `backup repo limpar`, `backup job executar`, `backup cadeia verificar` e `backup restore` conforme a tabela do `design.md`, incluindo a resposta de privilégio `Elevado` e os Eventos `RepositorioExpandido` e `BackupConcluido` (com `privilegio`) e as Ações_Prejudiciais de `backup repo limpar` e de `backup restore --origem imutavel` nesta Causa
     - `EfeitosDeEventos.cs`: casos de `RepositorioExpandido` e `BackupConcluido`
     - _Requirements: 11.4, 11.5, 11.6, 11.7, 11.8, 11.9, 11.10, 15.1, 15.2_
   - [x] 11.3 Juiz_360
-    - `Juiz360.Escalas.cs`: `AvaliarBackup` com B1 a B6, XP, competências e concluída; `Avaliar` ganha `"falha-backup-restore" => AvaliarBackup`
+    - `Juiz360.Etapas.cs`: `AvaliarBackup` com B1 a B6, XP, competências e concluída; `Avaliar` ganha `"falha-backup-restore" => AvaliarBackup`
     - _Requirements: 13.1, 13.2, 13.4, 13.5_
   - [x] 11.4 Pistas e diálogo
     - `PistasPorCenario.cs`: família `falha-backup-restore`; `ClienteDialogo.cs`: `cliente` de REPOSITORIO_CHEIO e `techlead` em 3 níveis
     - _Requirements: 14.1, 14.3, 14.5, 14.6_
   - [x] 11.5 Testes de exemplo obrigatórios
     - `tests/Simulador.Dominio.Tests/BackupRestoreTests.cs`: criação; fluxo correto (assumir, classificar, `backup log`, elevar, `backup repo expandir`, `backup job executar`, resolver com nota pública) com B1 a B6 atendidos e XP 120; `backup job executar` com repositório cheio falha sem mudar estado; operação sem `Elevado` responde erro e B3 não atendido; `backup repo limpar` gera `AcaoPrejudicialRegistrada`, não libera espaço e B5 não atendido com XP reduzido; `backup restore --origem imutavel` gera `AcaoPrejudicialRegistrada`; comando fora da lista gera `ComandoNaoSuportado`; Reconstruir igual (estado e hash)
-    - `CenariosPorEscalaApiTests.cs`: sessão de `falha-backup-restore` com semente 42 retorna 201 e cria o chat; `Chat` do cenário bloqueia prompt injection com a resposta atual
+    - `CenariosPorEtapaApiTests.cs`: sessão de `falha-backup-restore` com semente 42 retorna 201 e cria o chat; `Chat` do cenário bloqueia prompt injection com a resposta atual
     - _Requirements: 11.1 a 11.10, 13.1 a 13.5, 15.2_
   - [x]* 11.6 Escrever testes de propriedade do item
     - **Property 1** para REPOSITORIO_CHEIO. **Validates: Requirements 15.2, 15.3**
@@ -209,11 +209,11 @@ Decisões pendentes do usuário (padrão adotado em cada uma, ver `requirements.
     - `CatalogoCenarios.BackupRestore.cs`: acrescentar `CADEIA_CORROMPIDA` ao Sorteio e às forçadas; `PastaFinanceiro` `Indisponivel`; logs e chamado principal da Causa
     - _Requirements: 11.2, 12.1_
   - [x] 13.2 Comandos e Eventos
-    - `ComandosPorEscala.cs`: ramos de CADEIA_CORROMPIDA de `backup log`, `backup repo`, `backup repo expandir`, `backup job executar`, `backup cadeia verificar` e `backup restore` (imutável com `Elevado`: `PastaFinanceiroRestaurada` com `origem` `imutavel` e `privilegio`; incremental: falha sem Evento)
+    - `ComandosPorEtapa.cs`: ramos de CADEIA_CORROMPIDA de `backup log`, `backup repo`, `backup repo expandir`, `backup job executar`, `backup cadeia verificar` e `backup restore` (imutável com `Elevado`: `PastaFinanceiroRestaurada` com `origem` `imutavel` e `privilegio`; incremental: falha sem Evento)
     - `EfeitosDeEventos.cs`: caso de `PastaFinanceiroRestaurada`
     - _Requirements: 12.2, 12.3, 12.4, 12.5, 12.6, 12.7, 15.1, 15.2_
   - [x] 13.3 Juiz_360 e diálogo
-    - `Juiz360.Escalas.cs`: B4 aceita `PastaFinanceiroRestaurada` com `origem` `imutavel` nesta Causa; acrescentar B7 (`backup cadeia` antes da restauração); `ClienteDialogo.cs`: `cliente` da Causa
+    - `Juiz360.Etapas.cs`: B4 aceita `PastaFinanceiroRestaurada` com `origem` `imutavel` nesta Causa; acrescentar B7 (`backup cadeia` antes da restauração); `ClienteDialogo.cs`: `cliente` da Causa
     - _Requirements: 13.2, 13.3, 14.5_
   - [x] 13.4 Testes de exemplo obrigatórios
     - `BackupRestoreTests.cs`: fluxo correto (`backup log`, `backup cadeia verificar`, elevar, `backup restore --origem imutavel --destino \\fileserver.aurora.local\Financeiro`, resolver) com B1 a B7 atendidos; restore pela cadeia incremental falha sem mudar estado; restore sem `backup cadeia verificar` restabelece, mas B7 não atendido; `backup repo expandir` e `backup job executar` não resolvem; Reconstruir igual (estado e hash)
@@ -232,18 +232,18 @@ Decisões pendentes do usuário (padrão adotado em cada uma, ver `requirements.
     - `KbCatalogo.cs`: KB-028 e KB-029; exceção da Decisão 2 em `kbCatalogo.ts` para os dois
     - _Requirements: 8.1, 8.2, 8.8, 16.3, 16.4, 17.1, 17.2_
   - [x] 15.2 Comandos e Eventos
-    - `ComandosPorEscala.cs`: roteamento por `incidente-massivo` com Causa externa; `curl -i https://status.provedor-email.example`, `acionar fornecedor`, `acionar financeiro` e `acompanhar fornecedor` conforme o `design.md`; `AreaAcionada`, `EvidenciaExternaConfirmada`, `AcompanhamentoRegistrado` e `ServicoExternoRestabelecido`
+    - `ComandosPorEtapa.cs`: roteamento por `incidente-massivo` com Causa externa; `curl -i https://status.provedor-email.example`, `acionar fornecedor`, `acionar financeiro` e `acompanhar fornecedor` conforme o `design.md`; `AreaAcionada`, `EvidenciaExternaConfirmada`, `AcompanhamentoRegistrado` e `ServicoExternoRestabelecido`
     - `EfeitosDeEventos.cs`: casos de `AreaAcionada` e `ServicoExternoRestabelecido`
     - _Requirements: 8.3, 8.4, 8.5, 8.6, 15.1, 15.2_
   - [x] 15.3 Juiz_360
-    - `Juiz360.cs`: `Avaliar` despacha `incidente-massivo` por `Meta.Causa`; `Juiz360.Escalas.cs`: `AvaliarIncidenteExterno` com F1 a F9 (F4 e F7 por Causa), XP e competências; PATCH_MASSIVO continua em `AvaliarNivel3` com M1 a M8 inalterados
+    - `Juiz360.cs`: `Avaliar` despacha `incidente-massivo` por `Meta.Causa`; `Juiz360.Etapas.cs`: `AvaliarIncidenteExterno` com F1 a F9 (F4 e F7 por Causa), XP e competências; PATCH_MASSIVO continua em `AvaliarNivel3` com M1 a M8 inalterados
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
   - [x] 15.4 Pistas e diálogo
     - `PistasPorCenario.cs`: família externa de `incidente-massivo`; `ClienteDialogo.cs`: `cliente` e `techlead` das Causas externas, mantendo o texto atual para PATCH_MASSIVO
     - _Requirements: 14.1, 14.2, 14.3, 14.5, 14.6_
   - [x] 15.5 Testes de exemplo obrigatórios
     - `tests/Simulador.Dominio.Tests/IncidenteExternoTests.cs`: Definição de EMAIL_PROVEDOR; fluxo correto (assumir e classificar, `curl -i`, criar Problema, vincular os 3 chamados, `acionar fornecedor`, nota pública, `acompanhar fornecedor`, causa raiz com `provedor`, resolver em lote) com F1 a F9 atendidos; `acompanhar fornecedor` antes de acionar não restabelece; `acionar fornecedor` sem evidência deixa F3 não atendido; `estacao.reiniciar_servico` elevado deixa F8 não atendido; PATCH_MASSIVO: o fluxo atual (existente em `DominioTests`) continua com M1 a M8 e as mesmas pistas; `causaForcada` `GATEWAY` grava `PATCH_MASSIVO`; Reconstruir igual (estado e hash)
-    - `CenariosPorEscalaApiTests.cs`: sessão de `incidente-massivo` com `causaForcada` `EMAIL_PROVEDOR` retorna 201; sem Causa forçada, 20 sementes devolvem sempre PATCH_MASSIVO (antes da ativação)
+    - `CenariosPorEtapaApiTests.cs`: sessão de `incidente-massivo` com `causaForcada` `EMAIL_PROVEDOR` retorna 201; sem Causa forçada, 20 sementes devolvem sempre PATCH_MASSIVO (antes da ativação)
     - _Requirements: 8.1 a 8.8, 10.1 a 10.5, 15.2, 16.3_
   - [x]* 15.6 Escrever testes de propriedade do item
     - **Property 1** para EMAIL_PROVEDOR. **Validates: Requirements 15.2, 15.3**
@@ -257,10 +257,10 @@ Decisões pendentes do usuário (padrão adotado em cada uma, ver `requirements.
     - `CatalogoCenarios.IncidenteMassivo.cs`: Definição de DOMINIO_SUSPENSO do `design.md` (host `www.aurora-logistica.example` sem registro no DNS do cenário, `DominioPublico` `Suspenso`, `AreaFornecedor` e `AreaFinanceiro` `Pendente`, 6 comandos com `whois`, logs, 3 chamados); aceitar como forçada
     - _Requirements: 9.1, 9.2, 9.3, 9.8_
   - [x] 17.2 Comandos e Eventos
-    - `ComandosPorEscala.cs`: `whois aurora-logistica.example` (`clientHold`, `EvidenciaExternaConfirmada`); `acionar fornecedor` e `acionar financeiro` com `Financeiro` útil nesta Causa; `acompanhar fornecedor` só com as duas áreas `Acionada`, com a mensagem do que falta
+    - `ComandosPorEtapa.cs`: `whois aurora-logistica.example` (`clientHold`, `EvidenciaExternaConfirmada`); `acionar fornecedor` e `acionar financeiro` com `Financeiro` útil nesta Causa; `acompanhar fornecedor` só com as duas áreas `Acionada`, com a mensagem do que falta
     - _Requirements: 9.4, 9.5, 9.6, 9.7, 15.1, 15.2_
   - [x] 17.3 Juiz_360 e diálogo
-    - `Juiz360.Escalas.cs`: F4 exige `Fornecedor` e `Financeiro`; F7 exige `dominio`, `registrador` e um de `fatura`, `inadimpl`, `pagamento`; `ClienteDialogo.cs`: `cliente` da Causa
+    - `Juiz360.Etapas.cs`: F4 exige `Fornecedor` e `Financeiro`; F7 exige `dominio`, `registrador` e um de `fatura`, `inadimpl`, `pagamento`; `ClienteDialogo.cs`: `cliente` da Causa
     - _Requirements: 10.2, 14.5_
   - [x] 17.4 Testes de exemplo obrigatórios
     - `IncidenteExternoTests.cs`: fluxo correto (`whois`, Problema e vínculos, `acionar fornecedor`, `acionar financeiro`, nota pública, `acompanhar fornecedor`, causa raiz com domínio, registrador e fatura, resolver em lote) com F1 a F9 atendidos; `acompanhar fornecedor` com só uma área acionada devolve a área que falta; `nslookup` e `ping` respondem host não encontrado; Reconstruir igual (estado e hash); a saída de `sc query` e os logs iniciais não citam `clientHold` nem a fatura
@@ -301,16 +301,16 @@ Decisões pendentes do usuário (padrão adotado em cada uma, ver `requirements.
     - `Select-String` nos arquivos novos e alterados de `.md`, `.cs` (textos e strings) e em `kbCatalogo.ts` pelo caractere montado por `[string][char]38` (permitido só como operador lógico duplo em `.cs`), por emoji e por dados reais. Corrigir o que achar
     - _Requirements: 19.2, 19.3_
   - [x] 20.3 Criar o documento de entrega
-    - `docs/CENARIOS_POR_ESCALA.md`: tabela com uma linha por Item (Cenário, Causa, identificador gravado, disponibilidade `forçada` ou `sorteada`, comandos declarados, Eventos novos, critérios do Juiz_360), os pontos de atenção do Frontend do `design.md` e a lista de itens que não entraram, se houver. Sem E comercial, sem emoji e sem dado real
+    - `docs/CENARIOS_POR_ETAPA.md`: tabela com uma linha por Item (Cenário, Causa, identificador gravado, disponibilidade `forçada` ou `sorteada`, comandos declarados, Eventos novos, critérios do Juiz_360), os pontos de atenção do Frontend do `design.md` e a lista de itens que não entraram, se houver. Sem E comercial, sem emoji e sem dado real
     - _Requirements: 18.6_
   - [x] 20.4 Commit local
-    - `docs: tabela de entrega dos cenarios por escala`. Sem push
+    - `docs: tabela de entrega dos cenarios por etapa`. Sem push
 
 - [x] 21. Fechamento antes do congelamento
   - [x] 21.1 Conferir os commits e o prazo
-    - `git status` limpo (fora a `.kiro` não versionada), `git log --oneline jornada-de-voo..cenarios-por-escala` com commits pequenos e descritivos, tudo commitado antes de 30 de novembro de 2026, 23h59
-    - Push, merge em `jornada-de-voo` e abertura de PR só com autorização explícita do usuário. Nenhum comando destrutivo do Git
-    - Avisar o usuário de que a tarefa 18 da `jornada-de-voo` pode trocar o status dos Itens entregues, item a item, conforme a tabela do `docs/CENARIOS_POR_ESCALA.md`
+    - `git status` limpo (fora a `.kiro` não versionada), `git log --oneline jornada-de-carreira..cenarios-por-etapa` com commits pequenos e descritivos, tudo commitado antes de 30 de novembro de 2026, 23h59
+    - Push, merge em `jornada-de-carreira` e abertura de PR só com autorização explícita do usuário. Nenhum comando destrutivo do Git
+    - Avisar o usuário de que a tarefa 18 da `jornada-de-carreira` pode trocar o status dos Itens entregues, item a item, conforme a tabela do `docs/CENARIOS_POR_ETAPA.md`
     - _Requirements: 18.2, 18.7_
 
 - [x] 22. Checkpoint final
@@ -320,7 +320,7 @@ Decisões pendentes do usuário (padrão adotado em cada uma, ver `requirements.
 
 - Sub-tarefas com `*` são testes de propriedade opcionais, além do essencial. Os testes de exemplo de cada Item são obrigatórios.
 - Cada tarefa cita os requisitos de `requirements.md` para rastreabilidade. Detalhes de implementação estão em `design.md`.
-- Testes de propriedade usam `[Theory]` e `SplitMix64` fixo, sem biblioteca nova, com no mínimo 50 execuções, e cada um traz o comentário `Feature: cenarios-por-escala, Property N: <texto>`.
+- Testes de propriedade usam `[Theory]` e `SplitMix64` fixo, sem biblioteca nova, com no mínimo 50 execuções, e cada um traz o comentário `Feature: cenarios-por-etapa, Property N: <texto>`.
 - Cada Checkpoint roda o `dotnet test src/backend/Simulador.slnx` completo e faz um commit local pequeno. `git add` sempre por caminho, nunca `git add .`, e a pasta `.kiro` não entra em commit sem pedido do usuário.
 - Nenhuma tarefa altera `src/backend/src/Simulador.Api/Program.cs`, `src/frontend/src/api`, `src/frontend/src/utils/jcs.ts`, `docs/vetores-jcs-sha256.json`, `render.yaml` ou pacotes. A única edição permitida no Frontend é `src/frontend/src/data/kbCatalogo.ts`, e só com a Decisão 2.
 - Nenhum comando destrutivo do Git. Push, merge e PR só com autorização explícita do usuário.

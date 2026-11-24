@@ -3,7 +3,7 @@ using Simulador.Dominio;
 
 namespace Simulador.Dominio.Tests;
 
-public class DialogoCenariosPorEscalaTests
+public class DialogoCenariosPorEtapaTests
 {
     private static readonly FallbackRoteirizadoDialogo Dialogo = new();
 

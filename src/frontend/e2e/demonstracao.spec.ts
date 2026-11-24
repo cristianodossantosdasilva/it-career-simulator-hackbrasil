@@ -3,7 +3,7 @@ import { CHAVE_CARTAO_PERFIL, serializarCartao } from '../src/jornada/armazename
 import { CHAVE_MODO_DEMONSTRACAO, serializarModoDemonstracao } from '../src/jornada/armazenamento/modoDemonstracao'
 import { CHAVE_REGISTROS_MISSAO } from '../src/jornada/armazenamento/registrosMissao'
 import type { IdMissao } from '../src/jornada/catalogos/catalogoRotas'
-import { CHECKIN_RAPIDO, ROTEIRO_CHECKIN, rotuloDaResposta } from '../src/jornada/catalogos/catalogoVocacional'
+import { DIAGNOSTICO_RAPIDO, ROTEIRO_DIAGNOSTICO, rotuloDaResposta } from '../src/jornada/catalogos/catalogoVocacional'
 import { textosDaMissao } from '../src/jornada/componentes/textosDaMissao'
 import { CARTAO_DE_TESTE } from '../src/testes/armazenamentoFalso'
 
@@ -91,8 +91,8 @@ test.describe('Modo de demonstração', () => {
     await page.getByRole('button', { name: 'Atender meu primeiro chamado' }).click()
     await expect(page).toHaveURL(/\/diagnostico\?modo=rapido$/)
     await expect(page.getByRole('heading', { level: 2, name: 'Diagnóstico rápido' })).toBeVisible()
-    for (const pergunta of ROTEIRO_CHECKIN.perguntas) {
-      const rotulo = rotuloDaResposta(pergunta.id, CHECKIN_RAPIDO.respostas[pergunta.id]) ?? ''
+    for (const pergunta of ROTEIRO_DIAGNOSTICO.perguntas) {
+      const rotulo = rotuloDaResposta(pergunta.id, DIAGNOSTICO_RAPIDO.respostas[pergunta.id]) ?? ''
       await expect(page.getByText(rotulo, { exact: true })).toBeVisible()
     }
     const entradas = await page.evaluate(() => window.history.length)
@@ -104,7 +104,7 @@ test.describe('Modo de demonstração', () => {
     await expect.poll(() => criacoesDeSessao().length).toBe(1)
     expect(JSON.parse((await lerChave(page, CHAVE_MODO_DEMONSTRACAO)) ?? 'null')).toMatchObject({ ativo: true })
     expect(JSON.parse((await lerChave(page, CHAVE_CARTAO_PERFIL)) ?? 'null')).toMatchObject({
-      origem: 'checkin-rapido',
+      origem: 'diagnostico-rapido',
     })
     expect(await lerChave(page, CHAVE_REGISTROS_MISSAO)).toBeNull()
   })
