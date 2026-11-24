@@ -77,8 +77,8 @@ describe('Página Início', () => {
       'href',
       '/mesa-de-trabalho/pasta-rede-inacessivel',
     )
-    expect(screen.getByRole('heading', { level: 2, name: 'Atalhos rápidos' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Aulas e fundamentos' })).toHaveAttribute('href', '/aulas')
-    expect(screen.getByRole('link', { name: 'Portfólio e histórico' })).toHaveAttribute('href', '/portfolio')
+    expect(screen.getByRole('heading', { level: 2, name: 'Três níveis e acesso rápido' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Aprender' })).toHaveAttribute('href', '/aprender')
+    expect(screen.getByRole('link', { name: 'Praticar' })).toHaveAttribute('href', '/praticar')
   })
 })

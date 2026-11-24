@@ -2,43 +2,64 @@ import type { NomeIcone } from '../../ui/catalogoIcones'
 import { type IdPagina, enderecoDe } from '../navegacao/rotas'
 import type { IdMissao } from './catalogoRotas'
 
-export type IdItemMenu = 'inicio' | 'plano' | 'mesa-de-trabalho' | 'portfolio' | 'catalogo' | 'aulas' | 'caderno' | 'mentor'
+export type IdItemMenu =
+  | 'inicio'
+  | 'carreira'
+  | 'aprender'
+  | 'praticar'
+  | 'biblioteca'
+  | 'reforco'
+  | 'simulados'
+  | 'provas'
+  | 'painel'
+  | 'historico'
+  | 'portfolio'
+  | 'mentor'
+
+export type SecaoMenu = 'Estudo' | 'Avaliar' | 'Progresso'
 
 export interface ItemMenu {
   id: IdItemMenu
   rotulo: string
   icone: NomeIcone
+  secao: SecaoMenu
   /** principal: barra inferior no celular. mais: lista aberta pelo botão Mais no celular. */
   grupo: 'principal' | 'mais'
   /** Página que o item marca como atual. */
   pagina: IdPagina
 }
 
+export const SECOES_MENU: readonly SecaoMenu[] = ['Estudo', 'Avaliar', 'Progresso']
+
 export const ITENS_MENU: readonly ItemMenu[] = [
-  { id: 'inicio', rotulo: 'Início', icone: 'marca', grupo: 'principal', pagina: 'inicio' },
-  { id: 'plano', rotulo: 'Plano de Carreira', icone: 'plano-de-carreira', grupo: 'principal', pagina: 'plano-de-carreira' },
-  { id: 'mesa-de-trabalho', rotulo: 'Mesa de Trabalho', icone: 'laboratorio', grupo: 'principal', pagina: 'mesa-de-trabalho' },
-  { id: 'portfolio', rotulo: 'Portfólio', icone: 'portfolio', grupo: 'principal', pagina: 'portfolio' },
-  { id: 'catalogo', rotulo: 'Catálogo', icone: 'catalogo', grupo: 'mais', pagina: 'catalogo' },
-  { id: 'aulas', rotulo: 'Aulas', icone: 'aulas', grupo: 'mais', pagina: 'aulas' },
-  { id: 'caderno', rotulo: 'Caderno', icone: 'caderno', grupo: 'mais', pagina: 'caderno' },
-  { id: 'mentor', rotulo: 'Mentor', icone: 'mentor', grupo: 'mais', pagina: 'mentor' },
+  { id: 'inicio', rotulo: 'Início', icone: 'marca', secao: 'Estudo', grupo: 'principal', pagina: 'inicio' },
+  { id: 'carreira', rotulo: 'Carreira', icone: 'carreira', secao: 'Estudo', grupo: 'principal', pagina: 'carreira' },
+  { id: 'aprender', rotulo: 'Aprender', icone: 'aprender', secao: 'Estudo', grupo: 'mais', pagina: 'aprender' },
+  { id: 'praticar', rotulo: 'Praticar', icone: 'praticar', secao: 'Estudo', grupo: 'mais', pagina: 'praticar' },
+  { id: 'biblioteca', rotulo: 'Biblioteca', icone: 'biblioteca', secao: 'Estudo', grupo: 'mais', pagina: 'biblioteca' },
+  { id: 'reforco', rotulo: 'Reforço diário', icone: 'reforco', secao: 'Estudo', grupo: 'mais', pagina: 'reforco' },
+  { id: 'simulados', rotulo: 'Simulados', icone: 'simulados', secao: 'Avaliar', grupo: 'principal', pagina: 'simulados' },
+  { id: 'provas', rotulo: 'Provas', icone: 'provas', secao: 'Avaliar', grupo: 'mais', pagina: 'provas' },
+  { id: 'painel', rotulo: 'Painel', icone: 'painel', secao: 'Progresso', grupo: 'principal', pagina: 'painel' },
+  { id: 'historico', rotulo: 'Histórico', icone: 'historico', secao: 'Progresso', grupo: 'mais', pagina: 'historico' },
+  { id: 'portfolio', rotulo: 'Portfólio', icone: 'portfolio', secao: 'Progresso', grupo: 'mais', pagina: 'portfolio' },
+  { id: 'mentor', rotulo: 'Mentor', icone: 'mentor', secao: 'Progresso', grupo: 'mais', pagina: 'mentor' },
 ]
 
-/** Endereço do item. A Mesa de Trabalho só aparece com missão ativa: sem missão ativa devolve nulo e o item some. */
-export function hrefDoItem(item: ItemMenu, contexto: { missaoAtiva: IdMissao | null }): string | null {
+/** Endereço do item no novo menu. */
+export function hrefDoItem(item: ItemMenu, _contexto: { missaoAtiva: IdMissao | null }): string | null {
   switch (item.pagina) {
-    case 'mesa-de-trabalho':
-      return contexto.missaoAtiva
-        ? enderecoDe({ pagina: 'mesa-de-trabalho', missao: contexto.missaoAtiva, semente: null, causa: null, nova: false })
-        : null
-    case 'aulas':
-      return enderecoDe({ pagina: 'aulas', nivel: null, modo: 'lesson', aula: null })
     case 'inicio':
-    case 'plano-de-carreira':
+    case 'carreira':
+    case 'aprender':
+    case 'praticar':
+    case 'biblioteca':
+    case 'reforco':
+    case 'simulados':
+    case 'provas':
+    case 'painel':
+    case 'historico':
     case 'portfolio':
-    case 'catalogo':
-    case 'caderno':
     case 'mentor':
       return enderecoDe({ pagina: item.pagina })
     default:
@@ -46,7 +67,7 @@ export function hrefDoItem(item: ItemMenu, contexto: { missaoAtiva: IdMissao | n
   }
 }
 
-/** Diagnóstico, Revisão, Treino e 404 são páginas de fluxo e não marcam item. */
+/** Páginas de fluxo e rotas legadas não marcam item fora do catálogo do menu. */
 export function itemAtivoDoMenu(pagina: IdPagina): IdItemMenu | null {
   return ITENS_MENU.find((item) => item.pagina === pagina)?.id ?? null
 }

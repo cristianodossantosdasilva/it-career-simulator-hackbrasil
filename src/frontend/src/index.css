@@ -109,24 +109,24 @@
   --radius-lg: 12px;
 }
 
-/* TEMA CORPORATIVO (claro, auditoria B2B) */
+/* TEMA CORPORATIVO (claro, padrao CertSim) */
 [data-theme='corporativo'] {
   --bg-canvas: #F8FAFC;
   --bg-surface: #FFFFFF;
-  --bg-elevated: #F1F5F9;
-  --bg-hover: #E2E8F0;
+  --bg-elevated: #F3F4F6;
+  --bg-hover: #E5E7EB;
   --border-subtle: #7D8D9F;
   --border-strong: #7A8595;
   --border-control: #64748B;
   --text-primary: #0F172A;
   --text-secondary: #475569;
   --text-muted: #586980;
-  --accent-primary: #0B6E8A;
-  --accent-hover: #085368;
-  --accent-surface: #E0F2FE;
-  --accent-text: #0B6E8A;
+  --accent-primary: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-surface: #EFF6FF;
+  --accent-text: #1D4ED8;
   --accent-contrast: #FFFFFF;
-  --accent-solid: #0B6E8A;
+  --accent-solid: #1D4ED8;
   --status-success: #059669;
   --status-warning: #D97706;
   --status-danger: #DC2626;
@@ -140,13 +140,13 @@
   --status-success-solid: #047857;
   --status-warning-solid: #B45309;
   --status-danger-solid: #B91C1C;
-  --focus-ring: #0B6E8A;
+  --focus-ring: #2563EB;
   --overlay-scrim: #0F172A8C;
-  --nav: #0F172A;
-  --nav-2: #1E3A5F;
+  --nav: #F3F4F6;
+  --nav-2: #E5E7EB;
   --glow-accent: none;
-  --shadow-sm: 0 1px 2px #0F172A0F;
-  --shadow-md: 0 4px 12px #0F172A14;
+  --shadow-sm: 0 1px 3px #0F172A12;
+  --shadow-md: 0 8px 24px #0F172A12;
   --shadow-overlay: 0 16px 40px #0F172A2E;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
@@ -171,9 +171,9 @@
   --space-8: 32px;
   --space-10: 40px;
   --space-12: 48px;
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 24px;
 }
 
 /* TEMA EDITORIAL (escuro, grafite quente, titulos grandes e mais espaco) */
@@ -852,31 +852,64 @@ a.nav-item { display: inline-flex; align-items: center; justify-content: center;
 }
 
 
-/* Desktop largo: o rótulo de cada destino fica sempre visível abaixo do ícone, sem depender de hover.
-   A partir de 1024 px, para a Mesa de Trabalho não estourar a largura em tablet (768 px), onde o menu segue só com ícones. */
+/* Desktop largo: sidebar de 240px inspirada no CertSim, com grupos Estudo, Avaliar e Progresso. */
 @media (min-width: 1024px) {
-  :root { --rail-width: 88px; }
-  .nav-principal-lista { padding: 0 var(--space-1); }
+  :root { --rail-width: 240px; }
+  .shell-rail {
+    background: var(--nav);
+    align-items: stretch;
+    padding: var(--space-4) var(--space-3);
+    overflow-y: auto;
+  }
+  .shell-rail-marca {
+    width: auto;
+    height: auto;
+    min-height: var(--touch-target);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    justify-content: flex-start;
+  }
+  .shell-rail-marca-texto {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--accent-contrast);
+    white-space: nowrap;
+  }
+  .nav-principal-lista {
+    padding: 0;
+    align-items: stretch;
+    gap: var(--space-1);
+  }
   .nav-principal-lista > li { width: 100%; }
+  .nav-grupo-rotulo {
+    padding: var(--space-3) var(--space-3) var(--space-1);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+  }
   .nav-item {
     width: 100%;
     height: auto;
     min-height: var(--touch-target);
-    padding: var(--space-1) 2px;
-    flex-direction: column;
-    gap: 2px;
+    padding: 0 var(--space-3);
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: var(--space-2);
   }
-  .nav-item.active::before { left: -4px; }
+  .nav-item.active::before { left: 0; top: 8px; bottom: 8px; }
   .nav-item-rotulo {
     position: static;
     padding: 0;
     background: transparent;
     color: inherit;
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
-    line-height: 1.15;
-    text-align: center;
-    white-space: normal;
+    line-height: 1.25;
+    text-align: left;
+    white-space: nowrap;
     opacity: 1;
     transform: none;
     pointer-events: auto;
@@ -1789,4 +1822,65 @@ input[aria-label="Buscar na Base de Conhecimento"] { min-width: 260px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .opcao-diagnostico { transition: none; }
+}
+
+/* ===== Layout CertSim: cards raio 24, grades e paineis ===== */
+.certsim-grade-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-4); }
+.certsim-grade-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4); }
+.certsim-cartao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  min-width: 0;
+  text-align: left;
+}
+.certsim-cartao-ativo {
+  background: var(--accent-surface);
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-md);
+}
+.certsim-cartao-topo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.certsim-kpi { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--text-primary); }
+.certsim-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.certsim-chip-botao {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-control);
+  border-radius: 999px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+.certsim-chip-botao[aria-pressed='true'] {
+  background: var(--accent-surface);
+  border-color: var(--accent-primary);
+  color: var(--accent-text);
+  font-weight: var(--font-weight-semibold);
+}
+.certsim-lista-regras { margin: 0; padding-left: var(--space-5); display: flex; flex-direction: column; gap: var(--space-2); }
+.certsim-progresso { width: 100%; height: 10px; accent-color: var(--accent-primary); }
+.certsim-filtros { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.certsim-item-lista {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+}
+@media (max-width: 767.98px) {
+  .certsim-cartao { padding: var(--space-4); }
+  .certsim-grade-2, .certsim-grade-3 { grid-template-columns: minmax(0, 1fr); }
 }

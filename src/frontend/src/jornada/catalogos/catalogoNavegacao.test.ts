@@ -24,18 +24,15 @@ describe('catalogoNavegacao', () => {
     )
   })
 
-  it('páginas de fluxo não marcam item, e a Mesa de Trabalho some sem missão ativa', () => {
-    for (const pagina of ['diagnostico', 'revisao', 'treino', 'nao-encontrada'] as const) {
+  it('páginas de fluxo não marcam item, e os 4 itens principais estão presentes', () => {
+    for (const pagina of ['diagnostico', 'revisao', 'treino', 'mesa-de-trabalho', 'nao-encontrada'] as const) {
       expect(itemAtivoDoMenu(pagina)).toBeNull()
     }
-    const mesa = ITENS_MENU.find((item) => item.id === 'mesa-de-trabalho')
-    expect(mesa && hrefDoItem(mesa, { missaoAtiva: null })).toBeNull()
-    expect(mesa && hrefDoItem(mesa, { missaoAtiva: 'incidente-massivo' })).toBe('/mesa-de-trabalho/incidente-massivo')
     expect(ITENS_MENU.filter((item) => item.grupo === 'principal').map((item) => item.id)).toEqual([
       'inicio',
-      'plano',
-      'mesa-de-trabalho',
-      'portfolio',
+      'carreira',
+      'simulados',
+      'painel',
     ])
     expect(ITENS_MENU.every((item) => !item.rotulo.includes('&'))).toBe(true)
   })
