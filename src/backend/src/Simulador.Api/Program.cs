@@ -371,6 +371,31 @@ app.MapGet("/api/sessoes/{id:guid}/replay", async (
     });
 });
 
+// === teorico ===
+var servicoTeorico = new Simulador.Teorico.ServicoTeorico(Simulador.Teorico.BancoQuestoes.Padrao);
+
+static IResult ExecutarTeorico<T>(Func<T> acao)
+{
+    try
+    {
+        return Results.Ok(acao());
+    }
+    catch (Simulador.Teorico.ErroTeorico e)
+    {
+        return ErroProblema(e.Status, e.Tipo, e.Message);
+    }
+}
+
+app.MapGet("/api/teorico/topicos", () => Results.Ok(servicoTeorico.Topicos()));
+app.MapPost("/api/teorico/provas", (Simulador.Teorico.CriarProvaRequest? body) =>
+    ExecutarTeorico(() => servicoTeorico.GerarProva(body)));
+app.MapPost("/api/teorico/provas/corrigir", (Simulador.Teorico.CorrigirRequest? body) =>
+    ExecutarTeorico(() => servicoTeorico.Corrigir(body)));
+app.MapPost("/api/teorico/questoes/{id}/verificar", (string id, Simulador.Teorico.VerificarRequest? body) =>
+    ExecutarTeorico(() => servicoTeorico.Verificar(id, body)));
+app.MapPost("/api/teorico/questoes/{id}/explicar", (string id, Simulador.Teorico.ExplicarRequest? body) =>
+    ExecutarTeorico(() => servicoTeorico.Explicar(id, body)));
+// === /teorico ===
 app.MapPost("/api/carreira/resumo", async (
     CarreiraResumoDto? body,
     ICatalogoCenarios catalogo,

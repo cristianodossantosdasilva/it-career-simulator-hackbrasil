@@ -60,6 +60,9 @@
       },
       "simulador.itsm": {
         "type": "Project"
+      },
+      "simulador.teorico": {
+        "type": "Project"
       }
     }
   }

@@ -18,6 +18,7 @@
     <ProjectReference Include="..\Simulador.Avaliacao\Simulador.Avaliacao.csproj" />
     <ProjectReference Include="..\Simulador.Dialogo\Simulador.Dialogo.csproj" />
     <ProjectReference Include="..\Simulador.Infra\Simulador.Infra.csproj" />
+    <ProjectReference Include="..\Simulador.Teorico\Simulador.Teorico.csproj" />
   </ItemGroup>
 
 </Project>
