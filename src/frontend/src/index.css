@@ -856,7 +856,8 @@ a.nav-item { display: inline-flex; align-items: center; justify-content: center;
 @media (min-width: 1024px) {
   :root { --rail-width: 240px; }
   .shell-rail {
-    background: var(--nav);
+    /* --bg-elevated acompanha o tema (no corporativo é #F3F4F6, igual ao --nav); --nav é escuro em outros temas. */
+    background: var(--bg-elevated);
     align-items: stretch;
     padding: var(--space-4) var(--space-3);
     overflow-y: auto;

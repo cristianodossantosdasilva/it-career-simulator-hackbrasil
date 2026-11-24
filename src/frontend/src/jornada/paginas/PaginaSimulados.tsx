@@ -27,7 +27,7 @@ export function PaginaSimulados() {
       .flatMap((e) => e.grupos.flatMap((g) => g.missoes))
       .find((m) => m.podeIniciar)
     const missao = disponivel?.missao ?? 'reset-senha-desbloqueio'
-    navegar(enderecoDe({ pagina: 'mesa-de-trabalho', missao, semente: null, causa: null, nova: true }))
+    navegar(enderecoDe({ pagina: 'mesa-de-trabalho', missao, semente: null, causa: null, nova: true, ...(escolha.formato === 'padrao' ? { modo: 'prova' as const } : {}) }))
   }
 
   if (provaAtiva) {

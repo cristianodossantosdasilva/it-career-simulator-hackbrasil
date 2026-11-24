@@ -37,7 +37,7 @@ export type RotaResolvida =
   | { pagina: 'historico' }
   | { pagina: 'diagnostico'; motivo: 'sem-cartao' | null; rapido: boolean }
   | { pagina: 'plano-de-carreira' }
-  | { pagina: 'mesa-de-trabalho'; missao: IdMissao; semente: number | null; causa: string | null; nova: boolean }
+  | { pagina: 'mesa-de-trabalho'; missao: IdMissao; semente: number | null; causa: string | null; nova: boolean; modo?: 'prova' }
   | { pagina: 'revisao'; sessao: string }
   | { pagina: 'portfolio' }
   | { pagina: 'catalogo' }
@@ -145,6 +145,7 @@ export function resolverEndereco(caminho: string, busca: string): RotaResolvida 
       semente: lerSemente(parametros.get('semente')),
       causa: causaDisponivel ? causa : null,
       nova: parametros.get('nova') === '1',
+      ...(parametros.get('modo') === 'prova' ? { modo: 'prova' as const } : {}),
     }
   }
 
@@ -198,6 +199,7 @@ export function enderecoDe(rota: RotaResolvida): string {
         ['semente', rota.semente === null ? null : String(rota.semente)],
         ['causa', rota.causa],
         ['nova', rota.nova ? '1' : null],
+        ['modo', rota.modo === 'prova' ? 'prova' : null],
       ])
     case 'revisao':
       return `/revisao/${encodeURIComponent(rota.sessao)}`

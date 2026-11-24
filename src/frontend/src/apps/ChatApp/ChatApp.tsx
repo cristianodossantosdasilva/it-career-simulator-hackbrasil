@@ -196,6 +196,7 @@ export function ChatApp({ sessao, onChat, onAcao, ocupado }: Props) {
           )}
         </div>
 
+        {sessao.modo !== 'prova' && (
         <div className="chat-bloco">
           <h3>Pistas do Tech Lead</h3>
           <p className="muted">Pistas usadas: <strong>{sessao.dialogo.pistasSolicitadas}/3</strong> (sem punição de tempo)</p>
@@ -209,6 +210,7 @@ export function ChatApp({ sessao, onChat, onAcao, ocupado }: Props) {
             {sessao.dialogo.pistasSolicitadas >= 3 ? 'Pistas esgotadas' : 'Pedir pista ao Tech Lead'}
           </button>
         </div>
+        )}
       </section>
     </section>
   )

@@ -37,7 +37,7 @@ describe('Estado inicial do Plano de Carreira', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Iniciar primeira missão' }))
     expect(window.location.pathname).toBe('/mesa-de-trabalho/reset-senha-desbloqueio')
     await waitFor(() => expect(criarSessao).toHaveBeenCalledTimes(1))
-    expect(criarSessao).toHaveBeenCalledWith({ cenarioId: 'reset-senha-desbloqueio' })
+    expect(criarSessao).toHaveBeenCalledWith({ cenarioId: 'reset-senha-desbloqueio', modo: 'guiado' })
   })
 
   it('Demo rapida inicia a missao de demonstracao com semente 42 e a Causa do catalogo', async () => {

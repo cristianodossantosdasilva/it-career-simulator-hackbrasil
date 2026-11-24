@@ -24,18 +24,21 @@ public static class Motor
     });
     private static string FormatarMoeda(decimal valor) => valor.ToString("N2", CultureInfo.GetCultureInfo("pt-BR"));
 
-    public static ResultadoAplicacao Iniciar(DefinicaoCenario cenario, long semente = 0)
+    public static ResultadoAplicacao Iniciar(DefinicaoCenario cenario, long semente = 0, string modo = "prova")
     {
+        var dadosInicio = new Dictionary<string, object?>
+        {
+            ["cenarioId"] = cenario.CenarioId,
+            ["causa"] = cenario.Causa,
+            ["semente"] = semente.ToString(),
+            ["nivel"] = cenario.Nivel,
+            ["versaoManifesto"] = cenario.VersaoManifesto
+        };
+        // Sessoes de prova mantem a forma antiga do evento (hash do replay estavel); so o guiado grava o modo.
+        if (modo == "guiado") dadosInicio["modo"] = "guiado";
         var eventos = new List<EnvelopeEvento>
         {
-            new(1, "SessaoIniciada", new Dictionary<string, object?>
-            {
-                ["cenarioId"] = cenario.CenarioId,
-                ["causa"] = cenario.Causa,
-                ["semente"] = semente.ToString(),
-                ["nivel"] = cenario.Nivel,
-                ["versaoManifesto"] = cenario.VersaoManifesto
-            }, 0)
+            new(1, "SessaoIniciada", dadosInicio, 0)
         };
 
         var seq = 2;
