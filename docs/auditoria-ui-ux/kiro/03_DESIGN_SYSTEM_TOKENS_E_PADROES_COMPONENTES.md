@@ -2,9 +2,9 @@
 
 ## 1. Identidade visual autoral
 
-**Conceito: "Quadro de operações".** O produto simula um turno de trabalho de suporte. A linguagem visual vem dessa sala: console de fila, relógio de SLA, registro de bordo (a Caixa-Preta). Três escolhas guiam tudo.
+**Conceito: "Quadro de operações".** O produto simula um turno de trabalho de suporte. A linguagem visual vem dessa sala: console de fila, relógio de SLA, registro de bordo (a Revisão). Três escolhas guiam tudo.
 
-1. **Papel e tinta, não neon.** Fundo claro de papel frio, texto quase preto, uma cor de acento (azul-petróleo). O modo escuro "Cockpit" é um alternativo, não o padrão.
+1. **Papel e tinta, não neon.** Fundo claro de papel frio, texto quase preto, uma cor de acento (azul-petróleo). O modo escuro "Mesa de Trabalho" é um alternativo, não o padrão.
 2. **O registro de bordo é o elemento memorável.** A linha do tempo (minuto simulado em mono, marcador por evento) aparece no Replay, na Workstation e na credencial. É onde se gasta a ousadia. O resto fica quieto.
 3. **Cor só com significado.** Acento para ação. Verde, âmbar e vermelho só para estado. Nada de roxo para IA nem de quatro cores de domínio.
 
@@ -17,7 +17,7 @@ Paleta nomeada (claro):
 | Tinta | `#14181F` | texto primário (contraste 17.8:1 sobre superfície) |
 | Petróleo | `#0B6E8A` | acento, links, foco (5.8:1 sobre branco) |
 | Sinal | `#B4501A` | atenção de SLA e alertas de segurança (5.1:1) |
-| Registro | `#1E293B` | fundo do terminal e do cockpit |
+| Registro | `#1E293B` | fundo do terminal e do mesa de trabalho |
 
 Evitar: creme com serif terracota, preto com verde ácido, e o "kit SaaS de cartões" (lista de tells do skill `frontend-design`).
 
@@ -127,7 +127,7 @@ Iconografia: `lucide-react`, traço 1.75 px, tamanhos 16 (densa), 20 (padrão), 
 
 Compatibilidade: os tokens atuais (`--bg-canvas`, `--bg-surface`, `--text-primary`, `--accent`, `--border`...) mantêm os nomes; os que mudam de significado ficam como alias temporário durante a migração (`--border: var(--border-hairline)`, `--theory-solid: var(--accent)` etc.) para a aplicação não quebrar no meio.
 
-## 3. Escala tipográfica
+## 3. Etapa tipográfica
 
 | Papel | Token | Peso | Line-height | Uso |
 |---|---|---|---|---|
@@ -169,7 +169,7 @@ Todos com `lucide-react`. Nomes exatos de ícones existentes na biblioteca.
 
 | Emoji atual | Onde | Substituir por | Observação |
 |---|---|---|---|
-| ✈ (logo) | `BarraSuperior.tsx` 36 | SVG próprio: marca "IT Flight" (quadrado 24 px com seta de rota) | ícone de marca, não Lucide |
+| ✈ (logo) | `BarraSuperior.tsx` 36 | SVG próprio: marca "IT Career" (quadrado 24 px com seta de rota) | ícone de marca, não Lucide |
 | 🏠 Painel | nav | `Compass` | nome do item passa a "Missões" |
 | 📖 Aulas / 📖 em cartões | nav, `AulasView.tsx` | `BookOpen` | |
 | 📓 Caderno / Minhas notas | nav, `App.tsx` | `NotebookPen` | |
@@ -218,7 +218,7 @@ Importante: "Resetar senha" (ação de risco do cenário) NÃO é danger por pad
 - Teclado: `Tab` percorre; `g` depois letra para ir (`g m` Missões, `g l` Laboratório) em fase opcional.
 
 ### 6.3 Linha de cenário (substitui cartão de cenário)
-Tabela semântica (`<table>`) ou lista de `role="list"` com linha clicável: número, nível, título, tempo, estado. Estados: `Começar` (primário), `Continuar`, `Concluído` (ícone `CircleCheck` verde), `Em breve` (texto muted). A linha toda é `<a>`.
+Tabela semântica (`<table>`) ou lista de `role="list"` com linha clicável: número, nível, título, tempo, estado. Estados: `Começar` (primário), `Continuar`, `Concluído` (ícone `CircleCheck` verde), `Em portfólio` (texto muted). A linha toda é `<a>`.
 
 ### 6.4 Tabela e fila ITSM
 - Cabeçalho 32 px, `--bg-subtle`, sentence case, texto 12 px 600.

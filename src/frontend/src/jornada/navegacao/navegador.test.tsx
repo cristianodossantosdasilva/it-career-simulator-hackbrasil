@@ -38,23 +38,23 @@ describe('navegador', () => {
     render(<MostrarLocal />)
     expect(screen.getByTestId('local')).toHaveTextContent('/|inicial|0')
     const tamanhoAntes = window.history.length
-    act(() => navegar('/breve'))
+    act(() => navegar('/portfolio'))
     expect(window.history.length).toBe(tamanhoAntes + 1)
-    expect(window.location.pathname).toBe('/breve')
-    expect(screen.getByTestId('local')).toHaveTextContent('/breve|interna|1')
+    expect(window.location.pathname).toBe('/portfolio')
+    expect(screen.getByTestId('local')).toHaveTextContent('/portfolio|interna|1')
   })
 
   it('substitui a entrada atual quando pedido', () => {
     render(<MostrarLocal />)
     const tamanhoAntes = window.history.length
-    act(() => navegar('/check-in?motivo=sem-cartao', { substituir: true }))
+    act(() => navegar('/diagnostico?motivo=sem-cartao', { substituir: true }))
     expect(window.history.length).toBe(tamanhoAntes)
-    expect(screen.getByTestId('local')).toHaveTextContent('/check-in?motivo=sem-cartao|interna|1')
+    expect(screen.getByTestId('local')).toHaveTextContent('/diagnostico?motivo=sem-cartao|interna|1')
   })
 
   it('muda a origem para histórico no popstate', () => {
     render(<MostrarLocal />)
-    act(() => navegar('/hangar'))
+    act(() => navegar('/catalogo'))
     act(() => {
       window.history.replaceState(null, '', '/caderno')
       window.dispatchEvent(new PopStateEvent('popstate'))
@@ -76,22 +76,22 @@ describe('LinkInterno', () => {
   function renderizarLink(props: Partial<Parameters<typeof LinkInterno>[0]> = {}) {
     render(
       <>
-        <LinkInterno href="/plano-de-voo" aria-current="page" {...props}>
-          Plano de voo
+        <LinkInterno href="/plano-de-carreira" aria-current="page" {...props}>
+          Plano de Carreira
         </LinkInterno>
         <MostrarLocal />
       </>,
     )
-    return screen.getByRole('link', { name: 'Plano de voo' })
+    return screen.getByRole('link', { name: 'Plano de Carreira' })
   }
 
   it('tem href real, repassa aria-current e navega no clique principal', () => {
     const link = renderizarLink()
-    expect(link).toHaveAttribute('href', '/plano-de-voo')
+    expect(link).toHaveAttribute('href', '/plano-de-carreira')
     expect(link).toHaveAttribute('aria-current', 'page')
     fireEvent.click(link)
     expect(interceptado).toBe(true)
-    expect(screen.getByTestId('local')).toHaveTextContent('/plano-de-voo|interna|1')
+    expect(screen.getByTestId('local')).toHaveTextContent('/plano-de-carreira|interna|1')
   })
 
   it.each([['ctrlKey'], ['metaKey'], ['shiftKey'], ['altKey']])('não intercepta clique com %s', (tecla) => {
@@ -109,10 +109,10 @@ describe('LinkInterno', () => {
     fireEvent.click(renderizarLink({ target: '_blank' }))
     expect(interceptado).toBe(false)
     cleanup()
-    fireEvent.click(renderizarLink({ href: 'https://exemplo.invalid/plano-de-voo' }))
+    fireEvent.click(renderizarLink({ href: 'https://exemplo.invalid/plano-de-carreira' }))
     expect(interceptado).toBe(false)
     cleanup()
-    fireEvent.click(renderizarLink({ href: '//exemplo.invalid/plano-de-voo' }))
+    fireEvent.click(renderizarLink({ href: '//exemplo.invalid/plano-de-carreira' }))
     expect(interceptado).toBe(false)
     expect(window.location.pathname).toBe('/')
   })

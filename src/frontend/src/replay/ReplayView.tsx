@@ -83,7 +83,7 @@ export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetorno
         <p className="replay-debrief">
           <Icone nome="ideia" tamanho={20} />
           <span>
-            <strong>Debrief da Caixa-Preta.</strong>{' '}
+            <strong>Debrief da Revisão.</strong>{' '}
             {avaliacao.incidenteSeguranca
               ? 'Houve incidente de segurança. Revise na linha do tempo o momento do erro para consolidar o procedimento seguro.'
               : proximoFoco
@@ -112,7 +112,7 @@ export function ReplayView({ replay, onAtualizar, ocupado, onNavegaKb, kbRetorno
       </section>
 
       <section className="replay-tempo" aria-label={T.regiaoLinhaTempo}>
-        <h2 className="h2">Caixa-Preta do atendimento ({eventos.length} eventos)</h2>
+        <h2 className="h2">Revisão do atendimento ({eventos.length} eventos)</h2>
         {eventos.length === 0 ? (
           <p className="muted">{T.semEventos}</p>
         ) : (

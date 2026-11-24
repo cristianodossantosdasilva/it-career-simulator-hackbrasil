@@ -1,6 +1,6 @@
 import type { NomeIcone } from '../../ui/catalogoIcones'
 
-/** Disponível: o backend oferece hoje. Em preparação: visível, sem embarque. Futuro: só anunciado. */
+/** Disponível: o backend oferece hoje. Em preparação: visível, sem perfil. Futuro: só anunciado. */
 export type StatusDisponibilidade = 'disponivel' | 'em-preparacao' | 'futuro'
 
 export const APRESENTACAO_STATUS: Record<StatusDisponibilidade, { texto: string; icone: NomeIcone }> = {

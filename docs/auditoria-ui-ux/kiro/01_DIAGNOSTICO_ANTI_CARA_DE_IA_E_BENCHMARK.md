@@ -27,9 +27,9 @@ Medições feitas no navegador (produção):
 
 O fundador tem razão. A interface atual não é feia. Ela é **genérica**: parece o resultado mediano de qualquer pedido "faça um painel de EdTech". Três causas concretas:
 
-1. **Não existe um objeto central.** O produto vende "voo de simulador" e "caixa-preta", mas a tela mostra cartões de curso e barras de progresso. O que há de único (turno de trabalho, SLA correndo, Replay verificável por assinatura) não aparece nem no Painel nem na Workstation.
+1. **Não existe um objeto central.** O produto vende "missão de simulador" e "caixa-preta", mas a tela mostra cartões de curso e barras de progresso. O que há de único (turno de trabalho, SLA correndo, Replay verificável por assinatura) não aparece nem no Painel nem na Workstation.
 2. **A Workstation parece formulário, não ferramenta.** O ITSM da produção mostra "Prioridade: —", "Categoria: Não classificado" e nenhum relógio de SLA. Um chamado real de Jira Service Management ou Zendesk mostra prioridade, tempo restante e responsável logo na primeira linha. A tela do SimuDesk antes da conexão é dois campos largos de 1100 px de largura e um botão apagado.
-3. **O Replay é um despejo de JSON.** A "Caixa-Preta" é o diferencial do pitch e hoje é um `<pre>` com `JSON.stringify` e uma lista de botões `#1 SessaoIniciada`. É a tela que o jurado deveria lembrar e é a mais crua.
+3. **O Replay é um despejo de JSON.** A "Revisão" é o diferencial do pitch e hoje é um `<pre>` com `JSON.stringify` e uma lista de botões `#1 SessaoIniciada`. É a tela que o jurado deveria lembrar e é a mais crua.
 
 O protótipo anterior (porta 4180) melhorou a hierarquia do Painel, mas manteve os mesmos vícios: emojis como ícones (`🏠 📖 📓 🤖 🛠 🔥 ⭐ 🌙 📜 🎒 🎧 🧩 ☁ 🏅 🎖`), saudação "Olá! Bora para o próximo passo da sua carreira 👋", rótulo em caixa alta "PAINEL DO ALUNO", banner "Continue de onde parou" com gradiente escuro e botão branco, e cinco níveis em cartões iguais. Foi aprovado pelo usuário por ser mais limpo que o anterior, não por ser autoral.
 
@@ -38,8 +38,8 @@ O protótipo anterior (porta 4180) melhorou a hierarquia do Painel, mas manteve 
 ### 2.1 Painel (`/`)
 - **Cabeçalho.** Fundo azul-marinho `#0f1b2d` com uma faixa de 3 px em quatro cores (azul, roxo, laranja, verde) sob ele. A faixa existe só para "dar cor". As quatro cores significam Teoria, Fixação, Prática e Domínio, mas o aluno só descobre isso na legenda da sub-barra. Sinal clássico de decoração disfarçada de informação.
 - **Navegação.** Cinco itens com emoji, mais 4 elementos à direita (streak, XP, tema, Currículo Vivo) e ainda uma sub-barra com seletor "Nível em foco", patente e legenda. São três faixas horizontais antes do conteúdo. Em 1440x900 o título do painel só começa a 150 px de altura.
-- **Título.** Rótulo "PAINEL DO ALUNO · AURORA LOGÍSTICA (100% DADOS SINTÉTICOS · SEM LOGIN)" em caixa alta, com pontos médios, e depois H1 "IT Flight Simulator — Academia de Suporte de TI". O rótulo é jargão de conformidade do hackathon na primeira linha que o aluno lê. Isso pertence ao rodapé ou a uma página "Sobre os dados".
-- **Banner "Continue de onde parou".** Gradiente azul-escuro, ícone em quadrado de 60 px com emoji de livro, botão branco "Começar a aula →". Para um aluno que nunca abriu o produto, "continue de onde parou" é uma frase vazia e o botão leva a uma aula, não ao "primeiro voo".
+- **Título.** Rótulo "PAINEL DO ALUNO · AURORA LOGÍSTICA (100% DADOS SINTÉTICOS · SEM LOGIN)" em caixa alta, com pontos médios, e depois H1 "IT Career Simulator — Academia de Suporte de TI". O rótulo é jargão de conformidade do hackathon na primeira linha que o aluno lê. Isso pertence ao rodapé ou a uma página "Sobre os dados".
+- **Banner "Continue de onde parou".** Gradiente azul-escuro, ícone em quadrado de 60 px com emoji de livro, botão branco "Começar a aula →". Para um aluno que nunca abriu o produto, "continue de onde parou" é uma frase vazia e o botão leva a uma aula, não ao "primeiro missão".
 - **Trilha.** Cinco linhas, cada uma com três barras (Teoria, Fixação, Prática), dois botões (Aulas, Praticar) e emoji em quadrado. São 15 barras e 10 botões que mostram quase tudo em 0%. Informação sem conteúdo.
 - **Coluna "Hoje".** Anel de progresso conic-gradient "0 de 90m", Pomodoro, "0 revisões para hoje", Plano de estudos com quatro checkboxes. Quatro widgets de produtividade pessoal numa tela de entrada de um simulador. Parece um template de aplicativo de estudos genérico.
 
@@ -85,7 +85,7 @@ O protótipo anterior (porta 4180) melhorou a hierarquia do Painel, mas manteve 
 | 13 | Botões de 4 a 5 estilos por tela (`btn-primary`, `btn-secondary` cinza-escuro, `btn-practice` laranja, `btn-ai` roxo, `btn-success`, `btn-white`) | `index.css` `.btn-*` | Cor do botão virou categoria de conteúdo. O laranja de "Praticar" disputa com o azul de "Começar a aula". | Um primário, um secundário, um ghost, um destrutivo. |
 | 14 | Anatomia de Replay como JSON | `ReplayView.tsx` ~155 (`JSON.stringify(...)`) | Mostra dado interno em vez de narrativa. Aluno não aprende com `{"nivel":"Estagiario"...}`. | Datadog e Vercel Logs: linha do tempo com ícone por tipo, hora e resumo humano; JSON atrás de "ver bruto". |
 | 15 | Acentuação ausente na Workstation | `ItsmApp.tsx` (títulos), `ReplayView.tsx` ("Relatorio", "Avaliacao") | Inconsistência com o restante. Passa descuido. | Revisão ortográfica obrigatória no pipeline. |
-| 16 | Raio de borda sem hierarquia (4, 6, 8, 10, 12, 14, 16, 999) | 83 ocorrências em `index.css` | Perda de coerência visual. | Escala de 2 valores densos e 2 valores de painel. |
+| 16 | Raio de borda sem hierarquia (4, 6, 8, 10, 12, 14, 16, 999) | 83 ocorrências em `index.css` | Perda de coerência visual. | Etapa de 2 valores densos e 2 valores de painel. |
 | 17 | Motion genérico: flip 3D de flashcard em 0.5 s, `transition` em todo botão, barra animada 0.4 s | `index.css` `.flash-inner`, `.bar > span` | Efeito sem informação. O flip 3D é um dos mais citados em listas de "demo de IA". | Animar só resposta a ação do usuário (abrir, confirmar) com 120 a 200 ms. |
 | 18 | Foco como contorno de 3 px com offset 2 px em tudo | `index.css` `button:focus-visible` | Correto para acessibilidade, mas o mesmo traço grosso em campo de texto e botão quebra a hierarquia visual. | Anel de 2 px com cor de acento e 2 px de afastamento. |
 | 19 | Fonte não empacotada | `index.css` linha 3 | Aparência depende da máquina. | Fontes em `@font-face` com `font-display: swap`. |
@@ -97,7 +97,7 @@ Observação: as descrições abaixo vêm do conhecimento sobre as interfaces p�
 
 ### 4.1 AWS Skill Builder e Cloudscape
 - **O que copiar estruturalmente:** hierarquia `Learning plan > Curso > Módulo`. Cartão de trilha com título, duração e uma linha de estado. Cabeçalho de página com breadcrumb, título e ações à direita (`Header` do Cloudscape). `StatusIndicator` com ícone e texto. Tabela densa com seleção e filtros (`Table`). Densidade `compact` para áreas operacionais.
-- **O que adaptar:** Skill Builder é pago e corporativo. Aqui o produto é gratuito e para jovens, então manter o tom neutro, mas com linguagem direta e a trilha começando no "Primeiro voo".
+- **O que adaptar:** Skill Builder é pago e corporativo. Aqui o produto é gratuito e para jovens, então manter o tom neutro, mas com linguagem direta e a trilha começando no "Primeiro missão".
 - **O que evitar:** excesso de filtros e catálogos vazios. Com 5 cenários a Home não precisa de busca.
 
 ### 4.2 Microsoft Learn (e Sandbox)

@@ -1,12 +1,12 @@
 import { type ReactNode, useCallback, useMemo, useRef, useState } from 'react'
-import { type CartaoEmbarque, gravarCartao, lerCartao } from './armazenamento/cartaoEmbarque'
+import { type CartaoPerfil, gravarCartao, lerCartao } from './armazenamento/cartaoPerfil'
 import {
   type OrigemModoDemonstracao,
   gravarModoDemonstracao,
   lerModoDemonstracao,
 } from './armazenamento/modoDemonstracao'
-import { type RegistroDeVoo, gravarRegistros, incluirRegistro, lerRegistros } from './armazenamento/registrosVoo'
-import { type VoosAtivos, comVooAtivo, gravarVoosAtivos, lerVoosAtivos } from './armazenamento/voosAtivos'
+import { type RegistroDeMissao, gravarRegistros, incluirRegistro, lerRegistros } from './armazenamento/registrosMissao'
+import { type MissoesAtivas, comMissaoAtiva, gravarMissoesAtivas, lerMissoesAtivas } from './armazenamento/missoesAtivas'
 import type { IdMissao } from './catalogos/catalogoRotas'
 import {
   AVISO_FALHA_GRAVACAO,
@@ -40,7 +40,7 @@ const ARMAZENAMENTO_INDISPONIVEL: Storage = {
 }
 
 /**
- * Cartão, registros, voos ativos e modo de demonstração lidos uma vez, por inicialização preguiçosa. Não importa o cliente
+ * Cartão, registros, missões ativas e modo de demonstração lidos uma vez, por inicialização preguiçosa. Não importa o cliente
  * da API: este contexto só lê e grava o Armazenamento_Local.
  */
 export function ProvedorArmazenamentoJornada({
@@ -51,14 +51,14 @@ export function ProvedorArmazenamentoJornada({
   armazenamento?: Storage
 }) {
   const [origem] = useState<Storage>(() => armazenamento ?? armazenamentoPadrao() ?? ARMAZENAMENTO_INDISPONIVEL)
-  const [cartao, setCartao] = useState<CartaoEmbarque | null>(() => lerCartao(origem))
-  const [registros, setRegistros] = useState<readonly RegistroDeVoo[]>(() => lerRegistros(origem))
-  const [voosAtivos, setVoosAtivos] = useState<VoosAtivos>(() => lerVoosAtivos(origem))
+  const [cartao, setCartao] = useState<CartaoPerfil | null>(() => lerCartao(origem))
+  const [registros, setRegistros] = useState<readonly RegistroDeMissao[]>(() => lerRegistros(origem))
+  const [missoesAtivas, setMissoesAtivas] = useState<MissoesAtivas>(() => lerMissoesAtivas(origem))
   const [modoDemonstracao, setModoDemonstracao] = useState<boolean>(() => lerModoDemonstracao(origem))
   const [avisoGravacao, setAvisoGravacao] = useState<string | null>(null)
   const anunciador = useRef<((texto: string) => void) | null>(null)
   const registrosAtuais = useRef(registros)
-  const voosAtivosAtuais = useRef(voosAtivos)
+  const missoesAtivasAtuais = useRef(missoesAtivas)
 
   const anotarResultado = useCallback((gravou: boolean) => {
     if (!gravou) setAvisoGravacao(AVISO_FALHA_GRAVACAO)
@@ -66,7 +66,7 @@ export function ProvedorArmazenamentoJornada({
   }, [])
 
   const definirCartao = useCallback(
-    (novo: CartaoEmbarque) => {
+    (novo: CartaoPerfil) => {
       setCartao(novo)
       return anotarResultado(gravarCartao(origem, novo))
     },
@@ -94,8 +94,8 @@ export function ProvedorArmazenamentoJornada({
       if (anunciador.current === anunciar) anunciador.current = null
     }
   }, [])
-  const registrarVoo = useCallback(
-    (registro: RegistroDeVoo) => {
+  const registrarMissao = useCallback(
+    (registro: RegistroDeMissao) => {
       const proximos = incluirRegistro(registrosAtuais.current, registro)
       registrosAtuais.current = proximos
       setRegistros(proximos)
@@ -104,45 +104,45 @@ export function ProvedorArmazenamentoJornada({
     [origem, anotarResultado],
   )
 
-  const registrarVooAtivo = useCallback(
+  const registrarMissaoAtiva = useCallback(
     (missao: IdMissao, sessaoId: string) => {
-      const proximos = comVooAtivo(voosAtivosAtuais.current, missao, sessaoId)
-      voosAtivosAtuais.current = proximos
-      setVoosAtivos(proximos)
-      return anotarResultado(gravarVoosAtivos(origem, proximos))
+      const proximos = comMissaoAtiva(missoesAtivasAtuais.current, missao, sessaoId)
+      missoesAtivasAtuais.current = proximos
+      setMissoesAtivas(proximos)
+      return anotarResultado(gravarMissoesAtivas(origem, proximos))
     },
     [origem, anotarResultado],
   )
 
-  const lerVoosAtivosAtuais = useCallback(() => voosAtivosAtuais.current, [])
+  const lerMissoesAtivasAtuais = useCallback(() => missoesAtivasAtuais.current, [])
   const dispensarAvisoGravacao = useCallback(() => setAvisoGravacao(null), [])
 
   const valor = useMemo<ValorArmazenamentoJornada>(
     () => ({
       cartao,
       registros,
-      voosAtivos,
+      missoesAtivas,
       modoDemonstracao,
       definirModoDemonstracao,
       registrarAnunciador,
       definirCartao,
-      registrarVoo,
-      registrarVooAtivo,
-      lerVoosAtivosAtuais,
+      registrarMissao,
+      registrarMissaoAtiva,
+      lerMissoesAtivasAtuais,
       avisoGravacao,
       dispensarAvisoGravacao,
     }),
     [
       cartao,
       registros,
-      voosAtivos,
+      missoesAtivas,
       modoDemonstracao,
       definirModoDemonstracao,
       registrarAnunciador,
       definirCartao,
-      registrarVoo,
-      registrarVooAtivo,
-      lerVoosAtivosAtuais,
+      registrarMissao,
+      registrarMissaoAtiva,
+      lerMissoesAtivasAtuais,
       avisoGravacao,
       dispensarAvisoGravacao,
     ],

@@ -5,8 +5,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { projecaoDeTeste, respostaJson } from '../../testes/apiDeTeste'
 import { criarArmazenamentoFalso } from '../../testes/armazenamentoFalso'
 import { CHAVE_MODO_DEMONSTRACAO, serializarModoDemonstracao } from '../armazenamento/modoDemonstracao'
-import { CHAVE_REGISTROS_VOO } from '../armazenamento/registrosVoo'
-import { type ValorVoo, useVoo } from '../contextosJornada'
+import { CHAVE_REGISTROS_MISSAO } from '../armazenamento/registrosMissao'
+import { type ValorMissao, useMissao } from '../contextosJornada'
 import { ProvedorJornada } from '../ProvedorJornada'
 
 const FONTES = import.meta.glob('/src/**/*.{ts,tsx}', { query: '?raw', import: 'default', eager: true }) as Record<
@@ -32,22 +32,22 @@ describe('Isolamento do modo de demonstração', () => {
     expect(caminhos.some((c) => c.includes('/jornada/demonstracao/'))).toBe(true)
     expect(caminhos.some((c) => c.endsWith('/armazenamento/modoDemonstracao.ts'))).toBe(true)
     expect(caminhos.some((c) => c.includes('/api/'))).toBe(true)
-    expect(caminhos.some((c) => c.includes('/jornada/cabine/'))).toBe(true)
+    expect(caminhos.some((c) => c.includes('/jornada/mesa/'))).toBe(true)
   })
 
-  it('demonstracao/ e modoDemonstracao.ts não importam api/client nem registrosVoo', () => {
+  it('demonstracao/ e modoDemonstracao.ts não importam api/client nem registrosMissao', () => {
     const vigiados = SEM_TESTES.filter(
       ([caminho]) => caminho.includes('/jornada/demonstracao/') || caminho.endsWith('/armazenamento/modoDemonstracao.ts'),
     )
     expect(vigiados.length).toBeGreaterThan(0)
     for (const [caminho, texto] of vigiados) {
       expect(importa(texto, /api\/client/), `${caminho} importa api/client`).toBe(false)
-      expect(importa(texto, /registrosVoo/), `${caminho} importa registrosVoo`).toBe(false)
+      expect(importa(texto, /registrosMissao/), `${caminho} importa registrosMissao`).toBe(false)
     }
   })
 
-  it('api/ e jornada/cabine/ não contêm o modo nem a chave dele', () => {
-    const vigiados = SEM_TESTES.filter(([caminho]) => caminho.includes('/src/api/') || caminho.includes('/jornada/cabine/'))
+  it('api/ e jornada/mesa/ não contêm o modo nem a chave dele', () => {
+    const vigiados = SEM_TESTES.filter(([caminho]) => caminho.includes('/src/api/') || caminho.includes('/jornada/mesa/'))
     expect(vigiados.length).toBeGreaterThan(0)
     for (const [caminho, texto] of vigiados) {
       expect(texto, `${caminho} cita modoDemonstracao`).not.toContain('modoDemonstracao')
@@ -55,7 +55,7 @@ describe('Isolamento do modo de demonstração', () => {
     }
   })
 
-  // Feature: jornada-de-voo, Property 23: O modo não toca registros nem rede
+  // Feature: jornada-de-missao, Property 23: O modo não toca registros nem rede
   it('abrir pasta-rede-inacessivel e agir produz as mesmas requisições com o modo ativo e inativo', async () => {
     async function executar(modoAtivo: boolean) {
       // O provedor guarda os identificadores de sessão no localStorage do navegador: parte de um estado igual.
@@ -85,27 +85,27 @@ describe('Isolamento do modo de demonstração', () => {
               [CHAVE_MODO_DEMONSTRACAO]: serializarModoDemonstracao({
                 versao: 1,
                 ativo: true,
-                origem: 'plano-de-voo',
+                origem: 'plano-de-carreira',
                 alteradoEm: '2026-11-20T12:00:00.000Z',
               }),
             }
           : {},
       )
-      let voo: ValorVoo | null = null
+      let missaoAberta: ValorMissao | null = null
       function Captura() {
-        const valor = useVoo()
+        const valor = useMissao()
         useEffect(() => {
-          voo = valor
+          missaoAberta = valor
         })
         return null
       }
       render(createElement(ProvedorJornada, { armazenamento }, createElement(Captura)))
       await act(async () => {
-        await voo?.abrirVoo('pasta-rede-inacessivel', { semente: 42, nova: true })
+        await missaoAberta?.abrirMissao('pasta-rede-inacessivel', { semente: 42, nova: true })
       })
-      await waitFor(() => expect(voo?.sessaoId).toBe('sessao-fixa'))
+      await waitFor(() => expect(missaoAberta?.sessaoId).toBe('sessao-fixa'))
       await act(async () => {
-        await voo?.executarAcao('consultar_chamado', { chamadoId: 'INC-1' })
+        await missaoAberta?.executarAcao('consultar_chamado', { chamadoId: 'INC-1' })
       })
       cleanup()
       vi.restoreAllMocks()
@@ -120,8 +120,8 @@ describe('Isolamento do modo de demonstração', () => {
       expect(texto).not.toContain('demonstracao')
       expect(texto).not.toContain('itfs_modo')
     }
-    // O modo não grava nem apaga Registro_de_Voo e não regrava a própria chave só por abrir um voo.
-    expect(ativo.armazenamento.dados.has(CHAVE_REGISTROS_VOO)).toBe(false)
+    // O modo não grava nem apaga Registro_de_Missão e não regrava a própria chave só por abrir uma missão.
+    expect(ativo.armazenamento.dados.has(CHAVE_REGISTROS_MISSAO)).toBe(false)
     expect(ativo.armazenamento.gravacoes.filter((g) => g.chave === CHAVE_MODO_DEMONSTRACAO)).toHaveLength(0)
   })
 })

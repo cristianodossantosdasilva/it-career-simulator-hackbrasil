@@ -13,7 +13,7 @@
 
 | Arquivo | Mudança |
 |---|---|
-| `src/frontend/src/index.css` | Consolidar tokens claros e escuros; remover a faixa decorativa; criar escalas de densidade, estilos de foco, estados e layout responsivo. Desmembrar CSS de laboratório, aula e replay em folhas co-localizadas depois que a primeira entrega estiver estável. |
+| `src/frontend/src/index.css` | Consolidar tokens claros e escuros; remover a faixa decorativa; criar etapas de densidade, estilos de foco, estados e layout responsivo. Desmembrar CSS de laboratório, aula e replay em folhas co-localizadas depois que a primeira entrega estiver estável. |
 | `src/frontend/src/App.tsx` | Preservar chamada de sessão e ações. Extrair `AppShell`, `MissionGuide`, `SplitLabWorkspace` e os drawers de nota e ajuda. Evitar duplicar o cabeçalho entre academia e turno. |
 | `src/frontend/src/workstation/TelaInicial.tsx` | Refazer hierarquia do painel. Priorizar retomada e próxima missão; reduzir texto de introdução; trocar cartões idênticos por lista de cenário com progresso e ação. |
 | `src/frontend/src/educacao/BarraSuperior.tsx` | Transformar em navegação global enxuta, sem emoji e sem seletor de nível persistente em todas as telas. Mover escolha de nível para Trilhas. |

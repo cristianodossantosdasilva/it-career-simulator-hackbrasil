@@ -4,13 +4,13 @@ import {
   MISSAO_DEMONSTRACAO,
   type IdMissao,
   type Rota,
-  escalaDaMissao,
-  missoesDaEscala,
+  etapaDaMissao,
+  missoesDaEtapa,
   rotaPorId,
 } from './catalogoRotas'
 import { AVISO_CERTIFICACOES, CATALOGO_CERTIFICACOES } from './catalogoCertificacoes'
 import { CATALOGO_PARCEIROS } from './catalogoParceiros'
-import { CHECKIN_RAPIDO, ROTEIRO_CHECKIN } from './catalogoVocacional'
+import { DIAGNOSTICO_RAPIDO, ROTEIRO_DIAGNOSTICO } from './catalogoVocacional'
 import { indicarRota } from './regrasIndicacao'
 import * as textosDemonstracao from '../demonstracao/textosDemonstracao'
 import { APRESENTACAO_STATUS } from './status'
@@ -18,35 +18,35 @@ import { APRESENTACAO_STATUS } from './status'
 const ROTAS: readonly Rota[] = CATALOGO_ROTAS
 const suporte = rotaPorId('suporte-ti')!
 
-const DISTRIBUICAO: Record<IdMissao, { escala: string; vertente: string | null }> = {
-  'reset-senha-desbloqueio': { escala: 'Help Desk N1', vertente: null },
-  'pasta-rede-inacessivel': { escala: 'Service Desk N1 Jr', vertente: null },
-  'incidente-massivo': { escala: 'N2 Pleno', vertente: null },
-  'sre-cloud-latencia': { escala: 'N3 Sênior', vertente: 'N3-A Redes e Nuvem' },
-  'falha-backup-restore': { escala: 'N3 Sênior', vertente: 'N3-B Data Center e Backup' },
-  'triagem-engenharia-social': { escala: 'N3 Sênior', vertente: 'N3-C Segurança e Dados' },
-  'diagnostico-sql-readonly': { escala: 'N3 Sênior', vertente: 'N3-C Segurança e Dados' },
+const DISTRIBUICAO: Record<IdMissao, { etapa: string; vertente: string | null }> = {
+  'reset-senha-desbloqueio': { etapa: 'Help Desk N1', vertente: null },
+  'pasta-rede-inacessivel': { etapa: 'Service Desk N1 Jr', vertente: null },
+  'incidente-massivo': { etapa: 'N2 Pleno', vertente: null },
+  'sre-cloud-latencia': { etapa: 'N3 Sênior', vertente: 'N3-A Redes e Nuvem' },
+  'falha-backup-restore': { etapa: 'N3 Sênior', vertente: 'N3-B Data Center e Backup' },
+  'triagem-engenharia-social': { etapa: 'N3 Sênior', vertente: 'N3-C Segurança e Dados' },
+  'diagnostico-sql-readonly': { etapa: 'N3 Sênior', vertente: 'N3-C Segurança e Dados' },
 }
 
 function todasAsMissoes() {
-  return ROTAS.flatMap((rota) => rota.escalas.flatMap((escala) => missoesDaEscala(escala)))
+  return ROTAS.flatMap((rota) => rota.etapas.flatMap((etapa) => missoesDaEtapa(etapa)))
 }
 
 describe('Catálogo de rotas', () => {
-  it('distribui os 7 cenários em exatamente uma escala e, na N3 Sênior, em exatamente uma Vertente', () => {
+  it('distribui os 7 cenários em exatamente uma etapa e, na N3 Sênior, em exatamente uma Vertente', () => {
     const missoes = todasAsMissoes()
     expect(missoes).toHaveLength(7)
     for (const [id, esperado] of Object.entries(DISTRIBUICAO)) {
       const ocorrencias = missoes.filter((item) => item.missao.id === id)
       expect(ocorrencias).toHaveLength(1)
-      const local = escalaDaMissao(id)
-      expect(local?.escala.nome).toBe(esperado.escala)
+      const local = etapaDaMissao(id)
+      expect(local?.etapa.nome).toBe(esperado.etapa)
       expect(local?.vertente?.nome ?? null).toBe(esperado.vertente)
     }
   })
 
-  it('mantém as escalas na ordem da rota', () => {
-    expect(suporte.escalas.map((e) => e.nome)).toEqual(['Help Desk N1', 'Service Desk N1 Jr', 'N2 Pleno', 'N3 Sênior'])
+  it('mantém as etapas na ordem da rota', () => {
+    expect(suporte.etapas.map((e) => e.nome)).toEqual(['Help Desk N1', 'Service Desk N1 Jr', 'N2 Pleno', 'N3 Sênior'])
   })
 
   it('atribui os status das Missões conforme o Requirement 6.4', () => {
@@ -82,7 +82,7 @@ describe('Catálogo de rotas', () => {
   })
 
   it('ordena as Vertentes da N3 Sênior como N3-A, N3-B e N3-C', () => {
-    const n3 = suporte.escalas.find((e) => e.id === 'n3-senior')!
+    const n3 = suporte.etapas.find((e) => e.id === 'n3-senior')!
     expect(n3.vertentes.map((v) => v.nome)).toEqual([
       'N3-A Redes e Nuvem',
       'N3-B Data Center e Backup',
@@ -90,18 +90,18 @@ describe('Catálogo de rotas', () => {
     ])
   })
 
-  it('preenche missoes ou vertentes em cada escala, nunca os dois', () => {
+  it('preenche missoes ou vertentes em cada etapa, nunca os dois', () => {
     for (const rota of ROTAS) {
-      for (const escala of rota.escalas) {
-        expect(escala.missoes.length === 0 || escala.vertentes.length === 0).toBe(true)
+      for (const etapa of rota.etapas) {
+        expect(etapa.missoes.length === 0 || etapa.vertentes.length === 0).toBe(true)
       }
     }
   })
 
-  it('registra ao menos uma Missão em cada escala de rota disponível', () => {
+  it('registra ao menos uma Missão em cada etapa de rota disponível', () => {
     for (const rota of ROTAS.filter((r) => r.status === 'disponivel')) {
-      expect(rota.escalas.length).toBeGreaterThan(0)
-      for (const escala of rota.escalas) expect(missoesDaEscala(escala).length).toBeGreaterThan(0)
+      expect(rota.etapas.length).toBeGreaterThan(0)
+      for (const etapa of rota.etapas) expect(missoesDaEtapa(etapa).length).toBeGreaterThan(0)
     }
   })
 
@@ -116,15 +116,15 @@ describe('Catálogo de rotas', () => {
 
   it('deixa só a rota Suporte de TI disponível', () => {
     expect(ROTAS.filter((r) => r.status === 'disponivel').map((r) => r.id)).toEqual(['suporte-ti'])
-    for (const rota of ROTAS.filter((r) => r.status !== 'disponivel')) expect(rota.escalas).toHaveLength(0)
+    for (const rota of ROTAS.filter((r) => r.status !== 'disponivel')) expect(rota.etapas).toHaveLength(0)
     expect(rotaPorId('inexistente')).toBeNull()
   })
 
   it('aponta a Missão de demonstração para uma Missão disponível do catálogo', () => {
-    const local = escalaDaMissao(MISSAO_DEMONSTRACAO)
+    const local = etapaDaMissao(MISSAO_DEMONSTRACAO)
     expect(local).not.toBeNull()
     expect(local?.missao.status).toBe('disponivel')
-    expect(escalaDaMissao('cenario-inexistente')).toBeNull()
+    expect(etapaDaMissao('cenario-inexistente')).toBeNull()
   })
 
   it('não usa E comercial nem emoji nos textos do catálogo e dos status', () => {
@@ -138,18 +138,18 @@ const TERMOS_PROIBIDOS_EM_CERTIFICACAO = ['oficial', 'parceiro', 'equivalente', 
 const EMPRESAS_REAIS = ['senai', 'microsoft', 'google', 'amazon', 'aws', 'cisco', 'oracle', 'ibm', 'linkedin', 'totvs']
 
 describe('Catálogo de certificações', () => {
-  it('dá a cada item um status do catálogo e uma escala existente na rota', () => {
-    const escalas = new Set(suporte.escalas.map((escala) => escala.id))
+  it('dá a cada item um status do catálogo e uma etapa existente na rota', () => {
+    const etapas = new Set(suporte.etapas.map((etapa) => etapa.id))
     expect(new Set(CATALOGO_CERTIFICACOES.map((item) => item.id)).size).toBe(CATALOGO_CERTIFICACOES.length)
     for (const item of CATALOGO_CERTIFICACOES) {
       expect(Object.keys(APRESENTACAO_STATUS), item.id).toContain(item.status)
       expect(rotaPorId(item.rotaId), item.id).not.toBeNull()
-      expect(item.escalaIds.length, item.id).toBeGreaterThan(0)
-      for (const escala of item.escalaIds) expect(escalas.has(escala), `${item.id}: ${escala}`).toBe(true)
+      expect(item.etapaIds.length, item.id).toBeGreaterThan(0)
+      for (const etapa of item.etapaIds) expect(etapas.has(etapa), `${item.id}: ${etapa}`).toBe(true)
     }
   })
-  it('atribui os status e as escalas do design', () => {
-    expect(CATALOGO_CERTIFICACOES.map((item) => [item.nome, item.escalaIds, item.status])).toEqual([
+  it('atribui os status e as etapas do design', () => {
+    expect(CATALOGO_CERTIFICACOES.map((item) => [item.nome, item.etapaIds, item.status])).toEqual([
       ['CompTIA A+', ['help-desk-n1'], 'disponivel'],
       ['ITIL 4 Foundation', ['service-desk-n1-jr', 'n2-pleno'], 'disponivel'],
       ['CompTIA Network+', ['service-desk-n1-jr'], 'em-preparacao'],
@@ -192,23 +192,23 @@ describe('Textos dos catálogos de certificações e parceiros', () => {
   })
 })
 
-describe('Check-in_Rápido e textos do modo de demonstração', () => {
+describe('Diagnóstico_Rápido e textos do modo de demonstração', () => {
   it('as respostas padrão existem nas opções do roteiro', () => {
-    for (const pergunta of ROTEIRO_CHECKIN.perguntas) {
-      const resposta = CHECKIN_RAPIDO.respostas[pergunta.id]
+    for (const pergunta of ROTEIRO_DIAGNOSTICO.perguntas) {
+      const resposta = DIAGNOSTICO_RAPIDO.respostas[pergunta.id]
       expect(pergunta.opcoes.some((opcao) => opcao.id === resposta)).toBe(true)
     }
   })
 
   it('as respostas padrão indicam a rota Suporte de TI, que está disponível', () => {
-    const { rotaId } = indicarRota(CHECKIN_RAPIDO.respostas)
+    const { rotaId } = indicarRota(DIAGNOSTICO_RAPIDO.respostas)
     expect(rotaId).toBe('suporte-ti')
     expect(rotaPorId(rotaId)?.status).toBe('disponivel')
   })
 
-  it('os textos do modo, do atalho e do check-in rápido não usam E comercial nem emoji', () => {
+  it('os textos do modo, do atalho e do diagnóstico rápido não usam E comercial nem emoji', () => {
     const textos = JSON.stringify([
-      CHECKIN_RAPIDO,
+      DIAGNOSTICO_RAPIDO,
       ...Object.values(textosDemonstracao).map((valor) =>
         typeof valor === 'function' ? valor('Service Desk N1 Jr') : valor,
       ),

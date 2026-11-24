@@ -7,7 +7,7 @@ type Rota404 = Extract<RotaResolvida, { pagina: 'nao-encontrada' }>
 
 /**
  * Página não encontrada. Diz qual endereço ou missão não existe e dá o caminho de volta: o Início
- * sempre, e o Plano de voo quando há cartão de embarque ou quando a missão informada é que não existe.
+ * sempre, e o Plano de Carreira quando há cartão de perfil ou quando a missão informada é que não existe.
  */
 export function Pagina404({ rota }: { rota: Rota404 }) {
   const { cartao } = useArmazenamentoJornada()
@@ -19,7 +19,7 @@ export function Pagina404({ rota }: { rota: Rota404 }) {
         {rota.missaoDesconhecida !== null ? (
           <p className="pagina-jornada-texto">
             A missão <strong>{rota.missaoDesconhecida}</strong> não existe no catálogo de rotas. Escolha uma missão no Plano
-            de voo.
+            de missão.
           </p>
         ) : (
           <p className="pagina-jornada-texto">
@@ -33,9 +33,9 @@ export function Pagina404({ rota }: { rota: Rota404 }) {
           <span>Ir para o Início</span>
         </LinkInterno>
         {ofereceOPlano && (
-          <LinkInterno href="/plano-de-voo" className="btn btn-secondary">
-            <Icone nome="plano-de-voo" tamanho={20} />
-            <span>Ir para o Plano de voo</span>
+          <LinkInterno href="/plano-de-carreira" className="btn btn-secondary">
+            <Icone nome="plano-de-carreira" tamanho={20} />
+            <span>Ir para o Plano de Carreira</span>
           </LinkInterno>
         )}
       </div>

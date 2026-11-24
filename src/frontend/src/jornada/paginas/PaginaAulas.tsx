@@ -23,21 +23,21 @@ export function PaginaAulas({ rota }: { rota: RotaAulas }) {
     navegar(enderecoDe({ pagina: 'caderno' }))
   }
 
-  /** Escala liberada (ou modo de demonstração): Cabine da missão. Bloqueada: Plano de voo, nunca a Cabine. */
+  /** Etapa liberada (ou modo de demonstração): Mesa de Trabalho da missão. Bloqueada: Plano de Carreira, nunca a Mesa de Trabalho. */
   function iniciarLaboratorio(cenarioId: IdMissao) {
     navegar(destinoDaPratica(cenarioId).endereco)
   }
 
   function avisoDaPratica(cenarioId: IdMissao): string | null {
     const destino = destinoDaPratica(cenarioId)
-    return destino.tipo === 'plano-de-voo' ? destino.aviso : null
+    return destino.tipo === 'plano-de-carreira' ? destino.aviso : null
   }
 
   return (
     <div className="page pagina-jornada">
       <header>
         <h1 className="h1">{NOME_PAGINA.aulas}</h1>
-        <p className="pagina-jornada-texto">Aulas curtas e flashcards por nível, para estudar antes de ir à Cabine.</p>
+        <p className="pagina-jornada-texto">Aulas curtas e flashcards por nível, para estudar antes de ir à Mesa de Trabalho.</p>
         <nav aria-label="Níveis das aulas" className="acoes-linha">
           {LEVELS.map((item) => (
             <LinkInterno

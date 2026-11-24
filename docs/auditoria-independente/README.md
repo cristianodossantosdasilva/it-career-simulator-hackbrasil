@@ -1,4 +1,4 @@
-# Auditoria Independente Multi-IA — IT Flight Simulator (Hack Brasil 2026)
+# Auditoria Independente Multi-IA — IT Career Simulator (Hack Brasil 2026)
 
 Este diretório centraliza a revisão crítica, autônoma e independente conduzida por três agentes externos em paralelo (**Kiro CLI**, **Codex CLI** e **GitHub Copilot CLI**), avaliando desde o regulamento oficial do **Hack Brasil 2026** até o código-fonte, infraestrutura em nuvem, banco de dados, governança no DevLedger, matriz curricular, design UX, viabilidade financeira, contabilidade e conformidade jurídica.
 
@@ -14,7 +14,7 @@ Este diretório centraliza a revisão crítica, autônoma e independente conduzi
 ## Prompt Mestre Oficial e Chamadas Prontas com Acesso Total
 
 - [PROMPT_AUDITORIA_INDEPENDENTE_MULTI_IA.md](PROMPT_AUDITORIA_INDEPENDENTE_MULTI_IA.md) — Prompt neutro e completo com todos os caminhos locais, bancos, CLIs, bases de conhecimento, regulamento, escopo das 7 frentes, regras de entrega e comandos prontos de execução com permissão total na Seção 6:
-  - **Kiro CLI:** `Set-Location "D:\Projetos\Ativos\it-flight-simulator-hackbrasil"; kiro-cli chat --trust-all-tools --trust-workspace "<PROMPT>"`
-  - **Codex CLI:** `Set-Location "D:\Projetos\Ativos\it-flight-simulator-hackbrasil"; codex.cmd -C "D:\Projetos\Ativos\it-flight-simulator-hackbrasil" --dangerously-bypass-approvals-and-sandbox --search --add-dir "D:/" --add-dir "C:\Users\Black" "<PROMPT>"`
-  - **GitHub Copilot CLI (interativo):** `Set-Location "D:\Projetos\Ativos\it-flight-simulator-hackbrasil"; copilot.cmd --yolo --add-dir "D:/" --add-dir "C:\Users\Black" -i "<PROMPT>"`
-  - **GitHub Copilot CLI (não interativo):** `Set-Location "D:\Projetos\Ativos\it-flight-simulator-hackbrasil"; copilot.cmd --yolo --trust-folder --add-dir "D:/" --add-dir "C:\Users\Black" -p "<PROMPT>"`
+  - **Kiro CLI:** `Set-Location "D:\Projetos\Ativos\it-career-simulator-hackbrasil"; kiro-cli chat --trust-all-tools --trust-workspace "<PROMPT>"`
+  - **Codex CLI:** `Set-Location "D:\Projetos\Ativos\it-career-simulator-hackbrasil"; codex.cmd -C "D:\Projetos\Ativos\it-career-simulator-hackbrasil" --dangerously-bypass-approvals-and-sandbox --search --add-dir "D:/" --add-dir "C:\Users\Black" "<PROMPT>"`
+  - **GitHub Copilot CLI (interativo):** `Set-Location "D:\Projetos\Ativos\it-career-simulator-hackbrasil"; copilot.cmd --yolo --add-dir "D:/" --add-dir "C:\Users\Black" -i "<PROMPT>"`
+  - **GitHub Copilot CLI (não interativo):** `Set-Location "D:\Projetos\Ativos\it-career-simulator-hackbrasil"; copilot.cmd --yolo --trust-folder --add-dir "D:/" --add-dir "C:\Users\Black" -p "<PROMPT>"`

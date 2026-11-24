@@ -21,10 +21,10 @@ interface CredencialViewProps {
   onPraticar: (nivel: NivelEducacional) => void
   /**
    * Aviso de que a prática do nível ainda não está liberada, ou null com o portão aberto. Com aviso, o
-   * botão mostra o estado e leva ao Plano de voo em vez de prometer a Cabine.
+   * botão mostra o estado e leva ao Plano de Carreira em vez de prometer a Mesa de Trabalho.
    */
   avisoDaPratica?: (nivel: NivelEducacional) => string | null
-  /** Nível do título. O Brevê tem o próprio h1 e passa 2. */
+  /** Nível do título. O Portfólio tem o próprio h1 e passa 2. */
   nivelTitulo?: 1 | 2
 }
 
@@ -152,7 +152,7 @@ export function CredencialView({
                     aria-describedby={aviso ? `aviso-pratica-${nivel.id}` : undefined}
                     onClick={() => onPraticar(nivel)}
                   >
-                    {aviso ? 'Ver o Plano de voo' : 'Praticar'}
+                    {aviso ? 'Ver o Plano de Carreira' : 'Praticar'}
                   </button>
                 </li>
               )

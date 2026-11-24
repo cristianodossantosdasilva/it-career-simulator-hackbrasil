@@ -1,15 +1,15 @@
 import {
   CATALOGO_ROTAS,
-  type Escala,
+  type Etapa,
   type IdMissao,
   type IdVertente,
   ehIdMissao,
-  escalaDaMissao,
+  etapaDaMissao,
 } from '../jornada/catalogos/catalogoRotas'
 import { type NomeIcone, ehNomeIcone } from '../ui/catalogoIcones'
 
 /**
- * Nível de estudo: uma escala do Catálogo de Rotas ou, na N3 Sênior, uma Vertente. O identificador é o do
+ * Nível de estudo: uma etapa do Catálogo de Rotas ou, na N3 Sênior, uma Vertente. O identificador é o do
  * catálogo: help-desk-n1, service-desk-n1-jr, n2-pleno, n3-a-redes-nuvem, n3-b-data-center-backup e
  * n3-c-seguranca-dados.
  */
@@ -17,7 +17,7 @@ export type NivelId = 'help-desk-n1' | 'service-desk-n1-jr' | 'n2-pleno' | IdVer
 
 export interface NivelEducacional {
   id: NivelId
-  /** Nome exibido, igual ao da escala ou da Vertente no Catálogo de Rotas. */
+  /** Nome exibido, igual ao da etapa ou da Vertente no Catálogo de Rotas. */
   nome: string
   /** Missões do catálogo que o nível pratica, na ordem do catálogo. */
   cenarioIds: readonly IdMissao[]
@@ -116,16 +116,16 @@ function nivelDe(id: NivelId, nome: string, missoes: readonly { id: IdMissao }[]
   return { id, nome, cenarioIds, cenarioId: cenarioIds[0], ...APRESENTACAO_DO_NIVEL[id] }
 }
 
-function niveisDaEscala(escala: Escala): NivelEducacional[] {
-  if (escala.vertentes.length > 0) return escala.vertentes.map((vertente) => nivelDe(vertente.id, vertente.nome, vertente.missoes))
-  return [nivelDe(escala.id as NivelId, escala.nome, escala.missoes)]
+function niveisDaEtapa(etapa: Etapa): NivelEducacional[] {
+  if (etapa.vertentes.length > 0) return etapa.vertentes.map((vertente) => nivelDe(vertente.id, vertente.nome, vertente.missoes))
+  return [nivelDe(etapa.id as NivelId, etapa.nome, etapa.missoes)]
 }
 
 /**
- * Trilha de estudo: uma entrada por escala do Catálogo de Rotas, e uma por Vertente na N3 Sênior, na
- * ordem do catálogo. Escala, nome e cenários vêm do catálogo; aqui só ficam ícone e subtítulo.
+ * Trilha de estudo: uma entrada por etapa do Catálogo de Rotas, e uma por Vertente na N3 Sênior, na
+ * ordem do catálogo. Etapa, nome e cenários vêm do catálogo; aqui só ficam ícone e subtítulo.
  */
-export const LEVELS: NivelEducacional[] = CATALOGO_ROTAS[0].escalas.flatMap(niveisDaEscala)
+export const LEVELS: NivelEducacional[] = CATALOGO_ROTAS[0].etapas.flatMap(niveisDaEtapa)
 
 export const LESSONS: Record<NivelId, MicroAula[]> = {
   'help-desk-n1': [
@@ -436,7 +436,7 @@ export const LESSONS: Record<NivelId, MicroAula[]> = {
       title: 'Logs: o diário de bordo dos sistemas',
       min: 5,
       analogy:
-        'A caixa-preta do avião registra tudo o que aconteceu antes da pane. Os logs fazem o mesmo nos sistemas.',
+        'A revisao do avião registra tudo o que aconteceu antes da pane. Os logs fazem o mesmo nos sistemas.',
       paragraphs: [
         {
           text: 'Logs são registros com data e hora de cada evento: inicializações, erros, acessos.',
@@ -972,7 +972,7 @@ export const GLOSSARIO_INICIANTE = [
     definicao: 'Manual interno de procedimentos aprovados da Aurora Logística para agir com segurança.',
   },
   {
-    termo: 'Caixa-Preta (Replay)',
+    termo: 'Revisão (Replay)',
     definicao: 'Gravação passo a passo da sua missão mostrando o que o Juiz 360º avaliou e por quê.',
   },
   {
@@ -996,7 +996,7 @@ export const ETAPAS_MISSAO_ZERO = [
     texto: 'Use o SimuDesk para observar pistas reais antes de trocar qualquer configuração.',
   },
   {
-    titulo: 'Registre nota e veja a Caixa-Preta',
+    titulo: 'Registre nota e veja a Revisão',
     texto: 'Documente o que fez em linguagem clara e abra o Replay para conferir acertos e melhorias.',
   },
 ]
@@ -1082,7 +1082,7 @@ export function salvarEstadoAcademia(estado: EstadoAcademia) {
 
 /** Título da Missão no Catálogo de Rotas. Identificador desconhecido devolve o próprio id. */
 function textosDoCenario(cenarioId: string): { titulo: string } {
-  return { titulo: escalaDaMissao(cenarioId)?.missao.titulo ?? cenarioId }
+  return { titulo: etapaDaMissao(cenarioId)?.missao.titulo ?? cenarioId }
 }
 
 export function nivelPorId(id: NivelId): NivelEducacional {
@@ -1184,7 +1184,7 @@ export function obterProximaAcao(estado: EstadoAcademia) {
         level: L.id,
         cenarioId,
         title: `Laboratório: ${textosDoCenario(cenarioId).titulo}`,
-        meta: `Prática guiada no cockpit, ${L.nome}, cerca de 15 min`,
+        meta: `Prática guiada na Mesa de Trabalho, ${L.nome}, cerca de 15 min`,
         act: 'lab' as const,
         cta: 'Entrar no laboratório',
       }

@@ -56,7 +56,7 @@ describe('cliente da API, erros', () => {
     expect(classificarFalha(erro)).toBe('conflito')
   })
 
-  it('Feature: jornada-de-voo, Property 15: Classificação de falha', async () => {
+  it('Feature: jornada-de-missao, Property 15: Classificação de falha', async () => {
     const g = criarGerador(SEMENTE_PADRAO)
     for (let execucao = 1; execucao <= EXECUCOES_PADRAO; execucao += 1) {
       const status = g.inteiro(400, 599)

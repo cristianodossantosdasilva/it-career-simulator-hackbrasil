@@ -118,7 +118,7 @@ export function IntranetApp({ artigoSelecionadoId, onArtigoFechado }: Props) {
                   <span className="kb-id">{a.id}</span>
                   <span className="kb-titulo-text">{a.titulo}</span>
                   <span className="kb-meta">
-                    {a.categoria}, escala {a.nivel.join(', ')}
+                    {a.categoria}, etapa {a.nivel.join(', ')}
                   </span>
                 </button>
               </h3>

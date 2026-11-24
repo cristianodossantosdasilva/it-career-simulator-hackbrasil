@@ -3,9 +3,9 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { CARTAO_DE_TESTE } from '../../testes/armazenamentoFalso'
 import { AvisoHonesto } from './AvisoHonesto'
-import { CartaoEmbarque } from './CartaoEmbarque'
+import { CartaoPerfil } from './CartaoPerfil'
 import { GrupoVertente } from './GrupoVertente'
-import { SecaoBrevePiloto } from './SecaoBrevePiloto'
+import { SecaoPortfolioAnalista } from './SecaoPortfolioAnalista'
 import { SeloStatus } from './SeloStatus'
 
 afterEach(cleanup)
@@ -23,12 +23,12 @@ describe('AvisoHonesto', () => {
 
   it('falha que bloqueia usa role alert e oferece link', () => {
     render(
-      <AvisoHonesto bloqueante acoes={[{ tipo: 'link', rotulo: 'Voltar ao plano', href: '/plano-de-voo' }]}>
+      <AvisoHonesto bloqueante acoes={[{ tipo: 'link', rotulo: 'Voltar ao plano', href: '/plano-de-carreira' }]}>
         Não foi possível abrir.
       </AvisoHonesto>,
     )
     expect(screen.getByRole('alert')).toHaveTextContent('Não foi possível abrir.')
-    expect(screen.getByRole('link', { name: 'Voltar ao plano' })).toHaveAttribute('href', '/plano-de-voo')
+    expect(screen.getByRole('link', { name: 'Voltar ao plano' })).toHaveAttribute('href', '/plano-de-carreira')
   })
 })
 
@@ -62,29 +62,29 @@ describe('SeloStatus e GrupoVertente', () => {
   })
 })
 
-describe('SecaoBrevePiloto e CartaoEmbarque', () => {
+describe('SecaoPortfolioAnalista e CartaoPerfil', () => {
   const exigencias = [
-    { escalaId: 'help-desk-n1', rotulo: 'Ao menos um voo em Help Desk N1', cumprida: false, aguardaPreparacao: true },
-    { escalaId: 'service-desk-n1-jr', rotulo: 'Ao menos um voo em Service Desk N1 Jr', cumprida: true, aguardaPreparacao: false },
+    { etapaId: 'help-desk-n1', rotulo: 'Ao menos uma missão em Help Desk N1', cumprida: false, aguardaPreparacao: true },
+    { etapaId: 'service-desk-n1-jr', rotulo: 'Ao menos uma missão em Service Desk N1 Jr', cumprida: true, aguardaPreparacao: false },
   ]
 
   it('pendente: texto, exigências cumprida e pendente e o aguardo da missão em preparação', () => {
-    render(<SecaoBrevePiloto visao={{ conquistado: false, exigencias }} />)
-    expect(screen.getByRole('heading', { level: 2, name: 'Brevê de piloto' })).toBeInTheDocument()
-    expect(screen.getByText('Brevê de piloto pendente')).toBeInTheDocument()
+    render(<SecaoPortfolioAnalista visao={{ conquistado: false, exigencias }} />)
+    expect(screen.getByRole('heading', { level: 2, name: 'Portfólio de analista' })).toBeInTheDocument()
+    expect(screen.getByText('Portfólio de analista pendente')).toBeInTheDocument()
     expect(screen.getByText('Cumprida')).toBeInTheDocument()
     expect(screen.getByText('Pendente')).toBeInTheDocument()
     expect(screen.getAllByText('Aguarda missão em preparação no simulador.')).toHaveLength(1)
   })
 
   it('conquistado: texto de conquista', () => {
-    render(<SecaoBrevePiloto visao={{ conquistado: true, exigencias: [exigencias[1]] }} nivelTitulo={3} />)
-    expect(screen.getByText('Brevê de piloto conquistado')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { level: 3, name: 'Brevê de piloto' })).toBeInTheDocument()
+    render(<SecaoPortfolioAnalista visao={{ conquistado: true, exigencias: [exigencias[1]] }} nivelTitulo={3} />)
+    expect(screen.getByText('Portfólio de analista conquistado')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 3, name: 'Portfólio de analista' })).toBeInTheDocument()
   })
 
-  it('o cartão mostra rota, primeira escala e as respostas por extenso', () => {
-    render(<CartaoEmbarque cartao={CARTAO_DE_TESTE}>{<a href="/plano-de-voo">Plano</a>}</CartaoEmbarque>)
+  it('o cartão mostra rota, primeira etapa e as respostas por extenso', () => {
+    render(<CartaoPerfil cartao={CARTAO_DE_TESTE}>{<a href="/plano-de-carreira">Plano</a>}</CartaoPerfil>)
     expect(screen.getByText('Suporte de TI')).toBeInTheDocument()
     expect(screen.getByText('Help Desk N1')).toBeInTheDocument()
     expect(screen.getByText('Ajudar pessoas com tecnologia')).toBeInTheDocument()

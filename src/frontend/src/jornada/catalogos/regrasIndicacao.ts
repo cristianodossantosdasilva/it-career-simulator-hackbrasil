@@ -1,13 +1,13 @@
-import type { CartaoEmbarque, PerguntaCheckIn } from '../armazenamento/cartaoEmbarque'
+import type { CartaoPerfil, PerguntaDiagnostico } from '../armazenamento/cartaoPerfil'
 import { CATALOGO_ROTAS, type IdRota, rotaPorId } from './catalogoRotas'
 import {
   JUSTIFICATIVAS,
-  ROTEIRO_CHECKIN,
+  ROTEIRO_DIAGNOSTICO,
   TEXTOS_RITMO,
   VERSAO_ROTEIRO,
 } from './catalogoVocacional'
 
-export type RespostasCheckIn = Readonly<Record<PerguntaCheckIn, string>>
+export type RespostasDiagnostico = Readonly<Record<PerguntaDiagnostico, string>>
 
 export interface Indicacao {
   rotaId: IdRota
@@ -16,10 +16,10 @@ export interface Indicacao {
 }
 
 /** Rota que sempre existe e está disponível: o destino de quem recebe uma indicação ainda indisponível. */
-export const ROTA_PADRAO_DE_EMBARQUE: IdRota = 'suporte-ti'
+export const ROTA_PADRAO_DE_PERFIL: IdRota = 'suporte-ti'
 
-function opcaoEscolhida(pergunta: PerguntaCheckIn, opcaoId: string) {
-  const alvo = ROTEIRO_CHECKIN.perguntas.find((item) => item.id === pergunta)
+function opcaoEscolhida(pergunta: PerguntaDiagnostico, opcaoId: string) {
+  const alvo = ROTEIRO_DIAGNOSTICO.perguntas.find((item) => item.id === pergunta)
   return alvo?.opcoes.find((opcao) => opcao.id === opcaoId) ?? null
 }
 
@@ -27,7 +27,7 @@ function opcaoEscolhida(pergunta: PerguntaCheckIn, opcaoId: string) {
  * Soma os pesos. Maior soma vence; empate pela ordem de CATALOGO_ROTAS (Suporte de TI primeiro).
  * Pura e total: sem rede, sem IA e sem aleatoriedade. Identificador de resposta desconhecido não soma.
  */
-export function indicarRota(respostas: RespostasCheckIn): Indicacao {
+export function indicarRota(respostas: RespostasDiagnostico): Indicacao {
   const opcoes = (['interesse', 'situacao', 'ritmo'] as const).map((pergunta) => ({
     pergunta,
     opcao: opcaoEscolhida(pergunta, respostas[pergunta]),
@@ -55,30 +55,30 @@ export function indicarRota(respostas: RespostasCheckIn): Indicacao {
 }
 
 /** A rota indicada, ou a rota padrão quando a indicada ainda não está disponível. */
-export function rotaDeEmbarque(indicada: IdRota): IdRota {
-  return rotaPorId(indicada)?.status === 'disponivel' ? indicada : ROTA_PADRAO_DE_EMBARQUE
+export function rotaDePerfil(indicada: IdRota): IdRota {
+  return rotaPorId(indicada)?.status === 'disponivel' ? indicada : ROTA_PADRAO_DE_PERFIL
 }
 
 /**
- * Cartão_de_Embarque do Check-in comum, montado depois da confirmação. `emitidoEm` é ISO 8601.
- * A rota de embarque sempre está disponível e a primeira escala é a primeira da rota.
+ * Cartão_de_Perfil do Diagnóstico comum, montado depois da confirmação. `emitidoEm` é ISO 8601.
+ * A rota de perfil sempre está disponível e a primeira etapa é a primeira da rota.
  */
-export function montarCartaoDoCheckIn(respostas: RespostasCheckIn, emitidoEm: string): CartaoEmbarque {
+export function montarCartaoDoDiagnostico(respostas: RespostasDiagnostico, emitidoEm: string): CartaoPerfil {
   const { rotaId: rotaIndicadaId } = indicarRota(respostas)
-  const rotaId = rotaDeEmbarque(rotaIndicadaId)
-  const primeiraEscalaId = rotaPorId(rotaId)?.escalas[0]?.id ?? ''
+  const rotaId = rotaDePerfil(rotaIndicadaId)
+  const primeiraEtapaId = rotaPorId(rotaId)?.etapas[0]?.id ?? ''
   return {
     versao: 1,
     versaoRoteiro: VERSAO_ROTEIRO,
     rotaIndicadaId,
     rotaId,
-    primeiraEscalaId,
+    primeiraEtapaId,
     respostas: {
       interesse: respostas.interesse,
       situacao: respostas.situacao,
       ritmo: respostas.ritmo,
     },
-    origem: 'checkin',
+    origem: 'diagnostico',
     emitidoEm,
   }
 }

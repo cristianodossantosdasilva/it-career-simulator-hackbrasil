@@ -21,7 +21,7 @@ function criteriosDoEvento(evento: EventoDto, criterios: CriterioAvaliacaoDto[])
   return [...ids]
 }
 
-/** Linha do tempo vertical da Caixa-Preta, com o controle de passo e o detalhe do evento selecionado. */
+/** Linha do tempo vertical da Revisão, com o controle de passo e o detalhe do evento selecionado. */
 export function TimelineReplay({ eventos, criterios, indice, onSelecionar, cartaoRef }: Props) {
   const atual = eventos[indice]
   const origemAtual = atual ? origemDoEvento(atual.tipo) : 'sistema'

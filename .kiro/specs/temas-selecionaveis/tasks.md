@@ -2,7 +2,7 @@
 
 ## Overview
 
-Implementação em TypeScript (React 19 e Vite) em `src/frontend`, sem mudança em `src/backend` (exceto um teste novo de integração), sem biblioteca de componentes, de animação, Tailwind nem shadcn, e sem dependência nova no `package.json` (só o script `postlint`). O trabalho acontece na worktree `D:\Projetos\Ativos\it-flight-simulator-hackbrasil-jornada`, na própria branch `jornada-de-voo`, a partir do HEAD `8b0824d`. Todo comando de Node no Windows usa `npm.cmd` e `npx.cmd`.
+Implementação em TypeScript (React 19 e Vite) em `src/frontend`, sem mudança em `src/backend` (exceto um teste novo de integração), sem biblioteca de componentes, de animação, Tailwind nem shadcn, e sem dependência nova no `package.json` (só o script `postlint`). O trabalho acontece na worktree `D:\Projetos\Ativos\it-flight-simulator-hackbrasil-jornada`, na própria branch `jornada-de-carreira`, a partir do HEAD `8b0824d`. Todo comando de Node no Windows usa `npm.cmd` e `npx.cmd`.
 
 Escopo da entrega: temas `operacao` (escuro, padrão), `corporativo`, `editorial` e `acolhedor`, o modo de alto contraste (`data-contraste="alto"`), as chaves `itfs_tema` e `itfs_contraste`, a Configuração_do_Cliente por JSON estático, o Painel_de_Aparência na barra de contexto, o terminal do SimuDesk sempre escuro e as specs de contraste e visual parametrizadas pelo catálogo. Telemetria fica para uma entrega seguinte e não tem tarefa aqui. Não há compatibilidade nem migração: `corporate`, `tactical` e `itfs_theme` deixam de existir no código (decisões D10 e D11).
 
@@ -16,11 +16,11 @@ A ordem segue sete fases, cada uma terminada por um checkpoint com commit local:
 6. Documentação (`docs/design/DESIGN.md`, steering e registro do Figma).
 7. Validação e fechamento: lint, Vitest, build, build de conferência, Playwright, `dotnet test`, varreduras e inspeção visual dos PNG.
 
-Prazo: tudo commitado na branch `jornada-de-voo` antes de 30 de novembro de 2026, 23h59. Push, PR e merge só com autorização explícita do usuário. Se o prazo apertar, o corte é, nesta ordem: tarefa 10.2 (Figma, depende de pessoa), tarefas com `*`, captura `aparencia` e capturas de alto contraste da tarefa 7.3. As tarefas 1 a 5 e 7.4 formam o essencial.
+Prazo: tudo commitado na branch `jornada-de-carreira` antes de 30 de novembro de 2026, 23h59. Push, PR e merge só com autorização explícita do usuário. Se o prazo apertar, o corte é, nesta ordem: tarefa 10.2 (Figma, depende de pessoa), tarefas com `*`, captura `aparencia` e capturas de alto contraste da tarefa 7.3. As tarefas 1 a 5 e 7.4 formam o essencial.
 
 ## Divergências entre o design e o código atual
 
-Conferidas por `graphify update src`, `graphify explain` e `git grep` na branch `jornada-de-voo`. Onde o design diverge do código, a solução abaixo é a que vale. As tarefas citam arquivos e símbolos, não números de linha, porque os números de linha do design vêm da `main` antiga.
+Conferidas por `graphify update src`, `graphify explain` e `git grep` na branch `jornada-de-carreira`. Onde o design diverge do código, a solução abaixo é a que vale. As tarefas citam arquivos e símbolos, não números de linha, porque os números de linha do design vêm da `main` antiga.
 
 | Id | Design | Código atual | Solução adotada |
 |---|---|---|---|
@@ -42,7 +42,7 @@ Conferidas por `graphify update src`, `graphify explain` e `git grep` na branch 
 
 - [ ] 0. Preparar e medir a linha de base
   - [ ] 0.1 Conferir a branch e medir lint, testes e build
-    - Na worktree: `git status --short --branch` (só `.kiro/specs/` não versionado), `git rev-parse --abbrev-ref HEAD` igual a `jornada-de-voo`
+    - Na worktree: `git status --short --branch` (só `.kiro/specs/` não versionado), `git rev-parse --abbrev-ref HEAD` igual a `jornada-de-carreira`
     - `graphify update src` e `graphify explain "AppShell" --graph src/graphify-out/graph.json`, repetindo para `BarraSuperior`, `AlternadorTema`, `MenuPerfil` e `SimuDeskApp`, para listar dependentes antes de editar. Se `graphify` falhar, registrar a limitação e usar `git grep`
     - `git grep -n -E "corporate|tactical|itfs_theme" -- src e2e index.html scripts playwright.config.ts` deve citar os 11 arquivos desta spec: `index.html`, `src/index.css`, `src/App.test.tsx`, `src/tokensContraste.test.ts`, `src/shell/tema.ts`, `src/shell/AlternadorTema.tsx`, `src/apps/SimuDeskApp/SimuDeskApp.tsx`, `e2e/contraste.spec.ts`, `e2e/contraste.helper.ts`, `e2e/contraste.relatorio.mjs` e `e2e/visual.spec.ts`. Divergência nessa lista vira nota no topo deste arquivo
     - Em `src/frontend`: `npm.cmd run lint`, `npm.cmd test -- --run` e `npm.cmd run build`. Anotar a contagem de testes, sem gravar arquivo novo
@@ -255,7 +255,7 @@ Conferidas por `graphify update src`, `graphify explain` e `git grep` na branch 
     - `src/frontend/e2e/contraste.relatorio.mjs`: `ORDEM_TEMA` pela ordem do catálogo (importando `../src/tema/catalogo.ts`), textos e limiares citando `operacao` e `corporativo`, linha "Temas" com o catálogo inteiro, destino `docs/auditoria-ui-ux/temas/` (`LINHA_DE_BASE_TEMAS.md` e `.json`). Sem E comercial no texto gerado
     - _Requirements: 6.11, 7.5, 8.3, 8.4, 8.11, 14.5, 14.6_
   - [ ] 7.3 Parametrizar a Spec_Visual e a configuração do Playwright
-    - `src/frontend/e2e/visual.spec.ts`: `TEMAS` do catálogo; `preparar` grava `itfs_tema`; trocar os usos literais de `tactical` e `corporate` por `operacao` e `corporativo`; capturas de todas as páginas em todos os temas, em 375 e 1440 px; captura `aparencia` com o painel aberto; capturas com alto contraste de Início, Plano de voo e Cabine em `operacao` e `corporativo`
+    - `src/frontend/e2e/visual.spec.ts`: `TEMAS` do catálogo; `preparar` grava `itfs_tema`; trocar os usos literais de `tactical` e `corporate` por `operacao` e `corporativo`; capturas de todas as páginas em todos os temas, em 375 e 1440 px; captura `aparencia` com o painel aberto; capturas com alto contraste de Início, Plano de Carreira e Mesa de Trabalho em `operacao` e `corporativo`
     - Teste de zoom: viewport 640 por 450 px, percorrendo os quatro temas, com controles dentro da largura e nenhum texto com `overflow: hidden` e `scrollWidth` maior que `clientWidth`
     - Teste de espaçamento por `gap` (Requisito 10.5): controle (`button`, `a.btn`, `input`, `select`, `textarea`) com irmão controle em contêiner flex ou grid precisa ter margem calculada `0px` ou automática; falha com seletor e margem. Rodar primeiro só para relatar, corrigir as margens em `index.css` por `gap` e só então deixar o teste falhar
     - Teste de estrutura (Requisito 1.5): `ariaSnapshot` de `main` de cada página igual entre os quatro temas, só no `desktop-1440`
@@ -263,7 +263,7 @@ Conferidas por `graphify update src`, `graphify explain` e `git grep` na branch 
     - _Requirements: 1.5, 8.5, 8.6, 8.7, 10.5_
   - [ ] 7.4 Criar `e2e/aparencia.spec.ts` no projeto `chromium`
     - `src/frontend/e2e/aparencia.spec.ts` com os casos: tema antes da Primeira_Pintura (`MutationObserver` e `PerformanceObserver` de `paint`, com e sem contraste e com configuração injetada por `page.route` no HTML, V7); configuração do cliente (modo travado, avisos `[Aparência]` esperados e nenhum aviso sem bloco); teclado (Tab, Enter, setas com retorno circular, Espaço, Escape devolvendo o foco, Tab para fora); tempo de aplicação de 100 ms ou menos; área de toque de 44 por 44 px e contorno de foco de 2 px com afastamento de 2 px; janela de 320 px sem texto cortado; painel inteiro dentro da janela e acima da barra inferior em 375 px (WCAG 2.2, foco não obscurecido)
-    - Sessão preservada (`/cabine/triagem-engenharia-social?nova=1`, texto no terminal e nota no ITSM) com nenhuma requisição para `/api` durante as trocas; requisições iguais entre os temas e sem `itfs_` nem identificador de tema; Replay abre no tema atual; `color-scheme` por esquema, também com contraste; `font-family` do terminal começando por `JetBrains Mono`; `prefers-reduced-motion: reduce` com troca sem transição; arquivos `.woff2` bloqueados sem mensagem ao aluno e sem requisição de fonte para outra origem
+    - Sessão preservada (`/mesa-de-trabalho/triagem-engenharia-social?nova=1`, texto no terminal e nota no ITSM) com nenhuma requisição para `/api` durante as trocas; requisições iguais entre os temas e sem `itfs_` nem identificador de tema; Replay abre no tema atual; `color-scheme` por esquema, também com contraste; `font-family` do terminal começando por `JetBrains Mono`; `prefers-reduced-motion: reduce` com troca sem transição; arquivos `.woff2` bloqueados sem mensagem ao aluno e sem requisição de fonte para outra origem
     - _Requirements: 2.2, 2.3, 2.4, 2.5, 4.2, 4.3, 4.8, 5.1, 5.2, 6.1, 6.3, 6.4, 6.5, 6.10, 6.12, 7.2, 7.4, 7.6, 7.8, 7.10, 8.9, 9.3, 9.4, 9.8, 11.1, 11.2, 11.3, 11.4, 11.6, 14.3_
 
 - [ ] 8. Checkpoint da fase 4
@@ -304,12 +304,12 @@ Conferidas por `graphify update src`, `graphify explain` e `git grep` na branch 
     - `git diff --stat main -- src/backend/src docs/vetores-jcs-sha256.json render.yaml src/frontend/vercel.json` vazio
     - _Requirements: 11.7, 13.10_
   - [ ] 11.6 Inspecionar as capturas
-    - Abrir uma amostra dos PNG de `src/frontend/test-results/visual` (início, plano de voo, aulas, caderno e uma página de Cabine, nos quatro temas, em 375 e 1440 px, mais `aparencia` e o alto contraste) e conferir hierarquia de títulos do Editorial, cantos e cartões do Acolhedor, contorno de container e separadores no Corporativo e terminal escuro em todos. Anotar o que foi visto e o que não foi
+    - Abrir uma amostra dos PNG de `src/frontend/test-results/visual` (início, plano de missão, aulas, caderno e uma página de Mesa de Trabalho, nos quatro temas, em 375 e 1440 px, mais `aparencia` e o alto contraste) e conferir hierarquia de títulos do Editorial, cantos e cartões do Acolhedor, contorno de container e separadores no Corporativo e terminal escuro em todos. Anotar o que foi visto e o que não foi
     - _Requirements: 8.5, 10.3, 10.4, 14.1_
 
 - [ ] 12. Fechamento antes do congelamento
   - [ ] 12.1 Conferir os commits e o prazo
-    - Na worktree: `git status` limpo (fora `.kiro` não versionada), `git log --oneline main..jornada-de-voo` com commits pequenos e descritivos, tudo commitado antes de 30 de novembro de 2026, 23h59
+    - Na worktree: `git status` limpo (fora `.kiro` não versionada), `git log --oneline main..jornada-de-carreira` com commits pequenos e descritivos, tudo commitado antes de 30 de novembro de 2026, 23h59
     - Push, abertura de PR e merge só com autorização explícita do usuário. Nenhum comando destrutivo do Git
     - _Requirements: 13.10_
 

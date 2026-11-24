@@ -55,7 +55,7 @@ No screenshot 1440, há uma grande caixa vazia à esquerda e muitas sugestões, 
 
 O código faz o dock de aplicativos e a missão serem regiões separadas. A faixa de missão mostra uma instrução em texto corrido, mas não lista passos ou critérios da atividade. ITSM usa uma lista de chamados e um painel amplo de detalhe; a base é boa, mas o SLA aparece como minuto absoluto e não como tempo restante calculado. Chat mistura troca com cliente, validação e ajuda do Tech Lead na mesma grade. SimuDesk já diferencia cluster SRE de painel SQL e terminal, mas a ação não tem contexto de evidência junto ao controle. Intranet tem busca e expansão de artigo, sem índice ou procedimento acionável. Preservar os contratos `onAcao`, `onChat` e os modelos de sessão.
 
-### Caixa-Preta e Replay
+### Revisão e Replay
 
 `ReplayView.tsx` já permite selecionar eventos e mostrar payload. Essa é uma base real, não uma ilustração de telemetria. Dar hierarquia ao resumo por critério, ao trilho de eventos e ao detalhe do evento. O payload bruto vai para “Dados do evento”. Comparação de prática esperada só pode ser mostrada quando o avaliador já fornecer esse critério. O currículo é evidência assinada, não um selo decorativo: mostrar emissor, competência, data, algoritmo, impressão digital abreviada e ação de verificar JSON.
 

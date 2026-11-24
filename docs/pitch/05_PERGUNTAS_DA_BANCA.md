@@ -12,7 +12,7 @@ Não. A avaliação é feita pelo Juiz 360º, que aplica critérios binários (s
 
 **Critério:** IM.
 
-Não. A empresa, as pessoas, os servidores, os logs e as tabelas são fictícios (Aurora Logística, `aurora.local`). A demo não pede login e as sessões são anônimas. O que fica só no navegador (Cartão de Embarque, Registros de Voo, progresso) não vai para outros usuários. As sessões no servidor expiram em 30 dias.
+Não. A empresa, as pessoas, os servidores, os logs e as tabelas são fictícios (Aurora Logística, `aurora.local`). A demo não pede login e as sessões são anônimas. O que fica só no navegador (Cartão de Perfil, Registros de Missão, progresso) não vai para outros usuários. As sessões no servidor expiram em 30 dias.
 
 ## 3. Isso escala?
 
@@ -24,7 +24,7 @@ Hoje a demo está em camadas gratuitas, e dizemos isso. O servidor hiberna quand
 
 **Critério:** IM.
 
-O curso comum explica. Aqui a pessoa faz. Ela atende um chamado, investiga, escolhe a ação, erra sem risco e vê o replay com o critério e o evento que o prova. A causa muda por semente, então não dá para decorar a resposta. Antes de tudo, o Check-in deixa experimentar o trabalho, o que ataca a evasão por escolha às cegas. Não substituímos o curso nem o professor. Damos o treino que falta.
+O curso comum explica. Aqui a pessoa faz. Ela atende um chamado, investiga, escolhe a ação, erra sem risco e vê o replay com o critério e o evento que o prova. A causa muda por semente, então não dá para decorar a resposta. Antes de tudo, o Diagnóstico deixa experimentar o trabalho, o que ataca a evasão por escolha às cegas. Não substituímos o curso nem o professor. Damos o treino que falta.
 
 ## 5. Qual é a licença? O código é aberto?
 
@@ -80,17 +80,17 @@ Curto prazo: teste de carga, validação de acessibilidade com pessoas e piloto 
 
 O código foi escrito para o Hack Brasil 2026, sem aproveitar código privado anterior, e os commits mostram isso. O regulamento permite e incentiva o uso de IA no desenvolvimento e na documentação. Usamos, com revisão humana e testes automáticos como rede de segurança.
 
-## 14. Como o Check-in decide a rota? Isso é aconselhamento vocacional de verdade?
+## 14. Como o Diagnóstico decide a rota? Isso é aconselhamento vocacional de verdade?
 
 **Critério:** QC.
 
-O Check-in é uma triagem curta e transparente: pontos fixos por resposta, regra visível na tela, sem IA. Ele sugere por onde começar e deixa a pessoa experimentar. Não é teste psicológico nem diagnóstico, e a decisão é sempre dela. Nesta edição, a rota disponível é Suporte de TI.
+O Diagnóstico é uma triagem curta e transparente: pontos fixos por resposta, regra visível na tela, sem IA. Ele sugere por onde começar e deixa a pessoa experimentar. Não é teste psicológico nem diagnóstico, e a decisão é sempre dela. Nesta edição, a rota disponível é Suporte de TI.
 
 ## 15. O que está pronto e o que é visão?
 
 **Critério:** QC.
 
-Pronto: Check-in, Plano de voo, Cabine com ITSM, Chat, SimuDesk e Intranet, sete cenários jogáveis em quatro escalas, Caixa-preta com Juiz 360º, Brevê com verificador offline, Hangar, aulas e caderno. Visão: laboratórios dedicados por unidade curricular, simulados de certificação autorais, chamada de vídeo com agentes e outras profissões. A matriz de escopo da própria interface separa as duas coisas.
+Pronto: Diagnóstico, Plano de Carreira, Mesa de Trabalho com ITSM, Chat, SimuDesk e Intranet, sete cenários jogáveis em quatro etapas, Revisão com Juiz 360º, Portfólio com verificador offline, Catálogo, aulas e caderno. Visão: laboratórios dedicados por unidade curricular, simulados de certificação autorais, chamada de vídeo com agentes e outras profissões. A matriz de escopo da própria interface separa as duas coisas.
 
 ## Resumo por critério
 

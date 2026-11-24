@@ -17,7 +17,7 @@ export function TransparenciaEscopo() {
               Workstation determinística com 5 cenários jogáveis, ITSM, Comunicador auditável e SimuDesk (Terminal, AD,
               DNS, Logs, SRE e SQL somente leitura).
             </li>
-            <li>Base de Conhecimento (26 artigos), Caixa-Preta Replay e Juiz 360º com assinatura ECDSA P-256.</li>
+            <li>Base de Conhecimento (26 artigos), Revisão Replay e Juiz 360º com assinatura ECDSA P-256.</li>
           </ul>
         </div>
         <div className="scope-card">

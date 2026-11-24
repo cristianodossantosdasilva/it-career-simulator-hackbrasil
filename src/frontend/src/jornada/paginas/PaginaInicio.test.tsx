@@ -2,8 +2,8 @@ import '@testing-library/jest-dom/vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CARTAO_DE_TESTE, criarArmazenamentoFalso } from '../../testes/armazenamentoFalso'
-import { CHAVE_CARTAO_EMBARQUE, serializarCartao } from '../armazenamento/cartaoEmbarque'
-import { CHAVE_VOOS_ATIVOS, serializarVoosAtivos } from '../armazenamento/voosAtivos'
+import { CHAVE_CARTAO_PERFIL, serializarCartao } from '../armazenamento/cartaoPerfil'
+import { CHAVE_MISSOES_ATIVAS, serializarMissoesAtivas } from '../armazenamento/missoesAtivas'
 import { TEXTOS_HOME } from '../catalogos/catalogoVocacional'
 import { ProvedorArmazenamentoJornada } from '../ProvedorArmazenamentoJornada'
 import { PaginaInicio } from './PaginaInicio'
@@ -27,32 +27,32 @@ afterEach(() => {
 })
 
 describe('Página Início', () => {
-  it('sem cartão: um único h1 Início, botão para o check-in e nenhum botão para o Plano de voo', () => {
+  it('sem cartão: um único h1 Início, botão para o diagnóstico e nenhum botão para o Plano de Carreira', () => {
     abrir()
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     expect(screen.getByRole('heading', { level: 1, name: 'Início' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Fazer o check-in/ })).toHaveAttribute('href', '/check-in')
-    expect(screen.queryByRole('link', { name: /Ir para o Plano de voo/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Fazer o diagnóstico/ })).toHaveAttribute('href', '/diagnostico')
+    expect(screen.queryByRole('link', { name: /Ir para o Plano de Carreira/ })).not.toBeInTheDocument()
   })
 
-  it('com cartão válido: botão para o Plano de voo e opção de refazer o check-in', () => {
-    abrir({ [CHAVE_CARTAO_EMBARQUE]: serializarCartao(CARTAO_DE_TESTE) })
+  it('com cartão válido: botão para o Plano de Carreira e opção de refazer o diagnóstico', () => {
+    abrir({ [CHAVE_CARTAO_PERFIL]: serializarCartao(CARTAO_DE_TESTE) })
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
-    expect(screen.getByRole('link', { name: /Ir para o Plano de voo/ })).toHaveAttribute('href', '/plano-de-voo')
-    expect(screen.getByRole('link', { name: /Refazer o check-in/ })).toHaveAttribute('href', '/check-in')
+    expect(screen.getByRole('link', { name: /Ir para o Plano de Carreira/ })).toHaveAttribute('href', '/plano-de-carreira')
+    expect(screen.getByRole('link', { name: /Refazer o diagnóstico/ })).toHaveAttribute('href', '/diagnostico')
   })
 
   it('com cartão inválido no armazenamento, trata como sem cartão', () => {
-    abrir({ [CHAVE_CARTAO_EMBARQUE]: '{"versao":2}' })
-    expect(screen.queryByRole('link', { name: /Ir para o Plano de voo/ })).not.toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Fazer o check-in/ })).toBeInTheDocument()
+    abrir({ [CHAVE_CARTAO_PERFIL]: '{"versao":2}' })
+    expect(screen.queryByRole('link', { name: /Ir para o Plano de Carreira/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Fazer o diagnóstico/ })).toBeInTheDocument()
   })
 
-  it('mostra a demonstração, os limites do guia e o painel do Comandante Consultor', () => {
+  it('mostra a demonstração, os limites do guia e o painel do Mentor Consultor', () => {
     abrir()
-    expect(screen.getByRole('heading', { level: 2, name: 'Veja uma pergunta do check-in' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'Veja uma pergunta do diagnóstico' })).toBeInTheDocument()
     for (const limite of TEXTOS_HOME.limites) expect(screen.getByText(limite)).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: /Comandante, papel Consultor/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Mentor, papel Consultor/ })).toBeInTheDocument()
     expect(screen.getAllByRole('listitem').length).toBeGreaterThanOrEqual(TEXTOS_HOME.limites.length)
   })
 
@@ -63,10 +63,10 @@ describe('Página Início', () => {
     expect(espiao).not.toHaveBeenCalled()
   })
 
-  it('mostra Continuar missão quando há voo ativo e exibe os atalhos rápidos', () => {
+  it('mostra Continuar missão quando há missão ativa e exibe os atalhos rápidos', () => {
     abrir({
-      [CHAVE_CARTAO_EMBARQUE]: serializarCartao(CARTAO_DE_TESTE),
-      [CHAVE_VOOS_ATIVOS]: serializarVoosAtivos({
+      [CHAVE_CARTAO_PERFIL]: serializarCartao(CARTAO_DE_TESTE),
+      [CHAVE_MISSOES_ATIVAS]: serializarMissoesAtivas({
         versao: 1,
         ultimaMissao: 'pasta-rede-inacessivel',
         porMissao: { 'pasta-rede-inacessivel': 'sessao-ativa-1' },
@@ -75,10 +75,10 @@ describe('Página Início', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Continuar missão' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Continuar missão' })).toHaveAttribute(
       'href',
-      '/cabine/pasta-rede-inacessivel',
+      '/mesa-de-trabalho/pasta-rede-inacessivel',
     )
     expect(screen.getByRole('heading', { level: 2, name: 'Atalhos rápidos' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Aulas e fundamentos' })).toHaveAttribute('href', '/aulas')
-    expect(screen.getByRole('link', { name: 'Brevê e histórico' })).toHaveAttribute('href', '/breve')
+    expect(screen.getByRole('link', { name: 'Portfólio e histórico' })).toHaveAttribute('href', '/portfolio')
   })
 })

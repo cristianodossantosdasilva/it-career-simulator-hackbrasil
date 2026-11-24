@@ -1,7 +1,7 @@
 import { type Browser, type Page, type Request, expect, test } from '@playwright/test'
-import { CHAVE_CARTAO_EMBARQUE, serializarCartao } from '../src/jornada/armazenamento/cartaoEmbarque'
+import { CHAVE_CARTAO_PERFIL, serializarCartao } from '../src/jornada/armazenamento/cartaoPerfil'
 import { CHAVE_MODO_DEMONSTRACAO, serializarModoDemonstracao } from '../src/jornada/armazenamento/modoDemonstracao'
-import { CHAVE_REGISTROS_VOO, serializarRegistros } from '../src/jornada/armazenamento/registrosVoo'
+import { CHAVE_REGISTROS_MISSAO, serializarRegistros } from '../src/jornada/armazenamento/registrosMissao'
 import { CARTAO_DE_TESTE, registroDeTeste } from '../src/testes/armazenamentoFalso'
 import { TEXTOS_WORKSTATION as T } from '../src/textos/workstation'
 import { blocosDeToken } from '../src/tema/blocosTokens'
@@ -22,7 +22,7 @@ const CARTAO = serializarCartao(CARTAO_DE_TESTE)
 const MODO_ATIVO = serializarModoDemonstracao({
   versao: 1,
   ativo: true,
-  origem: 'plano-de-voo',
+  origem: 'plano-de-carreira',
   alteradoEm: '2026-11-20T12:00:00.000Z',
 })
 const REGISTRO_DA_HELP_DESK = serializarRegistros([registroDeTeste('reset-senha-desbloqueio', 'sessao-ajuda-e2e')])
@@ -50,7 +50,7 @@ interface OpcoesDePagina {
   observar?: boolean
 }
 
-const CHAVES_DA_JORNADA = { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO, [CHAVE_REGISTROS_VOO]: REGISTRO_DA_HELP_DESK }
+const CHAVES_DA_JORNADA = { [CHAVE_CARTAO_PERFIL]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO, [CHAVE_REGISTROS_MISSAO]: REGISTRO_DA_HELP_DESK }
 
 function blocoDeConfiguracao(configuracao: ConfiguracaoDeTeste): string {
   const envelope = { versao: 1, configuracao, camposIgnorados: [], erro: null }
@@ -82,7 +82,7 @@ async function novaPagina(browser: Browser, opcoes: OpcoesDePagina = {}): Promis
         }).observe(document, { attributes: true, subtree: true, attributeFilter: ['data-theme', 'data-contraste'] })
       }
     },
-    [CHAVE_TEMA, opcoes.tema ?? 'operacao', CHAVE_CONTRASTE, opcoes.contraste ?? 'padrao', opcoes.chaves ?? { [CHAVE_CARTAO_EMBARQUE]: CARTAO }, opcoes.observar ?? false] as const,
+    [CHAVE_TEMA, opcoes.tema ?? 'operacao', CHAVE_CONTRASTE, opcoes.contraste ?? 'padrao', opcoes.chaves ?? { [CHAVE_CARTAO_PERFIL]: CARTAO }, opcoes.observar ?? false] as const,
   )
   if (opcoes.configuracao) {
     const bloco = blocoDeConfiguracao(opcoes.configuracao)
@@ -456,9 +456,9 @@ test.describe('Aparência', () => {
   })
 })
 
-/** Conduz a Cabine da Service Desk N1 Jr até o SimuDesk conectado, com um comando já executado. */
+/** Conduz a Mesa de Trabalho da Service Desk N1 Jr até o SimuDesk conectado, com um comando já executado. */
 async function abrirSimuDeskConectado(page: Page) {
-  await page.goto('/cabine/pasta-rede-inacessivel?semente=2&causa=C3&nova=1')
+  await page.goto('/mesa-de-trabalho/pasta-rede-inacessivel?semente=2&causa=C3&nova=1')
   await expect(page.getByRole('heading', { name: /CH-0001/i })).toBeVisible()
   await page.getByRole('button', { name: T.itsm.assumirChamado }).click()
   await page.getByRole('button', { name: T.itsm.salvarClassificacao }).click()
@@ -566,7 +566,7 @@ test.describe('Aparência com sessão em andamento', () => {
         }
       })
       try {
-        await page.goto('/cabine/triagem-engenharia-social?semente=7&nova=1')
+        await page.goto('/mesa-de-trabalho/triagem-engenharia-social?semente=7&nova=1')
         await expect(page.getByRole('heading', { name: /CH-0001/i })).toBeVisible()
         await page.getByRole('button', { name: T.itsm.assumirChamado }).click()
         await page.getByRole('button', { name: T.itsm.consultarPolitica }).click()
@@ -613,7 +613,7 @@ test.describe('Aparência com sessão em andamento', () => {
   test('replay abre no tema atual depois da troca', async ({ browser }) => {
     const page = await novaPagina(browser, { chaves: CHAVES_DA_JORNADA })
     try {
-      await page.goto('/cabine/triagem-engenharia-social?nova=1')
+      await page.goto('/mesa-de-trabalho/triagem-engenharia-social?nova=1')
       await expect(page.getByRole('heading', { name: /CH-0001/i })).toBeVisible()
       await page.getByRole('button', { name: T.itsm.assumirChamado }).click()
       await page.getByRole('button', { name: T.itsm.consultarPolitica }).click()
@@ -626,7 +626,7 @@ test.describe('Aparência com sessão em andamento', () => {
       await page.getByRole('button', { name: T.itsm.resolverChamado }).click()
       await trocarAparencia(page, /Acolhedor/, 'acolhedor', false)
       await page.getByRole('link', { name: /Juiz 360º e Replay/i }).click()
-      await expect(page).toHaveURL(/\/caixa-preta\//)
+      await expect(page).toHaveURL(/\/revisao\//)
       await expect(page.getByText(T.replay.concluida, { exact: true })).toBeVisible()
       await expect(html(page)).toHaveAttribute('data-theme', 'acolhedor')
     } finally {

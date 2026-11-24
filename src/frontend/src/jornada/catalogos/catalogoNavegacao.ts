@@ -2,7 +2,7 @@ import type { NomeIcone } from '../../ui/catalogoIcones'
 import { type IdPagina, enderecoDe } from '../navegacao/rotas'
 import type { IdMissao } from './catalogoRotas'
 
-export type IdItemMenu = 'inicio' | 'plano' | 'cabine' | 'breve' | 'hangar' | 'aulas' | 'caderno' | 'comandante'
+export type IdItemMenu = 'inicio' | 'plano' | 'mesa-de-trabalho' | 'portfolio' | 'catalogo' | 'aulas' | 'caderno' | 'mentor'
 
 export interface ItemMenu {
   id: IdItemMenu
@@ -16,37 +16,37 @@ export interface ItemMenu {
 
 export const ITENS_MENU: readonly ItemMenu[] = [
   { id: 'inicio', rotulo: 'Início', icone: 'marca', grupo: 'principal', pagina: 'inicio' },
-  { id: 'plano', rotulo: 'Plano de voo', icone: 'plano-de-voo', grupo: 'principal', pagina: 'plano-de-voo' },
-  { id: 'cabine', rotulo: 'Cabine', icone: 'laboratorio', grupo: 'principal', pagina: 'cabine' },
-  { id: 'breve', rotulo: 'Brevê', icone: 'breve', grupo: 'principal', pagina: 'breve' },
-  { id: 'hangar', rotulo: 'Hangar', icone: 'hangar', grupo: 'mais', pagina: 'hangar' },
+  { id: 'plano', rotulo: 'Plano de Carreira', icone: 'plano-de-carreira', grupo: 'principal', pagina: 'plano-de-carreira' },
+  { id: 'mesa-de-trabalho', rotulo: 'Mesa de Trabalho', icone: 'laboratorio', grupo: 'principal', pagina: 'mesa-de-trabalho' },
+  { id: 'portfolio', rotulo: 'Portfólio', icone: 'portfolio', grupo: 'principal', pagina: 'portfolio' },
+  { id: 'catalogo', rotulo: 'Catálogo', icone: 'catalogo', grupo: 'mais', pagina: 'catalogo' },
   { id: 'aulas', rotulo: 'Aulas', icone: 'aulas', grupo: 'mais', pagina: 'aulas' },
   { id: 'caderno', rotulo: 'Caderno', icone: 'caderno', grupo: 'mais', pagina: 'caderno' },
-  { id: 'comandante', rotulo: 'Comandante', icone: 'mentor', grupo: 'mais', pagina: 'comandante' },
+  { id: 'mentor', rotulo: 'Mentor', icone: 'mentor', grupo: 'mais', pagina: 'mentor' },
 ]
 
-/** Endereço do item. A Cabine só aparece com voo ativo: sem missão ativa devolve nulo e o item some. */
+/** Endereço do item. A Mesa de Trabalho só aparece com missão ativa: sem missão ativa devolve nulo e o item some. */
 export function hrefDoItem(item: ItemMenu, contexto: { missaoAtiva: IdMissao | null }): string | null {
   switch (item.pagina) {
-    case 'cabine':
+    case 'mesa-de-trabalho':
       return contexto.missaoAtiva
-        ? enderecoDe({ pagina: 'cabine', missao: contexto.missaoAtiva, semente: null, causa: null, nova: false })
+        ? enderecoDe({ pagina: 'mesa-de-trabalho', missao: contexto.missaoAtiva, semente: null, causa: null, nova: false })
         : null
     case 'aulas':
       return enderecoDe({ pagina: 'aulas', nivel: null, modo: 'lesson', aula: null })
     case 'inicio':
-    case 'plano-de-voo':
-    case 'breve':
-    case 'hangar':
+    case 'plano-de-carreira':
+    case 'portfolio':
+    case 'catalogo':
     case 'caderno':
-    case 'comandante':
+    case 'mentor':
       return enderecoDe({ pagina: item.pagina })
     default:
       return null
   }
 }
 
-/** Check-in, Caixa-preta, Treino e 404 são páginas de fluxo e não marcam item. */
+/** Diagnóstico, Revisão, Treino e 404 são páginas de fluxo e não marcam item. */
 export function itemAtivoDoMenu(pagina: IdPagina): IdItemMenu | null {
   return ITENS_MENU.find((item) => item.pagina === pagina)?.id ?? null
 }

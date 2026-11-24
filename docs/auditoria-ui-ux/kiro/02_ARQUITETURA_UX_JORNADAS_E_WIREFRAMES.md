@@ -14,7 +14,7 @@ Regra de ouro: **o aluno nunca perde de vista o objetivo da missão**. Na Workst
 /aula/:id               Player de aula (texto, analogia, quiz, anotações, abrir laboratório)
 /lab/:cenario           Workstation em turno (split: guia + ferramentas)
   ?app=itsm|chat|simudesk|kb
-/replay/:sessao         Caixa-Preta: linha do tempo, critérios, credencial
+/replay/:sessao         Revisão: linha do tempo, critérios, credencial
 /caderno                Caderno (lista, editor Cornell)
 /mentor                 Mentor IA (explicar, revisar, treinar)
 /credencial             Currículo Vivo (verificador, exportar, compartilhar)
@@ -40,19 +40,19 @@ Barra superior de contexto (40 px): breadcrumb à esquerda (por exemplo `Missõe
 ### Mobile
 Barra inferior fixa de 56 px com 5 ícones (Missões, Aulas, Laboratório, Caderno, Mentor). Credencial no menu de perfil.
 
-## 3. Jornada do primeiro voo (0 a 30 segundos)
+## 3. Jornada do primeiro missão (0 a 30 segundos)
 
 Hoje: título, rótulo de conformidade, banner, trilha de 5 níveis com 15 barras, anel de meta, Pomodoro, plano de estudos, "Missão 0" em quatro passos. O jurado vê 6 blocos sem saber o que clicar.
 
 Proposta: um **único** gesto principal.
 
-1. 0 a 5 s: cabeçalho de produto ("IT Flight Simulator") e uma frase de 14 palavras. Botão primário "Iniciar primeiro voo (8 min)".
+1. 0 a 5 s: cabeçalho de produto ("IT Career Simulator") e uma frase de 14 palavras. Botão primário "Iniciar primeiro missão (8 min)".
 2. 5 a 15 s: ao lado, um painel "O que você vai fazer" com três linhas (ler o chamado, confirmar identidade, registrar a decisão).
 3. 15 a 30 s: abaixo, a trilha como lista simples. O restante (Pomodoro, plano de estudos) entra na área "Seu progresso" só depois do primeiro turno.
 
-O "primeiro voo" é o cenário 1 (Triagem e defesa contra engenharia social) com o guia da Missão 0 já aberto no painel esquerdo da Workstation, sem passar por Aulas.
+O "primeiro missão" é o cenário 1 (Triagem e defesa contra engenharia social) com o guia da Missão 0 já aberto no painel esquerdo da Workstation, sem passar por Aulas.
 
-Para o vídeo de 3 minutos: abrir `/`, clicar "Iniciar primeiro voo", assumir chamado, recusar o reset, encerrar, abrir Replay, mostrar a credencial verificada. São 6 cliques.
+Para o vídeo de 3 minutos: abrir `/`, clicar "Iniciar primeiro missão", assumir chamado, recusar o reset, encerrar, abrir Replay, mostrar a credencial verificada. São 6 cliques.
 
 ## 4. Wireframes
 
@@ -65,7 +65,7 @@ Para o vídeo de 3 minutos: abrir `/`, clicar "Iniciar primeiro voo", assumir ch
 | Mis. |  Seu primeiro turno na Aurora Logística                                       |
 | Aul. |  Atenda chamados reais simulados, aprenda com o Replay e gere sua credencial. |
 | Lab. |                                                                               |
-| Cad. |  [ Iniciar primeiro voo, 8 min ]   [ Ver como funciona ]                      |
+| Cad. |  [ Iniciar primeiro missão, 8 min ]   [ Ver como funciona ]                      |
 | Men. |                                                                               |
 | Cred.|  ----------------------------------------------------------------------------|
 |      |  Trilha de suporte                                         Progresso 0 de 5   |
@@ -77,7 +77,7 @@ Para o vídeo de 3 minutos: abrir `/`, clicar "Iniciar primeiro voo", assumir ch
 |      |  | 2 | Analista Jr (N1)    | Pasta de rede inacessível         | 25 min| Bloqueado||
 |      |  | 3 | Analista Pleno (N2) | Incidente massivo e problema ITIL | 35 min| Bloqueado||
 |      |  | 4 | Engenheiro (N3, N4) | Incidente cloud e Kubernetes      | 40 min| Bloqueado||
-|      |  | 5 | Especialista        | Em breve                          |   --  | Em breve||
+|      |  | 5 | Especialista        | Em portfólio                          |   --  | Em portfólio||
 |      |                                                                               |
 |      |  Competências avaliadas   Triagem  Segurança  Diagnóstico  Comunicação        |
 |      |  (lista de 4 itens com barra fina de 4 px, sem cor por item)                 |
@@ -94,12 +94,12 @@ Notas:
 
 ```
 +---------------------------------+
-| IT Flight Simulator    (Sol)    |
+| IT Career Simulator    (Sol)    |
 +---------------------------------+
 | Seu primeiro turno na Aurora    |
 | Atenda chamados simulados e     |
 | veja o que fez no Replay.       |
-| [ Iniciar primeiro voo, 8 min ] |
+| [ Iniciar primeiro missão, 8 min ] |
 +---------------------------------+
 | Trilha de suporte        0 de 5 |
 | 1 Estagiário                    |
@@ -193,7 +193,7 @@ Regras:
 ```
 A faixa "Tarefa atual" substitui o texto da faixa azul "Missão Atual". "Ver missão" abre o guia em folha deslizante (bottom sheet).
 
-### 4.6 Caixa-Preta Replay e credencial (1440 px)
+### 4.6 Revisão Replay e credencial (1440 px)
 
 ```
 +------+------------------------------------------------------------------------------+
@@ -233,7 +233,7 @@ Regras (plain-writing): voz ativa, frase curta, sentença que diz o que acontece
 |---|---|---|
 | Marca | Academia de Suporte de TI · Hack Brasil 2026 | Simulador de suporte de TI |
 | Rótulo do Painel | PAINEL DO ALUNO · AURORA LOGÍSTICA (100% DADOS SINTÉTICOS · SEM LOGIN) | (remover; mover para a página "Sobre os dados": "Todos os dados são fictícios. Nenhum login é necessário.") |
-| Título do Painel | IT Flight Simulator — Academia de Suporte de TI | Seu primeiro turno na Aurora Logística |
+| Título do Painel | IT Career Simulator — Academia de Suporte de TI | Seu primeiro turno na Aurora Logística |
 | Subtítulo | Do zero ao especialista em suporte de TI: aprenda a teoria, fixe com técnicas comprovadas pela ciência e pratique num ambiente corporativo simulado. | Atenda chamados simulados, veja o que fez no Replay e gere uma credencial verificável. |
 | Banner | Continue de onde parou / Começar a aula → | Continuar: Aula 1, O que faz o suporte de TI / Continuar |
 | Saudação do protótipo | Olá! Bora para o próximo passo da sua carreira 👋 | Bom dia. Falta uma aula para fechar o módulo 1. |
@@ -241,7 +241,7 @@ Regras (plain-writing): voz ativa, frase curta, sentença que diz o que acontece
 | Passo 1 | Leia o chamado no ITSM. Clique em Assumir Chamado e confira quem pediu ajuda e qual é a urgência (SLA). | Assuma o chamado e veja quem pediu e qual é o prazo. |
 | Passo 2 | Valide identidade no Chat. Antes de mexer no computador ou resetar senha, confirme matrícula e ramal com segurança. | Confirme a identidade no Chat antes de mexer em qualquer conta. |
 | Passo 3 | Investigue antes de alterar. Use o SimuDesk para observar pistas reais antes de trocar qualquer configuração. | Olhe antes de mudar. Use o SimuDesk para ver o estado da máquina. |
-| Passo 4 | Registre nota e veja a Caixa-Preta. | Registre sua decisão e abra o Replay. |
+| Passo 4 | Registre nota e veja a Revisão. | Registre sua decisão e abra o Replay. |
 | Botões de nível | Aulas, Praticar | Estudar, Praticar (ícones `BookOpen` e `Play`) |
 | Chip de patente | 🎖️ Cadete (iniciante) | Cadete |
 | Streak | 🔥 1 dia(s) | 1 dia seguido |
@@ -255,8 +255,8 @@ Regras (plain-writing): voz ativa, frase curta, sentença que diz o que acontece
 | Replay vazio | Nenhum replay carregado. Carregue para ver criterios e linha do tempo. | Termine um turno para ver o Replay. |
 | Replay, botão | Carregar Replay e Avaliacao | Ver Replay |
 | Replay, título | Avaliação 360º, Replay e Currículo Vivo | Replay do turno |
-| Replay, debrief | Debrief Didático da Caixa-Preta: 1 de 4 critérios atendidos. Próximo foco de aprendizado: ... | Você cumpriu 1 de 4 critérios. Próximo passo: consulte a política de segurança (KB-001) antes de decidir. |
+| Replay, debrief | Debrief Didático da Revisão: 1 de 4 critérios atendidos. Próximo foco de aprendizado: ... | Você cumpriu 1 de 4 critérios. Próximo passo: consulte a política de segurança (KB-001) antes de decidir. |
 | Currículo | Currículo Vivo (Portfolio Auditável) | Credencial verificável |
 | Erro de rede (cold start) | (texto técnico do backend) | O servidor está acordando. Isso leva até 50 segundos na primeira vez. [Tentar de novo] |
 
-Palavras a fixar no vocabulário (um termo por coisa): **chamado** (não ticket nem incidente quando for o item da fila), **turno** (sessão de trabalho), **Replay** (a Caixa-Preta passa a ser apenas o subtítulo "Caixa-preta do atendimento"), **credencial** (o Currículo Vivo é o nome do produto; o objeto é a credencial), **critério** (item do Juiz 360).
+Palavras a fixar no vocabulário (um termo por coisa): **chamado** (não ticket nem incidente quando for o item da fila), **turno** (sessão de trabalho), **Replay** (a Revisão passa a ser apenas o subtítulo "Revisão do atendimento"), **credencial** (o Currículo Vivo é o nome do produto; o objeto é a credencial), **critério** (item do Juiz 360).

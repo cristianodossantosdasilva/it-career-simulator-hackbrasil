@@ -121,7 +121,7 @@ Os tons são uma proposta inicial, não valores medidos em contraste. Validar ca
 - Borda de 1 px como separador padrão. Sem sombra em cada card. Elevação apenas para menus, modais, tooltip e drawer.
 - Desktop até 1920 px: conteúdo de leitura limitado e grades operacionais fluidas. Breakpoints de validação: 375, 768, 1280 e 1440 px.
 
-## Escala e semântica de cor
+## Etapa e semântica de cor
 
 Azul petróleo identifica ação principal e foco. Neutros fazem a maior parte da interface. Verde indica condição atendida, âmbar indica atenção ou pendência e vermelho indica risco ou falha. Roxo deixa de representar uma fase de estudo por padrão. Se “teoria, revisão, prática, domínio” mantiver cores próprias, usar essa paleta exclusivamente na visualização da trilha, com rótulo e valor textual.
 
@@ -131,7 +131,7 @@ Adotar Lucide em SVG inline ou sprites SVG versionados, traço 1.75 px, caixa 20
 
 | Uso ou emoji atual | Ícone proposto | Texto acessível |
 |---|---|---|
-| Avião da marca | Símbolo próprio de asa ou painel vetorial | IT Flight Simulator |
+| Avião da marca | Símbolo próprio de asa ou painel vetorial | IT Career Simulator |
 | 🏠 Painel | `layout-dashboard` | Início |
 | 📖 Aulas | `book-open` | Trilhas |
 | 📓 Caderno e notas | `notebook-pen` | Caderno |
