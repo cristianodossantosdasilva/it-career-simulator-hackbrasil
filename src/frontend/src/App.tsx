@@ -31,7 +31,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { erro: Error | n
   }
 }
 
-/** AppShell com a densidade derivada do voo em memória. */
+/** AppShell com a densidade derivada da missão em memória. */
 function CascaJornada({ children }: { children: ReactNode }) {
   const { sessaoId, sessao } = useVoo()
   const local = useLocalAtual()
@@ -44,7 +44,7 @@ function CascaJornada({ children }: { children: ReactNode }) {
 
 /**
  * A API pode estar dormindo na nuvem. Uma chamada de saúde ao abrir o app a acorda enquanto a pessoa lê
- * o Início, para a Cabine não esperar. O resultado é ignorado e uma falha não muda nada na tela.
+ * o Início, para a Mesa de Trabalho não esperar. O resultado é ignorado e uma falha não muda nada na tela.
  */
 function useAquecerApi() {
   useEffect(() => {

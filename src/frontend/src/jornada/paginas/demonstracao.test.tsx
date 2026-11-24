@@ -12,7 +12,7 @@ import type { IdMissao } from '../catalogos/catalogoRotas'
 import { textosDaMissao } from '../componentes/textosDaMissao'
 import { reiniciarLocalAtual } from '../navegacao/navegador'
 
-const NOME_CONTROLE = 'Liberar todas as escalas para demonstração'
+const NOME_CONTROLE = 'Liberar todas as etapas para demonstração'
 const MODO_ATIVO = serializarModoDemonstracao({
   versao: 1,
   ativo: true,
@@ -67,14 +67,14 @@ afterEach(() => {
   window.localStorage.clear()
 })
 
-describe('Plano de voo: controle do modo de demonstração', () => {
+describe('Plano de Carreira: controle do modo de demonstração', () => {
   it('o switch começa desativado, com nome igual ao rótulo e explicação ligada por aria-describedby', () => {
     abrirApp('/plano-de-voo', { [CHAVE_CARTAO_EMBARQUE]: CARTAO })
     const controle = screen.getByRole('switch', { name: NOME_CONTROLE })
     expect(controle).toHaveAttribute('aria-checked', 'false')
     expect(controle).toHaveTextContent('Desativado')
-    expect(controle).toHaveAccessibleDescription(/Atalho para conhecer todas as escalas/)
-    expect(controle).toHaveAccessibleDescription(/não conta como voo concluído/)
+    expect(controle).toHaveAccessibleDescription(/Atalho para conhecer todas as etapas/)
+    expect(controle).toHaveAccessibleDescription(/não conta como missão concluído/)
     expect(screen.getByRole('heading', { level: 2, name: 'Modo de demonstração' })).toBeInTheDocument()
     expect(screen.queryByText('Liberada para demonstração')).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Modo de demonstração ativo' })).not.toBeInTheDocument()
@@ -113,7 +113,7 @@ describe('Plano de voo: controle do modo de demonstração', () => {
       expect(within(cartaoDa(missao)).queryByText('Em preparação')).not.toBeInTheDocument()
     }
   })
-  it('"Concluída" só aparece com registro de voo', () => {
+  it('"Concluída" só aparece com registro de missão', () => {
     abrirApp('/plano-de-voo', { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
     expect(screen.queryByText('Concluída')).not.toBeInTheDocument()
     cleanup()
@@ -149,11 +149,11 @@ describe('Plano de voo: controle do modo de demonstração', () => {
     expect(window.localStorage.getItem(CHAVE_MODO_DEMONSTRACAO)).toBe('{')
   })
 
-  it('cartão gerado pelo check-in rápido mostra o aviso e o link para o check-in completo', () => {
+  it('cartão gerado pelo diagnóstico rápido mostra o aviso e o link para o diagnóstico completo', () => {
     const rapido = serializarCartao({ ...CARTAO_DE_TESTE, origem: 'checkin-rapido' })
     abrirApp('/plano-de-voo', { [CHAVE_CARTAO_EMBARQUE]: rapido })
-    expect(screen.getByText('Cartão gerado pelo check-in rápido, com respostas padrão.')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Fazer o check-in completo' })).toHaveAttribute('href', '/check-in')
+    expect(screen.getByText('Cartão gerado pelo diagnóstico rápido, com respostas padrão.')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Fazer o diagnóstico completo' })).toHaveAttribute('href', '/check-in')
   })
 })
 
@@ -161,20 +161,20 @@ describe('Início: Atalho_Experimentar', () => {
   it('sem cartão leva ao Check-in_Rápido sem gravar cartão nem modo', () => {
     abrirApp('/')
     const atalho = screen.getByRole('button', { name: 'Atender meu primeiro chamado' })
-    expect(atalho).toHaveAccessibleDescription(/check-in rápido, com respostas padrão/)
+    expect(atalho).toHaveAccessibleDescription(/diagnóstico rápido, com respostas padrão/)
     fireEvent.click(atalho)
     expect(enderecoAtual()).toBe('/check-in?modo=rapido')
-    expect(screen.getByRole('heading', { level: 2, name: 'Check-in rápido' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'Diagnóstico rápido' })).toBeInTheDocument()
     expect(window.localStorage.getItem(CHAVE_CARTAO_EMBARQUE)).toBeNull()
     expect(window.localStorage.getItem(CHAVE_MODO_DEMONSTRACAO)).toBeNull()
   })
 
-  it('com cartão ativa o modo, abre a Cabine e deixa o cartão exatamente como estava', async () => {
+  it('com cartão ativa o modo, abre a Mesa de Trabalho e deixa o cartão exatamente como estava', async () => {
     const chamadas = simularApi({ missao: 'pasta-rede-inacessivel' })
     abrirApp('/', { [CHAVE_CARTAO_EMBARQUE]: CARTAO })
     fireEvent.click(screen.getByRole('button', { name: 'Atender meu primeiro chamado' }))
     expect(enderecoAtual()).toBe('/cabine/pasta-rede-inacessivel')
-    await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
+    await screen.findByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })
     expect(window.localStorage.getItem(CHAVE_CARTAO_EMBARQUE)).toBe(CARTAO)
     expect(modoGravado()).toMatchObject({ ativo: true, origem: 'atalho-experimentar' })
     expect(posts(chamadas)).toHaveLength(1)
@@ -184,18 +184,18 @@ describe('Início: Atalho_Experimentar', () => {
 describe('Check-in_Rápido', () => {
   it('mostra as três respostas padrão por extenso e a indicação', () => {
     abrirApp('/check-in?modo=rapido')
-    expect(screen.getByRole('heading', { level: 1, name: 'Check-in' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Diagnóstico' })).toBeInTheDocument()
     expect(screen.getByText(CHECKIN_RAPIDO.explicacao)).toBeInTheDocument()
     for (const pergunta of ROTEIRO_CHECKIN.perguntas) {
       expect(screen.getByText(pergunta.enunciado)).toBeInTheDocument()
       expect(screen.getByText(rotuloDaResposta(pergunta.id, CHECKIN_RAPIDO.respostas[pergunta.id]) ?? '')).toBeInTheDocument()
     }
     expect(screen.getByText(/Rota indicada: Suporte de TI/)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Fazer o check-in completo' })).toHaveAttribute('href', '/check-in')
+    expect(screen.getByRole('link', { name: 'Fazer o diagnóstico completo' })).toHaveAttribute('href', '/check-in')
     expect(screen.queryByRole('radio')).not.toBeInTheDocument()
   })
 
-  it('Confirmar e embarcar grava o cartão rápido, ativa o modo e termina na Cabine sem passar pelo portão', async () => {
+  it('Confirmar e embarcar grava o cartão rápido, ativa o modo e termina na Mesa de Trabalho sem passar pelo portão', async () => {
     const chamadas = simularApi({ missao: 'pasta-rede-inacessivel' })
     abrirApp('/')
     fireEvent.click(screen.getByRole('button', { name: 'Atender meu primeiro chamado' }))
@@ -216,7 +216,7 @@ describe('Check-in_Rápido', () => {
     expect(cartao).toMatchObject({ origem: 'checkin-rapido', rotaId: 'suporte-ti' })
     expect(modoGravado()).toMatchObject({ ativo: true, origem: 'atalho-experimentar' })
     expect(window.localStorage.getItem(CHAVE_REGISTROS_VOO)).toBeNull()
-    await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
+    await screen.findByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })
     expect(posts(chamadas)).toHaveLength(1)
     const anuncios = screen.getAllByRole('status').map((regiao) => regiao.textContent ?? '')
     expect(anuncios.some((texto) => texto.includes('Modo de demonstração ativado'))).toBe(true)
@@ -225,26 +225,26 @@ describe('Check-in_Rápido', () => {
   it('com cartão válido não troca o cartão: avisa e oferece o atalho', async () => {
     simularApi({ missao: 'pasta-rede-inacessivel' })
     abrirApp('/check-in?modo=rapido', { [CHAVE_CARTAO_EMBARQUE]: CARTAO })
-    expect(screen.getByText(/Você já tem cartão de embarque\. Para experimentar um voo sem trocar o cartão/)).toBeInTheDocument()
+    expect(screen.getByText(/Você já tem cartão de perfil\. Para experimentar uma missão sem trocar o cartão/)).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Confirmar e embarcar' })).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Atender meu primeiro chamado' }))
     expect(enderecoAtual()).toBe('/cabine/pasta-rede-inacessivel')
-    await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
+    await screen.findByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })
     expect(window.localStorage.getItem(CHAVE_CARTAO_EMBARQUE)).toBe(CARTAO)
   })
 })
 
-describe('Brevê, Cabine e barra de contexto com o modo ativo', () => {
-  it('o Brevê sem registros mostra o estado vazio e nada é gravado em registros', () => {
+describe('Portfólio, Mesa de Trabalho e barra de contexto com o modo ativo', () => {
+  it('o Portfólio sem registros mostra o estado vazio e nada é gravado em registros', () => {
     abrirApp('/breve', { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
-    expect(screen.getByText(/Você ainda não tem voos registrados/)).toBeInTheDocument()
+    expect(screen.getByText(/Você ainda não tem missões registrados/)).toBeInTheDocument()
     expect(window.localStorage.getItem(CHAVE_REGISTROS_VOO)).toBeNull()
   })
 
-  it('Cabine de incidente-massivo sem registros cria uma sessão com o modo ativo e nenhuma com o inativo', async () => {
+  it('Mesa de Trabalho de incidente-massivo sem registros cria uma sessão com o modo ativo e nenhuma com o inativo', async () => {
     const ativo = simularApi({ missao: 'incidente-massivo' })
     abrirApp('/cabine/incidente-massivo', { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
-    await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
+    await screen.findByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })
     expect(posts(ativo)).toHaveLength(1)
     cleanup()
     vi.restoreAllMocks()
@@ -254,19 +254,19 @@ describe('Brevê, Cabine e barra de contexto com o modo ativo', () => {
     await waitFor(() => expect(posts(inativo)).toHaveLength(0))
   })
 
-  it('Cabine de reset-senha-desbloqueio, da Help Desk N1, cria uma sessão com o modo ativo e com o inativo', async () => {
+  it('Mesa de Trabalho de reset-senha-desbloqueio, da Help Desk N1, cria uma sessão com o modo ativo e com o inativo', async () => {
     const ativo = simularApi({ missao: 'reset-senha-desbloqueio' })
     abrirApp('/cabine/reset-senha-desbloqueio', { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
-    await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
+    await screen.findByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })
     expect(posts(ativo)).toHaveLength(1)
     cleanup()
     vi.restoreAllMocks()
     const inativo = simularApi({ missao: 'reset-senha-desbloqueio' })
     abrirApp('/cabine/reset-senha-desbloqueio', { [CHAVE_CARTAO_EMBARQUE]: CARTAO })
-    await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
+    await screen.findByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })
     expect(posts(inativo)).toHaveLength(1)
   })
-  it('portão do cartão vale com o modo ativo: sem cartão a Cabine vai ao check-in e não cria sessão', () => {
+  it('portão do cartão vale com o modo ativo: sem cartão a Mesa de Trabalho vai ao diagnóstico e não cria sessão', () => {
     const chamadas = simularApi({ missao: 'incidente-massivo' })
     abrirApp('/cabine/incidente-massivo', { [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
     expect(enderecoAtual()).toBe('/check-in?motivo=sem-cartao')
@@ -288,10 +288,10 @@ describe('Brevê, Cabine e barra de contexto com o modo ativo', () => {
     expect(screen.getByRole('link', { name: 'Modo de demonstração ativo' })).toHaveAttribute('href', '/plano-de-voo')
   })
 
-  it('a barra de contexto mostra o indicador também na Cabine', async () => {
+  it('a barra de contexto mostra o indicador também na Mesa de Trabalho', async () => {
     simularApi({ missao: 'pasta-rede-inacessivel' })
     abrirApp('/cabine/pasta-rede-inacessivel', { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
-    await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
+    await screen.findByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })
     expect(screen.getByRole('link', { name: 'Modo de demonstração ativo' })).toBeInTheDocument()
   })
 

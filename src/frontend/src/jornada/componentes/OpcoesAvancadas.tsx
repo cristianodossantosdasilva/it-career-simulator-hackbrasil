@@ -22,8 +22,8 @@ function visaoDaMissao(visoes: readonly VisaoEscala[], id: string) {
 }
 
 /**
- * Semente e demo rápida como links para a Cabine. Cada link passa pelos mesmos portões do Embarcar:
- * escala bloqueada ou Missão em preparação não ganham link aqui. A Causa da demo rápida sai do catálogo.
+ * Semente e demo rápida como links para a Mesa de Trabalho. Cada link passa pelos mesmos portões do Embarcar:
+ * etapa bloqueada ou Missão em preparação não ganham link aqui. A Causa da demo rápida sai do catálogo.
  */
 export function OpcoesAvancadas({ visoes }: { visoes: readonly VisaoEscala[] }) {
   const idSemente = useId()
@@ -41,7 +41,7 @@ export function OpcoesAvancadas({ visoes }: { visoes: readonly VisaoEscala[] }) 
       <div className="stack">
         <p className="muted">
           Para repetir um defeito já visto ou treinar um cenário conhecido. O servidor pode recusar estes parâmetros, e o
-          aviso aparece na Cabine.
+          aviso aparece na Mesa de Trabalho.
         </p>
         {demonstracao?.podeEmbarcar && causaDemo ? (
           <p>
@@ -60,7 +60,7 @@ export function OpcoesAvancadas({ visoes }: { visoes: readonly VisaoEscala[] }) 
             </LinkInterno>
           </p>
         ) : (
-          <p className="muted">A demo rápida fica disponível quando a escala da missão de demonstração estiver liberada.</p>
+          <p className="muted">A demo rápida fica disponível quando a etapa da missão de demonstração estiver liberada.</p>
         )}
         <div className="stack">
           <label htmlFor={idSemente} className="block-label">

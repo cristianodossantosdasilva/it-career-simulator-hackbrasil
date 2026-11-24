@@ -32,7 +32,7 @@ const PADROES_CONHECIDOS: readonly [string, IdPagina][] = [
 
 const SEGMENTOS = [
   '', 'cabine', 'caixa-preta', 'breve', 'aulas', 'treino', 'check-in', 'plano-de-voo', 'hangar',
-  'caderno', 'comandante', 'Breve', 'brevê', 'x', '..', '%20', ...IDS_MISSAO,
+  'caderno', 'comandante', 'Breve', 'portfólio', 'x', '..', '%20', ...IDS_MISSAO,
 ]
 
 function gerarCaminho(g: Gerador): string {
@@ -191,7 +191,7 @@ describe('tituloDocumento', () => {
       (pagina) => {
         const nome = NOME_PAGINA[pagina]
         const titulo = tituloDocumento(nome)
-        expect(titulo).toBe(`${nome}, IT Flight Simulator`)
+        expect(titulo).toBe(`${nome}, IT Career Simulator`)
         expect(nome).not.toContain('&')
         expect(titulo).not.toContain('&')
       },

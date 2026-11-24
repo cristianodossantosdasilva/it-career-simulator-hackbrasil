@@ -13,7 +13,7 @@ export const ID_NAV_MAIS = 'nav-mais'
 
 interface BarraSuperiorProps {
   paginaAtual: IdPagina
-  /** Missão do voo ativo. Sem ela, o item Cabine não aparece. */
+  /** Missão da missão ativo. Sem ela, o item Mesa de Trabalho não aparece. */
   missaoAtiva: IdMissao | null
   /** Modo de demonstração ativo: a barra de contexto mostra o indicador em toda página. */
   modoDemonstracao?: boolean
@@ -21,7 +21,7 @@ interface BarraSuperiorProps {
   xpOficial?: number
   onMudarFoco?: (nivel: NivelId) => void
   onAbrirCurriculo?: () => void
-  /** Dados e ações da sessão exibidos na barra de contexto (Cabine). */
+  /** Dados e ações da sessão exibidos na barra de contexto (Mesa de Trabalho). */
   slotDireitoSessao?: ReactNode
   /** Conteúdo extra do menu de perfil. */
   conteudoPerfil?: ReactNode | ((api: ApiMenuPerfil) => ReactNode)
@@ -157,7 +157,7 @@ export function BarraSuperior({
       </div>
       <header className="barra-contexto">
         <p className="barra-contexto-trilha">
-          <span className="barra-contexto-marca">IT Flight Simulator</span>
+          <span className="barra-contexto-marca">IT Career Simulator</span>
           <span className="barra-contexto-separador" aria-hidden="true">
             /
           </span>

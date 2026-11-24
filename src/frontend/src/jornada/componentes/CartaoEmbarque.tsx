@@ -6,13 +6,13 @@ import { ROTEIRO_CHECKIN, rotuloDaResposta } from '../catalogos/catalogoVocacion
 
 interface PropsCartaoEmbarque {
   cartao: DadosDoCartao
-  /** Ações do cartão, como o link para o Plano de voo. */
+  /** Ações do cartão, como o link para o Plano de Carreira. */
   children?: ReactNode
 }
 
 const ORIGENS: Record<DadosDoCartao['origem'], string> = {
-  checkin: 'Check-in completo',
-  'checkin-rapido': 'Check-in rápido, com respostas padrão',
+  checkin: 'Diagnóstico completo',
+  'checkin-rapido': 'Diagnóstico rápido, com respostas padrão',
 }
 
 function formatarData(iso: string): string {
@@ -20,7 +20,7 @@ function formatarData(iso: string): string {
   return Number.isNaN(data.getTime()) ? iso : data.toLocaleDateString('pt-BR')
 }
 
-/** Cartão de embarque: rota, primeira escala e as respostas que o geraram, por extenso. */
+/** Cartão de Perfil: rota, primeira etapa e as respostas que o geraram, por extenso. */
 export function CartaoEmbarque({ cartao, children }: PropsCartaoEmbarque) {
   const idTitulo = useId()
   const rota = rotaPorId(cartao.rotaId)
@@ -29,7 +29,7 @@ export function CartaoEmbarque({ cartao, children }: PropsCartaoEmbarque) {
     <section className="cartao-embarque" aria-labelledby={idTitulo}>
       <h2 className="cartao-embarque-titulo" id={idTitulo}>
         <Icone nome="embarcar" tamanho={20} />
-        <span>Cartão de embarque</span>
+        <span>Cartão de Perfil</span>
       </h2>
       <dl className="cartao-embarque-dados">
         <div>
@@ -37,7 +37,7 @@ export function CartaoEmbarque({ cartao, children }: PropsCartaoEmbarque) {
           <dd>{rota?.nome ?? cartao.rotaId}</dd>
         </div>
         <div>
-          <dt>Primeira escala</dt>
+          <dt>Primeira etapa</dt>
           <dd>{escala?.nome ?? cartao.primeiraEscalaId}</dd>
         </div>
         <div>

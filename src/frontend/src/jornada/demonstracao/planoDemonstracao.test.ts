@@ -57,7 +57,7 @@ describe('planoDemonstracao', () => {
     )
   })
 
-  it('o destino do Check-in_Rápido resolve para a página de check-in no modo rápido', () => {
+  it('o destino do Check-in_Rápido resolve para a página de diagnóstico no modo rápido', () => {
     const rota = resolver(planejarAtalho(null).destino)
     expect(rota).toMatchObject({ pagina: 'check-in', rapido: true })
   })

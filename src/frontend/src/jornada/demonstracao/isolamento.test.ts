@@ -120,7 +120,7 @@ describe('Isolamento do modo de demonstração', () => {
       expect(texto).not.toContain('demonstracao')
       expect(texto).not.toContain('itfs_modo')
     }
-    // O modo não grava nem apaga Registro_de_Voo e não regrava a própria chave só por abrir um voo.
+    // O modo não grava nem apaga Registro_de_Voo e não regrava a própria chave só por abrir uma missão.
     expect(ativo.armazenamento.dados.has(CHAVE_REGISTROS_VOO)).toBe(false)
     expect(ativo.armazenamento.gravacoes.filter((g) => g.chave === CHAVE_MODO_DEMONSTRACAO)).toHaveLength(0)
   })

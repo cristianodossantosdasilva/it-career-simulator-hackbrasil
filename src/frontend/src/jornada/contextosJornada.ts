@@ -56,7 +56,7 @@ export interface ValorVoo {
   abrirVoo: (missao: IdMissao, opcoes: OpcoesAberturaVoo) => Promise<ResultadoAberturaVoo>
   /** Último Registro_de_Voo gravado a partir da avaliação do Juiz 360º nesta sessão. */
   registroRecente: RegistroDeVoo | null
-  /** A consulta da avaliação no fim do voo falhou. O turno continua. */
+  /** A consulta da avaliação no fim da missão falhou. O turno continua. */
   falhaRegistro: boolean
   tentarRegistrarDeNovo: () => Promise<void>
   executarAcao: (tipo: string, dados?: Record<string, unknown>) => Promise<void>

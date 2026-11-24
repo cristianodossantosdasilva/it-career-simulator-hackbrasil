@@ -2,7 +2,7 @@ import { useId, type ReactNode } from 'react'
 
 interface PropsGrupoVertente {
   nome: string
-  /** h3 no Plano de voo, h4 no Hangar e no Brevê. */
+  /** h3 no Plano de Carreira, h4 no Catálogo e no Portfólio. */
   nivelTitulo: 3 | 4
   children: ReactNode
 }

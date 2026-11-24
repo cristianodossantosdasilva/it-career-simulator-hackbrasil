@@ -39,7 +39,7 @@ export function CheckInRapido() {
     <section className="secao-jornada indicacao-checkin" aria-labelledby={idTitulo}>
       <h2 id={idTitulo}>{TITULO_CHECKIN_RAPIDO}</h2>
       {comCartao && (
-        <AvisoHonesto acoes={[{ tipo: 'link', rotulo: 'Ir para o Plano de voo', href: '/plano-de-voo' }]}>
+        <AvisoHonesto acoes={[{ tipo: 'link', rotulo: 'Ir para o Plano de Carreira', href: '/plano-de-voo' }]}>
           {AVISO_CARTAO_NO_CHECKIN_RAPIDO}
         </AvisoHonesto>
       )}

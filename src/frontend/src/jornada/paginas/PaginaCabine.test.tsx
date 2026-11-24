@@ -52,13 +52,13 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('Página Cabine', () => {
+describe('Página Mesa de Trabalho', () => {
   it('em StrictMode cria uma única sessão com o corpo só com o identificador da Missão e mostra o turno', async () => {
     const chamadas = simularApi({ missao: 'pasta-rede-inacessivel' })
     montar('pasta-rede-inacessivel')
     // O h1 existe antes de qualquer resposta do servidor.
-    expect(screen.getByRole('heading', { level: 1, name: 'Cabine' })).toBeInTheDocument()
-    await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
+    expect(screen.getByRole('heading', { level: 1, name: 'Mesa de Trabalho' })).toBeInTheDocument()
+    await screen.findByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })
     const posts = criacoes(chamadas)
     expect(posts).toHaveLength(1)
     expect(JSON.parse(posts[0].corpo ?? '')).toEqual({ cenarioId: 'pasta-rede-inacessivel' })
@@ -69,7 +69,7 @@ describe('Página Cabine', () => {
   it('mostra o cabeçalho "Chamado X de N", o mapa com filtros e alterna Treino e Missão', async () => {
     simularApi({ missao: 'pasta-rede-inacessivel' })
     montar('pasta-rede-inacessivel')
-    await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
+    await screen.findByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })
     expect(screen.getByText(/Chamado/, { selector: '.cabine-progresso-texto' })).toHaveTextContent(/Chamado \d+ de \d+/)
     expect(screen.getByRole('progressbar', { name: /Progresso da missão/ })).toBeInTheDocument()
     expect(screen.getByRole('region', { name: 'Mapa de chamados' })).toBeInTheDocument()
@@ -86,7 +86,7 @@ describe('Página Cabine', () => {
   it('reescreve o endereço sem os parâmetros de teste depois de criar a sessão', async () => {
     const chamadas = simularApi({ missao: 'pasta-rede-inacessivel' })
     montar('pasta-rede-inacessivel', '?semente=42&causa=C1&nova=1')
-    await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
+    await screen.findByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })
     expect(JSON.parse(criacoes(chamadas)[0]?.corpo ?? '')).toEqual({
       cenarioId: 'pasta-rede-inacessivel',
       semente: 42,
@@ -95,23 +95,23 @@ describe('Página Cabine', () => {
     expect(window.location.pathname + window.location.search).toBe('/cabine/pasta-rede-inacessivel')
   })
 
-  it('a Help Desk N1 abre a Cabine de reset-senha-desbloqueio sem registro anterior e cria a sessão', async () => {
+  it('a Help Desk N1 abre a Mesa de Trabalho de reset-senha-desbloqueio sem registro anterior e cria a sessão', async () => {
     const chamadas = simularApi({ missao: 'reset-senha-desbloqueio' })
     montar('reset-senha-desbloqueio', '', { [CHAVE_REGISTROS_VOO]: serializarRegistros([]) })
-    await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
+    await screen.findByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })
     expect(JSON.parse(criacoes(chamadas)[0]?.corpo ?? '')).toEqual({ cenarioId: 'reset-senha-desbloqueio' })
   })
   it('Service Desk N1 Jr sem registro da Help Desk N1 mostra o aviso e não chama o servidor', () => {
     const chamadas = simularApi({ missao: 'pasta-rede-inacessivel' })
     montar('pasta-rede-inacessivel', '', { [CHAVE_REGISTROS_VOO]: serializarRegistros([]) })
-    expect(screen.getByText(/A escala Service Desk N1 Jr ainda não está liberada\. Conclua as missões disponíveis de Help Desk N1/)).toBeInTheDocument()
+    expect(screen.getByText(/A etapa Service Desk N1 Jr ainda não está liberada\. Conclua as missões disponíveis de Help Desk N1/)).toBeInTheDocument()
     expect(chamadas).toHaveLength(0)
   })
 
-  it('escala bloqueada mostra o aviso com a escala necessária e não chama o servidor', () => {
+  it('etapa bloqueada mostra o aviso com a etapa necessária e não chama o servidor', () => {
     const chamadas = simularApi({ missao: 'incidente-massivo' })
     montar('incidente-massivo')
-    expect(screen.getByText(/A escala N2 Pleno ainda não está liberada\. Conclua as missões disponíveis de Service Desk N1 Jr/)).toBeInTheDocument()
+    expect(screen.getByText(/A etapa N2 Pleno ainda não está liberada\. Conclua as missões disponíveis de Service Desk N1 Jr/)).toBeInTheDocument()
     expect(chamadas).toHaveLength(0)
   })
 
@@ -153,31 +153,31 @@ describe('Página Cabine', () => {
       </ProvedorJornada>
     )
     const { rerender } = render(arvore(true))
-    await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
+    await screen.findByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })
     rerender(arvore(false))
-    expect(screen.queryByRole('navigation', { name: 'Aplicativos da Cabine' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })).not.toBeInTheDocument()
     rerender(arvore(true))
     // A sessão em memória é reaproveitada: o turno volta sem tela de espera.
-    expect(screen.getByRole('navigation', { name: 'Aplicativos da Cabine' })).toBeInTheDocument()
-    await waitFor(() => expect(screen.getByRole('heading', { level: 1, name: 'Cabine' })).toBeInTheDocument())
+    expect(screen.getByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByRole('heading', { level: 1, name: 'Mesa de Trabalho' })).toBeInTheDocument())
     expect(criacoes(chamadas)).toHaveLength(1)
   })
 
   it('reset-senha-desbloqueio usa o nível Help Desk N1 nas notas e o título do catálogo no cabeçalho', async () => {
     simularApi({ missao: 'reset-senha-desbloqueio' })
     montar('reset-senha-desbloqueio', '', { [CHAVE_REGISTROS_VOO]: serializarRegistros([]) })
-    await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
+    await screen.findByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })
     fireEvent.click(screen.getByRole('button', { name: /Minhas notas/ }))
     expect(await screen.findByRole('heading', { name: 'Minhas notas: Help Desk N1' })).toBeInTheDocument()
     expect(document.body.textContent).not.toContain('Triagem e Defesa contra Engenharia Social')
     expect(screen.getAllByText('Reset de senha e desbloqueio de conta').length).toBeGreaterThan(0)
     expect(document.body.textContent).not.toContain('Minhas notas: Reset de senha e desbloqueio de conta')
   })
-  it('a gaveta do Comandante usa o papel Copiloto', async () => {
+  it('a gaveta do Mentor usa o papel Copiloto', async () => {
     simularApi({ missao: 'pasta-rede-inacessivel' })
     montar('pasta-rede-inacessivel')
-    await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
-    fireEvent.click(screen.getByRole('button', { name: /Comandante/ }))
-    expect(await screen.findByRole('heading', { name: /Comandante, papel Copiloto/ })).toBeInTheDocument()
+    await screen.findByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })
+    fireEvent.click(screen.getByRole('button', { name: /Mentor/ }))
+    expect(await screen.findByRole('heading', { name: /Mentor, papel Copiloto/ })).toBeInTheDocument()
   })
 })

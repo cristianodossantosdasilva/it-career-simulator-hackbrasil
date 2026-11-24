@@ -70,7 +70,7 @@ describe('registrosVoo', () => {
     )
   })
 
-  it('mantém o registro mesmo com escala e Vertente divergentes do catálogo atual', () => {
+  it('mantém o registro mesmo com etapa e Vertente divergentes do catálogo atual', () => {
     const antigo = { ...registroDeTeste('triagem-engenharia-social', 'sessao-antiga'), escalaId: 'help-desk-n1', vertenteId: null }
     expect(analisarRegistros(serializarRegistros([antigo]))).toEqual([antigo])
   })

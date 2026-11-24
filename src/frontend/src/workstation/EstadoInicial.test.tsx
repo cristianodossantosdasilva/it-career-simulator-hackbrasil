@@ -22,20 +22,20 @@ function espiarInicioDeSessao() {
   return vi.spyOn(apiClient, 'criarSessao').mockRejectedValue(new Error('sem rede no teste'))
 }
 
-describe('Estado inicial do Plano de voo', () => {
-  it('abre sem escolha livre de missao, sem Decolar e sem abrir sessao', () => {
+describe('Estado inicial do Plano de Carreira', () => {
+  it('abre sem escolha livre de missao, sem Iniciar e sem abrir sessao', () => {
     const criarSessao = espiarInicioDeSessao()
     abrirAplicacao('/')
-    irPeloMenu('Plano de voo')
+    irPeloMenu('Plano de Carreira')
     expect(screen.queryAllByRole('radio')).toHaveLength(0)
-    expect(screen.queryByRole('button', { name: /Decolar no Simulador/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Iniciar no Simulador/i })).not.toBeInTheDocument()
     expect(criarSessao).not.toHaveBeenCalled()
   })
 
-  it('Primeiro Voo leva a Cabine da primeira missao disponivel da rota e abre a sessao', async () => {
+  it('Primeiro Missão leva a Mesa de Trabalho da primeira missao disponivel da rota e abre a sessao', async () => {
     const criarSessao = espiarInicioDeSessao()
     abrirAplicacao('/plano-de-voo')
-    fireEvent.click(screen.getByRole('button', { name: 'Iniciar primeiro voo' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Iniciar primeiro missão' }))
     expect(window.location.pathname).toBe('/cabine/reset-senha-desbloqueio')
     await waitFor(() => expect(criarSessao).toHaveBeenCalledTimes(1))
     expect(criarSessao).toHaveBeenCalledWith({ cenarioId: 'reset-senha-desbloqueio' })
@@ -74,7 +74,7 @@ describe('Focus inicial da Academia', () => {
   })
 })
 
-describe('Missao 0 depois do Primeiro Voo e antes das escalas', () => {
+describe('Missao 0 depois do Primeiro Missão e antes das etapas', () => {
   function secaoMissaoZero() {
     const titulo = screen.getByRole('heading', { level: 2, name: /Missão 0/i })
     const detalhes = titulo.closest('details')
@@ -85,10 +85,10 @@ describe('Missao 0 depois do Primeiro Voo e antes das escalas', () => {
     return a.compareDocumentPosition(b) === Node.DOCUMENT_POSITION_FOLLOWING
   }
 
-  it('ordem no DOM: Primeiro Voo, Missao 0, escalas, Glossario', () => {
+  it('ordem no DOM: Primeiro Missão, Missao 0, etapas, Glossario', () => {
     abrirAplicacao('/plano-de-voo')
     const ordem = [
-      screen.getByRole('heading', { level: 2, name: 'Iniciar primeiro voo' }),
+      screen.getByRole('heading', { level: 2, name: 'Iniciar primeiro missão' }),
       screen.getByRole('heading', { level: 2, name: /Missão 0/i }),
       screen.getByRole('heading', { level: 2, name: 'Help Desk N1' }),
       screen.getByText(/Glossário rápido para iniciantes/i),
@@ -98,7 +98,7 @@ describe('Missao 0 depois do Primeiro Voo e antes das escalas', () => {
     }
   })
 
-  it('o texto de apoio diferencia a Missao 0 do Primeiro Voo', () => {
+  it('o texto de apoio diferencia a Missao 0 do Primeiro Missão', () => {
     abrirAplicacao('/plano-de-voo')
     expect(secaoMissaoZero()).toHaveTextContent(/dentro do chamado/i)
     expect(screen.getAllByText(/depois que ele estiver aberto/i)).toHaveLength(1)
@@ -120,14 +120,14 @@ describe('Missao 0 depois do Primeiro Voo e antes das escalas', () => {
     expect(secaoMissaoZero().open).toBe(false)
   })
 
-  it('a ordem de Tab percorre Primeiro Voo, Missao 0 e o primeiro Embarcar', () => {
+  it('a ordem de Tab percorre Primeiro Missão, Missao 0 e o primeiro Embarcar', () => {
     abrirAplicacao('/plano-de-voo')
     const alvos = Array.from(
       document.querySelectorAll<HTMLElement>('button:not([disabled]), summary, a[href], input, select, textarea'),
     )
     // Sem tabindex positivo, a ordem de Tab segue a ordem do DOM.
     expect(alvos.some((el) => el.tabIndex > 0)).toBe(false)
-    const primeiroVoo = screen.getByRole('button', { name: 'Iniciar primeiro voo' })
+    const primeiroVoo = screen.getByRole('button', { name: 'Iniciar primeiro missão' })
     const resumoMissaoZero = secaoMissaoZero().querySelector('summary') as HTMLElement
     const primeiroEmbarcar = screen.getAllByRole('link', { name: /Embarcar/ })[0]
     expect(alvos.indexOf(primeiroVoo)).toBeGreaterThanOrEqual(0)

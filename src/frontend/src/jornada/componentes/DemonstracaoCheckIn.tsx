@@ -2,7 +2,7 @@ import { useId, useState } from 'react'
 import { PERGUNTA_FOCO, RESPOSTAS_FOCO } from '../catalogos/catalogoVocacional'
 
 /**
- * Exemplo de pergunta do check-in para quem ainda não fez o check-in. Não recebe nem usa o
+ * Exemplo de pergunta do diagnóstico para quem ainda não fez o diagnóstico. Não recebe nem usa o
  * Armazenamento_Local: a escolha vive só neste componente e some ao sair da página.
  */
 export function DemonstracaoCheckIn() {
@@ -10,9 +10,9 @@ export function DemonstracaoCheckIn() {
   const [escolhida, setEscolhida] = useState<string | null>(null)
   return (
     <section className="demonstracao-checkin" aria-labelledby={idTitulo}>
-      <h2 id={idTitulo}>Veja uma pergunta do check-in</h2>
+      <h2 id={idTitulo}>Veja uma pergunta do diagnóstico</h2>
       <p className="pagina-jornada-texto">
-        É só um exemplo. Nada do que você escolher aqui é guardado neste navegador. O check-in de verdade fica em outra página.
+        É só um exemplo. Nada do que você escolher aqui é guardado neste navegador. O diagnóstico de verdade fica em outra página.
       </p>
       <fieldset className="checkin-pergunta">
         <legend>{PERGUNTA_FOCO.enunciado}</legend>

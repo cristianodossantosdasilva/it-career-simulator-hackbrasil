@@ -12,7 +12,7 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('Feature: jornada-de-voo, Property 9: Demonstração do check-in no Início não grava nada', () => {
+describe('Feature: jornada-de-voo, Property 9: Demonstração do diagnóstico no Início não grava nada', () => {
   it('para toda sequência de escolhas, o armazenamento falso não recebe setItem', () => {
     paraTodo(
       'demonstracao sem gravacao',

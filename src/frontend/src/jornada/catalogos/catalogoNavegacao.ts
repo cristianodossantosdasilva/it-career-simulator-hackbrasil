@@ -16,16 +16,16 @@ export interface ItemMenu {
 
 export const ITENS_MENU: readonly ItemMenu[] = [
   { id: 'inicio', rotulo: 'Início', icone: 'marca', grupo: 'principal', pagina: 'inicio' },
-  { id: 'plano', rotulo: 'Plano de voo', icone: 'plano-de-voo', grupo: 'principal', pagina: 'plano-de-voo' },
-  { id: 'cabine', rotulo: 'Cabine', icone: 'laboratorio', grupo: 'principal', pagina: 'cabine' },
-  { id: 'breve', rotulo: 'Brevê', icone: 'breve', grupo: 'principal', pagina: 'breve' },
-  { id: 'hangar', rotulo: 'Hangar', icone: 'hangar', grupo: 'mais', pagina: 'hangar' },
+  { id: 'plano', rotulo: 'Plano de Carreira', icone: 'plano-de-voo', grupo: 'principal', pagina: 'plano-de-voo' },
+  { id: 'cabine', rotulo: 'Mesa de Trabalho', icone: 'laboratorio', grupo: 'principal', pagina: 'cabine' },
+  { id: 'breve', rotulo: 'Portfólio', icone: 'breve', grupo: 'principal', pagina: 'breve' },
+  { id: 'hangar', rotulo: 'Catálogo', icone: 'hangar', grupo: 'mais', pagina: 'hangar' },
   { id: 'aulas', rotulo: 'Aulas', icone: 'aulas', grupo: 'mais', pagina: 'aulas' },
   { id: 'caderno', rotulo: 'Caderno', icone: 'caderno', grupo: 'mais', pagina: 'caderno' },
-  { id: 'comandante', rotulo: 'Comandante', icone: 'mentor', grupo: 'mais', pagina: 'comandante' },
+  { id: 'comandante', rotulo: 'Mentor', icone: 'mentor', grupo: 'mais', pagina: 'comandante' },
 ]
 
-/** Endereço do item. A Cabine só aparece com voo ativo: sem missão ativa devolve nulo e o item some. */
+/** Endereço do item. A Mesa de Trabalho só aparece com missão ativo: sem missão ativa devolve nulo e o item some. */
 export function hrefDoItem(item: ItemMenu, contexto: { missaoAtiva: IdMissao | null }): string | null {
   switch (item.pagina) {
     case 'cabine':
@@ -46,7 +46,7 @@ export function hrefDoItem(item: ItemMenu, contexto: { missaoAtiva: IdMissao | n
   }
 }
 
-/** Check-in, Caixa-preta, Treino e 404 são páginas de fluxo e não marcam item. */
+/** Diagnóstico, Caixa-preta, Treino e 404 são páginas de fluxo e não marcam item. */
 export function itemAtivoDoMenu(pagina: IdPagina): IdItemMenu | null {
   return ITENS_MENU.find((item) => item.pagina === pagina)?.id ?? null
 }

@@ -27,7 +27,7 @@ const TEXTO_SEM_DICA = 'Modo Missão: dicas ocultas. Mude para Treino para ver o
 const FERRAMENTAS: readonly Aba[] = ['itsm', 'chat', 'simudesk', 'kb']
 
 /**
- * Turno de atendimento da Cabine: guia da missão, aplicativos e gavetas de notas e do Comandante. O
+ * Turno de atendimento da Mesa de Trabalho: guia da missão, aplicativos e gavetas de notas e do Mentor. O
  * motor decide todo estado: aqui só saem ações do participante.
  */
 export function TurnoDaCabine({ estado }: { estado: EstadoCabine }) {
@@ -113,12 +113,12 @@ export function TurnoDaCabine({ estado }: { estado: EstadoCabine }) {
     <>
       {registroRecente?.sessaoId === sessaoId && (
         <AvisoHonesto acoes={[{ tipo: 'link', rotulo: 'Abrir a Caixa-preta', href: enderecoCaixaPreta }]}>
-          Voo registrado neste navegador. A Caixa-preta mostra a linha do tempo e a avaliação do Juiz 360º.
+          Missão registrado neste navegador. A Caixa-preta mostra a linha do tempo e a avaliação do Juiz 360º.
         </AvisoHonesto>
       )}
       {falhaRegistro && (
         <AvisoHonesto acoes={[{ tipo: 'botao', rotulo: 'Tentar registrar de novo', aoClicar: () => void tentarRegistrarDeNovo() }]}>
-          Não foi possível consultar a avaliação para registrar este voo. O turno continua.
+          Não foi possível consultar a avaliação para registrar esta missão. O turno continua.
         </AvisoHonesto>
       )}
       {aviso && (
@@ -155,7 +155,7 @@ export function TurnoDaCabine({ estado }: { estado: EstadoCabine }) {
         }
         consola={
           <>
-            <nav className="lab-ferramentas" aria-label="Aplicativos da Cabine">
+            <nav className="lab-ferramentas" aria-label="Aplicativos da Mesa de Trabalho">
               {botaoDaFerramenta(
                 'itsm',
                 'chamado',
@@ -253,13 +253,13 @@ export function TurnoDaCabine({ estado }: { estado: EstadoCabine }) {
               </p>
             </aside>
           ) : gaveta === 'tutor' ? (
-            <aside className="cockpit-drawer" aria-label="Comandante durante o atendimento">
+            <aside className="cockpit-drawer" aria-label="Mentor durante o atendimento">
               <div className="row-between">
-                <p className="muted">O Comandante só orienta: não executa ações e não avalia o voo.</p>
+                <p className="muted">O Mentor só orienta: não executa ações e não avalia a missão.</p>
                 <button
                   type="button"
                   className="btn btn-ghost btn-sm"
-                  aria-label="Fechar o Comandante"
+                  aria-label="Fechar o Mentor"
                   onClick={() => setGaveta(null)}
                 >
                   <Icone nome="fechar" />

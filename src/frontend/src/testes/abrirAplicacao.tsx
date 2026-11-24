@@ -6,7 +6,7 @@ import { CARTAO_DE_TESTE } from './armazenamentoFalso'
 
 /**
  * Abre o App no endereço dado. Por padrão semeia o Cartão_de_Embarque no armazenamento do navegador,
- * porque `/plano-de-voo` e `/cabine/:missao` exigem o cartão e sem ele terminam no Check-in.
+ * porque `/plano-de-voo` e `/cabine/:missao` exigem o cartão e sem ele terminam no Diagnóstico.
  */
 export function abrirAplicacao(endereco = '/', opcoes: { comCartao?: boolean } = {}) {
   const { comCartao = true } = opcoes

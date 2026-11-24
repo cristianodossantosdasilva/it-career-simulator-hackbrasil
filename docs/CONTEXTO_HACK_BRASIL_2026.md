@@ -1,6 +1,6 @@
 # Contexto Oficial: Hack Brasil 2026 — Time CVE-K
 
-Este é o repositório oficial do **IT Flight Simulator — Simulador Prático de Carreira em TI**, desenvolvido pelo time **CVE-K** para competir no **Hack Brasil 2026** (https://hackbrasil.com/).
+Este é o repositório oficial do **IT Career Simulator — Simulador Prático de Carreira em TI**, desenvolvido pelo time **CVE-K** para competir no **Hack Brasil 2026** (https://hackbrasil.com/).
 
 ## 1. Time CVE-K (3 Integrantes Ativos)
 - **Cristiano dos Santos da Silva** (`LIDERANÇA`) — Cibersegurança, Cloud, Eng. Software (.NET, Python, React/TS, PostgreSQL) e IA.

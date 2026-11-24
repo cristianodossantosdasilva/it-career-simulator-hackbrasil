@@ -10,7 +10,7 @@ import {
 } from './textosDemonstracao'
 
 /**
- * Seção do Plano de voo com o interruptor do modo de demonstração. O clique e as teclas Espaço e Enter
+ * Seção do Plano de Carreira com o interruptor do modo de demonstração. O clique e as teclas Espaço e Enter
  * (ativação nativa do botão) alternam o modo. O estado vai em texto, ícone e `aria-checked`.
  */
 export function ControleModoDemonstracao() {

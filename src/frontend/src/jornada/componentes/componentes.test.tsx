@@ -64,14 +64,14 @@ describe('SeloStatus e GrupoVertente', () => {
 
 describe('SecaoBrevePiloto e CartaoEmbarque', () => {
   const exigencias = [
-    { escalaId: 'help-desk-n1', rotulo: 'Ao menos um voo em Help Desk N1', cumprida: false, aguardaPreparacao: true },
-    { escalaId: 'service-desk-n1-jr', rotulo: 'Ao menos um voo em Service Desk N1 Jr', cumprida: true, aguardaPreparacao: false },
+    { escalaId: 'help-desk-n1', rotulo: 'Ao menos uma missão em Help Desk N1', cumprida: false, aguardaPreparacao: true },
+    { escalaId: 'service-desk-n1-jr', rotulo: 'Ao menos uma missão em Service Desk N1 Jr', cumprida: true, aguardaPreparacao: false },
   ]
 
   it('pendente: texto, exigências cumprida e pendente e o aguardo da missão em preparação', () => {
     render(<SecaoBrevePiloto visao={{ conquistado: false, exigencias }} />)
-    expect(screen.getByRole('heading', { level: 2, name: 'Brevê de piloto' })).toBeInTheDocument()
-    expect(screen.getByText('Brevê de piloto pendente')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'Portfólio de analista' })).toBeInTheDocument()
+    expect(screen.getByText('Portfólio de analista pendente')).toBeInTheDocument()
     expect(screen.getByText('Cumprida')).toBeInTheDocument()
     expect(screen.getByText('Pendente')).toBeInTheDocument()
     expect(screen.getAllByText('Aguarda missão em preparação no simulador.')).toHaveLength(1)
@@ -79,11 +79,11 @@ describe('SecaoBrevePiloto e CartaoEmbarque', () => {
 
   it('conquistado: texto de conquista', () => {
     render(<SecaoBrevePiloto visao={{ conquistado: true, exigencias: [exigencias[1]] }} nivelTitulo={3} />)
-    expect(screen.getByText('Brevê de piloto conquistado')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { level: 3, name: 'Brevê de piloto' })).toBeInTheDocument()
+    expect(screen.getByText('Portfólio de analista conquistado')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 3, name: 'Portfólio de analista' })).toBeInTheDocument()
   })
 
-  it('o cartão mostra rota, primeira escala e as respostas por extenso', () => {
+  it('o cartão mostra rota, primeira etapa e as respostas por extenso', () => {
     render(<CartaoEmbarque cartao={CARTAO_DE_TESTE}>{<a href="/plano-de-voo">Plano</a>}</CartaoEmbarque>)
     expect(screen.getByText('Suporte de TI')).toBeInTheDocument()
     expect(screen.getByText('Help Desk N1')).toBeInTheDocument()

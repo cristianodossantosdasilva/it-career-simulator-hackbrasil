@@ -1,4 +1,4 @@
-# Arquitetura Técnica — IT Flight Simulator (Edição Hack Brasil 2026)
+# Arquitetura Técnica — IT Career Simulator (Edição Hack Brasil 2026)
 
 ## 1. Visão Geral e Princípio Central
 

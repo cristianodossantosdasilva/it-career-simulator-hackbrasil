@@ -36,10 +36,10 @@ export function ConfiguracaoModoVoo({
   return (
     <section className="secao-jornada" aria-labelledby="config-voo-titulo">
       <h2 id="config-voo-titulo" className="h2">
-        Configuração do voo
+        Configuração da missão
       </h2>
       <p className="muted">
-        Escolha como deseja operar os chamados na Cabine e quais domínios priorizar nesta sessão.
+        Escolha como deseja operar os chamados na Mesa de Trabalho e quais domínios priorizar nesta sessão.
       </p>
 
       <div className="grade-modos-voo" role="group" aria-label="Modo de operação">

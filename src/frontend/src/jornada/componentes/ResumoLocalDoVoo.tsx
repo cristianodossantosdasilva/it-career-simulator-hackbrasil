@@ -25,7 +25,7 @@ export function ResumoLocalDoVoo({ registro }: { registro: RegistroDeVoo }) {
         </div>
         {local && (
           <div>
-            <dt>Escala</dt>
+            <dt>Etapa</dt>
             <dd>{local.vertente ? `${local.escala.nome}, ${local.vertente.nome}` : local.escala.nome}</dd>
           </div>
         )}

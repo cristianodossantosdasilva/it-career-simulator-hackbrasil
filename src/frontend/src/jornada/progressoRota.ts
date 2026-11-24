@@ -25,7 +25,7 @@ export interface VisaoMissao {
 }
 
 export interface VisaoGrupoMissoes {
-  /** Nula nas escalas 1 a 3. Um grupo por Vertente na N3 Sênior. */
+  /** Nula nas etapas 1 a 3. Um grupo por Vertente na N3 Sênior. */
   vertente: Vertente | null
   missoes: readonly VisaoMissao[]
 }
@@ -41,23 +41,23 @@ export interface VisaoItemCatalogo {
 }
 export interface VisaoEscala {
   escala: Escala
-  /** Estado exibido. Com o modo de demonstração ativo nenhuma escala fica bloqueada. */
+  /** Estado exibido. Com o modo de demonstração ativo nenhuma etapa fica bloqueada. */
   estado: EstadoEscala
   /** Estado calculado só pelos Registros_de_Voo, igual a `estado` com o modo inativo. */
   estadoPorRegistros: EstadoEscala
-  /** Verdadeiro quando o modo ativo liberou uma escala que os registros mantêm bloqueada. */
+  /** Verdadeiro quando o modo ativo liberou uma etapa que os registros mantêm bloqueada. */
   liberadaPorDemonstracao: boolean
-  /** Verdadeiro em toda escala com o modo ativo, inclusive nas concluídas. */
+  /** Verdadeiro em toda etapa com o modo ativo, inclusive nas concluídas. */
   seloDemonstracao: boolean
   /** Escala_Cumprida: toda Missão disponível tem registro, inclusive quando não há nenhuma. */
   cumprida: boolean
   semMissaoDisponivel: boolean
-  /** Liberada e a escala anterior sem Missão disponível (Requirement 5.9). */
+  /** Liberada e a etapa anterior sem Missão disponível (Requirement 5.9). */
   liberadaPorPreparacao: boolean
   /** Preenchida só quando o estado é bloqueada. */
   escalaNecessaria: Escala | null
   grupos: readonly VisaoGrupoMissoes[]
-  /** Certificações de referência desta escala, na ordem do catálogo. */
+  /** Certificações de referência desta etapa, na ordem do catálogo. */
   certificacoes: readonly VisaoItemCatalogo[]
 }
 
@@ -94,14 +94,14 @@ function missoesComRegistro(registros: readonly RegistroDeVoo[]): ReadonlySet<st
 
 export interface OpcoesProgressoRota {
   certificacoes?: readonly Certificacao[]
-  /** Muda só o estado exibido e a permissão de embarque. Padrão: inativo. Nunca muda o cálculo por registros. */
+  /** Muda só o estado exibido e a permissão de perfil. Padrão: inativo. Nunca muda o cálculo por registros. */
   modoDemonstracao?: boolean
 }
 
 /**
- * Pura. O estado por registros de cada escala vem só dos Registros_de_Voo e do status das Missões. Escala e
+ * Pura. O estado por registros de cada etapa vem só dos Registros_de_Voo e do status das Missões. Etapa e
  * Vertente de um registro vêm do catálogo pela `missao`, não dos campos gravados no registro. O modo de
- * demonstração libera o embarque nas escalas bloqueadas, mas uma Missão só fica concluída com registro.
+ * demonstração libera o perfil nas etapas bloqueadas, mas uma Missão só fica concluída com registro.
  */
 export function calcularProgressoRota(
   rota: Rota,
@@ -180,7 +180,7 @@ export interface VisaoGrupoHangar {
 }
 export interface VisaoHangar {
   rotas: readonly VisaoItemCatalogo[]
-  /** Todas as Missões, inclusive as em preparação, uma vez cada, por escala e Vertente. */
+  /** Todas as Missões, inclusive as em preparação, uma vez cada, por etapa e Vertente. */
   missoes: readonly VisaoGrupoHangar[]
   certificacoes: readonly VisaoItemCatalogo[]
   parceiros: readonly VisaoItemCatalogo[]
@@ -237,7 +237,7 @@ function linkCaixaPreta(registro: RegistroDeVoo): string {
   return enderecoDe({ pagina: 'caixa-preta', sessao: registro.sessaoId })
 }
 
-/** Pura. Grupos não vazios na ordem das escalas e, na N3 Sênior, das Vertentes. */
+/** Pura. Grupos não vazios na ordem das etapas e, na N3 Sênior, das Vertentes. */
 export function agruparRegistros(rota: Rota, registros: readonly RegistroDeVoo[]): readonly GrupoBreve[] {
   const grupos: GrupoBreve[] = []
   for (const escala of rota.escalas) {
@@ -251,11 +251,11 @@ export function agruparRegistros(rota: Rota, registros: readonly RegistroDeVoo[]
 }
 
 export interface ExigenciaBreve {
-  /** Uma exigência por escala da rota, na ordem do catálogo. */
+  /** Uma exigência por etapa da rota, na ordem do catálogo. */
   escalaId: string
   rotulo: string
   cumprida: boolean
-  /** Pendente e a escala sem Missão disponível (Requirement 9.9). */
+  /** Pendente e a etapa sem Missão disponível (Requirement 9.9). */
   aguardaPreparacao: boolean
 }
 
@@ -266,8 +266,8 @@ export interface VisaoBrevePiloto {
 
 function rotuloExigencia(escala: Escala): string {
   return escala.vertentes.length > 0
-    ? `Ao menos um voo em uma das vertentes da ${escala.nome}`
-    : `Ao menos um voo em ${escala.nome}`
+    ? `Ao menos uma missão em uma das vertentes da ${escala.nome}`
+    : `Ao menos uma missão em ${escala.nome}`
 }
 
 /** Pura. Não recebe o Modo_de_Demonstração e não lê armazenamento (Requirement 9.10). */

@@ -3,13 +3,13 @@ import { nomeDoNivelDaMissao } from '../catalogos/catalogoRotas'
 import { useVoo } from '../contextosJornada'
 
 /**
- * Dados do turno e botões das gavetas, no cabeçalho da Cabine. Sair da Cabine é pelo menu: a sessão
+ * Dados do turno e botões das gavetas, no cabeçalho da Mesa de Trabalho. Sair da Mesa de Trabalho é pelo menu: a sessão
  * continua em memória.
  */
 export function DadosDaSessao() {
   const { sessao, gaveta, setGaveta } = useVoo()
   if (!sessao) return null
-  // Escala e Vertente vêm do Catálogo de Rotas. O texto de `meta.nivel` do servidor segue a escada antiga.
+  // Etapa e Vertente vêm do Catálogo de Rotas. O texto de `meta.nivel` do servidor segue a escada antiga.
   const nomeDoNivel = nomeDoNivelDaMissao(sessao.meta.cenarioId) ?? sessao.meta.nivel
   return (
     <div className="barra-contexto-acoes">
@@ -37,7 +37,7 @@ export function DadosDaSessao() {
         onClick={() => setGaveta((atual) => (atual === 'tutor' ? null : 'tutor'))}
       >
         <Icone nome="conversa" />
-        <span className="botao-contexto-texto">Comandante</span>
+        <span className="botao-contexto-texto">Mentor</span>
       </button>
     </div>
   )

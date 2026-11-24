@@ -12,8 +12,8 @@ import {
 } from './voosAtivos'
 
 describe('voosAtivos', () => {
-  it('Feature: jornada-de-voo, Property 6: Ida e volta do armazenamento (voos ativos)', () => {
-    paraTodo('ida e volta dos voos ativos', gerarVoosAtivos, (voos) => {
+  it('Feature: jornada-de-voo, Property 6: Ida e volta do armazenamento (missões ativos)', () => {
+    paraTodo('ida e volta das missões ativos', gerarVoosAtivos, (voos) => {
       expect(analisarVoosAtivos(serializarVoosAtivos(voos))).toEqual(voos)
       const armazenamento = criarArmazenamentoFalso()
       expect(gravarVoosAtivos(armazenamento, voos)).toBe(true)
@@ -21,7 +21,7 @@ describe('voosAtivos', () => {
     })
   })
 
-  it('Feature: jornada-de-voo, Property 7: Dado inválido é tratado como ausente (voos ativos)', () => {
+  it('Feature: jornada-de-voo, Property 7: Dado inválido é tratado como ausente (missões ativos)', () => {
     paraTodo(
       'só entradas válidas sobrevivem',
       (g) => ({ voos: gerarVoosAtivos(g), lixo: g.texto(12), sessaoInvalida: `${gerarIdSessao(g)} /` }),

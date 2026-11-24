@@ -251,7 +251,7 @@ export const KB_CATALOGO: ArtigoKb[] = [
     conteudo:
       'Ao concluir investigacao de auditoria: 1) Documente as queries executadas, 2) Registre a divergencia ou conformidade encontrada, 3) Resolva o chamado com nota publica detalhada. O historico de queries fica vinculado ao chamado para rastreabilidade da auditoria.',
   },
-  // === Help Desk N1: Acesso e Identidade (cenarios por escala) ===
+  // === Help Desk N1: Acesso e Identidade (cenarios por etapa) ===
   {
     id: 'KB-027',
     uri: 'kb://acesso/reset-desbloqueio-e-troca',
@@ -261,7 +261,7 @@ export const KB_CATALOGO: ArtigoKb[] = [
     conteudo:
       'Reset, desbloqueio e troca de senha resolvem problemas diferentes. Antes de qualquer um, confirme a identidade da titular e leia o estado da conta no console. Senha esquecida pede reset com senha temporaria e troca obrigatoria. Conta bloqueada pede identificar de onde vem as tentativas antes de desbloquear, senao ela bloqueia de novo. Senha vencida pode ser trocada pela propria titular pelo autoatendimento. Escolha a menor acao que resolve o sintoma: a acao desnecessaria fica registrada na trilha do atendimento.',
   },
-  // === N2 Pleno: Fornecedor externo (cenarios por escala) ===
+  // === N2 Pleno: Fornecedor externo (cenarios por etapa) ===
   {
     id: 'KB-028',
     uri: 'kb://itil/falha-de-fornecedor',
@@ -280,7 +280,7 @@ export const KB_CATALOGO: ArtigoKb[] = [
     conteudo:
       'Durante um incidente com muitos solicitantes, registre uma nota publica antes de resolver os chamados: diga o que esta afetado, o que ja foi verificado, quem foi acionado e quando havera nova informacao. A nota publica evita chamados repetidos e deixa o historico claro. Depois do restabelecimento, a resolucao em lote pode reaproveitar a mesma comunicacao com o resultado final.',
   },
-  // === N3-B Data Center e Backup (cenarios por escala) ===
+  // === N3-B Data Center e Backup (cenarios por etapa) ===
   {
     id: 'KB-030',
     uri: 'kb://backup/diagnostico-de-job',
@@ -299,7 +299,7 @@ export const KB_CATALOGO: ArtigoKb[] = [
     conteudo:
       'A copia imutavel e a ultima linha de defesa dos dados: nao pode ser alterada nem apagada durante a retencao. A cadeia incremental depende de cada ponto anterior, entao um ponto invalido compromete os seguintes. Antes de restaurar, verifique a integridade da cadeia e das copias para escolher uma origem integra. Nunca apague pontos de restauracao para ganhar espaco e nunca restaure sobre dados integros: as duas acoes comprometem a retencao ou sobrescrevem trabalho do dia.',
   },
-  // === Help Desk N1: Solicitacao de servico (cenarios por escala) ===
+  // === Help Desk N1: Solicitacao de servico (cenarios por etapa) ===
   {
     id: 'KB-032',
     uri: 'kb://itsm/solicitacao-de-servico',

@@ -1,6 +1,6 @@
 /**
- * Modo_de_Demonstração: atalho para conhecer todas as escalas. Este módulo não importa o cliente da API nem os
- * módulos do cartão, dos registros e dos voos ativos, e só conhece a chave `itfs_modo_demonstracao`.
+ * Modo_de_Demonstração: atalho para conhecer todas as etapas. Este módulo não importa o cliente da API nem os
+ * módulos do cartão, dos registros e das missões ativos, e só conhece a chave `itfs_modo_demonstracao`.
  */
 export const CHAVE_MODO_DEMONSTRACAO = 'itfs_modo_demonstracao'
 

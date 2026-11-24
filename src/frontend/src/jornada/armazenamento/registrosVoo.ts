@@ -35,7 +35,7 @@ export interface RegistroDeVoo {
   versaoCenario: string
   rotaId: IdRota
   escalaId: string
-  /** Preenchida quando a escala é a N3 Sênior. */
+  /** Preenchida quando a etapa é a N3 Sênior. */
   vertenteId: IdVertente | null
   /** ISO 8601. */
   concluidoEm: string
@@ -65,7 +65,7 @@ function analisarResultado(valor: unknown): ResultadoJuizCopiado | null {
 }
 
 /**
- * Valida um item. A escala e a Vertente gravadas não precisam bater com o catálogo atual: os cálculos
+ * Valida um item. A etapa e a Vertente gravadas não precisam bater com o catálogo atual: os cálculos
  * usam o catálogo pela `missao`. Missão fora do catálogo descarta o item.
  */
 export function analisarRegistro(valor: unknown): RegistroDeVoo | null {

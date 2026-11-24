@@ -27,19 +27,19 @@ describe('Página 404', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Página não encontrada' })).toBeInTheDocument()
     expect(screen.getByText('/nao-existe')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Ir para o Início/ })).toHaveAttribute('href', '/')
-    expect(screen.queryByRole('link', { name: /Plano de voo/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /Plano de Carreira/ })).not.toBeInTheDocument()
   })
 
-  it('com cartão válido oferece também o link para o Plano de voo', () => {
+  it('com cartão válido oferece também o link para o Plano de Carreira', () => {
     abrir('/nao-existe', true)
     expect(screen.getByRole('link', { name: /Ir para o Início/ })).toHaveAttribute('href', '/')
-    expect(screen.getByRole('link', { name: /Ir para o Plano de voo/ })).toHaveAttribute('href', '/plano-de-voo')
+    expect(screen.getByRole('link', { name: /Ir para o Plano de Carreira/ })).toHaveAttribute('href', '/plano-de-voo')
   })
 
-  it('missão desconhecida mostra o identificador informado e o link para o Plano de voo', () => {
+  it('missão desconhecida mostra o identificador informado e o link para o Plano de Carreira', () => {
     abrir('/cabine/inexistente', false)
     expect(screen.getByText('inexistente')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Ir para o Plano de voo/ })).toHaveAttribute('href', '/plano-de-voo')
+    expect(screen.getByRole('link', { name: /Ir para o Plano de Carreira/ })).toHaveAttribute('href', '/plano-de-voo')
     expect(screen.getByRole('link', { name: /Ir para o Início/ })).toHaveAttribute('href', '/')
   })
 })

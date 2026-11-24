@@ -60,8 +60,8 @@ export function rotaDeEmbarque(indicada: IdRota): IdRota {
 }
 
 /**
- * Cartão_de_Embarque do Check-in comum, montado depois da confirmação. `emitidoEm` é ISO 8601.
- * A rota de embarque sempre está disponível e a primeira escala é a primeira da rota.
+ * Cartão_de_Embarque do Diagnóstico comum, montado depois da confirmação. `emitidoEm` é ISO 8601.
+ * A rota de perfil sempre está disponível e a primeira etapa é a primeira da rota.
  */
 export function montarCartaoDoCheckIn(respostas: RespostasCheckIn, emitidoEm: string): CartaoEmbarque {
   const { rotaId: rotaIndicadaId } = indicarRota(respostas)

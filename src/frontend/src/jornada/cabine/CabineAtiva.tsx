@@ -3,7 +3,7 @@ import { CabecalhoDaCabine } from './CabecalhoDaCabine'
 import { TurnoDaCabine } from './TurnoDaCabine'
 import { useEstadoCabine } from './useEstadoCabine'
 
-/** Cabine com a sessão aberta: cabeçalho de progresso e turno com o mapa de chamados. */
+/** Mesa de Trabalho com a sessão aberta: cabeçalho de progresso e turno com o mapa de chamados. */
 export function CabineAtiva({ missao }: { missao: string }) {
   const { sessaoId } = useVoo()
   if (!sessaoId) return null

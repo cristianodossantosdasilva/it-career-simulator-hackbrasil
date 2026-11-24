@@ -12,12 +12,12 @@ interface Mensagem {
 interface PropsPainelComandante {
   papel: PapelComandante
   pagina: IdPagina
-  /** Só na Cabine. */
+  /** Só na Mesa de Trabalho. */
   dicaMissao?: string | null
 }
 
 /**
- * Área do Comandante: mostra o papel ativo em texto e responde só com textos locais. Não recebe
+ * Área do Mentor: mostra o papel ativo em texto e responde só com textos locais. Não recebe
  * funções de ação, de chat nem de gravação, então não gera evento no backend.
  */
 export function PainelComandante({ papel, pagina, dicaMissao = null }: PropsPainelComandante) {
@@ -45,14 +45,14 @@ export function PainelComandante({ papel, pagina, dicaMissao = null }: PropsPain
     <section className="edu-card card-b" aria-labelledby={idTitulo}>
       <h2 className="h3 row gap" id={idTitulo}>
         <Icone nome="mentor" />
-        <span>Comandante, papel {definicao.nome}</span>
+        <span>Mentor, papel {definicao.nome}</span>
       </h2>
       <p className="muted mt-1">{definicao.resumo}</p>
       {papel === 'mentor' && <p className="mt-1">{AVISO_JUIZ}.</p>}
       <div className="chat short mt" aria-live="polite">
         {mensagens.map((mensagem, indice) => (
           <div key={indice} className={`bubble ${mensagem.autor === 'comandante' ? 'ai' : 'me'}`}>
-            {mensagem.autor === 'comandante' && <div className="who">Comandante</div>}
+            {mensagem.autor === 'comandante' && <div className="who">Mentor</div>}
             {mensagem.texto}
           </div>
         ))}
@@ -77,13 +77,13 @@ export function PainelComandante({ papel, pagina, dicaMissao = null }: PropsPain
         }}
       >
         <label className="sr-only" htmlFor={idCampo}>
-          Pergunta ao Comandante
+          Pergunta ao Mentor
         </label>
         <input
           id={idCampo}
           type="text"
           className="text grow"
-          placeholder="Pergunte ao Comandante..."
+          placeholder="Pergunte ao Mentor..."
           value={pergunta}
           onChange={(evento) => setPergunta(evento.target.value)}
         />

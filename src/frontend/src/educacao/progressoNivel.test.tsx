@@ -37,9 +37,9 @@ describe('Progresso por nivel sem notas semeadas', () => {
     })
   })
 
-  it('o Brevê mostra Teoria 0%, Fixação 0% e Prática 0% nos 6 niveis, sem progresso parcial', () => {
+  it('o Portfólio mostra Teoria 0%, Fixação 0% e Prática 0% nos 6 niveis, sem progresso parcial', () => {
     abrirAplicacao('/')
-    irPeloMenu('Brevê')
+    irPeloMenu('Portfólio')
     const rotulos = screen.getAllByText('Teoria 0%, Fixação 0%, Prática 0%')
     expect(rotulos).toHaveLength(6)
     expect(within(document.body).queryByText(/Fixação 20%/)).not.toBeInTheDocument()

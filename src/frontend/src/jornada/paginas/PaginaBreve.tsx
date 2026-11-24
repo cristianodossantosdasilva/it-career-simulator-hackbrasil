@@ -69,7 +69,7 @@ function EscalaDoBreve({ escala, grupos }: { escala: Escala; grupos: readonly Gr
   )
 }
 
-/** Um bloco por escala, na ordem da rota. A N3 Sênior ganha um subgrupo por Vertente. */
+/** Um bloco por etapa, na ordem da rota. A N3 Sênior ganha um subgrupo por Vertente. */
 function agruparPorEscala(grupos: readonly GrupoBreve[]) {
   const porEscala: { escala: Escala; grupos: GrupoBreve[] }[] = []
   for (const grupo of grupos) {
@@ -81,8 +81,8 @@ function agruparPorEscala(grupos: readonly GrupoBreve[]) {
 }
 
 /**
- * Brevê: Brevê de piloto, voos registrados e Credencial. Tudo vem do Armazenamento_Local e do estado da
- * Academia, sem requisição ao servidor e sem ler o Modo_de_Demonstração. O resultado de cada voo é o
+ * Portfólio: Portfólio de analista, missões registrados e Credencial. Tudo vem do Armazenamento_Local e do estado da
+ * Academia, sem requisição ao servidor e sem ler o Modo_de_Demonstração. O resultado de cada missão é o
  * texto do Juiz 360º, copiado como foi recebido.
  */
 export function PaginaBreve() {
@@ -95,7 +95,7 @@ export function PaginaBreve() {
 
   const destinoDaPratica = useDestinoDaPratica()
 
-  /** Escala liberada (ou modo de demonstração): Cabine da missão. Bloqueada: Plano de voo, nunca a Cabine. */
+  /** Etapa liberada (ou modo de demonstração): Mesa de Trabalho da missão. Bloqueada: Plano de Carreira, nunca a Mesa de Trabalho. */
   function praticar(nivel: NivelEducacional) {
     navegar(destinoDaPratica(nivel.cenarioId).endereco)
   }
@@ -110,18 +110,18 @@ export function PaginaBreve() {
       <header>
         <h1 className="h1">{NOME_PAGINA.breve}</h1>
         <p className="pagina-jornada-texto">
-          Seus voos concluídos, guardados neste navegador, e o que falta para o Brevê de piloto.
+          Seus missões concluídos, guardados neste navegador, e o que falta para o Portfólio de analista.
         </p>
       </header>
       {visao && <SecaoBrevePiloto visao={visao} nivelTitulo={2} />}
       <section className="secao-jornada" aria-labelledby="breve-voos">
-        <h2 id="breve-voos">Voos registrados</h2>
+        <h2 id="breve-voos">Missões registrados</h2>
         {grupos.length === 0 ? (
           <div className="estado-vazio">
-            <p>Você ainda não tem voos registrados. Conclua uma missão na Cabine e ela aparece aqui.</p>
+            <p>Você ainda não tem missões registrados. Conclua uma missão na Mesa de Trabalho e ela aparece aqui.</p>
             <LinkInterno href="/plano-de-voo" className="btn btn-primary">
               <Icone nome="plano-de-voo" tamanho={20} />
-              <span>Ir para o Plano de voo</span>
+              <span>Ir para o Plano de Carreira</span>
             </LinkInterno>
           </div>
         ) : (

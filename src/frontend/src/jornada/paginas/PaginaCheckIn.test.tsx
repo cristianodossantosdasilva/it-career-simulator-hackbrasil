@@ -49,12 +49,12 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('Página Check-in', () => {
-  it('check-in completo só com teclado: indicação, confirmação, cartão gravado e link para o Plano de voo', () => {
+describe('Página Diagnóstico', () => {
+  it('diagnóstico completo só com teclado: indicação, confirmação, cartão gravado e link para o Plano de Carreira', () => {
     const espiao = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('sem rede'))
     const armazenamento = abrir()
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
-    expect(screen.getByRole('heading', { level: 1, name: 'Check-in' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Diagnóstico' })).toBeInTheDocument()
     expect(screen.getByText('Pergunta 1 de 3')).toBeInTheDocument()
 
     responder('Ajudar pessoas com tecnologia', /Continuar/)
@@ -70,10 +70,10 @@ describe('Página Check-in', () => {
     expect(screen.getByText(TEXTO_REGRA_INDICACAO)).toBeInTheDocument()
     expect(armazenamento.gravacoes).toHaveLength(0)
 
-    ativarPeloTeclado(screen.getByRole('button', { name: /Confirmar e gerar o cartão de embarque/ }))
+    ativarPeloTeclado(screen.getByRole('button', { name: /Confirmar e gerar o cartão de perfil/ }))
 
-    expect(screen.getByRole('heading', { level: 2, name: 'Cartão de embarque' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Ir para o Plano de voo/ })).toHaveAttribute('href', '/plano-de-voo')
+    expect(screen.getByRole('heading', { level: 2, name: 'Cartão de Perfil' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Ir para o Plano de Carreira/ })).toHaveAttribute('href', '/plano-de-voo')
     expect(armazenamento.gravacoes.map((g) => g.chave)).toEqual([CHAVE_CARTAO_EMBARQUE])
     const gravado = analisarCartao(armazenamento.dados.get(CHAVE_CARTAO_EMBARQUE) ?? null)
     expect(gravado).toMatchObject({ rotaId: 'suporte-ti', rotaIndicadaId: 'suporte-ti', origem: 'checkin' })
@@ -100,13 +100,13 @@ describe('Página Check-in', () => {
     expect(screen.getByRole('button', { name: /Continuar/ })).toHaveAttribute('aria-disabled', 'false')
   })
 
-  it('refazer o check-in substitui o cartão e mantém os registros', () => {
+  it('refazer o diagnóstico substitui o cartão e mantém os registros', () => {
     const registros = serializarRegistros([registroDeTeste('pasta-rede-inacessivel', 'sessao-1')])
     const armazenamento = abrir(ROTA_NORMAL, {
       [CHAVE_CARTAO_EMBARQUE]: serializarCartao(CARTAO_DE_TESTE),
       [CHAVE_REGISTROS_VOO]: registros,
     })
-    expect(screen.getByRole('status')).toHaveTextContent(/Você já tem um cartão de embarque/)
+    expect(screen.getByRole('status')).toHaveTextContent(/Você já tem um cartão de perfil/)
 
     // Rota indicada indisponível: o texto diz o status e oferece Suporte de TI.
     responder('Construir programas', /Continuar/)
@@ -127,18 +127,18 @@ describe('Página Check-in', () => {
     abrir(ROTA_SEM_CARTAO)
     const aviso = screen.getByRole('status')
     expect(aviso).toHaveAttribute('aria-live', 'polite')
-    expect(aviso).toHaveTextContent('Para abrir o Plano de voo, faça primeiro o check-in.')
+    expect(aviso).toHaveTextContent('Para abrir o Plano de Carreira, faça primeiro o diagnóstico.')
     ativarPeloTeclado(screen.getByRole('button', { name: 'Ir para a primeira pergunta' }))
     expect(document.activeElement?.tagName).toBe('LEGEND')
 
     checkInDeSuporte()
-    ativarPeloTeclado(screen.getByRole('button', { name: /Confirmar e gerar o cartão de embarque/ }))
-    expect(screen.queryByText(/faça primeiro o check-in/)).not.toBeInTheDocument()
+    ativarPeloTeclado(screen.getByRole('button', { name: /Confirmar e gerar o cartão de perfil/ }))
+    expect(screen.queryByText(/faça primeiro o diagnóstico/)).not.toBeInTheDocument()
   })
 
   it('com cartão, o motivo sem-cartao não aparece', () => {
     abrir(ROTA_SEM_CARTAO, { [CHAVE_CARTAO_EMBARQUE]: serializarCartao(CARTAO_DE_TESTE) })
-    expect(screen.queryByText(/faça primeiro o check-in/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/faça primeiro o diagnóstico/)).not.toBeInTheDocument()
   })
 
   it('avisa quando o armazenamento recusa a gravação, sem perder o cartão em memória', () => {
@@ -149,16 +149,16 @@ describe('Página Check-in', () => {
       </ProvedorArmazenamentoJornada>,
     )
     checkInDeSuporte()
-    ativarPeloTeclado(screen.getByRole('button', { name: /Confirmar e gerar o cartão de embarque/ }))
+    ativarPeloTeclado(screen.getByRole('button', { name: /Confirmar e gerar o cartão de perfil/ }))
     expect(screen.getByText(/Não foi possível guardar neste navegador/)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Ir para o Plano de voo/ })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Ir para o Plano de Carreira/ })).toBeInTheDocument()
   })
 
-  it('ao concluir o check-in mostra configuração Treino vs Missão, domínios com peso e as 5 regras', () => {
+  it('ao concluir o diagnóstico mostra configuração Treino vs Missão, domínios com peso e as 5 regras', () => {
     abrir()
     checkInDeSuporte()
-    ativarPeloTeclado(screen.getByRole('button', { name: /Confirmar e gerar o cartão de embarque/ }))
-    expect(screen.getByRole('heading', { level: 2, name: 'Configuração do voo' })).toBeInTheDocument()
+    ativarPeloTeclado(screen.getByRole('button', { name: /Confirmar e gerar o cartão de perfil/ }))
+    expect(screen.getByRole('heading', { level: 2, name: 'Configuração da missão' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Modo Treino/ })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Modo Missão/ })).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 3, name: 'Pronto para começar?' })).toBeInTheDocument()

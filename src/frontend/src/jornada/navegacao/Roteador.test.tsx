@@ -47,22 +47,22 @@ describe('Roteador com portões', () => {
     expect(window.location.pathname).toBe('/check-in')
     expect(window.location.search).toBe('?motivo=sem-cartao')
     expect(window.history.length).toBe(tamanhoAntes)
-    expect(screen.getByRole('heading', { level: 1, name: 'Check-in' })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Plano de voo' })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Diagnóstico' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Plano de Carreira' })).not.toBeInTheDocument()
   })
 
   it('cartão corrompido equivale a ausente, sem erro não tratado', () => {
     const erro = vi.spyOn(console, 'error')
     abrir('/cabine/pasta-rede-inacessivel', { [CHAVE_CARTAO_EMBARQUE]: '{"versao":1,"rotaId":' })
     expect(window.location.pathname).toBe('/check-in')
-    expect(screen.getByRole('heading', { level: 1, name: 'Check-in' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Diagnóstico' })).toBeInTheDocument()
     expect(erro).not.toHaveBeenCalled()
   })
 
-  it('com cartão, exibe o Plano de voo e repassa o aviso de escala bloqueada à Cabine', () => {
+  it('com cartão, exibe o Plano de Carreira e repassa o aviso de etapa bloqueada à Mesa de Trabalho', () => {
     const cartao = { [CHAVE_CARTAO_EMBARQUE]: serializarCartao(CARTAO_DE_TESTE) }
     abrir('/plano-de-voo', cartao)
-    expect(screen.getByRole('heading', { level: 1, name: 'Plano de voo' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Plano de Carreira' })).toBeInTheDocument()
     cleanup()
     abrir('/cabine/incidente-massivo', cartao)
     expect(window.location.pathname).toBe('/cabine/incidente-massivo')

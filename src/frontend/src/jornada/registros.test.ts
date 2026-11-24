@@ -8,7 +8,7 @@ import { agruparRegistros } from './progressoRota'
 
 const AGORA = new Date('2026-11-20T15:00:00.000Z')
 
-describe('Registro_de_Voo e agrupamento do Brevê', () => {
+describe('Registro_de_Voo e agrupamento do Portfólio', () => {
   it('Feature: jornada-de-voo, Property 16: Registro fiel ao Juiz e idempotente (fidelidade)', () => {
     paraTodo(
       'registro copia a avaliação campo a campo',
@@ -55,7 +55,7 @@ describe('Registro_de_Voo e agrupamento do Brevê', () => {
     )
   })
 
-  it('Feature: jornada-de-voo, Property 17: Agrupamento do Brevê', () => {
+  it('Feature: jornada-de-voo, Property 17: Agrupamento do Portfólio', () => {
     const ordemGrupos = ROTA_SUPORTE.escalas.flatMap((escala) =>
       escala.vertentes.length > 0 ? escala.vertentes.map((v) => `${escala.id}/${v.id}`) : [`${escala.id}/`],
     )

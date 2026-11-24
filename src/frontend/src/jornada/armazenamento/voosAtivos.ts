@@ -4,7 +4,7 @@ import { analisarObjetoJson, ehObjeto, gravarChave, lerChave } from './leituraSe
 
 export const CHAVE_VOOS_ATIVOS = 'itfs_voos_ativos'
 
-/** Sessão aberta por missão, para que a Cabine retome o voo em vez de criar outro (Requirement 7.2). */
+/** Sessão aberta por missão, para que a Mesa de Trabalho retome a missão em vez de criar outro (Requirement 7.2). */
 export interface VoosAtivos {
   versao: 1
   ultimaMissao: IdMissao | null
@@ -13,7 +13,7 @@ export interface VoosAtivos {
 
 export const VOOS_ATIVOS_VAZIO: VoosAtivos = { versao: 1, ultimaMissao: null, porMissao: {} }
 
-/** Pura e total: mantém só as entradas válidas. Texto inválido equivale a nenhum voo ativo. */
+/** Pura e total: mantém só as entradas válidas. Texto inválido equivale a nenhum missão ativo. */
 export function analisarVoosAtivos(texto: string | null): VoosAtivos {
   const dado = analisarObjetoJson(texto)
   if (!dado || dado.versao !== 1) return VOOS_ATIVOS_VAZIO
@@ -42,7 +42,7 @@ export function gravarVoosAtivos(armazenamento: Pick<Storage, 'setItem'>, voos: 
   return gravarChave(armazenamento, CHAVE_VOOS_ATIVOS, serializarVoosAtivos(voos))
 }
 
-/** Pura: marca a sessão como voo ativo da missão e como último voo. */
+/** Pura: marca a sessão como missão ativo da missão e como último missão. */
 export function comVooAtivo(voos: VoosAtivos, missao: IdMissao, sessaoId: string): VoosAtivos {
   return { versao: 1, ultimaMissao: missao, porMissao: { ...voos.porMissao, [missao]: sessaoId } }
 }

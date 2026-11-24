@@ -26,11 +26,11 @@ export function PaginaInicio() {
             <div className="acoes-linha">
               <LinkInterno href="/plano-de-voo" className="btn btn-primary btn-lg">
                 <Icone nome="plano-de-voo" tamanho={20} />
-                <span>Ir para o Plano de voo</span>
+                <span>Ir para o Plano de Carreira</span>
               </LinkInterno>
               <LinkInterno href="/check-in" className="btn btn-secondary btn-lg">
                 <Icone nome="check-in" tamanho={20} />
-                <span>Refazer o check-in</span>
+                <span>Refazer o diagnóstico</span>
               </LinkInterno>
             </div>
             <BotaoExperimentar />
@@ -41,7 +41,7 @@ export function PaginaInicio() {
             <div className="acoes-linha">
               <LinkInterno href="/check-in" className="btn btn-secondary btn-lg">
                 <Icone nome="check-in" tamanho={20} />
-                <span>Fazer o check-in completo</span>
+                <span>Fazer o diagnóstico completo</span>
               </LinkInterno>
             </div>
           </>
@@ -55,7 +55,7 @@ export function PaginaInicio() {
           </h2>
           {ultimaLocal ? (
             <div className="cartao-missao">
-              <p className="eyebrow">Voo em andamento</p>
+              <p className="eyebrow">Missão em andamento</p>
               <h3 className="cartao-missao-titulo">{ultimaLocal.missao.titulo}</h3>
               <p className="muted">
                 Escala: {ultimaLocal.escala.nome} · Sessão salva neste navegador
@@ -85,7 +85,7 @@ export function PaginaInicio() {
               <p className="pagina-jornada-texto">
                 {registros.length > 0
                   ? `Você já registrou ${registros.length} ${registros.length === 1 ? 'missão concluída' : 'missões concluídas'}.`
-                  : 'Seu cartão de embarque está pronto. Configure o modo Treino ou Missão no Plano de voo.'}
+                  : 'Seu cartão de perfil está pronto. Configure o modo Treino ou Missão no Plano de Carreira.'}
               </p>
               <div className="acoes-linha">
                 <LinkInterno href="/plano-de-voo" className="btn btn-primary">
@@ -106,12 +106,12 @@ export function PaginaInicio() {
           {cartao ? (
             <LinkInterno href="/plano-de-voo" className="btn btn-secondary">
               <Icone nome="plano-de-voo" tamanho={20} />
-              <span>Configurar voo (Treino ou Missão)</span>
+              <span>Configurar missão (Treino ou Missão)</span>
             </LinkInterno>
           ) : (
             <LinkInterno href="/check-in" className="btn btn-secondary">
               <Icone nome="check-in" tamanho={20} />
-              <span>Iniciar Check-in</span>
+              <span>Iniciar Diagnóstico</span>
             </LinkInterno>
           )}
           <LinkInterno href="/aulas" className="btn btn-secondary">
@@ -120,7 +120,7 @@ export function PaginaInicio() {
           </LinkInterno>
           <LinkInterno href="/breve" className="btn btn-secondary">
             <Icone nome="credencial" tamanho={20} />
-            <span>Brevê e histórico</span>
+            <span>Portfólio e histórico</span>
           </LinkInterno>
           <LinkInterno href="/caderno" className="btn btn-secondary">
             <Icone nome="caderno" tamanho={20} />
@@ -128,7 +128,7 @@ export function PaginaInicio() {
           </LinkInterno>
           <LinkInterno href="/comandante" className="btn btn-secondary">
             <Icone nome="mentor" tamanho={20} />
-            <span>Comandante</span>
+            <span>Mentor</span>
           </LinkInterno>
         </div>
       </section>

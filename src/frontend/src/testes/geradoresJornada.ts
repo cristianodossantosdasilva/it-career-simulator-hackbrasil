@@ -69,7 +69,7 @@ export function gerarAvaliacao(g: Gerador, concluida = true): AvaliacaoResponse 
 export function gerarRegistro(g: Gerador, sessaoId: string, missao: IdMissao = g.escolher(MISSOES_CATALOGO)): RegistroDeVoo {
   const local = escalaDaMissao(missao)
   const avaliacao = gerarAvaliacao(g)
-  // Escala e Vertente gravadas às vezes divergem do catálogo atual, como num registro antigo.
+  // Etapa e Vertente gravadas às vezes divergem do catálogo atual, como num registro antigo.
   const divergente = g.inteiro(0, 3) === 0
   return {
     versao: 1,

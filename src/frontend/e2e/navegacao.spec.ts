@@ -64,25 +64,25 @@ async function ativarPorTeclado(page: Page, alvo: Locator) {
 }
 
 const ITENS_DO_MENU = [
-  { nome: 'Plano de voo', caminho: '/plano-de-voo' },
-  { nome: 'Brevê', caminho: '/breve' },
-  { nome: 'Hangar', caminho: '/hangar' },
+  { nome: 'Plano de Carreira', caminho: '/plano-de-voo' },
+  { nome: 'Portfólio', caminho: '/breve' },
+  { nome: 'Catálogo', caminho: '/hangar' },
   { nome: 'Aulas', caminho: '/aulas' },
   { nome: 'Caderno', caminho: '/caderno' },
-  { nome: 'Comandante', caminho: '/comandante' },
+  { nome: 'Mentor', caminho: '/comandante' },
   { nome: 'Início', caminho: '/' },
 ] as const
 
 const ENDERECOS = [
   { caminho: '/', h1: 'Início' },
-  { caminho: '/check-in', h1: 'Check-in' },
-  { caminho: '/plano-de-voo', h1: 'Plano de voo' },
-  { caminho: '/breve', h1: 'Brevê' },
-  { caminho: '/hangar', h1: 'Hangar' },
+  { caminho: '/check-in', h1: 'Diagnóstico' },
+  { caminho: '/plano-de-voo', h1: 'Plano de Carreira' },
+  { caminho: '/breve', h1: 'Portfólio' },
+  { caminho: '/hangar', h1: 'Catálogo' },
   { caminho: '/aulas', h1: 'Aulas' },
   { caminho: '/aulas/treino', h1: 'Treino de explicação' },
   { caminho: '/caderno', h1: 'Caderno de estudos' },
-  { caminho: '/comandante', h1: 'Comandante' },
+  { caminho: '/comandante', h1: 'Mentor' },
 ] as const
 
 test.describe('Navegação por endereços', () => {
@@ -104,19 +104,19 @@ test.describe('Navegação por endereços', () => {
 
   test('voltar e avançar do navegador percorrem as páginas visitadas', async ({ page }) => {
     await page.goto('/')
-    await menu(page).getByRole('link', { name: 'Plano de voo' }).click()
-    await menu(page).getByRole('link', { name: 'Brevê' }).click()
+    await menu(page).getByRole('link', { name: 'Plano de Carreira' }).click()
+    await menu(page).getByRole('link', { name: 'Portfólio' }).click()
     await menu(page).getByRole('link', { name: 'Caderno' }).click()
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Caderno de estudos')
     await page.goBack()
     await expect(page).toHaveURL(/\/breve$/)
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Brevê')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Portfólio')
     await page.goBack()
     await expect(page).toHaveURL(/\/plano-de-voo$/)
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Plano de voo')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Plano de Carreira')
     await page.goForward()
     await expect(page).toHaveURL(/\/breve$/)
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Brevê')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Portfólio')
   })
 
   for (const endereco of ENDERECOS) {
@@ -132,7 +132,7 @@ test.describe('Navegação por endereços', () => {
 
   test('depois de navegar, o foco vai ao h1, que tem o nome da página no início do título e contorno visível', async ({ page }) => {
     await page.goto('/')
-    for (const nome of ['Plano de voo', 'Brevê', 'Aulas', 'Comandante']) {
+    for (const nome of ['Plano de Carreira', 'Portfólio', 'Aulas', 'Mentor']) {
       await menu(page).getByRole('link', { name: nome }).click()
       const titulo = page.locator('#conteudo-pagina h1')
       await expect(titulo).toBeFocused()
@@ -164,7 +164,7 @@ test.describe('Navegação por endereços', () => {
     expect([...posicoes].sort((a, b) => a - b)).toEqual(posicoes)
   })
 
-  test('/nao-existe e /cabine/inexistente mostram a página 404', async ({ page }) => {
+  test('/nao-existe e /mesa de trabalho/inexistente mostram a página 404', async ({ page }) => {
     const criacoes = contarCriacoesDeSessao(page)
     for (const caminho of ['/nao-existe', '/cabine/inexistente']) {
       await page.goto(caminho)
@@ -176,13 +176,13 @@ test.describe('Navegação por endereços', () => {
   test('/cabine/pasta-rede-inacessivel sem o registro da Help Desk N1 mostra o aviso da escala e não cria sessão', async ({ page }) => {
     const criacoes = contarCriacoesDeSessao(page)
     await page.goto('/cabine/pasta-rede-inacessivel')
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Cabine')
-    await expect(page.getByText(/A escala Service Desk N1 Jr ainda não está liberada/)).toBeVisible()
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Mesa de Trabalho')
+    await expect(page.getByText(/A etapa Service Desk N1 Jr ainda não está liberada/)).toBeVisible()
     expect(criacoes()).toBe(0)
   })
 })
 
-test.describe('Portão do cartão de embarque', () => {
+test.describe('Portão do cartão de perfil', () => {
   test('sem cartão, /plano-de-voo termina em /check-in sem acrescentar uma entrada de histórico', async ({ page }) => {
     await page.goto('/')
     const antes = await tamanhoDoHistorico(page)
@@ -195,10 +195,10 @@ test.describe('Portão do cartão de embarque', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Início')
   })
 
-  test('sem cartão, o item Plano de voo do menu também termina no Check-in', async ({ page }) => {
+  test('sem cartão, o item Plano de Carreira do menu também termina no Diagnóstico', async ({ page }) => {
     await page.goto('/')
     const antes = await tamanhoDoHistorico(page)
-    await menu(page).getByRole('link', { name: 'Plano de voo' }).click()
+    await menu(page).getByRole('link', { name: 'Plano de Carreira' }).click()
     await expect(page).toHaveURL(/\/check-in\?motivo=sem-cartao$/)
     expect(await tamanhoDoHistorico(page)).toBe(antes + 1)
     await page.goBack()
@@ -207,10 +207,10 @@ test.describe('Portão do cartão de embarque', () => {
 })
 
 test.describe('Fluxo completo com o servidor local', () => {
-  test('do Check-in à Cabine só com o teclado, sem criar sessão ao recarregar nem ao ir a Aulas', async ({ page }) => {
+  test('do Diagnóstico à Mesa de Trabalho só com o teclado, sem criar sessão ao recarregar nem ao ir a Aulas', async ({ page }) => {
     const criacoes = contarCriacoesDeSessao(page)
     await page.goto('/check-in')
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Check-in')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Diagnóstico')
 
     await escolherPorTeclado(page, 'Ajudar pessoas com tecnologia')
     await ativarPorTeclado(page, page.getByRole('button', { name: 'Continuar' }))
@@ -218,38 +218,38 @@ test.describe('Fluxo completo com o servidor local', () => {
     await ativarPorTeclado(page, page.getByRole('button', { name: 'Continuar' }))
     await escolherPorTeclado(page, 'Indo direto para o chamado')
     await ativarPorTeclado(page, page.getByRole('button', { name: 'Ver indicação' }))
-    await ativarPorTeclado(page, page.getByRole('button', { name: /Confirmar e gerar o cartão de embarque/ }))
-    await ativarPorTeclado(page, page.getByRole('link', { name: /Ir para o Plano de voo/ }))
+    await ativarPorTeclado(page, page.getByRole('button', { name: /Confirmar e gerar o cartão de perfil/ }))
+    await ativarPorTeclado(page, page.getByRole('link', { name: /Ir para o Plano de Carreira/ }))
     await expect(page).toHaveURL(/\/plano-de-voo$/)
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Plano de voo')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Plano de Carreira')
     expect(criacoes()).toBe(0)
 
     const resposta = page.waitForResponse(
       (r) => r.request().method() === 'POST' && new URL(r.url()).pathname === '/api/sessoes',
     )
-    await ativarPorTeclado(page, page.getByRole('button', { name: 'Iniciar primeiro voo' }))
+    await ativarPorTeclado(page, page.getByRole('button', { name: 'Iniciar primeiro missão' }))
     const criada = await resposta
     expect(criada.status(), await criada.text()).toBeLessThan(300)
     await expect(page).toHaveURL(new RegExp(`/cabine/${MISSAO_LIBERADA_SEM_REGISTROS}$`))
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Cabine')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Mesa de Trabalho')
     await expect(page.getByRole('heading', { name: /CH-\d+/ }).first()).toBeVisible()
     expect(criacoes()).toBe(1)
 
-    // Recarregar a Cabine retoma a sessão guardada e não cria outra.
+    // Recarregar a Mesa de Trabalho retoma a sessão guardada e não cria outra.
     await page.reload()
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Cabine')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Mesa de Trabalho')
     await expect(page.getByRole('heading', { name: /CH-\d+/ }).first()).toBeVisible()
     expect(criacoes()).toBe(1)
 
     // Ir a Aulas e voltar pelo menu também não cria sessão.
     await menu(page).getByRole('link', { name: 'Aulas' }).click()
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Aulas')
-    await menu(page).getByRole('link', { name: 'Cabine' }).click()
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Cabine')
+    await menu(page).getByRole('link', { name: 'Mesa de Trabalho' }).click()
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Mesa de Trabalho')
     await expect(page.getByRole('heading', { name: /CH-\d+/ }).first()).toBeVisible()
     expect(criacoes()).toBe(1)
 
-    // Caixa-preta e Brevê abrem depois de uma missão liberada sem registros anteriores.
+    // Caixa-preta e Portfólio abrem depois de uma missão liberada sem registros anteriores.
     const sessaoId = await page.evaluate(
       ([chave, missao]) => {
         const voos = JSON.parse(window.localStorage.getItem(chave) ?? '{}') as { porMissao?: Record<string, string> }
@@ -260,8 +260,8 @@ test.describe('Fluxo completo com o servidor local', () => {
     expect(sessaoId).toMatch(/^[A-Za-z0-9-]{1,64}$/)
     await page.goto(`/caixa-preta/${sessaoId}`)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Caixa-preta')
-    await menu(page).getByRole('link', { name: 'Brevê' }).click()
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Brevê')
+    await menu(page).getByRole('link', { name: 'Portfólio' }).click()
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Portfólio')
     expect(criacoes()).toBe(1)
   })
 })

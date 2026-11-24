@@ -70,21 +70,21 @@ describe('Páginas de estudo', () => {
     expect(screen.getByText('Nova página')).toBeInTheDocument()
   })
 
-  it('Comandante: quatro papéis, o que cada um faz e não faz, e os limites do guia', () => {
+  it('Mentor: quatro papéis, o que cada um faz e não faz, e os limites do guia', () => {
     abrir(<PaginaComandante />)
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
-    expect(screen.getByRole('heading', { level: 1, name: 'Comandante' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Mentor' })).toBeInTheDocument()
     const papeis = screen.getAllByRole('heading', { level: 3 }).map((titulo) => titulo.textContent)
     expect(papeis).toEqual(['Consultor', 'Instrutor', 'Copiloto', 'Mentor'])
-    expect(screen.getByText('Atua em: Caixa-preta e Brevê.')).toBeInTheDocument()
+    expect(screen.getByText('Atua em: Caixa-preta e Portfólio.')).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2, name: 'O que este guia não faz' })).toBeInTheDocument()
     expect(screen.getByText('Não promete emprego, salário nem resultado.')).toBeInTheDocument()
   })
 
-  it('Hangar: um único h1 e as rotas do catálogo com o status em texto', () => {
+  it('Catálogo: um único h1 e as rotas do catálogo com o status em texto', () => {
     abrir(<PaginaHangar />)
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
-    expect(screen.getByRole('heading', { level: 1, name: 'Hangar' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Catálogo' })).toBeInTheDocument()
     const rotas = within(screen.getByRole('heading', { level: 2, name: 'Rotas' }).closest('section') as HTMLElement)
     expect(rotas.getByRole('heading', { level: 3, name: 'Suporte de TI' })).toBeInTheDocument()
     expect(rotas.getByText('Disponível')).toBeInTheDocument()
@@ -109,8 +109,8 @@ const registrosAte = (...missoes: IdMissao[]) => ({
   [CHAVE_REGISTROS_VOO]: serializarRegistros(missoes.map((missao, i) => registroDeTeste(missao, `sessao-${i}`))),
 })
 
-describe('Prática a partir das Aulas respeita os portões da Cabine', () => {
-  it('Praticar agora da primeira aula leva à Cabine de reset-senha-desbloqueio, sem aviso de bloqueio', () => {
+describe('Prática a partir das Aulas respeita os portões da Mesa de Trabalho', () => {
+  it('Praticar agora da primeira aula leva à Mesa de Trabalho de reset-senha-desbloqueio, sem aviso de bloqueio', () => {
     abrir(aulasEm(null))
     expect(screen.getByRole('heading', { level: 2, name: 'O que faz o Suporte de TI (e o que é um chamado)' })).toBeInTheDocument()
     concluirPrimeiraAula()
@@ -119,40 +119,40 @@ describe('Prática a partir das Aulas respeita os portões da Cabine', () => {
     expect(window.location.pathname).toBe('/cabine/reset-senha-desbloqueio')
   })
 
-  it('o botão do nível também leva à primeira missão do nível quando a escala está liberada', () => {
+  it('o botão do nível também leva à primeira missão do nível quando a etapa está liberada', () => {
     abrir(aulasEm('help-desk-n1'))
     fireEvent.click(screen.getByRole('button', { name: 'Praticar no laboratório' }))
     expect(window.location.pathname).toBe('/cabine/reset-senha-desbloqueio')
   })
 
-  it('com a escala bloqueada, a prática não leva à Cabine: mostra o estado e leva ao Plano de voo', () => {
+  it('com a etapa bloqueada, a prática não leva à Mesa de Trabalho: mostra o estado e leva ao Plano de Carreira', () => {
     abrir(aulasEm('n2-pleno'))
     expect(screen.queryByRole('button', { name: 'Praticar no laboratório' })).not.toBeInTheDocument()
-    const botao = screen.getByRole('button', { name: 'Ver o Plano de voo' })
-    expect(screen.getByText(/A escala N2 Pleno ainda não está liberada\. Conclua as missões disponíveis de Service Desk N1 Jr/)).toBeInTheDocument()
+    const botao = screen.getByRole('button', { name: 'Ver o Plano de Carreira' })
+    expect(screen.getByText(/A etapa N2 Pleno ainda não está liberada\. Conclua as missões disponíveis de Service Desk N1 Jr/)).toBeInTheDocument()
     expect(botao).toHaveAccessibleDescription(/ainda não está liberada/)
     fireEvent.click(botao)
     expect(window.location.pathname).toBe('/plano-de-voo')
   })
 
-  it('com a escala bloqueada, Praticar agora da aula também leva ao Plano de voo', () => {
+  it('com a etapa bloqueada, Praticar agora da aula também leva ao Plano de Carreira', () => {
     abrir(aulasEm('n2-pleno'))
     fireEvent.click(screen.getByRole('button', { name: /mostrar alternativas/i }))
     fireEvent.click(screen.getByRole('button', { name: /^B\)/ }))
     fireEvent.click(screen.getByRole('button', { name: /^Bom/ }))
-    const botoes = screen.getAllByRole('button', { name: 'Ver o Plano de voo' })
+    const botoes = screen.getAllByRole('button', { name: 'Ver o Plano de Carreira' })
     fireEvent.click(botoes[botoes.length - 1])
     expect(window.location.pathname).toBe('/plano-de-voo')
   })
 
-  it('com os registros das escalas anteriores, a N2 Pleno leva à Cabine de incidente-massivo', () => {
+  it('com os registros das etapas anteriores, a N2 Pleno leva à Mesa de Trabalho de incidente-massivo', () => {
     abrir(aulasEm('n2-pleno'), registrosAte('reset-senha-desbloqueio', 'pasta-rede-inacessivel'))
     expect(screen.queryByText(/ainda não está liberada/)).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Praticar no laboratório' }))
     expect(window.location.pathname).toBe('/cabine/incidente-massivo')
   })
 
-  it('com o modo de demonstração ativo, a escala bloqueada leva à Cabine', () => {
+  it('com o modo de demonstração ativo, a etapa bloqueada leva à Mesa de Trabalho', () => {
     const modo = serializarModoDemonstracao({ versao: 1, ativo: true, origem: 'plano-de-voo', alteradoEm: '2026-11-20T12:00:00.000Z' })
     abrir(aulasEm('n3-b-data-center-backup'), { [CHAVE_MODO_DEMONSTRACAO]: modo })
     fireEvent.click(screen.getByRole('button', { name: 'Praticar no laboratório' }))

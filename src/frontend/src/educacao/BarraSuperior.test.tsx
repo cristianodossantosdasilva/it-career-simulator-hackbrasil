@@ -34,20 +34,20 @@ describe('BarraSuperior por links', () => {
   it('marca o item da página com aria-current e mostra o nome da página na barra de contexto', () => {
     renderizar('plano-de-voo')
     const nav = navegacao()
-    const plano = within(nav).getByRole('link', { name: 'Plano de voo' })
+    const plano = within(nav).getByRole('link', { name: 'Plano de Carreira' })
     expect(plano).toHaveAttribute('href', '/plano-de-voo')
     expect(plano).toHaveAttribute('aria-current', 'page')
     expect(plano).toHaveClass('active')
     expect(within(nav).getByRole('link', { name: 'Início' })).not.toHaveAttribute('aria-current')
-    expect(document.querySelector('.barra-contexto-local')).toHaveTextContent('Plano de voo')
+    expect(document.querySelector('.barra-contexto-local')).toHaveTextContent('Plano de Carreira')
   })
 
-  it('mostra a Cabine só com voo ativo', () => {
+  it('mostra a Mesa de Trabalho só com missão ativo', () => {
     renderizar('inicio')
-    expect(within(navegacao()).queryByRole('link', { name: 'Cabine' })).not.toBeInTheDocument()
+    expect(within(navegacao()).queryByRole('link', { name: 'Mesa de Trabalho' })).not.toBeInTheDocument()
     cleanup()
     renderizar('cabine', 'incidente-massivo')
-    const cabine = within(navegacao()).getByRole('link', { name: 'Cabine' })
+    const cabine = within(navegacao()).getByRole('link', { name: 'Mesa de Trabalho' })
     expect(cabine).toHaveAttribute('href', '/cabine/incidente-massivo')
     expect(cabine).toHaveAttribute('aria-current', 'page')
   })
@@ -69,7 +69,7 @@ describe('BarraSuperior por links', () => {
     expect(mais).toHaveAttribute('aria-expanded', 'true')
     expect(lista).toBeVisible()
     const links = within(lista as HTMLElement).getAllByRole('link')
-    expect(links.map((l) => l.textContent)).toEqual(['Hangar', 'Aulas', 'Caderno', 'Comandante'])
+    expect(links.map((l) => l.textContent)).toEqual(['Catálogo', 'Aulas', 'Caderno', 'Mentor'])
     expect(links[0]).toHaveFocus()
     expect(within(lista as HTMLElement).queryByRole('group', { name: 'Tema da interface' })).not.toBeInTheDocument()
     expect(within(document.querySelector('.barra-contexto') as HTMLElement).getByRole('button', { name: 'Aparência' })).toBeInTheDocument()
@@ -85,7 +85,7 @@ describe('BarraSuperior por links', () => {
     fireEvent.click(mais)
     const lista = document.getElementById('nav-mais') as HTMLElement
     act(() => {
-      fireEvent.click(within(lista).getByRole('link', { name: 'Hangar' }))
+      fireEvent.click(within(lista).getByRole('link', { name: 'Catálogo' }))
     })
     expect(window.location.pathname).toBe('/hangar')
     expect(mais).toHaveAttribute('aria-expanded', 'false')

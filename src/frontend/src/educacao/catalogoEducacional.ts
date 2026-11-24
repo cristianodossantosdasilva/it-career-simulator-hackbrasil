@@ -9,7 +9,7 @@ import {
 import { type NomeIcone, ehNomeIcone } from '../ui/catalogoIcones'
 
 /**
- * Nível de estudo: uma escala do Catálogo de Rotas ou, na N3 Sênior, uma Vertente. O identificador é o do
+ * Nível de estudo: uma etapa do Catálogo de Rotas ou, na N3 Sênior, uma Vertente. O identificador é o do
  * catálogo: help-desk-n1, service-desk-n1-jr, n2-pleno, n3-a-redes-nuvem, n3-b-data-center-backup e
  * n3-c-seguranca-dados.
  */
@@ -17,7 +17,7 @@ export type NivelId = 'help-desk-n1' | 'service-desk-n1-jr' | 'n2-pleno' | IdVer
 
 export interface NivelEducacional {
   id: NivelId
-  /** Nome exibido, igual ao da escala ou da Vertente no Catálogo de Rotas. */
+  /** Nome exibido, igual ao da etapa ou da Vertente no Catálogo de Rotas. */
   nome: string
   /** Missões do catálogo que o nível pratica, na ordem do catálogo. */
   cenarioIds: readonly IdMissao[]
@@ -122,8 +122,8 @@ function niveisDaEscala(escala: Escala): NivelEducacional[] {
 }
 
 /**
- * Trilha de estudo: uma entrada por escala do Catálogo de Rotas, e uma por Vertente na N3 Sênior, na
- * ordem do catálogo. Escala, nome e cenários vêm do catálogo; aqui só ficam ícone e subtítulo.
+ * Trilha de estudo: uma entrada por etapa do Catálogo de Rotas, e uma por Vertente na N3 Sênior, na
+ * ordem do catálogo. Etapa, nome e cenários vêm do catálogo; aqui só ficam ícone e subtítulo.
  */
 export const LEVELS: NivelEducacional[] = CATALOGO_ROTAS[0].escalas.flatMap(niveisDaEscala)
 
@@ -1184,7 +1184,7 @@ export function obterProximaAcao(estado: EstadoAcademia) {
         level: L.id,
         cenarioId,
         title: `Laboratório: ${textosDoCenario(cenarioId).titulo}`,
-        meta: `Prática guiada no cockpit, ${L.nome}, cerca de 15 min`,
+        meta: `Prática guiada no mesa de trabalho, ${L.nome}, cerca de 15 min`,
         act: 'lab' as const,
         cta: 'Entrar no laboratório',
       }

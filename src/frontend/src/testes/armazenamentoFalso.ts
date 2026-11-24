@@ -52,7 +52,7 @@ export const CARTAO_DE_TESTE: CartaoEmbarque = {
   emitidoEm: '2026-11-20T12:00:00.000Z',
 }
 
-/** Registro válido da missão, com escala e Vertente do catálogo atual. */
+/** Registro válido da missão, com etapa e Vertente do catálogo atual. */
 export function registroDeTeste(missao: IdMissao, sessaoId: string): RegistroDeVoo {
   const local = escalaDaMissao(missao)
   if (!local) throw new Error(`missão fora do catálogo: ${missao}`)

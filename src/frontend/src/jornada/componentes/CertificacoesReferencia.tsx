@@ -7,14 +7,14 @@ interface PropsCertificacoesReferencia {
   itens: readonly VisaoItemCatalogo[]
   /** Texto do título da lista. */
   titulo?: string
-  /** h3 no Plano de voo, h2 na seção própria do Hangar. */
+  /** h3 no Plano de Carreira, h2 na seção própria do Catálogo. */
   nivelTitulo: 2 | 3
 }
 
 /**
  * Certificações de referência de mercado com o status do mapeamento de conteúdo em texto e ícone e o
  * aviso fixo de que não há parceria, equivalência nem emissão. Não renderiza nada sem itens. É um grupo e
- * não uma região, porque o Plano de voo repete a lista em cada escala e landmarks de mesmo nome violam o axe.
+ * não uma região, porque o Plano de Carreira repete a lista em cada etapa e landmarks de mesmo nome violam o axe.
  */
 export function CertificacoesReferencia({
   itens,

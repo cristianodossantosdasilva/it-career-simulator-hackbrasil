@@ -24,7 +24,7 @@ describe('catalogoNavegacao', () => {
     )
   })
 
-  it('páginas de fluxo não marcam item, e a Cabine some sem voo ativo', () => {
+  it('páginas de fluxo não marcam item, e a Mesa de Trabalho some sem missão ativo', () => {
     for (const pagina of ['check-in', 'caixa-preta', 'treino', 'nao-encontrada'] as const) {
       expect(itemAtivoDoMenu(pagina)).toBeNull()
     }

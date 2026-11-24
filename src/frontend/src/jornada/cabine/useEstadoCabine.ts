@@ -7,7 +7,7 @@ import {
   lerModoCabine,
 } from './filaDeChamados'
 
-/** Estado local da Cabine: modo (Treino ou Missão), chamado em foco e chamados marcados para revisar. */
+/** Estado local da Mesa de Trabalho: modo (Treino ou Missão), chamado em foco e chamados marcados para revisar. */
 export function useEstadoCabine(sessaoId: string) {
   const [modo, definirModo] = useState<ModoCabine>(lerModoCabine)
   const [focoId, setFocoId] = useState<string | null>(null)

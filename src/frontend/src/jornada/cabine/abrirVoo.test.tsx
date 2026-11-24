@@ -207,7 +207,7 @@ describe('abrirVoo', () => {
     const resultados = montar('sre-cloud-latencia', armazenamento, (v) => (voo = v))
     await waitFor(() => expect(resultados.length).toBeGreaterThan(0))
     const resumos = () => chamadas.filter((c) => c.url.includes('/api/carreira/resumo'))
-    // A abertura do voo já pede o resumo uma vez.
+    // A abertura da missão já pede o resumo uma vez.
     await waitFor(() => expect(resumos()).toHaveLength(1))
     await act(async () => {
       await voo?.executarAcao('itsm.resolver', { nota: 'ok' })

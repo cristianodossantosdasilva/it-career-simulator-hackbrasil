@@ -853,7 +853,7 @@ a.nav-item { display: inline-flex; align-items: center; justify-content: center;
 
 
 /* Desktop largo: o rótulo de cada destino fica sempre visível abaixo do ícone, sem depender de hover.
-   A partir de 1024 px, para a Cabine não estourar a largura em tablet (768 px), onde o menu segue só com ícones. */
+   A partir de 1024 px, para a Mesa de Trabalho não estourar a largura em tablet (768 px), onde o menu segue só com ícones. */
 @media (min-width: 1024px) {
   :root { --rail-width: 88px; }
   .nav-principal-lista { padding: 0 var(--space-1); }
@@ -1233,7 +1233,7 @@ a.dock-btn { text-decoration: none; }
   .lab-split.com-gaveta > .cockpit-drawer { max-height: none; }
 }
 
-/* ===== Home: Primeiro Voo, missoes, perfil e credencial ===== */
+/* ===== Home: Primeiro Missão, missoes, perfil e credencial ===== */
 
 .primeiro-voo {
   display: grid;
@@ -1651,7 +1651,7 @@ input[aria-label="Buscar na Base de Conhecimento"] { min-width: 260px; }
 .detalhes-tecnicos[open] > summary::before,
 .evento-bruto[open] > summary::before { transform: rotate(45deg); }
 
-/* Jornada de voo: páginas Início, Check-in, Plano de voo, Cabine, Caixa-preta, Brevê, Hangar, Aulas e Comandante. Só tokens. */
+/* Jornada de missão: páginas Início, Diagnóstico, Plano de Carreira, Mesa de Trabalho, Caixa-preta, Portfólio, Catálogo, Aulas e Mentor. Só tokens. */
 .pagina-jornada { display: flex; flex-direction: column; gap: var(--space-6); min-width: 0; }
 .pagina-jornada > header { display: flex; flex-direction: column; gap: var(--space-2); }
 .pagina-jornada-texto { max-width: var(--measure); color: var(--text-secondary); line-height: var(--line-height-read); }
@@ -1666,7 +1666,7 @@ input[aria-label="Buscar na Base de Conhecimento"] { min-width: 260px; }
 .passo-jornada p { margin: var(--space-1) 0 0; color: var(--text-secondary); font-size: var(--font-size-base); }
 .estado-vazio { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); padding: var(--space-5); background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); }
 
-/* Cabine */
+/* Mesa de Trabalho */
 .cabine-titulo { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-3); padding: var(--space-2) var(--space-4); background: var(--bg-surface); border-bottom: 1px solid var(--border-strong); min-height: var(--context-bar-height); }
 .cabine-titulo h1 { font-size: var(--font-size-md); font-weight: var(--font-weight-bold); color: var(--text-primary); }
 
@@ -1702,7 +1702,7 @@ input[aria-label="Buscar na Base de Conhecimento"] { min-width: 260px; }
 .resposta-checkin-rapido dt { color: var(--text-secondary); font-size: var(--font-size-base); }
 .resposta-checkin-rapido dd { margin: var(--space-1) 0 0; color: var(--text-primary); font-weight: var(--font-weight-semibold); }
 
-/* Escalas, vertentes e cartões de missão */
+/* Etapas, vertentes e cartões de missão */
 .lista-escalas { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-5); }
 .escala { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-5); background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); min-width: 0; }
 .escala-bloqueada { background: var(--bg-elevated); }
@@ -1722,7 +1722,7 @@ input[aria-label="Buscar na Base de Conhecimento"] { min-width: 260px; }
 .convite-copiloto, .opcoes-avancadas { padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); }
 .opcoes-avancadas summary { display: flex; align-items: center; min-height: var(--touch-target); cursor: pointer; font-weight: var(--font-weight-medium); color: var(--text-primary); }
 
-/* Check-in */
+/* Diagnóstico */
 .checkin-progresso { margin: 0; font-size: var(--font-size-sm); color: var(--text-secondary); }
 .checkin-pergunta { margin: 0; padding: 0; border: 0; min-width: 0; display: flex; flex-direction: column; gap: var(--space-3); }
 .checkin-pergunta legend { padding: 0; font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--text-primary); }
@@ -1739,7 +1739,7 @@ input[aria-label="Buscar na Base de Conhecimento"] { min-width: 260px; }
 .demonstracao-checkin { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-5); background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); }
 .demonstracao-checkin-resposta { margin: 0; padding: var(--space-3) var(--space-4); background: var(--bg-elevated); border-left: 4px solid var(--accent-primary); border-radius: var(--radius-sm); max-width: var(--measure); line-height: var(--line-height-read); }
 
-/* Cartão de embarque */
+/* Cartão de Perfil */
 .cartao-embarque { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-5); background: var(--bg-surface); border: 1px solid var(--border-strong); border-left: 6px solid var(--accent-primary); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
 .cartao-embarque-titulo { display: flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-lg); color: var(--text-primary); }
 .cartao-embarque-dados { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-3); }
@@ -1748,7 +1748,7 @@ input[aria-label="Buscar na Base de Conhecimento"] { min-width: 260px; }
 .cartao-embarque-acoes { display: flex; flex-wrap: wrap; gap: var(--space-3); }
 .cartao-embarque-acoes .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); }
 
-/* Brevê, registros e Caixa-preta */
+/* Portfólio, registros e Caixa-preta */
 .breve-piloto { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-5); background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); }
 .breve-piloto-conquistado { background: var(--status-success-surface); border-color: var(--status-success); }
 .breve-piloto-titulo { font-size: var(--font-size-xl); color: var(--text-primary); }
@@ -1765,7 +1765,7 @@ input[aria-label="Buscar na Base de Conhecimento"] { min-width: 260px; }
 .registro-voo-meta { font-size: var(--font-size-sm); color: var(--text-secondary); }
 .resumo-local { padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); display: flex; flex-direction: column; gap: var(--space-3); }
 
-/* Hangar e Comandante */
+/* Catálogo e Mentor */
 .lista-rotas-hangar { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-3); }
 .rota-hangar { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md); min-width: 0; }
 .rota-hangar h2, .rota-hangar h3 { font-size: var(--font-size-md); color: var(--text-primary); }

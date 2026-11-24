@@ -1,4 +1,4 @@
-# IT Flight Simulator
+# IT Career Simulator
 
 Escola técnica digital de aprender fazendo. A pessoa pratica a rotina real de uma profissão de TI, com chamados, ferramentas e decisões em um ambiente simulado, e revê o que fez depois.
 
@@ -12,47 +12,47 @@ Projeto do time **CVE-K** (Cristiano dos Santos da Silva, Enzo Modesto Nasciment
 
 Faltam pessoas na base da área de TI: técnicos de suporte, atendentes de service desk e operadores de infraestrutura. Quem quer entrar na área costuma abandonar a formação antes de ver o trabalho de perto, por escolher o curso sem saber como é a rotina.
 
-O IT Flight Simulator ataca os dois pontos:
+O IT Career Simulator ataca os dois pontos:
 
-- **Aprender fazendo.** Cada missão é um chamado da empresa fictícia Aurora Logística. A pessoa investiga, age, escala e registra, como num posto de trabalho.
-- **Consultoria vocacional antes da formação.** O Check-in indica por onde começar, a partir de respostas curtas, e deixa a pessoa experimentar o trabalho antes de se comprometer. Isso reduz a evasão causada por escolha às cegas.
+- **Aprender fazendo.** Cada missão é um chamado da empresa fictícia Aurora Logística. A pessoa investiga, age, etapa e registra, como num posto de trabalho.
+- **Consultoria vocacional antes da formação.** O Diagnóstico indica por onde começar, a partir de respostas curtas, e deixa a pessoa experimentar o trabalho antes de se comprometer. Isso reduz a evasão causada por escolha às cegas.
 
-## A narrativa do voo
+## A narrativa da missão
 
-Todo o produto usa a metáfora de um voo. A pessoa evolui de **Passageiro** a **Copiloto** e a **Piloto**: primeiro observa e faz o Check-in, depois atua com apoio, e por fim conduz o atendimento sozinha.
+Todo o produto usa a metáfora de uma missão. A pessoa evolui de **Passageiro** a **Copiloto** e a **Analista**: primeiro observa e faz o Diagnóstico, depois atua com apoio, e por fim conduz o atendimento sozinha.
 
-O **Comandante** acompanha o voo em quatro papéis:
+O **Mentor** acompanha a missão em quatro papéis:
 
 | Papel | O que faz |
 | --- | --- |
-| Consultor | Explica o Check-in, mostra o que cada rota pratica e indica o próximo passo. |
-| Instrutor | Explica as escalas, as missões e o que libera a próxima etapa. |
-| Copiloto | Dá dicas durante o atendimento, na Cabine. |
-| Mentor | Ajuda a ler a linha do tempo do voo e a planejar o próximo treino. |
+| Consultor | Explica o Diagnóstico, mostra o que cada rota pratica e indica o próximo passo. |
+| Instrutor | Explica as etapas, as missões e o que libera a próxima etapa. |
+| Copiloto | Dá dicas durante o atendimento, na Mesa de Trabalho. |
+| Mentor | Ajuda a ler a linha do tempo da missão e a planejar o próximo treino. |
 
-O Comandante orienta, não altera estado e não avalia. A avaliação técnica vem do Juiz 360º, que lê eventos observáveis calculados pelo motor determinístico.
+O Mentor orienta, não altera estado e não avalia. A avaliação técnica vem do Juiz 360º, que lê eventos observáveis calculados pelo motor determinístico.
 
 ## Páginas
 
 | Rota | Página | Função |
 | --- | --- | --- |
 | `/` | Início | Apresenta a proposta e o atalho para experimentar. |
-| `/check-in` | Check-in | Consultoria vocacional: respostas curtas e indicação de rota. |
-| `/plano-de-voo` | Plano de voo | Rota indicada, escalas e modo de demonstração. |
-| `/cabine/:missao` | Cabine | Atendimento da missão, com ITSM, Chat, SimuDesk e Intranet. |
+| `/check-in` | Diagnóstico | Consultoria vocacional: respostas curtas e indicação de rota. |
+| `/plano-de-voo` | Plano de Carreira | Rota indicada, etapas e modo de demonstração. |
+| `/cabine/:missao` | Mesa de Trabalho | Atendimento da missão, com ITSM, Chat, SimuDesk e Intranet. |
 | `/caixa-preta/:sessao` | Caixa-preta | Replay e debrief da sessão, com o Juiz 360º. |
-| `/breve` | Brevê | Voos registrados e acompanhamento do brevê de piloto. |
-| `/hangar` | Hangar | Catálogo de escalas, vertentes e referências de certificação. |
+| `/breve` | Portfólio | Missões registrados e acompanhamento do portfólio de analista. |
+| `/hangar` | Catálogo | Catálogo de etapas, vertentes e referências de certificação. |
 | `/aulas` | Aulas | Microaulas por nível. |
 | `/aulas/treino` | Treino de explicação | Prática de explicar o conteúdo com as próprias palavras. |
 | `/caderno` | Caderno | Anotações e plano de estudos. |
-| `/comandante` | Comandante | Conversa com os quatro papéis do guia. |
+| `/comandante` | Mentor | Conversa com os quatro papéis do guia. |
 
-## Escalas e cenários
+## Etapas e cenários
 
-A rota **Suporte de TI** tem quatro escalas. A N3 Sênior se divide em três vertentes. Os sete cenários jogáveis rodam de ponta a ponta no motor determinístico. Cada cenário sorteia a causa por semente, ou aceita uma causa forçada.
+A rota **Suporte de TI** tem quatro etapas. A N3 Sênior se divide em três vertentes. Os sete cenários jogáveis rodam de ponta a ponta no motor determinístico. Cada cenário sorteia a causa por semente, ou aceita uma causa forçada.
 
-| Escala | Cenário | Causas |
+| Etapa | Cenário | Causas |
 | --- | --- | --- |
 | Help Desk N1 | `reset-senha-desbloqueio` | `SENHA_ESQUECIDA`, `CONTA_BLOQUEADA`, `SENHA_EXPIRADA` |
 | Service Desk N1 Jr | `pasta-rede-inacessivel` | `C1`, `C2`, `C3`, `C4` |
@@ -66,9 +66,9 @@ A tabela completa, com comandos, eventos e critérios do Juiz 360º de cada caus
 
 ## Modo de demonstração para a banca
 
-Quem avalia não precisa fazer o Check-in completo. O atalho **Experimentar**, na página Início, leva ao Check-in rápido e depois à Cabine com a missão de demonstração (`pasta-rede-inacessivel`). O modo também pode ser ligado e desligado no Plano de voo.
+Quem avalia não precisa fazer o Diagnóstico completo. O atalho **Experimentar**, na página Início, leva ao Diagnóstico rápido e depois à Mesa de Trabalho com a missão de demonstração (`pasta-rede-inacessivel`). O modo também pode ser ligado e desligado no Plano de Carreira.
 
-O modo libera as escalas e não conta como voo concluído. Ele não cria Registro de Voo por si só, mas um voo concluído grava Registro de Voo, com o modo ligado ou não. O modo usa uma chave própria no navegador (`itfs_modo_demonstracao`). Os dados são sintéticos e as sessões são anônimas.
+O modo libera as etapas e não conta como missão concluído. Ele não cria Registro de Missão por si só, mas uma missão concluído grava Registro de Missão, com o modo ligado ou não. O modo usa uma chave própria no navegador (`itfs_modo_demonstracao`). Os dados são sintéticos e as sessões são anônimas.
 
 ## Arquitetura
 
@@ -132,7 +132,7 @@ Contagens medidas em **2026-11-18**, branch `jornada-de-voo`:
 
 ## Documentação
 
-- [Cenários por escala](docs/CENARIOS_POR_ESCALA.md)
+- [Cenários por etapa](docs/CENARIOS_POR_ESCALA.md)
 - [PRD](docs/PRD_HACKATHON.md)
 - [Arquitetura técnica](docs/ARQUITETURA_HACKATHON.md)
 - [Planejamento pedagógico e matriz de 560 horas](docs/PLANEJAMENTO_PEDAGOGICO_E_MATRIZ_560H.md)

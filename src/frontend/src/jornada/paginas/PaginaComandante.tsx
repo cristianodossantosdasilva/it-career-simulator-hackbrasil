@@ -9,14 +9,14 @@ function paginasDoPapel(papel: PapelComandante): string {
   return paginas.map((pagina) => NOME_PAGINA[pagina]).join(' e ')
 }
 
-/** Explica os quatro papéis do Comandante, o que cada um faz e não faz, e os limites do guia. */
+/** Explica os quatro papéis do Mentor, o que cada um faz e não faz, e os limites do guia. */
 export function PaginaComandante() {
   return (
     <div className="page pagina-jornada">
       <header>
         <h1 className="h1">{NOME_PAGINA.comandante}</h1>
         <p className="pagina-jornada-texto">
-          O Comandante é o guia da jornada. Ele muda de papel conforme a fase em que você está e só orienta, com textos
+          O Mentor é o guia da jornada. Ele muda de papel conforme a fase em que você está e só orienta, com textos
           escritos para esta plataforma.
         </p>
         <p className="muted">{TEXTOS_HOME.guiaRotulo}</p>

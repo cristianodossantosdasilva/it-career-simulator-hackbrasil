@@ -40,11 +40,11 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('Página Plano de voo', () => {
-  it('tem um único h1 e as escalas na ordem da rota, cada uma com h2', () => {
+describe('Página Plano de Carreira', () => {
+  it('tem um único h1 e as etapas na ordem da rota, cada uma com h2', () => {
     abrir()
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
-    expect(screen.getByRole('heading', { level: 1, name: 'Plano de voo' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Plano de Carreira' })).toBeInTheDocument()
     const nomes = ['Help Desk N1', 'Service Desk N1 Jr', 'N2 Pleno', 'N3 Sênior']
     const titulos = screen.getAllByRole('heading', { level: 2 }).map((titulo) => titulo.textContent)
     const posicoes = nomes.map((nome) => titulos.indexOf(nome))
@@ -52,17 +52,17 @@ describe('Página Plano de voo', () => {
     expect([...posicoes].sort((a, b) => a - b)).toEqual(posicoes)
   })
 
-  it('escala bloqueada mostra o ícone, a escala necessária e o Embarcar desabilitado', () => {
+  it('etapa bloqueada mostra o ícone, a etapa necessária e o Embarcar desabilitado', () => {
     abrir()
     const cartao = cartaoDa('incidente-massivo')
     expect(within(cartao).getByText('Bloqueada')).toBeInTheDocument()
     const embarcar = within(cartao).getByRole('button', { name: /Embarcar/ })
     expect(embarcar).toBeDisabled()
     expect(within(cartao).queryByRole('link', { name: /Embarcar/ })).not.toBeInTheDocument()
-    expect(screen.getByText(/Para liberar esta escala, conclua as missões disponíveis de Service Desk N1 Jr\./)).toBeInTheDocument()
+    expect(screen.getByText(/Para liberar esta etapa, conclua as missões disponíveis de Service Desk N1 Jr\./)).toBeInTheDocument()
   })
 
-  it('a escala seguinte libera depois dos registros da anterior', () => {
+  it('a etapa seguinte libera depois dos registros da anterior', () => {
     abrir(['pasta-rede-inacessivel'])
     const cartao = cartaoDa('incidente-massivo')
     expect(within(cartao).queryByRole('button', { name: /Embarcar/ })).not.toBeInTheDocument()
@@ -118,7 +118,7 @@ describe('Página Plano de voo', () => {
     expect(texto).not.toContain('DOMINIO_SUSPENSO')
   })
 
-  it('o Embarcar leva à Cabine sem causa nem semente', () => {
+  it('o Embarcar leva à Mesa de Trabalho sem causa nem semente', () => {
     abrir(['reset-senha-desbloqueio', 'pasta-rede-inacessivel', 'incidente-massivo'])
     for (const missao of ['reset-senha-desbloqueio', 'pasta-rede-inacessivel', 'incidente-massivo', 'sre-cloud-latencia'] as const) {
       const href = within(cartaoDa(missao)).getByRole('link', { name: /Embarcar/ }).getAttribute('href')
@@ -127,7 +127,7 @@ describe('Página Plano de voo', () => {
     }
   })
 
-  it('as opções avançadas só oferecem links de escalas liberadas e pedem uma semente válida', () => {
+  it('as opções avançadas só oferecem links de etapas liberadas e pedem uma semente válida', () => {
     abrir()
     const semRegistro = screen.getByText('Opções avançadas para teste').closest('details') as HTMLElement
     expect(within(semRegistro).queryByRole('link', { name: /Demo rápida/ })).not.toBeInTheDocument()
@@ -158,11 +158,11 @@ describe('Página Plano de voo', () => {
     expect(rede).not.toHaveBeenCalled()
   })
 
-  it('mostra o Comandante no papel Instrutor', () => {
+  it('mostra o Mentor no papel Instrutor', () => {
     abrir()
-    expect(screen.getByRole('heading', { name: /Comandante, papel Instrutor/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Mentor, papel Instrutor/ })).toBeInTheDocument()
   })
-  it('mostra as certificações de cada escala com o status em texto e o aviso fixo', () => {
+  it('mostra as certificações de cada etapa com o status em texto e o aviso fixo', () => {
     abrir()
     const escala = (nome: string) => screen.getByRole('heading', { level: 2, name: nome }).closest('section') as HTMLElement
     const certificacoesDe = (nome: string) =>
@@ -186,7 +186,7 @@ describe('Página Plano de voo', () => {
 
   it('permite alternar entre Modo Treino e Modo Missão, filtrar domínios com peso e exibe as 5 regras', () => {
     abrir()
-    expect(screen.getByRole('heading', { level: 2, name: 'Configuração do voo' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'Configuração da missão' })).toBeInTheDocument()
     const grupoModo = screen.getByRole('group', { name: 'Modo de operação' })
     const treino = within(grupoModo).getByRole('button', { name: /Modo Treino/ })
     const missao = within(grupoModo).getByRole('button', { name: /Modo Missão/ })

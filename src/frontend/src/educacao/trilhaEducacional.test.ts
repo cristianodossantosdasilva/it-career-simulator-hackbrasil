@@ -32,7 +32,7 @@ const NOMES_DA_TRILHA = [
 ]
 
 describe('Trilha educacional derivada do Catálogo de Rotas', () => {
-  it('segue as escalas e as Vertentes do catálogo, na mesma ordem e com os mesmos nomes', () => {
+  it('segue as etapas e as Vertentes do catálogo, na mesma ordem e com os mesmos nomes', () => {
     expect(LEVELS.map((nivel) => nivel.nome)).toEqual(NOMES_DA_TRILHA)
     const esperados = ROTA.escalas.flatMap((escala) =>
       escala.vertentes.length > 0 ? escala.vertentes.map((vertente) => vertente.id) : [escala.id],
@@ -40,7 +40,7 @@ describe('Trilha educacional derivada do Catálogo de Rotas', () => {
     expect(LEVELS.map((nivel) => nivel.id)).toEqual(esperados)
   })
 
-  it('para cada nível, o cenário de prática pertence à escala (ou Vertente) de mesmo nome', () => {
+  it('para cada nível, o cenário de prática pertence à etapa (ou Vertente) de mesmo nome', () => {
     for (const nivel of LEVELS) {
       const local = escalaDaMissao(nivel.cenarioId)
       expect(local, nivel.id).not.toBeNull()
@@ -62,7 +62,7 @@ describe('Trilha educacional derivada do Catálogo de Rotas', () => {
     expect(LEVELS.flatMap((nivel) => nivel.cenarioIds).sort()).toEqual([...todas].sort())
   })
 
-  it('a primeira aula pratica uma missão da primeira escala', () => {
+  it('a primeira aula pratica uma missão da primeira etapa', () => {
     const primeiraEscala = ROTA.escalas[0]
     const primeiraAula = LESSONS[LEVELS[0].id][0]
     expect(primeiraAula.title).toBe('O que faz o Suporte de TI (e o que é um chamado)')

@@ -5,9 +5,9 @@ import { VOOS_ATIVOS_VAZIO } from '../armazenamento/voosAtivos'
 import { decidirInicioCabine } from './decidirInicioCabine'
 
 describe('decidirInicioCabine', () => {
-  it('Feature: jornada-de-voo, Property 14: Abertura da cabine nunca duplica sessão', () => {
+  it('Feature: jornada-de-voo, Property 14: Abertura da mesa de trabalho nunca duplica sessão', () => {
     paraTodo(
-      'abertura da cabine',
+      'abertura da mesa de trabalho',
       (g) => ({
         missao: g.escolher(MISSOES_CATALOGO),
         emMemoria: g.inteiro(0, 2) === 0 ? null : { cenarioId: g.escolher(MISSOES_CATALOGO) },

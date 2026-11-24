@@ -20,7 +20,7 @@ function abrir(registrados: readonly IdMissao[] = []) {
 }
 
 function secaoBreve(): HTMLElement {
-  return screen.getByRole('heading', { name: 'Brevê de piloto' }).closest('section') as HTMLElement
+  return screen.getByRole('heading', { name: 'Portfólio de analista' }).closest('section') as HTMLElement
 }
 
 beforeEach(() => {
@@ -32,16 +32,16 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('Página Brevê', () => {
-  it('sem registros mostra o estado vazio com link para o Plano de voo e um único h1', () => {
+describe('Página Portfólio', () => {
+  it('sem registros mostra o estado vazio com link para o Plano de Carreira e um único h1', () => {
     abrir()
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
-    expect(screen.getByRole('heading', { level: 1, name: 'Brevê' })).toBeInTheDocument()
-    expect(screen.getByText(/Você ainda não tem voos registrados/)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Ir para o Plano de voo/ })).toHaveAttribute('href', '/plano-de-voo')
+    expect(screen.getByRole('heading', { level: 1, name: 'Portfólio' })).toBeInTheDocument()
+    expect(screen.getByText(/Você ainda não tem missões registrados/)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Ir para o Plano de Carreira/ })).toHaveAttribute('href', '/plano-de-voo')
   })
 
-  it('agrupa os registros por escala e, na N3 Sênior, por Vertente, com o resultado como recebido e o link da sessão', () => {
+  it('agrupa os registros por etapa e, na N3 Sênior, por Vertente, com o resultado como recebido e o link da sessão', () => {
     abrir(['pasta-rede-inacessivel', 'sre-cloud-latencia', 'diagnostico-sql-readonly'])
     expect(screen.getByRole('heading', { level: 3, name: 'Service Desk N1 Jr' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 3, name: 'N3 Sênior' })).toBeInTheDocument()
@@ -52,23 +52,23 @@ describe('Página Brevê', () => {
     const grupoA = screen.getByRole('group', { name: 'N3-A Redes e Nuvem' })
     expect(within(grupoA).getByText('Resultado do Juiz 360º: Atendimento concluído.')).toBeInTheDocument()
     expect(within(grupoA).getByRole('link', { name: /Abrir a Caixa-preta/ })).toHaveAttribute('href', '/caixa-preta/sessao-1')
-    expect(screen.queryByText(/Você ainda não tem voos registrados/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Você ainda não tem missões registrados/)).not.toBeInTheDocument()
   })
 
   it('mostra as quatro exigências pendentes, sem texto de aguardo', () => {
     abrir()
     const secao = secaoBreve()
-    expect(within(secao).getByText('Brevê de piloto pendente')).toBeInTheDocument()
+    expect(within(secao).getByText('Portfólio de analista pendente')).toBeInTheDocument()
     const itens = within(secao).getAllByRole('listitem')
     expect(itens).toHaveLength(4)
     for (const item of itens) expect(within(item).getByText('Pendente')).toBeInTheDocument()
     for (const item of itens) expect(within(item).queryByText('Aguarda missão em preparação no simulador.')).not.toBeInTheDocument()
   })
 
-  it('mostra o Brevê de piloto conquistado, com texto, quando as quatro exigências estão cumpridas', () => {
+  it('mostra o Portfólio de analista conquistado, com texto, quando as quatro exigências estão cumpridas', () => {
     abrir(['reset-senha-desbloqueio', 'pasta-rede-inacessivel', 'incidente-massivo', 'sre-cloud-latencia'])
     const secao = secaoBreve()
-    expect(within(secao).getByText('Brevê de piloto conquistado')).toBeInTheDocument()
+    expect(within(secao).getByText('Portfólio de analista conquistado')).toBeInTheDocument()
     for (const item of within(secao).getAllByRole('listitem')) expect(within(item).getByText('Cumprida')).toBeInTheDocument()
   })
 
@@ -78,10 +78,10 @@ describe('Página Brevê', () => {
     expect(rede).not.toHaveBeenCalled()
   })
 
-  it('mostra a Credencial com título de nível 2 e o Comandante no papel Mentor', () => {
+  it('mostra a Credencial com título de nível 2 e o Mentor no papel Mentor', () => {
     abrir()
     expect(screen.getByRole('heading', { level: 2, name: 'Credencial' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: /Comandante, papel Mentor/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Mentor, papel Mentor/ })).toBeInTheDocument()
   })
 })
 
@@ -103,25 +103,25 @@ describe('Credencial: atalhos de prática respeitam os portões', () => {
     ])
   })
 
-  it('escala liberada: Praticar leva à Cabine da missão', () => {
+  it('etapa liberada: Praticar leva à Mesa de Trabalho da missão', () => {
     abrir()
     fireEvent.click(within(linhaDoNivel('Help Desk N1')).getByRole('button', { name: 'Praticar' }))
     expect(window.location.pathname).toBe('/cabine/reset-senha-desbloqueio')
   })
 
-  it('escala bloqueada: mostra o estado e leva ao Plano de voo, nunca à Cabine', () => {
+  it('etapa bloqueada: mostra o estado e leva ao Plano de Carreira, nunca à Mesa de Trabalho', () => {
     window.history.replaceState(null, '', '/breve')
     abrir()
     const linha = linhaDoNivel('N2 Pleno')
     expect(within(linha).queryByRole('button', { name: 'Praticar' })).not.toBeInTheDocument()
-    expect(within(linha).getByText(/A escala N2 Pleno ainda não está liberada/)).toBeInTheDocument()
-    const botao = within(linha).getByRole('button', { name: 'Ver o Plano de voo' })
+    expect(within(linha).getByText(/A etapa N2 Pleno ainda não está liberada/)).toBeInTheDocument()
+    const botao = within(linha).getByRole('button', { name: 'Ver o Plano de Carreira' })
     expect(botao).toHaveAccessibleDescription(/ainda não está liberada/)
     fireEvent.click(botao)
     expect(window.location.pathname).toBe('/plano-de-voo')
   })
 
-  it('com os registros anteriores, a N2 Pleno passa a levar à Cabine', () => {
+  it('com os registros anteriores, a N2 Pleno passa a levar à Mesa de Trabalho', () => {
     abrir(['reset-senha-desbloqueio', 'pasta-rede-inacessivel'])
     const linha = linhaDoNivel('N2 Pleno')
     expect(within(linha).queryByText(/ainda não está liberada/)).not.toBeInTheDocument()

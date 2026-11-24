@@ -8,8 +8,8 @@ import { navegar } from './navegacao/navegador'
 import { type IdPagina, enderecoDe } from './navegacao/rotas'
 
 /**
- * Barra de navegação da moldura. Reúne os dados da Academia, do voo em memória e dos voos guardados
- * neste navegador. O item Cabine só aparece com voo ativo: sessão em memória ou última missão guardada.
+ * Barra de navegação da moldura. Reúne os dados da Academia, da missão em memória e das missões guardados
+ * neste navegador. O item Mesa de Trabalho só aparece com missão ativo: sessão em memória ou última missão guardada.
  */
 export function BarraDaJornada({ pagina }: { pagina: IdPagina }) {
   const { estadoAcademia, atualizarEstadoAcademia, resumoCarreira, pomodoro } = useAcademia()

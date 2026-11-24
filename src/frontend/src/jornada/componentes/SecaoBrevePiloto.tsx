@@ -4,13 +4,13 @@ import type { VisaoBrevePiloto } from '../progressoRota'
 
 interface PropsSecaoBrevePiloto {
   visao: VisaoBrevePiloto
-  /** Nível do título da seção. Na página Brevê, h2. */
+  /** Nível do título da seção. Na página Portfólio, h2. */
   nivelTitulo?: 2 | 3
 }
 
 export const TEXTO_AGUARDA_PREPARACAO = 'Aguarda missão em preparação no simulador.'
 
-/** Brevê de piloto: estado e as quatro exigências, sempre em texto e ícone. */
+/** Portfólio de analista: estado e as quatro exigências, sempre em texto e ícone. */
 export function SecaoBrevePiloto({ visao, nivelTitulo = 2 }: PropsSecaoBrevePiloto) {
   const Titulo = nivelTitulo === 2 ? 'h2' : 'h3'
   const idTitulo = useId()
@@ -20,11 +20,11 @@ export function SecaoBrevePiloto({ visao, nivelTitulo = 2 }: PropsSecaoBrevePilo
       aria-labelledby={idTitulo}
     >
       <Titulo className="breve-piloto-titulo" id={idTitulo}>
-        Brevê de piloto
+        Portfólio de analista
       </Titulo>
       <p className="breve-piloto-estado">
         <Icone nome={visao.conquistado ? 'breve' : 'pendente'} tamanho={20} />
-        <strong>{visao.conquistado ? 'Brevê de piloto conquistado' : 'Brevê de piloto pendente'}</strong>
+        <strong>{visao.conquistado ? 'Portfólio de analista conquistado' : 'Portfólio de analista pendente'}</strong>
       </p>
       <ul className="breve-piloto-lista">
         {visao.exigencias.map((exigencia) => (

@@ -135,7 +135,7 @@ function ResultadoMissao({ replay, aoAbrirKb }: PropsResultadoMissao) {
         </LinkInterno>
         <LinkInterno href="/breve" className="btn btn-secondary">
           <Icone nome="credencial" tamanho={20} />
-          <span>Ver o Brevê</span>
+          <span>Ver o Portfólio</span>
         </LinkInterno>
       </div>
 
@@ -300,14 +300,14 @@ export function PaginaCaixaPreta({ rota }: { rota: RotaCaixaPreta }) {
   }
 
   const registro = registros.find((item) => item.sessaoId === sessao) ?? null
-  const linkBreve = { tipo: 'link', rotulo: 'Ver o Brevê', href: enderecoDe({ pagina: 'breve' }) } as const
+  const linkBreve = { tipo: 'link', rotulo: 'Ver o Portfólio', href: enderecoDe({ pagina: 'breve' }) } as const
 
   return (
     <div className="page pagina-jornada">
       <header>
         <h1 className="h1">{NOME_PAGINA['caixa-preta']}</h1>
         <p className="pagina-jornada-texto">
-          Resultado da missão, competências avaliadas pelo Juiz 360º e linha do tempo do voo.
+          Resultado da missão, competências avaliadas pelo Juiz 360º e linha do tempo da missão.
         </p>
       </header>
       {estado.tipo === 'carregando' && (

@@ -4,7 +4,7 @@ import { PAPEIS, type PapelComandante } from './catalogoComandante'
 
 export interface ContextoComandante {
   readonly pagina: IdPagina
-  /** Só na Cabine: próximo passo lido da projeção que o backend já devolveu. */
+  /** Só na Mesa de Trabalho: próximo passo lido da projeção que o backend já devolveu. */
   readonly dicaMissao: string | null
 }
 

@@ -48,7 +48,7 @@ function salvarSessaoId(id: string): string[] {
 }
 
 /**
- * Estado da Academia, do voo e do Armazenamento_Local acima do Roteador, para que a sessão e o
+ * Estado da Academia, da missão e do Armazenamento_Local acima do Roteador, para que a sessão e o
  * cronômetro continuem em memória quando a pessoa troca de página.
  */
 export function ProvedorJornada({ children, armazenamento }: { children: ReactNode; armazenamento?: Storage }) {
@@ -59,7 +59,7 @@ export function ProvedorJornada({ children, armazenamento }: { children: ReactNo
   )
 }
 
-/** Estado da Academia e do voo em memória, compartilhado pelas páginas por rota. */
+/** Estado da Academia e da missão em memória, compartilhado pelas páginas por rota. */
 function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
   // Academia
   const [estadoAcademia, setEstadoAcademia] = useState<EstadoAcademia>(() => carregarEstadoAcademia())
@@ -80,7 +80,7 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
   )
   const pomodoro = usePomodoro(creditarMinutos)
 
-  // Voo
+  // Missão
   const [sessaoId, setSessaoId] = useState<string | null>(null)
   const [sessao, setSessao] = useState<SessaoProjecao | null>(null)
   const [aba, setAba] = useState<Aba>('itsm')
@@ -146,7 +146,7 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
 
   const [registroRecente, setRegistroRecente] = useState<RegistroDeVoo | null>(null)
   const [falhaRegistro, setFalhaRegistro] = useState(false)
-  /** Sessão em memória lida fora do ciclo de renderização, para a decisão de abertura da Cabine. */
+  /** Sessão em memória lida fora do ciclo de renderização, para a decisão de abertura da Mesa de Trabalho. */
   const sessaoAtualRef = useRef<SessaoProjecao | null>(null)
   const sessaoIdAtualRef = useRef<string | null>(null)
   function definirSessao(id: string, proj: SessaoProjecao) {
@@ -160,7 +160,7 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
     setSessao(proj)
   }
 
-  /** Estado de cabine novo para um turno que acabou de abrir, como em iniciarSessao antes da jornada. */
+  /** Estado de mesa de trabalho novo para um turno que acabou de abrir, como em iniciarSessao antes da jornada. */
   function prepararTurno(id: string, proj: SessaoProjecao, cenarioId: string) {
     // Identificador fora do catálogo (nivel nulo) mantém o foco de estudo que o aluno já tinha.
     const nivel = nivelPorCenarioId(cenarioId)
@@ -220,7 +220,7 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
   }
 
   /**
-   * Abre o voo da missão: usa a sessão em memória, retoma a registrada ou cria outra. Uma promessa
+   * Abre a missão da missão: usa a sessão em memória, retoma a registrada ou cria outra. Uma promessa
    * em andamento por missão evita que a dupla execução de efeitos do StrictMode crie duas sessões.
    */
   const executarAberturaRef = useRef(executarAbertura)
@@ -251,7 +251,7 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
       if (!registro) return
       armazenamentoJornada.registrarVoo(registro)
       setRegistroRecente(registro)
-      // O resumo da carreira acompanha o voo concluído sem o aluno precisar pedir. Só a Cabine chega aqui.
+      // O resumo da carreira acompanha a missão concluído sem o aluno precisar pedir. Só a Mesa de Trabalho chega aqui.
       void atualizarResumoCarreira()
     } catch {
       setFalhaRegistro(true)

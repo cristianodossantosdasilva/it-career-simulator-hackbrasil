@@ -40,7 +40,7 @@ const ARMAZENAMENTO_INDISPONIVEL: Storage = {
 }
 
 /**
- * Cartão, registros, voos ativos e modo de demonstração lidos uma vez, por inicialização preguiçosa. Não importa o cliente
+ * Cartão, registros, missões ativos e modo de demonstração lidos uma vez, por inicialização preguiçosa. Não importa o cliente
  * da API: este contexto só lê e grava o Armazenamento_Local.
  */
 export function ProvedorArmazenamentoJornada({

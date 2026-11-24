@@ -8,11 +8,11 @@ export type OrigemCartao = 'checkin' | 'checkin-rapido'
 
 export interface CartaoEmbarque {
   versao: 1
-  /** Versão do roteiro do check-in, por exemplo `checkin-v1`. */
+  /** Versão do roteiro do diagnóstico, por exemplo `checkin-v1`. */
   versaoRoteiro: string
   /** Resultado de indicarRota, inclusive rota ainda indisponível. */
   rotaIndicadaId: IdRota
-  /** Rota de embarque, sempre com status disponível. */
+  /** Rota de perfil, sempre com status disponível. */
   rotaId: IdRota
   primeiraEscalaId: string
   respostas: Readonly<Record<PerguntaCheckIn, string>>

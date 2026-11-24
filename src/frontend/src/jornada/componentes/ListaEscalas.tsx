@@ -13,14 +13,14 @@ const ESTADO_ESCALA: Record<VisaoEscala['estado'], { texto: string; icone: NomeI
   concluida: { texto: 'Concluída', icone: 'confirmar' },
 }
 
-export const TEXTO_ESCALA_EM_PREPARACAO = 'As missões desta escala estão em preparação no simulador.'
+export const TEXTO_ESCALA_EM_PREPARACAO = 'As missões desta etapa estão em preparação no simulador.'
 
 function EscalaDoPlano({ visao, anterior }: { visao: VisaoEscala; anterior: VisaoEscala | null }) {
   const idTitulo = useId()
   const estado = ESTADO_ESCALA[visao.estado]
   const bloqueada = visao.estado === 'bloqueada'
   return (
-    <section className={bloqueada ? 'escala escala-bloqueada' : 'escala'} aria-labelledby={idTitulo}>
+    <section className={bloqueada ? 'etapa escala-bloqueada' : 'escala'} aria-labelledby={idTitulo}>
       <div className="escala-cabecalho">
         <h2 id={idTitulo}>{visao.escala.nome}</h2>
         <span className="escala-estado">
@@ -32,7 +32,7 @@ function EscalaDoPlano({ visao, anterior }: { visao: VisaoEscala; anterior: Visa
       <p className="escala-nota">{visao.escala.descricao}</p>
       {bloqueada && visao.escalaNecessaria && (
         <p className="escala-nota">
-          Para liberar esta escala, conclua as missões disponíveis de {visao.escalaNecessaria.nome}.
+          Para liberar esta etapa, conclua as missões disponíveis de {visao.escalaNecessaria.nome}.
         </p>
       )}
       {visao.liberadaPorDemonstracao && anterior && (
@@ -64,7 +64,7 @@ function EscalaDoPlano({ visao, anterior }: { visao: VisaoEscala; anterior: Visa
   )
 }
 
-/** Escalas da rota na ordem do catálogo, cada uma como `section` com h2. */
+/** Etapas da rota na ordem do catálogo, cada uma como `section` com h2. */
 export function ListaEscalas({ visoes }: { visoes: readonly VisaoEscala[] }) {
   return (
     <ol className="lista-escalas">

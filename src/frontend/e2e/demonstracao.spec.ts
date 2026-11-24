@@ -7,7 +7,7 @@ import { CHECKIN_RAPIDO, ROTEIRO_CHECKIN, rotuloDaResposta } from '../src/jornad
 import { textosDaMissao } from '../src/jornada/componentes/textosDaMissao'
 import { CARTAO_DE_TESTE } from '../src/testes/armazenamentoFalso'
 
-const NOME_CONTROLE = 'Liberar todas as escalas para demonstração'
+const NOME_CONTROLE = 'Liberar todas as etapas para demonstração'
 const CARTAO = serializarCartao(CARTAO_DE_TESTE)
 const MODO_ATIVO = serializarModoDemonstracao({
   versao: 1,
@@ -86,11 +86,11 @@ test.afterEach(() => {
 })
 
 test.describe('Modo de demonstração', () => {
-  test('atalho sem cartão: check-in rápido, Cabine, modo ativo e uma única sessão', async ({ page }) => {
+  test('atalho sem cartão: diagnóstico rápido, Mesa de Trabalho, modo ativo e uma única sessão', async ({ page }) => {
     await page.goto('/')
     await page.getByRole('button', { name: 'Atender meu primeiro chamado' }).click()
     await expect(page).toHaveURL(/\/check-in\?modo=rapido$/)
-    await expect(page.getByRole('heading', { level: 2, name: 'Check-in rápido' })).toBeVisible()
+    await expect(page.getByRole('heading', { level: 2, name: 'Diagnóstico rápido' })).toBeVisible()
     for (const pergunta of ROTEIRO_CHECKIN.perguntas) {
       const rotulo = rotuloDaResposta(pergunta.id, CHECKIN_RAPIDO.respostas[pergunta.id]) ?? ''
       await expect(page.getByText(rotulo, { exact: true })).toBeVisible()
@@ -99,7 +99,7 @@ test.describe('Modo de demonstração', () => {
     await page.getByRole('button', { name: 'Confirmar e embarcar' }).click()
     await expect(page).toHaveURL(/\/cabine\/pasta-rede-inacessivel$/)
     expect(await page.evaluate(() => window.history.length)).toBe(entradas)
-    await expect(page.getByRole('heading', { level: 1, name: 'Cabine' })).toBeFocused()
+    await expect(page.getByRole('heading', { level: 1, name: 'Mesa de Trabalho' })).toBeFocused()
     await expect(page.getByRole('status').filter({ hasText: 'Modo de demonstração ativado' })).toHaveCount(1)
     await expect.poll(() => criacoesDeSessao().length).toBe(1)
     expect(JSON.parse((await lerChave(page, CHAVE_MODO_DEMONSTRACAO)) ?? 'null')).toMatchObject({ ativo: true })
@@ -109,7 +109,7 @@ test.describe('Modo de demonstração', () => {
     expect(await lerChave(page, CHAVE_REGISTROS_VOO)).toBeNull()
   })
 
-  test('atalho com cartão: Cabine direta, cartão intacto e voltar leva ao Início', async ({ page }) => {
+  test('atalho com cartão: Mesa de Trabalho direta, cartão intacto e voltar leva ao Início', async ({ page }) => {
     await semear(page, { [CHAVE_CARTAO_EMBARQUE]: CARTAO })
     await page.goto('/')
     await page.getByRole('button', { name: 'Atender meu primeiro chamado' }).click()
@@ -148,7 +148,7 @@ test.describe('Modo de demonstração', () => {
     expect(await lerChave(page, CHAVE_REGISTROS_VOO)).toBeNull()
   })
 
-  test('portão do cartão vale com o modo ativo: sem cartão a Cabine vai ao check-in e não cria sessão', async ({
+  test('portão do cartão vale com o modo ativo: sem cartão a Mesa de Trabalho vai ao diagnóstico e não cria sessão', async ({
     page,
   }) => {
     await semear(page, { [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
@@ -157,10 +157,10 @@ test.describe('Modo de demonstração', () => {
     expect(criacoesDeSessao()).toHaveLength(0)
   })
 
-  test('Brevê com o modo ativo e sem registros mostra o estado vazio', async ({ page }) => {
+  test('Portfólio com o modo ativo e sem registros mostra o estado vazio', async ({ page }) => {
     await semear(page, { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
     await page.goto('/breve')
-    await expect(page.getByText(/Você ainda não tem voos registrados/)).toBeVisible()
+    await expect(page.getByText(/Você ainda não tem missões registrados/)).toBeVisible()
     await expect(page.getByRole('link', { name: 'Modo de demonstração ativo' })).toBeVisible()
     expect(await lerChave(page, CHAVE_REGISTROS_VOO)).toBeNull()
     expect(requisicoes.filter((r) => r.metodo === 'POST')).toHaveLength(0)

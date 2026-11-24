@@ -16,7 +16,7 @@ const MODO_ATIVO = serializarModoDemonstracao({
 })
 
 interface OpcoesDeEmbarque {
-  /** Semeia o Modo_de_Demonstração ativo: libera as escalas N2 Pleno e N3 Sênior. */
+  /** Semeia o Modo_de_Demonstração ativo: libera as etapas N2 Pleno e N3 Sênior. */
   modo?: boolean
   semente?: number
   causa?: string
@@ -34,7 +34,7 @@ async function semear(page: Page, chaves: Record<string, string>) {
   }, chaves)
 }
 
-/** Abre a Cabine da missão pelo endereço, com o cartão semeado e, se pedido, o modo ativo. */
+/** Abre a Mesa de Trabalho da missão pelo endereço, com o cartão semeado e, se pedido, o modo ativo. */
 async function embarcar(page: Page, missao: IdMissao, opcoes: OpcoesDeEmbarque = {}) {
   await semear(page, {
     [CHAVE_CARTAO_EMBARQUE]: CARTAO,
@@ -66,7 +66,7 @@ async function focarPorTeclado(page: Page, alvo: Locator) {
   throw new Error('O teclado não alcançou o controle em 120 passos')
 }
 
-/** O Replay vive na Caixa-preta, aberta pelo link da Cabine. */
+/** O Replay vive na Caixa-preta, aberta pelo link da Mesa de Trabalho. */
 async function abrirCaixaPreta(page: Page) {
   await page.getByRole('link', { name: /Juiz 360º e Replay/i }).click()
   await expect(page).toHaveURL(/\/caixa-preta\//)
@@ -94,13 +94,13 @@ async function validarIdentidadeDaTitular(page: Page) {
   await page.getByLabel(/Ramal/i).fill('2087')
   await page.getByRole('button', { name: /Validar Identidade/i }).click()
 }
-test.describe('IT Flight Simulator: jornadas E2E', () => {
-  test('W10: sem overflow horizontal em 375, 768 e 1280px e embarque por teclado', async ({ page }) => {
+test.describe('IT Career Simulator: jornadas E2E', () => {
+  test('W10: sem overflow horizontal em 375, 768 e 1280px e perfil por teclado', async ({ page }) => {
     await semear(page, { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_REGISTROS_VOO]: REGISTRO_DA_HELP_DESK })
     for (const width of [375, 768, 1280]) {
       await page.setViewportSize({ width, height: 900 })
       await page.goto('/plano-de-voo')
-      await expect(page.getByRole('heading', { level: 1, name: 'Plano de voo' })).toBeVisible()
+      await expect(page.getByRole('heading', { level: 1, name: 'Plano de Carreira' })).toBeVisible()
       await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
       const embarque = cartaoDaMissao(page, 'pasta-rede-inacessivel').getByRole('link', { name: /Embarcar/ })
       if (width === 375) {
@@ -168,8 +168,8 @@ test.describe('IT Flight Simulator: jornadas E2E', () => {
     await page.getByRole('button', { name: T.itsm.resolverChamado }).click()
     await abrirCaixaPreta(page)
     await expect(page.getByText(T.replay.concluida, { exact: true })).toBeVisible()
-    // O Brevê não consulta o servidor sozinho: o resumo da carreira se atualiza pelo botão da Credencial.
-    await menu(page).getByRole('link', { name: 'Brevê' }).click()
+    // O Portfólio não consulta o servidor sozinho: o resumo da carreira se atualiza pelo botão da Credencial.
+    await menu(page).getByRole('link', { name: 'Portfólio' }).click()
     await page.getByRole('button', { name: 'Atualizar resumo' }).click()
     await expect(page.getByText('Pasta de Rede Inacessível (Simulador de Causas) OK')).toBeVisible()
     const downloadPromise = page.waitForEvent('download')
@@ -236,16 +236,16 @@ test.describe('IT Flight Simulator: jornadas E2E', () => {
   })
 
   test('Desbloqueio: a N2 Pleno só abre com o registro da missão anterior e o modo inativo', async ({ page }) => {
-    // Sem registro e sem modo, a escala está bloqueada e a Cabine não cria sessão.
+    // Sem registro e sem modo, a etapa está bloqueada e a Mesa de Trabalho não cria sessão.
     const criacoes: string[] = []
     page.on('request', (pedido) => {
       if (pedido.method() === 'POST' && new URL(pedido.url()).pathname === '/api/sessoes') criacoes.push(pedido.url())
     })
     await semear(page, { [CHAVE_CARTAO_EMBARQUE]: CARTAO })
     await page.goto('/cabine/incidente-massivo')
-    await expect(page.getByText(/A escala N2 Pleno ainda não está liberada/)).toBeVisible()
+    await expect(page.getByText(/A etapa N2 Pleno ainda não está liberada/)).toBeVisible()
     expect(criacoes).toHaveLength(0)
-    // Com o registro de pasta-rede-inacessivel gravado, o mesmo endereço abre a Cabine.
+    // Com o registro de pasta-rede-inacessivel gravado, o mesmo endereço abre a Mesa de Trabalho.
     await page.evaluate(
       ([chave, texto]) => window.localStorage.setItem(chave, texto),
       [CHAVE_REGISTROS_VOO, serializarRegistros([registroDeTeste('pasta-rede-inacessivel', 'sessao-desbloqueio-1')])],
@@ -410,7 +410,7 @@ test.describe('IT Flight Simulator: jornadas E2E', () => {
     await page.keyboard.press('Enter')
     await expect(page.getByRole('log', { name: 'Mensagens da conversa' })).toContainText('Quando começou a lentidão?')
   })
-  test('Aulas 1: a primeira aula leva a Cabine de reset-senha-desbloqueio sem aviso de bloqueio', async ({ page }) => {
+  test('Aulas 1: a primeira aula leva a Mesa de Trabalho de reset-senha-desbloqueio sem aviso de bloqueio', async ({ page }) => {
     await semear(page, { [CHAVE_CARTAO_EMBARQUE]: CARTAO })
     await page.goto('/aulas')
     await expect(page.getByRole('heading', { level: 1, name: 'Aulas' })).toBeVisible()
@@ -421,20 +421,20 @@ test.describe('IT Flight Simulator: jornadas E2E', () => {
     await page.getByRole('button', { name: /^Bom/ }).click()
     await page.getByRole('button', { name: 'Praticar agora' }).click()
     await expect(page).toHaveURL(/\/cabine\/reset-senha-desbloqueio/)
-    await expect(page.getByRole('heading', { level: 1, name: 'Cabine' })).toBeVisible()
-    await expect(page.getByRole('navigation', { name: 'Aplicativos da Cabine' })).toBeVisible()
+    await expect(page.getByRole('heading', { level: 1, name: 'Mesa de Trabalho' })).toBeVisible()
+    await expect(page.getByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })).toBeVisible()
     await expect(page.getByText(/ainda não está liberada/)).toHaveCount(0)
     await expect(page.locator('.dado-contexto').filter({ hasText: 'Nível Help Desk N1' })).toBeVisible()
   })
 
-  test('Aulas 2: com a escala bloqueada, Praticar mostra o estado e leva ao Plano de voo, nunca a Cabine', async ({ page }) => {
+  test('Aulas 2: com a etapa bloqueada, Praticar mostra o estado e leva ao Plano de Carreira, nunca a Mesa de Trabalho', async ({ page }) => {
     await semear(page, { [CHAVE_CARTAO_EMBARQUE]: CARTAO })
     await page.goto('/aulas?nivel=n2-pleno')
-    await expect(page.getByText(/A escala N2 Pleno ainda não está liberada/)).toBeVisible()
+    await expect(page.getByText(/A etapa N2 Pleno ainda não está liberada/)).toBeVisible()
     await expect(page.getByRole('button', { name: 'Praticar no laboratório' })).toHaveCount(0)
-    await page.getByRole('button', { name: 'Ver o Plano de voo' }).click()
+    await page.getByRole('button', { name: 'Ver o Plano de Carreira' }).click()
     await expect(page).toHaveURL(/\/plano-de-voo$/)
-    await expect(page.getByRole('heading', { level: 1, name: 'Plano de voo' })).toBeVisible()
+    await expect(page.getByRole('heading', { level: 1, name: 'Plano de Carreira' })).toBeVisible()
   })
   test('Reset 1: reset-senha-desbloqueio (pedido direto, senha esquecida) abre o console sem ID nem PIN e conclui pela menor ação', async ({ page }) => {
     await embarcar(page, 'reset-senha-desbloqueio', { semente: 2, causa: 'SENHA_ESQUECIDA' })

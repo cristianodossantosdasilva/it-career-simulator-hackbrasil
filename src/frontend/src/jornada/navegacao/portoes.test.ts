@@ -66,9 +66,9 @@ describe('decidirPortao', () => {
     )
   })
 
-  it('com o modo ativo e cartão válido, toda Cabine de Missão disponível exibe', () => {
+  it('com o modo ativo e cartão válido, toda Mesa de Trabalho de Missão disponível exibe', () => {
     paraTodo(
-      'cabine de missão disponível com o modo',
+      'mesa de trabalho de missão disponível com o modo',
       (g) => ({ missao: g.escolher(MISSOES_CATALOGO), cartao: gerarCartao(g), registros: gerarRegistros(g) }),
       ({ missao, cartao, registros }) => {
         const rota: RotaResolvida = { pagina: 'cabine', missao, semente: null, causa: null, nova: false }
@@ -103,12 +103,12 @@ describe('decidirPortao', () => {
       tipo: 'exibir',
     })
     expect(decidirPortao(cabine('incidente-massivo'), CARTAO_DE_TESTE, comRegistro)).toEqual({ tipo: 'exibir' })
-    // Com o modo ativo, a Cabine de escala bloqueada abre.
+    // Com o modo ativo, a Mesa de Trabalho de etapa bloqueada abre.
     expect(decidirPortao(cabine('incidente-massivo'), CARTAO_DE_TESTE, [], true)).toEqual({ tipo: 'exibir' })
     expect(decidirPortao(cabine('sre-cloud-latencia'), CARTAO_DE_TESTE, [], true)).toEqual({ tipo: 'exibir' })
     expect(decidirPortao(cabine('pasta-rede-inacessivel'), CARTAO_DE_TESTE, [], true)).toEqual({ tipo: 'exibir' })
     expect(decidirPortao({ pagina: 'plano-de-voo' }, null, [], true)).toEqual({ tipo: 'redirecionar', para: DESTINO_SEM_CARTAO })
-    // A Causa pedida (C4) não muda a decisão: só o status da Missão e a escala contam.
+    // A Causa pedida (C4) não muda a decisão: só o status da Missão e a etapa contam.
     expect(decidirPortao({ ...cabine('pasta-rede-inacessivel'), causa: 'C4' }, CARTAO_DE_TESTE, [], true)).toEqual({ tipo: 'exibir' })
   })
 })

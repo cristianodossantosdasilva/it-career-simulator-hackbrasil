@@ -31,16 +31,16 @@ export type RotaResolvida =
 
 export const NOME_PAGINA: Record<IdPagina, string> = {
   inicio: 'Início',
-  'check-in': 'Check-in',
-  'plano-de-voo': 'Plano de voo',
-  cabine: 'Cabine',
+  'check-in': 'Diagnóstico',
+  'plano-de-voo': 'Plano de Carreira',
+  cabine: 'Mesa de Trabalho',
   'caixa-preta': 'Caixa-preta',
-  breve: 'Brevê',
-  hangar: 'Hangar',
+  breve: 'Portfólio',
+  hangar: 'Catálogo',
   aulas: 'Aulas',
   treino: 'Treino de explicação',
   caderno: 'Caderno de estudos',
-  comandante: 'Comandante',
+  comandante: 'Mentor',
   'nao-encontrada': 'Página não encontrada',
 }
 
@@ -169,5 +169,5 @@ export function enderecoDe(rota: RotaResolvida): string {
 }
 
 export function tituloDocumento(nome: string): string {
-  return `${nome}, IT Flight Simulator`
+  return `${nome}, IT Career Simulator`
 }

@@ -30,20 +30,20 @@ afterEach(() => {
 })
 
 describe('Página Caixa-preta', () => {
-  it('mostra o replay e a avaliação do servidor, com o Comandante no papel Mentor', async () => {
+  it('mostra o replay e a avaliação do servidor, com o Mentor no papel Mentor', async () => {
     simularApi({ missao: 'pasta-rede-inacessivel', replay: replayDeTeste('sessao-x', 'pasta-rede-inacessivel') })
     abrir('sessao-x')
     expect(screen.getByRole('heading', { level: 1, name: 'Caixa-preta' })).toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: 'Relatório do Juiz 360º' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: /Comandante, papel Mentor/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Mentor, papel Mentor/ })).toBeInTheDocument()
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
   })
 
-  it('404 sem registro local avisa, oferece o Brevê e não mostra resumo nem botão de refazer', async () => {
+  it('404 sem registro local avisa, oferece o Portfólio e não mostra resumo nem botão de refazer', async () => {
     simularApi({ missao: 'pasta-rede-inacessivel', statusReplay: 404 })
     abrir('sessao-x')
     expect(await screen.findByText('Esta sessão não está mais disponível no servidor.')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Ver o Brevê' })).toHaveAttribute('href', '/breve')
+    expect(screen.getByRole('link', { name: 'Ver o Portfólio' })).toHaveAttribute('href', '/breve')
     expect(screen.queryByRole('button', { name: 'Refazer a missão' })).not.toBeInTheDocument()
     expect(screen.queryByText('Resumo guardado neste navegador')).not.toBeInTheDocument()
   })
@@ -55,7 +55,7 @@ describe('Página Caixa-preta', () => {
     const resumo = screen.getByRole('heading', { name: 'Resumo guardado neste navegador' }).closest('section') as HTMLElement
     expect(within(resumo).getByText('Atendimento concluído.')).toBeInTheDocument()
     expect(within(resumo).getByText('Validou a identidade:', { exact: false })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Ver o Brevê' })).toHaveAttribute('href', '/breve')
+    expect(screen.getByRole('link', { name: 'Ver o Portfólio' })).toHaveAttribute('href', '/breve')
     fireEvent.click(screen.getByRole('button', { name: 'Refazer a missão' }))
     expect(window.location.pathname + window.location.search).toBe('/cabine/incidente-massivo?nova=1')
   })

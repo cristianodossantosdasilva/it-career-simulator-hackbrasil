@@ -103,8 +103,8 @@ function PerguntaAtual({
 }
 
 /**
- * Página Check-in: perguntas do roteiro, indicação de rota por regra fixa, confirmação, cartão de
- * embarque e configuração Treino vs Missão com as cinco regras de preparo. Sem rede e sem IA.
+ * Página Diagnóstico: perguntas do roteiro, indicação de rota por regra fixa, confirmação, cartão de
+ * perfil e configuração Treino vs Missão com as cinco regras de preparo. Sem rede e sem IA.
  */
 export function PaginaCheckIn({ rota }: { rota: RotaCheckIn }) {
   const { cartao, registros, definirCartao, avisoGravacao, dispensarAvisoGravacao } = useArmazenamentoJornada()
@@ -166,7 +166,7 @@ export function PaginaCheckIn({ rota }: { rota: RotaCheckIn }) {
         <h1 className="h1">{NOME_PAGINA['check-in']}</h1>
         <p className="pagina-jornada-texto">
           {rota.rapido
-            ? 'Caminho curto: confirme as respostas padrão e embarque. Nada é enviado para fora deste navegador.'
+            ? 'Caminho curto: confirme as respostas padrão e perfil. Nada é enviado para fora deste navegador.'
             : 'Três perguntas curtas indicam por onde começar. Não há resposta certa, e nada é enviado para fora deste navegador.'}
         </p>
       </header>
@@ -176,13 +176,13 @@ export function PaginaCheckIn({ rota }: { rota: RotaCheckIn }) {
         <AvisoHonesto
           acoes={[{ tipo: 'botao', rotulo: 'Ir para a primeira pergunta', aoClicar: () => refLegenda.current?.focus() }]}
         >
-          Para abrir o Plano de voo, faça primeiro o check-in. Ele gera o seu cartão de embarque.
+          Para abrir o Plano de Carreira, faça primeiro o diagnóstico. Ele gera o seu cartão de perfil.
         </AvisoHonesto>
       )}
 
       {!rota.rapido && comPerguntas && cartao && estado.indice === 0 && respostas === null && (
-        <AvisoHonesto acoes={[{ tipo: 'link', rotulo: 'Ir para o Plano de voo', href: '/plano-de-voo' }]}>
-          Você já tem um cartão de embarque. Se refizer o check-in e confirmar, o cartão novo substitui o anterior e os seus voos
+        <AvisoHonesto acoes={[{ tipo: 'link', rotulo: 'Ir para o Plano de Carreira', href: '/plano-de-voo' }]}>
+          Você já tem um cartão de perfil. Se refizer o diagnóstico e confirmar, o cartão novo substitui o anterior e os suas missões
           registrados continuam guardados.
         </AvisoHonesto>
       )}
@@ -230,7 +230,7 @@ export function PaginaCheckIn({ rota }: { rota: RotaCheckIn }) {
               <span>
                 {rotaIndisponivel
                   ? `Embarcar em ${rotaDeSuporte?.nome ?? 'Suporte de TI'}`
-                  : 'Confirmar e gerar o cartão de embarque'}
+                  : 'Confirmar e gerar o cartão de perfil'}
               </span>
             </button>
           </div>
@@ -251,11 +251,11 @@ export function PaginaCheckIn({ rota }: { rota: RotaCheckIn }) {
             <CartaoEmbarque cartao={emitido}>
               <LinkInterno href="/plano-de-voo" className="btn btn-primary">
                 <Icone nome="plano-de-voo" tamanho={20} />
-                <span>Ir para o Plano de voo</span>
+                <span>Ir para o Plano de Carreira</span>
               </LinkInterno>
               <button type="button" className="btn btn-secondary" onClick={() => despachar({ tipo: 'reiniciar' })}>
                 <Icone nome="virar" tamanho={20} />
-                <span>Refazer o check-in</span>
+                <span>Refazer o diagnóstico</span>
               </button>
             </CartaoEmbarque>
           </section>

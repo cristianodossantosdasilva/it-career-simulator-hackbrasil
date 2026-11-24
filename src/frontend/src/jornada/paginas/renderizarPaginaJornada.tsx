@@ -14,7 +14,7 @@ import { PaginaInicio } from './PaginaInicio'
 import { PaginaPlanoDeVoo } from './PaginaPlanoDeVoo'
 import { PaginaTreino } from './PaginaTreino'
 
-/** Cada `IdPagina` renderiza a sua página. A decisão do portão só interessa à Cabine. */
+/** Cada `IdPagina` renderiza a sua página. A decisão do portão só interessa à Mesa de Trabalho. */
 export function renderizarPaginaJornada(rota: RotaResolvida, portao: DecisaoPortao): ReactNode {
   switch (rota.pagina) {
     case 'inicio':

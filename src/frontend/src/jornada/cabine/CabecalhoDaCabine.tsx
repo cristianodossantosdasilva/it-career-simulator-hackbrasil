@@ -20,7 +20,7 @@ const NOTA_DO_MODO: Record<ModoCabine, string> = {
   missao: 'Missão: SLA cronometrado, sem dicas. A avaliação do Juiz 360° vem no fim.',
 }
 
-/** Cabeçalho da Cabine: "Chamado X de N", barra de progresso, SLA, modo e Sair com progresso salvo. */
+/** Cabeçalho da Mesa de Trabalho: "Chamado X de N", barra de progresso, SLA, modo e Sair com progresso salvo. */
 export function CabecalhoDaCabine({ missao, modo, aoMudarModo, focoId }: Props) {
   const { sessao } = useVoo()
   if (!sessao) return null
@@ -59,7 +59,7 @@ export function CabecalhoDaCabine({ missao, modo, aoMudarModo, focoId }: Props) 
             />
           </div>
         )}
-        <div className="cabine-modo" role="group" aria-label="Modo da Cabine">
+        <div className="cabine-modo" role="group" aria-label="Modo da Mesa de Trabalho">
           <button type="button" aria-pressed={modo === 'treino'} onClick={() => aoMudarModo('treino')}>
             Treino
           </button>
@@ -70,7 +70,7 @@ export function CabecalhoDaCabine({ missao, modo, aoMudarModo, focoId }: Props) 
         <button
           type="button"
           className="btn btn-secondary cabine-sair"
-          title="O progresso fica salvo neste navegador. Retome pelo Plano de voo."
+          title="O progresso fica salvo neste navegador. Retome pelo Plano de Carreira."
           onClick={() => navegar('/plano-de-voo')}
         >
           <Icone nome="fechar" tamanho={16} />

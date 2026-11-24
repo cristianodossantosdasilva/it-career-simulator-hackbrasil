@@ -54,7 +54,7 @@ export function planejarConclusaoCheckInRapido(agora: Date): PlanoDemonstracao {
 
 /**
  * Executa o plano no mesmo manipulador de evento, nesta ordem: gravar o cartão, ativar o modo e navegar.
- * Se a gravação falhar os valores continuam em memória e o voo abre do mesmo jeito.
+ * Se a gravação falhar os valores continuam em memória e a missão abre do mesmo jeito.
  */
 export function executarPlanoDemonstracao(
   plano: PlanoDemonstracao,

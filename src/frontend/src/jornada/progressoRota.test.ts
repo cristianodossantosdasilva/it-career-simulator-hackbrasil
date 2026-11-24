@@ -55,13 +55,13 @@ describe('calcularProgressoRota', () => {
     ])
   })
 
-  it('o registro de pasta-rede-inacessivel sozinho não libera o embarque da Service Desk N1 Jr: a Help Desk N1 vem antes', () => {
+  it('o registro de pasta-rede-inacessivel sozinho não libera o perfil da Service Desk N1 Jr: a Help Desk N1 vem antes', () => {
     const visao = calcularProgressoRota(ROTA_SUPORTE, [registroDeTeste('pasta-rede-inacessivel', 's-1')])
     expect(visao[0].estado).toBe('liberada')
     expect(visao[1].estado).toBe('bloqueada')
     expect(visao[1].escalaNecessaria?.id).toBe('help-desk-n1')
   })
-  it('os registros de reset-senha-desbloqueio e de pasta-rede-inacessivel concluem as duas primeiras escalas e liberam a N2 Pleno', () => {
+  it('os registros de reset-senha-desbloqueio e de pasta-rede-inacessivel concluem as duas primeiras etapas e liberam a N2 Pleno', () => {
     const visao = calcularProgressoRota(ROTA_SUPORTE, [
       registroDeTeste('reset-senha-desbloqueio', 's-0'),
       registroDeTeste('pasta-rede-inacessivel', 's-1'),
@@ -120,7 +120,7 @@ describe('calcularProgressoRota', () => {
 
   it('Feature: jornada-de-voo, Property 12: Liberação monotônica', () => {
     paraTodo(
-      'um registro novo nunca bloqueia escala liberada',
+      'um registro novo nunca bloqueia etapa liberada',
       (g) => {
         const cenario = gerarCenario(g)
         const missoes = cenario.rota.escalas.flatMap((escala) => missoesDaEscala(escala).map((item) => item.missao.id))
@@ -139,7 +139,7 @@ describe('calcularProgressoRota', () => {
     )
   })
 
-  it('Feature: jornada-de-voo, Property 26: Causas não mudam o embarque', () => {
+  it('Feature: jornada-de-voo, Property 26: Causas não mudam o perfil', () => {
     paraTodo(
       'status das Causas só muda a contagem',
       (g) => {
@@ -198,11 +198,11 @@ describe('calcularBrevePiloto', () => {
     expect(breve.exigencias.map((e) => e.escalaId)).toEqual(ROTA_SUPORTE.escalas.map((e) => e.id))
     expect(breve.exigencias[0]).toMatchObject({ cumprida: false, aguardaPreparacao: false })
     expect(breve.exigencias.slice(1).every((e) => e.cumprida)).toBe(true)
-    expect(breve.exigencias[3].rotulo).toBe('Ao menos um voo em uma das vertentes da N3 Sênior')
+    expect(breve.exigencias[3].rotulo).toBe('Ao menos uma missão em uma das vertentes da N3 Sênior')
   })
 
-  it('Feature: jornada-de-voo, Property 25: Brevê de piloto', () => {
-    paraTodo('brevê de piloto', gerarCenario, ({ rota, registros }) => {
+  it('Feature: jornada-de-voo, Property 25: Portfólio de analista', () => {
+    paraTodo('portfólio de analista', gerarCenario, ({ rota, registros }) => {
       const breve = calcularBrevePiloto(rota, registros)
       const comRegistro = new Set(registros.map((r) => r.missao))
       expect(breve.exigencias.map((e) => e.escalaId)).toEqual(rota.escalas.map((e) => e.id))
@@ -248,10 +248,10 @@ function textoEIconeDefinidos(item: { statusTexto: string; statusIcone: string }
   expect(item.statusIcone).toBe(APRESENTACAO_STATUS[status].icone)
 }
 
-describe('visaoDoHangar e certificações por escala', () => {
+describe('visaoDoHangar e certificações por etapa', () => {
   it('Feature: jornada-de-voo, Property 18: Catálogo refletido sem cópia', () => {
     paraTodo(
-      'o Hangar e as escalas refletem o status de cada item do catálogo',
+      'o Catálogo e as etapas refletem o status de cada item do catálogo',
       gerarCatalogos,
       ({ rotas, certificacoes, parceiros }) => {
         const visao = visaoDoHangar(rotas, certificacoes, parceiros)
@@ -276,7 +276,7 @@ describe('visaoDoHangar e certificações por escala', () => {
         })
         expect(visao.parceiros).toHaveLength(parceiros.length)
 
-        // Toda Missão, inclusive as em preparação, uma vez só, no grupo da sua escala e Vertente.
+        // Toda Missão, inclusive as em preparação, uma vez só, no grupo da sua etapa e Vertente.
         const esperadas = rotas.flatMap((rota) => rota.escalas.flatMap((escala) => missoesDaEscala(escala).map((item) => ({ ...item, escala }))))
         const exibidas = visao.missoes.flatMap((grupo) => grupo.itens.map((item) => ({ item, grupo })))
         expect(exibidas.map(({ item }) => item.id).sort()).toEqual(esperadas.map(({ missao }) => missao.id).sort())
@@ -290,7 +290,7 @@ describe('visaoDoHangar e certificações por escala', () => {
           expect(item.titulo).toBe(textosDaMissao(missao.id).titulo)
         }
 
-        // As certificações de cada escala vêm do mesmo catálogo, na ordem dele, sem lista própria.
+        // As certificações de cada etapa vêm do mesmo catálogo, na ordem dele, sem lista própria.
         const rota = rotas[0]
         const porEscala = calcularProgressoRota(rota, [], { certificacoes })
         for (const escalaVisao of porEscala) {
@@ -302,7 +302,7 @@ describe('visaoDoHangar e certificações por escala', () => {
     )
   })
 
-  it('o catálogo atual põe cada certificação na escala do design e aceita um catálogo vazio', () => {
+  it('o catálogo atual põe cada certificação na etapa do design e aceita um catálogo vazio', () => {
     const visao = calcularProgressoRota(ROTA_SUPORTE, [])
     expect(visao.map((escala) => escala.certificacoes.map((item) => item.titulo))).toEqual([
       ['CompTIA A+'],
@@ -327,7 +327,7 @@ describe('calcularProgressoRota com o modo de demonstração', () => {
         expect(inativo[i].liberadaPorDemonstracao).toBe(false)
         expect(inativo[i].seloDemonstracao).toBe(false)
         expect(v.cumprida).toBe(inativo[i].cumprida)
-        // Com o modo ativo nenhuma escala fica bloqueada e o selo vale para todas.
+        // Com o modo ativo nenhuma etapa fica bloqueada e o selo vale para todas.
         expect(v.estado).not.toBe('bloqueada')
         expect(v.seloDemonstracao).toBe(true)
         expect(v.escalaNecessaria).toBeNull()
@@ -379,7 +379,7 @@ describe('calcularProgressoRota com o modo de demonstração', () => {
     expect(missoes.filter((missao) => missao.podeEmbarcar).length).toBeGreaterThan(0)
   })
 
-  it('o Brevê de piloto não recebe o modo', () => {
+  it('o Portfólio de analista não recebe o modo', () => {
     expect(calcularBrevePiloto.length).toBe(2)
     expect(calcularBrevePiloto(ROTA_SUPORTE, []).conquistado).toBe(false)
   })

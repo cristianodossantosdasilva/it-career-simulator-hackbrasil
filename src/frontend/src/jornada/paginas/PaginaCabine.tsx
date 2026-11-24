@@ -20,14 +20,14 @@ type EstadoAbertura =
 export const TEXTO_SESSAO_INDISPONIVEL = 'Esta sessão não está mais disponível no servidor.'
 export const TEXTO_MISSAO_EM_PREPARACAO_CABINE = TEXTO_MISSAO_EM_PREPARACAO
 
-const LINK_PLANO = { tipo: 'link', rotulo: 'Voltar ao Plano de voo', href: '/plano-de-voo' } as const
+const LINK_PLANO = { tipo: 'link', rotulo: 'Voltar ao Plano de Carreira', href: '/plano-de-voo' } as const
 
 function enderecoDaCabine(missao: IdMissao, extra: { nova: boolean; semente: number | null; causa: string | null }): string {
   return enderecoDe({ pagina: 'cabine', missao, ...extra })
 }
 
 /**
- * Página Cabine: abre o voo da missão (usa a sessão em memória, retoma a registrada ou cria outra) e
+ * Página Mesa de Trabalho: abre a missão da missão (usa a sessão em memória, retoma a registrada ou cria outra) e
  * mostra o turno de atendimento. O h1 existe desde a primeira renderização. Com o portão fechado, a
  * página só avisa e nunca chama `abrirVoo`, então nenhuma sessão é criada.
  */
@@ -48,7 +48,7 @@ export function PaginaCabine({ rota, portao }: { rota: RotaCabine; portao: Decis
     void abrirVoo(missao, { semente: semente ?? undefined, causa: causa ?? undefined, nova }).then((resultado) => {
       if (!ativo) return
       if (resultado.tipo === 'pronto') {
-        // Recarregar a Cabine depois de criar a sessão retoma a mesma sessão, sem criar outra.
+        // Recarregar a Mesa de Trabalho depois de criar a sessão retoma a mesma sessão, sem criar outra.
         if (nova || semente !== null || causa !== null) {
           reescreverEndereco(enderecoDaCabine(missao, { nova: false, semente: null, causa: null }))
         }

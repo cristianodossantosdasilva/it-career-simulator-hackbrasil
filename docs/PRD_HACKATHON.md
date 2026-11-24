@@ -1,6 +1,6 @@
-# PRD — IT Flight Simulator (Edição Hack Brasil 2026)
+# PRD — IT Career Simulator (Edição Hack Brasil 2026)
 
-**Produto:** IT Flight Simulator — Simulador Prático de Carreira em TI  
+**Produto:** IT Career Simulator — Simulador Prático de Carreira em TI  
 **Time:** CVE-K (Cristiano Silva, Enzo Santos e Kauan Dantas — 3 integrantes ativos)  
 **Trilha:** Acesso à educação (Hack Brasil 2026)  
 **Demo Pública Oficial:** `https://it-flight-simulator-hackbrasil.vercel.app`  
@@ -12,7 +12,7 @@
 
 Milhares de pessoas fora da área de TI desejam ingressar no mercado de tecnologia, e milhares de estudantes já consomem teoria passiva, mas todos esbarram no **"paradoxo do júnior"**: não conseguem a primeira oportunidade porque não possuem vivência prática em operação corporativa real (ITSM, SLA, atendimento sob pressão, manutenção física preventiva, cabeamento de rede, diagnóstico de causa raiz e postura de segurança).
 
-O **IT Flight Simulator** resolve essa lacuna combinando uma **Plataforma de Aprendizagem Ativa** (aulas curtas com analogias, recordação ativa, repetição espaçada, caderno estilo Notion no Método Cornell, Técnica de Feynman e Pitch STAR) com uma **Workstation Corporativa Simulada** e **8 Laboratórios Interativos Dedicados** (1 por Unidade Curricular — começando no Hackathon por Hardware/UPS e evoluindo para Cabeamento/Rack `U`, Estúdio Wi-Fi Design, Redes Multi-Vendor, Firewall NGFW, Data Center 42U com Cloud Backup WORM e Blue Team/EDR) na empresa fictícia **Aurora Logística** (`aurora.local`).
+O **IT Career Simulator** resolve essa lacuna combinando uma **Plataforma de Aprendizagem Ativa** (aulas curtas com analogias, recordação ativa, repetição espaçada, caderno estilo Notion no Método Cornell, Técnica de Feynman e Pitch STAR) com uma **Workstation Corporativa Simulada** e **8 Laboratórios Interativos Dedicados** (1 por Unidade Curricular — começando no Hackathon por Hardware/UPS e evoluindo para Cabeamento/Rack `U`, Estúdio Wi-Fi Design, Redes Multi-Vendor, Firewall NGFW, Data Center 42U com Cloud Backup WORM e Blue Team/EDR) na empresa fictícia **Aurora Logística** (`aurora.local`).
 
 Em vez de promessas irreais ou cargas horárias superficiais, o estudo de caso inaugural entrega profundidade equivalente à grade de um curso técnico profissionalizante em **560 horas distribuídas em até 8 meses (32 semanas)** em **2 Ciclos Estratégicos**:
 - **Ciclo 1 (Meses 1 a 4 · Semanas 1 a 16 · 280h):** *Prontidão Rápida para o Mercado* — do zero ao **Técnico de Suporte Júnior (N1) e Field Service**, apto a trabalhar já ao final do 4º mês;
@@ -36,7 +36,7 @@ Em vez de promessas irreais ou cargas horárias superficiais, o estudo de caso i
    - **Clientes Sintéticos e Tech Lead (Máquina de Estados e Sistema em 3 Atos):** Personas distintas com gatilho determinístico de liberação de acesso remoto e diálogo roteirizado sem dependência de chave externa.
    - **Chaos Injector (Injeção de Falhas):** Cenários parametrizados por semente (`SplitMix64`) para impedir "receita decorada" (e flag `Demo:PermitirParametrosDeTeste` configurada como `true` por padrão no modo demonstração do Hackathon e reversível para `false` em ambientes de prova fechada).
    - **Juiz 360º, Replay e Currículo Vivo:** Avaliação determinística por critérios binários observáveis na trilha de eventos (*Event Sourcing*) + linha do tempo navegável (**Caixa-Preta do Atendimento**) + **Currículo Vivo** verificável offline em `/verificar` por **JCS (RFC 8785 UTF-8) + SHA-256 + assinatura ECDSA P-256**.
-5. **Visão Futura Onda 4 (Simulador de Chamada em Vídeo com Agentes de IA):** Evolução pós-Hackathon onde o estudante atende clientes leigos, gestores sob pressão de SLA P1, ataques de engenharia social (*Vishing*) e entrevistas técnicas em chamada de vídeo e voz ao vivo dentro do cockpit, com o motor `.NET 10` mantendo autoridade exclusiva sobre o estado técnico.
+5. **Visão Futura Onda 4 (Simulador de Chamada em Vídeo com Agentes de IA):** Evolução pós-Hackathon onde o estudante atende clientes leigos, gestores sob pressão de SLA P1, ataques de engenharia social (*Vishing*) e entrevistas técnicas em chamada de vídeo e voz ao vivo dentro do mesa de trabalho, com o motor `.NET 10` mantendo autoridade exclusiva sobre o estado técnico.
 
 ---
 

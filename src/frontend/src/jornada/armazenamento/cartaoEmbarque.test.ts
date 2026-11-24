@@ -63,7 +63,7 @@ describe('cartaoEmbarque', () => {
     )
   })
 
-  it('Feature: jornada-de-voo, Property 8: Refazer o check-in preserva os registros', () => {
+  it('Feature: jornada-de-voo, Property 8: Refazer o diagnóstico preserva os registros', () => {
     paraTodo(
       'gravar o segundo cartão não toca os registros',
       (g) => ({ primeiro: gerarCartao(g), segundo: gerarCartao(g), registros: gerarRegistros(g) }),

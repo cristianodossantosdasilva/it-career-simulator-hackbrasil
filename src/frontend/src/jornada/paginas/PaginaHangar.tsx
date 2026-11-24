@@ -37,7 +37,7 @@ function ListaMissoes({ itens }: { itens: readonly VisaoMissaoHangar[] }) {
   )
 }
 
-/** Junta os grupos seguidos da mesma escala, na ordem do catálogo. */
+/** Junta os grupos seguidos da mesma etapa, na ordem do catálogo. */
 function agruparPorEscala(grupos: readonly VisaoGrupoHangar[]): { id: string; grupos: VisaoGrupoHangar[] }[] {
   const resultado: { id: string; grupos: VisaoGrupoHangar[] }[] = []
   for (const grupo of grupos) {
@@ -65,8 +65,8 @@ function ListaItens({ itens }: { itens: readonly VisaoItemCatalogo[] }) {
 }
 
 /**
- * Hangar: tudo o que o catálogo registra, com o status em texto e ícone. Rotas, Missões de Suporte de TI
- * por escala e Vertente (inclusive as em preparação), certificações de referência, parceiros e a
+ * Catálogo: tudo o que o catálogo registra, com o status em texto e ícone. Rotas, Missões de Suporte de TI
+ * por etapa e Vertente (inclusive as em preparação), certificações de referência, parceiros e a
  * transparência do escopo. Os dados vêm de `visaoDoHangar`, sem lista no componente.
  */
 export function PaginaHangar() {
@@ -81,7 +81,7 @@ export function PaginaHangar() {
         </p>
         <p>
           <LinkInterno href={enderecoDe({ pagina: 'plano-de-voo' })} className="btn btn-secondary btn-sm">
-            Ver o Plano de voo
+            Ver o Plano de Carreira
           </LinkInterno>
         </p>
       </header>

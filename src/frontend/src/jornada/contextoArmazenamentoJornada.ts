@@ -5,7 +5,7 @@ import type { RegistroDeVoo } from './armazenamento/registrosVoo'
 import type { VoosAtivos } from './armazenamento/voosAtivos'
 import type { IdMissao } from './catalogos/catalogoRotas'
 export const AVISO_FALHA_GRAVACAO =
-  'Não foi possível guardar neste navegador. Você pode continuar, mas o Brevê não vai lembrar deste voo.'
+  'Não foi possível guardar neste navegador. Você pode continuar, mas o Portfólio não vai lembrar desta missão.'
 
 export interface ValorArmazenamentoJornada {
   cartao: CartaoEmbarque | null

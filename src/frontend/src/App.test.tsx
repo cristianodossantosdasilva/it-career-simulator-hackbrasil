@@ -19,18 +19,18 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('IT Flight Simulator UI', () => {
+describe('IT Career Simulator UI', () => {
   it('calcula a razao de contraste WCAG; os pares dos tokens ficam em tokensContraste.test.ts', () => {
     expect(razaoContraste('#000000', '#ffffff')).toBeCloseTo(21, 4)
     expect(razaoContraste('#777777', '#777777')).toBeCloseTo(1, 4)
   })
 
-  it('shell tem uma unica navegacao principal por links, sem Cabine sem voo ativo, e troca o tema pelo botao Aparencia', () => {
+  it('shell tem uma unica navegacao principal por links, sem Mesa de Trabalho sem missão ativo, e troca o tema pelo botao Aparencia', () => {
     abrirAplicacao('/')
     const navs = screen.getAllByRole('navigation', { name: /Navegação principal/i })
     expect(navs).toHaveLength(1)
     const destinos = within(navs[0]).getAllByRole('link').map((link) => link.textContent?.trim())
-    expect(destinos).toEqual(['Início', 'Plano de voo', 'Brevê', 'Hangar', 'Aulas', 'Caderno', 'Comandante'])
+    expect(destinos).toEqual(['Início', 'Plano de Carreira', 'Portfólio', 'Catálogo', 'Aulas', 'Caderno', 'Mentor'])
     expect(within(navs[0]).getByRole('link', { name: 'Início' })).toHaveAttribute('aria-current', 'page')
     expect(navs[0].textContent).not.toMatch(/\p{Extended_Pictographic}/u)
     expect(document.documentElement.dataset.theme).toBe('operacao')
@@ -64,7 +64,7 @@ describe('IT Flight Simulator UI', () => {
       armazem.definirContraste(true)
     })
     const antes = document.documentElement.outerHTML.slice(0, document.documentElement.outerHTML.indexOf('>') + 1)
-    irPeloMenu('Plano de voo')
+    irPeloMenu('Plano de Carreira')
     irPeloMenu('Início')
     const depois = document.documentElement.outerHTML.slice(0, document.documentElement.outerHTML.indexOf('>') + 1)
     expect(depois).toBe(antes)
@@ -115,23 +115,23 @@ describe('IT Flight Simulator UI', () => {
     await waitFor(() => expect(screen.getByRole('heading', { name: /KB-002.*Verificacao de Identidade/i })).toHaveFocus())
   })
 
-  it('Plano de voo mostra as escalas, a Missao 0 e as missoes, sem escolha livre de nivel', () => {
+  it('Plano de Carreira mostra as etapas, a Missao 0 e as missoes, sem escolha livre de nivel', () => {
     abrirAplicacao('/plano-de-voo')
-    expect(screen.getByRole('heading', { level: 1, name: 'Plano de voo' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Plano de Carreira' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /Missão 0/i })).toBeInTheDocument()
     for (const missao of ['triagem-engenharia-social', 'pasta-rede-inacessivel', 'incidente-massivo'] as const) {
       expect(screen.getByRole('heading', { name: textosDaMissao(missao).titulo })).toBeInTheDocument()
     }
     expect(screen.queryAllByRole('radio')).toHaveLength(0)
-    expect(screen.queryByRole('button', { name: /Decolar no Simulador/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Iniciar no Simulador/i })).not.toBeInTheDocument()
   })
 
-  it('Plano de voo tem o Primeiro Voo como objeto central e guarda Pomodoro, meta e plano no menu de perfil', async () => {
+  it('Plano de Carreira tem o Primeiro Missão como objeto central e guarda Pomodoro, meta e plano no menu de perfil', async () => {
     const { container } = abrirAplicacao('/plano-de-voo')
-    expect(screen.getByRole('heading', { name: 'Iniciar primeiro voo', level: 2 })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Iniciar primeiro voo' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Iniciar primeiro missão', level: 2 })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Iniciar primeiro missão' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Estudar antes' })).toBeInTheDocument()
-    const fluxo = screen.getByRole('list', { name: 'Fluxo do primeiro voo' })
+    const fluxo = screen.getByRole('list', { name: 'Fluxo do primeiro missão' })
     expect(within(fluxo).getAllByRole('listitem').map((item) => within(item).getByRole('heading').textContent)).toEqual([
       'Estudar',
       'Praticar no Split-Screen',
@@ -149,11 +149,11 @@ describe('IT Flight Simulator UI', () => {
     expect((await axe.run(container)).violations).toEqual([])
   })
 
-  it('Brevê abre pelo menu, mostra o verificador e volta ao Início', () => {
+  it('Portfólio abre pelo menu, mostra o verificador e volta ao Início', () => {
     abrirAplicacao('/')
-    irPeloMenu('Brevê')
+    irPeloMenu('Portfólio')
     expect(window.location.pathname).toBe('/breve')
-    expect(within(menuPrincipal()).getByRole('link', { name: 'Brevê' })).toHaveAttribute('aria-current', 'page')
+    expect(within(menuPrincipal()).getByRole('link', { name: 'Portfólio' })).toHaveAttribute('aria-current', 'page')
     expect(within(menuPrincipal()).getByRole('link', { name: 'Início' })).not.toHaveAttribute('aria-current')
     expect(screen.getByRole('region', { name: /Verificador local de Currículo Vivo/i })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { level: 1, name: 'Início' })).not.toBeInTheDocument()
@@ -193,7 +193,7 @@ describe('IT Flight Simulator UI', () => {
       ),
     )
     abrirAplicacao('/')
-    irPeloMenu('Brevê')
+    irPeloMenu('Portfólio')
     expect(screen.getByRole('heading', { name: 'Credencial', level: 2 })).toBeInTheDocument()
     const painelCarreira = await screen.findByRole('region', {
       name: /Progressão de Carreira e Currículo Vivo/i,

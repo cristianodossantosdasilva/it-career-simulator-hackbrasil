@@ -33,7 +33,7 @@ function todasAsMissoes() {
 }
 
 describe('Catálogo de rotas', () => {
-  it('distribui os 7 cenários em exatamente uma escala e, na N3 Sênior, em exatamente uma Vertente', () => {
+  it('distribui os 7 cenários em exatamente uma etapa e, na N3 Sênior, em exatamente uma Vertente', () => {
     const missoes = todasAsMissoes()
     expect(missoes).toHaveLength(7)
     for (const [id, esperado] of Object.entries(DISTRIBUICAO)) {
@@ -45,7 +45,7 @@ describe('Catálogo de rotas', () => {
     }
   })
 
-  it('mantém as escalas na ordem da rota', () => {
+  it('mantém as etapas na ordem da rota', () => {
     expect(suporte.escalas.map((e) => e.nome)).toEqual(['Help Desk N1', 'Service Desk N1 Jr', 'N2 Pleno', 'N3 Sênior'])
   })
 
@@ -90,7 +90,7 @@ describe('Catálogo de rotas', () => {
     ])
   })
 
-  it('preenche missoes ou vertentes em cada escala, nunca os dois', () => {
+  it('preenche missoes ou vertentes em cada etapa, nunca os dois', () => {
     for (const rota of ROTAS) {
       for (const escala of rota.escalas) {
         expect(escala.missoes.length === 0 || escala.vertentes.length === 0).toBe(true)
@@ -98,7 +98,7 @@ describe('Catálogo de rotas', () => {
     }
   })
 
-  it('registra ao menos uma Missão em cada escala de rota disponível', () => {
+  it('registra ao menos uma Missão em cada etapa de rota disponível', () => {
     for (const rota of ROTAS.filter((r) => r.status === 'disponivel')) {
       expect(rota.escalas.length).toBeGreaterThan(0)
       for (const escala of rota.escalas) expect(missoesDaEscala(escala).length).toBeGreaterThan(0)
@@ -138,7 +138,7 @@ const TERMOS_PROIBIDOS_EM_CERTIFICACAO = ['oficial', 'parceiro', 'equivalente', 
 const EMPRESAS_REAIS = ['senai', 'microsoft', 'google', 'amazon', 'aws', 'cisco', 'oracle', 'ibm', 'linkedin', 'totvs']
 
 describe('Catálogo de certificações', () => {
-  it('dá a cada item um status do catálogo e uma escala existente na rota', () => {
+  it('dá a cada item um status do catálogo e uma etapa existente na rota', () => {
     const escalas = new Set(suporte.escalas.map((escala) => escala.id))
     expect(new Set(CATALOGO_CERTIFICACOES.map((item) => item.id)).size).toBe(CATALOGO_CERTIFICACOES.length)
     for (const item of CATALOGO_CERTIFICACOES) {
@@ -148,7 +148,7 @@ describe('Catálogo de certificações', () => {
       for (const escala of item.escalaIds) expect(escalas.has(escala), `${item.id}: ${escala}`).toBe(true)
     }
   })
-  it('atribui os status e as escalas do design', () => {
+  it('atribui os status e as etapas do design', () => {
     expect(CATALOGO_CERTIFICACOES.map((item) => [item.nome, item.escalaIds, item.status])).toEqual([
       ['CompTIA A+', ['help-desk-n1'], 'disponivel'],
       ['ITIL 4 Foundation', ['service-desk-n1-jr', 'n2-pleno'], 'disponivel'],
@@ -206,7 +206,7 @@ describe('Check-in_Rápido e textos do modo de demonstração', () => {
     expect(rotaPorId(rotaId)?.status).toBe('disponivel')
   })
 
-  it('os textos do modo, do atalho e do check-in rápido não usam E comercial nem emoji', () => {
+  it('os textos do modo, do atalho e do diagnóstico rápido não usam E comercial nem emoji', () => {
     const textos = JSON.stringify([
       CHECKIN_RAPIDO,
       ...Object.values(textosDemonstracao).map((valor) =>

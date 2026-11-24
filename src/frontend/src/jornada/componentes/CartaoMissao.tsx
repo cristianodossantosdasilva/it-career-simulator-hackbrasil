@@ -8,7 +8,7 @@ import { textosDaMissao } from './textosDaMissao'
 
 interface PropsCartaoMissao {
   visao: VisaoMissao
-  /** h3 nas escalas 1 a 3. h4 dentro de uma Vertente da N3 Sênior. */
+  /** h3 nas etapas 1 a 3. h4 dentro de uma Vertente da N3 Sênior. */
   nivelTitulo: 3 | 4
 }
 
@@ -38,7 +38,7 @@ function EstadoDaMissao({ estado }: { estado: VisaoMissao['estado'] }) {
 }
 
 /**
- * Missão do Plano de voo. Nome, escala, Vertente e estado em texto. O Embarcar é um link para a Cabine
+ * Missão do Plano de Carreira. Nome, etapa, Vertente e estado em texto. O Embarcar é um link para a Mesa de Trabalho
  * sem Causa nem semente, e só existe quando `podeEmbarcar`. Missão em preparação nunca tem Embarcar.
  */
 export function CartaoMissao({ visao, nivelTitulo }: PropsCartaoMissao) {

@@ -32,7 +32,7 @@ class LimiteErroPagina extends Component<{ children: ReactNode }, { erro: Error 
 }
 
 interface PropsRoteador {
-  /** Recebe a decisão do portão: os avisos de missão em preparação e de escala bloqueada ficam com a página. */
+  /** Recebe a decisão do portão: os avisos de missão em preparação e de etapa bloqueada ficam com a página. */
   renderizarPagina: (rota: RotaResolvida, portao: DecisaoPortao) => ReactNode
   /** Envolve a página em MolduraPagina (link de salto e `main#conteudo-pagina`). A página não declara outro `main`. */
   comMoldura?: boolean

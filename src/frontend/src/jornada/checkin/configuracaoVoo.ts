@@ -46,7 +46,7 @@ export const MODOS_VOO: readonly DescricaoModoVoo[] = [
     subtitulo: 'SLA cronometrado e avaliação só no fim',
     descricao: 'Simula a pressão real da operação na Aurora Logística. O Juiz 360º revela o resultado ao concluir.',
     destaques: [
-      'Cronômetro de SLA ativo durante o voo',
+      'Cronômetro de SLA ativo durante a missão',
       'Sem dicas automáticas durante o chamado',
       'Relatório completo na Caixa-preta ao final',
     ],
@@ -57,7 +57,7 @@ export const REGRAS_PRONTO_PARA_COMECAR: readonly string[] = [
   'Seu progresso é salvo automaticamente neste navegador a cada ação.',
   'Você pode marcar chamados para revisar antes de encerrar a missão.',
   'Navegue livremente entre chamados, estação SimuDesk e base de conhecimento.',
-  'Consulte o Comandante para receber orientação sem entregar a resposta pronta.',
+  'Consulte o Mentor para receber orientação sem entregar a resposta pronta.',
   'No Modo Missão o cronômetro de SLA acompanha o turno e a nota sai apenas ao concluir.',
 ] as const
 
@@ -78,7 +78,7 @@ export interface DominioConfig {
 }
 
 /**
- * Calcula os domínios (escalas) da rota com peso percentual e indica o domínio com menor
+ * Calcula os domínios (etapas) da rota com peso percentual e indica o domínio com menor
  * conclusão como recomendado para o próximo foco.
  */
 export function calcularDominiosDaRota(rota: Rota, registros: readonly RegistroDeVoo[]): DominioConfig[] {

@@ -28,11 +28,11 @@ afterEach(() => {
   cleanup()
 })
 
-describe('Página Hangar', () => {
+describe('Página Catálogo', () => {
   it('tem um único h1 e os grupos de catálogo como h2, na ordem', () => {
     render(<PaginaHangar />)
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
-    expect(screen.getByRole('heading', { level: 1, name: 'Hangar' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Catálogo' })).toBeInTheDocument()
     const titulos = screen.getAllByRole('heading', { level: 2 }).map((titulo) => titulo.textContent)
     expect(titulos.slice(0, 4)).toEqual([
       'Rotas',
@@ -52,7 +52,7 @@ describe('Página Hangar', () => {
     }
   })
 
-  it('agrupa as Missões por escala e Vertente, com o status em texto', () => {
+  it('agrupa as Missões por etapa e Vertente, com o status em texto', () => {
     render(<PaginaHangar />)
     const missoes = secao('Missões de Suporte de TI')
     const escalas = within(missoes)
@@ -82,7 +82,7 @@ describe('Página Hangar', () => {
     expect(within(missoes).getAllByRole('listitem')).toHaveLength(7)
   })
 
-  it('não mostra código de Causa nem botão de embarque nas Missões', () => {
+  it('não mostra código de Causa nem botão de perfil nas Missões', () => {
     render(<PaginaHangar />)
     const missoes = secao('Missões de Suporte de TI')
     expect(missoes.textContent).not.toMatch(/SENHA_ESQUECIDA|GATEWAY|OOM_KILLED|\bC[1-4]\b/)
@@ -123,7 +123,7 @@ describe('Página Hangar', () => {
     }
     const controles = container.querySelectorAll('a[href], button, input, select, textarea, summary')
     expect(controles).toHaveLength(1)
-    const link = screen.getByRole('link', { name: 'Ver o Plano de voo' })
+    const link = screen.getByRole('link', { name: 'Ver o Plano de Carreira' })
     expect(link.tabIndex).toBeGreaterThanOrEqual(0)
     link.focus()
     expect(link).toHaveFocus()

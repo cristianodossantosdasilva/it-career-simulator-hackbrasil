@@ -36,8 +36,8 @@ function missoesEmbarcaveis(visoes: readonly VisaoEscala[]) {
 }
 
 /**
- * Plano de voo: configuração Treino vs Missão, seletor de domínios com peso, quadro Pronto para
- * começar, próximo passo, roteiro da Missão 0, escalas da rota, opções avançadas e convite.
+ * Plano de Carreira: configuração Treino vs Missão, seletor de domínios com peso, quadro Pronto para
+ * começar, próximo passo, roteiro da Missão 0, etapas da rota, opções avançadas e convite.
  */
 export function PaginaPlanoDeVoo() {
   const { cartao, registros, modoDemonstracao } = useArmazenamentoJornada()
@@ -58,7 +58,7 @@ export function PaginaPlanoDeVoo() {
       : visoes
 
   const embarcaveis = missoesEmbarcaveis(visoesFiltradas)
-  // Quem ainda não tem registro vem primeiro: o primeiro voo é o primeiro que a rota libera e que falta fazer.
+  // Quem ainda não tem registro vem primeiro: o primeiro missão é o primeiro que a rota libera e que falta fazer.
   const primeira = embarcaveis.find((missao) => missao.estado !== 'concluida') ?? embarcaveis[0] ?? null
 
   const xpExibido = resumoCarreira ? Math.max(resumoCarreira.xpTotal, estadoAcademia.xp) : estadoAcademia.xp
@@ -162,7 +162,7 @@ export function PaginaPlanoDeVoo() {
             Missão 0: o que fazer dentro do chamado
           </h2>
           <span className="muted">
-            O Primeiro Voo abre o chamado. Este roteiro mostra o que fazer depois que ele estiver aberto.
+            O Primeiro Missão abre o chamado. Este roteiro mostra o que fazer depois que ele estiver aberto.
           </span>
         </summary>
         <ol className="steps-grid">

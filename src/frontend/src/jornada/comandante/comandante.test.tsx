@@ -21,7 +21,7 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('Comandante', () => {
+describe('Mentor', () => {
   it('nenhum módulo de comandante/ importa o cliente da API, os registros ou o cartão', () => {
     const modulos = Object.entries(FONTES).filter(([caminho]) => !/\.test\.tsx?$/.test(caminho))
     expect(modulos.length).toBeGreaterThanOrEqual(3)
@@ -33,7 +33,7 @@ describe('Comandante', () => {
     }
   })
 
-  it('Feature: jornada-de-voo, Property 20: Papel do Comandante por página', () => {
+  it('Feature: jornada-de-voo, Property 20: Papel do Mentor por página', () => {
     const esperado: Partial<Record<IdPagina, PapelComandante>> = {
       inicio: 'consultor',
       'check-in': 'consultor',
@@ -48,13 +48,13 @@ describe('Comandante', () => {
     for (const pagina of PAGINAS) expect(papelPorPagina(pagina)).toBe(esperado[pagina] ?? null)
   })
 
-  it('Feature: jornada-de-voo, Property 21: Comandante só orienta', () => {
+  it('Feature: jornada-de-voo, Property 21: Mentor só orienta', () => {
     const fetch = vi.spyOn(globalThis, 'fetch')
     const ler = vi.spyOn(Storage.prototype, 'getItem')
     const gravar = vi.spyOn(Storage.prototype, 'setItem')
     const remover = vi.spyOn(Storage.prototype, 'removeItem')
     paraTodo(
-      'comandante só orienta',
+      'mentor só orienta',
       (g) => ({
         papel: g.escolher(PAPEIS_IDS),
         pergunta: g.escolher([
@@ -92,12 +92,12 @@ describe('Comandante', () => {
 
   it('o painel mostra o papel em texto e, no papel Mentor, o aviso do Juiz 360º', () => {
     render(<PainelComandante papel="mentor" pagina="caixa-preta" />)
-    expect(screen.getByRole('heading', { level: 2, name: 'Comandante, papel Mentor' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'Mentor, papel Mentor' })).toBeInTheDocument()
     expect(screen.getAllByText(new RegExp(AVISO_JUIZ)).length).toBeGreaterThan(0)
     cleanup()
     const fetch = vi.spyOn(globalThis, 'fetch')
     render(<PainelComandante papel="copiloto" pagina="cabine" dicaMissao="Abra o chamado no ITSM." />)
-    expect(screen.getByRole('heading', { level: 2, name: 'Comandante, papel Copiloto' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'Mentor, papel Copiloto' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'O que faço agora?' }))
     expect(screen.getByText('Próximo passo: Abra o chamado no ITSM.')).toBeInTheDocument()
     expect(fetch).not.toHaveBeenCalled()

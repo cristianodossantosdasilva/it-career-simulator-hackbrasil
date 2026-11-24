@@ -1,4 +1,4 @@
-/* Cabine no esquema CertSim: cabeçalho de progresso e mapa de chamados. Só tokens de index.css. */
+/* Mesa de Trabalho no esquema CertSim: cabeçalho de progresso e mapa de chamados. Só tokens de index.css. */
 .cabine-progresso { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); flex: 1 1 320px; min-width: 0; }
 .cabine-progresso-texto { font-weight: var(--font-weight-semibold); color: var(--text-primary); white-space: nowrap; }
 .cabine-progresso-barra { flex: 1 1 120px; min-width: 96px; height: 4px; border-radius: 999px; overflow: hidden; accent-color: var(--accent-primary); }

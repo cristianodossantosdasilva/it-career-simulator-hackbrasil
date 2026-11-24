@@ -9,8 +9,8 @@ export type DecisaoInicioCabine =
   | { tipo: 'criar' }
 
 /**
- * Pura. Decide como a Cabine abre o voo sem nunca duplicar sessão. `nova` sempre cria. Não recebe o
- * modo de demonstração: quem decide se a Cabine pode abrir é o portão.
+ * Pura. Decide como a Mesa de Trabalho abre a missão sem nunca duplicar sessão. `nova` sempre cria. Não recebe o
+ * modo de demonstração: quem decide se a Mesa de Trabalho pode abrir é o portão.
  */
 export function decidirInicioCabine(
   missao: IdMissao,

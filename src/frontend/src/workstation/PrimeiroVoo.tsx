@@ -63,7 +63,7 @@ function PassoFluxo({ numero, titulo, descricao, estado, concluido }: {
 
 /**
  * Objeto central da home: o proximo passo do aluno e o fluxo Estudar, Praticar no Split-Screen,
- * Revisar na Caixa-Preta. Sem progresso vira "Iniciar primeiro voo".
+ * Revisar na Caixa-Preta. Sem progresso vira "Iniciar primeiro missão".
  */
 export function PrimeiroVoo({
   temProgresso,
@@ -88,7 +88,7 @@ export function PrimeiroVoo({
           Aurora Logística, empresa fictícia com dados sintéticos
         </p>
         <h2 id="primeiro-voo-titulo" className="primeiro-voo-titulo">
-          {retomando ? 'Retomar missão' : 'Iniciar primeiro voo'}
+          {retomando ? 'Retomar missão' : 'Iniciar primeiro missão'}
         </h2>
 
         {sessaoAtiva ? (
@@ -115,12 +115,12 @@ export function PrimeiroVoo({
         ) : (
           <>
             <p className="primeiro-voo-texto">
-              Comece pelo Help Desk N1, a primeira escala da rota. Um pedido de reset de senha chega ao ITSM. Você
+              Comece pelo Help Desk N1, a primeira etapa da rota. Um pedido de reset de senha chega ao ITSM. Você
               confirma a identidade de quem pede, escolhe a menor ação e depois revê a decisão na Caixa-Preta.
             </p>
             <div className="primeiro-voo-acoes">
               <button type="button" className="btn btn-primary btn-lg" disabled={ocupado} onClick={onIniciarPrimeiroVoo}>
-                Iniciar primeiro voo
+                Iniciar primeiro missão
                 <Icone nome="avancar" />
               </button>
               <button type="button" className="btn btn-secondary btn-lg" onClick={onEstudarAntes}>
@@ -131,7 +131,7 @@ export function PrimeiroVoo({
         )}
       </div>
 
-      <ol className="fluxo" aria-label="Fluxo do primeiro voo">
+      <ol className="fluxo" aria-label="Fluxo do primeiro missão">
         <PassoFluxo
           numero={1}
           titulo="Estudar"

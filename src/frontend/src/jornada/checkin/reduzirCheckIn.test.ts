@@ -54,10 +54,10 @@ describe('reduzirCheckIn', () => {
   })
 })
 
-describe('Feature: jornada-de-voo, Property 10: Redutor do check-in', () => {
+describe('Feature: jornada-de-voo, Property 10: Redutor do diagnóstico', () => {
   it('mantém o índice no intervalo, só chega à indicação com tudo respondido e guarda a última resposta', () => {
     paraTodo(
-      'redutor do check-in',
+      'redutor do diagnóstico',
       (g) =>
         g.lista(
           (h): AcaoCheckIn => {

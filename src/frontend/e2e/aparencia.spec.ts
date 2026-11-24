@@ -456,7 +456,7 @@ test.describe('Aparência', () => {
   })
 })
 
-/** Conduz a Cabine da Service Desk N1 Jr até o SimuDesk conectado, com um comando já executado. */
+/** Conduz a Mesa de Trabalho da Service Desk N1 Jr até o SimuDesk conectado, com um comando já executado. */
 async function abrirSimuDeskConectado(page: Page) {
   await page.goto('/cabine/pasta-rede-inacessivel?semente=2&causa=C3&nova=1')
   await expect(page.getByRole('heading', { name: /CH-0001/i })).toBeVisible()

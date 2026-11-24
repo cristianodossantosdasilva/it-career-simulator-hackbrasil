@@ -1,6 +1,6 @@
 import type { StatusDisponibilidade } from './status'
 
-/** Identificadores de cenário do backend distribuídos pelas escalas da rota Suporte de TI. */
+/** Identificadores de cenário do backend distribuídos pelas etapas da rota Suporte de TI. */
 export type IdMissao =
   | 'reset-senha-desbloqueio'
   | 'pasta-rede-inacessivel'
@@ -15,7 +15,7 @@ export type IdVertente = 'n3-a-redes-nuvem' | 'n3-b-data-center-backup' | 'n3-c-
 export type IdEscala = 'help-desk-n1' | 'service-desk-n1-jr' | 'n2-pleno' | 'n3-senior'
 
 export interface Causa {
-  /** Código do cenário no backend, por exemplo C1 ou GATEWAY. Nunca exibido no Plano de voo. */
+  /** Código do cenário no backend, por exemplo C1 ou GATEWAY. Nunca exibido no Plano de Carreira. */
   codigo: string
   status: StatusDisponibilidade
 }
@@ -42,7 +42,7 @@ export interface Escala {
   id: IdEscala
   nome: string
   descricao: string
-  /** Escalas 1 a 3. Vazio na N3 Sênior. */
+  /** Etapas 1 a 3. Vazio na N3 Sênior. */
   missoes: readonly Missao[]
   /** Só na N3 Sênior, na ordem N3-A, N3-B, N3-C. Vazio nas demais. */
   vertentes: readonly Vertente[]
@@ -224,7 +224,7 @@ export function rotaPorId(id: string): Rota | null {
   return ROTAS.find((rota) => rota.id === id) ?? null
 }
 
-/** Missões da Escala na ordem do catálogo, com a Vertente de cada uma (nula nas Escalas 1 a 3). */
+/** Missões da Etapa na ordem do catálogo, com a Vertente de cada uma (nula nas Etapas 1 a 3). */
 export function missoesDaEscala(escala: Escala): readonly { missao: Missao; vertente: Vertente | null }[] {
   return [
     ...escala.missoes.map((missao) => ({ missao, vertente: null })),
@@ -248,7 +248,7 @@ export function ehIdMissao(valor: string): valor is IdMissao {
   return escalaDaMissao(valor) !== null
 }
 
-/** Nome do nível de estudo da Missão: a Vertente na N3 Sênior, senão a escala. Nulo se a Missão não existe. */
+/** Nome do nível de estudo da Missão: a Vertente na N3 Sênior, senão a etapa. Nulo se a Missão não existe. */
 export function nomeDoNivelDaMissao(missao: string): string | null {
   const local = escalaDaMissao(missao)
   return local ? (local.vertente?.nome ?? local.escala.nome) : null

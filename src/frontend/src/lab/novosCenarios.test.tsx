@@ -55,7 +55,7 @@ function passosFeitos(sessao: SessaoProjecao): number {
 }
 
 describe('Níveis de aulas dos cenários', () => {
-  it('nivelPorCenarioId devolve o nível da escala do catálogo, inclusive para os cenários novos', () => {
+  it('nivelPorCenarioId devolve o nível da etapa do catálogo, inclusive para os cenários novos', () => {
     expect(nivelPorCenarioId('reset-senha-desbloqueio')?.id).toBe('help-desk-n1')
     expect(nivelPorCenarioId('pasta-rede-inacessivel')?.id).toBe('service-desk-n1-jr')
     expect(nivelPorCenarioId('incidente-massivo')?.id).toBe('n2-pleno')

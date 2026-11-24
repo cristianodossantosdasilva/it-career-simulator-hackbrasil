@@ -20,7 +20,7 @@ function BotaoAnunciarENavegar() {
     <button
       type="button"
       onClick={() => {
-        anunciar('Cartão de embarque emitido.')
+        anunciar('Cartão de Perfil emitido.')
         navegar('/plano-de-voo')
       }}
     >
@@ -34,8 +34,8 @@ function PaginaDeTeste({ rota }: { rota: RotaResolvida }) {
   return (
     <>
       <h1>{NOME_PAGINA[rota.pagina]}</h1>
-      <LinkInterno href="/breve">Ir para o Brevê</LinkInterno>
-      <LinkInterno href="/hangar">Ir para o Hangar</LinkInterno>
+      <LinkInterno href="/breve">Ir para o Portfólio</LinkInterno>
+      <LinkInterno href="/hangar">Ir para o Catálogo</LinkInterno>
       <LinkInterno href="/caderno">Ir para o Caderno</LinkInterno>
       <BotaoAnunciarENavegar />
     </>
@@ -43,7 +43,7 @@ function PaginaDeTeste({ rota }: { rota: RotaResolvida }) {
 }
 
 function renderizar() {
-  // Cartão semeado: o Plano de voo, destino do anúncio, passa pelo portão de cartão.
+  // Cartão semeado: o Plano de Carreira, destino do anúncio, passa pelo portão de cartão.
   const armazenamento = criarArmazenamentoFalso({ [CHAVE_CARTAO_EMBARQUE]: serializarCartao(CARTAO_DE_TESTE) })
   return render(
     <ProvedorArmazenamentoJornada armazenamento={armazenamento}>
@@ -66,18 +66,18 @@ describe('Roteador, foco e região viva', () => {
   it('não move o foco na carga inicial e define o título', () => {
     renderizar()
     expect(screen.getByRole('heading', { level: 1, name: 'Início' })).not.toHaveFocus()
-    expect(document.title).toBe('Início, IT Flight Simulator')
+    expect(document.title).toBe('Início, IT Career Simulator')
     expect(screen.getByRole('main')).toHaveAttribute('id', 'conteudo-pagina')
     expect(screen.getByRole('link', { name: 'Pular para o conteúdo' })).toHaveAttribute('href', '#conteudo-pagina')
   })
 
   it('leva o foco ao h1 depois de navegação interna e atualiza o título', () => {
     renderizar()
-    fireEvent.click(screen.getByRole('link', { name: 'Ir para o Brevê' }))
-    const titulo = screen.getByRole('heading', { level: 1, name: 'Brevê' })
+    fireEvent.click(screen.getByRole('link', { name: 'Ir para o Portfólio' }))
+    const titulo = screen.getByRole('heading', { level: 1, name: 'Portfólio' })
     expect(titulo).toHaveFocus()
     expect(titulo).toHaveAttribute('tabindex', '-1')
-    expect(document.title).toBe('Brevê, IT Flight Simulator')
+    expect(document.title).toBe('Portfólio, IT Career Simulator')
   })
 
   it('reescreve a barra final sem contar como navegação', () => {
@@ -85,7 +85,7 @@ describe('Roteador, foco e região viva', () => {
     reiniciarLocalAtual()
     renderizar()
     expect(window.location.pathname).toBe('/breve')
-    expect(screen.getByRole('heading', { level: 1, name: 'Brevê' })).not.toHaveFocus()
+    expect(screen.getByRole('heading', { level: 1, name: 'Portfólio' })).not.toHaveFocus()
   })
 
   it('mantém a região viva entre navegações e limpa o anúncio ao sair da página de destino', () => {
@@ -94,9 +94,9 @@ describe('Roteador, foco e região viva', () => {
     expect(regiao).toHaveAttribute('aria-live', 'polite')
     expect(regiao).toHaveTextContent('')
     fireEvent.click(screen.getByRole('button', { name: 'Emitir cartão' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Plano de voo' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Plano de Carreira' })).toBeInTheDocument()
     expect(screen.getByRole('status')).toBe(regiao)
-    expect(regiao).toHaveTextContent('Cartão de embarque emitido.')
+    expect(regiao).toHaveTextContent('Cartão de Perfil emitido.')
     fireEvent.click(screen.getByRole('link', { name: 'Ir para o Caderno' }))
     expect(screen.getByRole('status')).toBe(regiao)
     expect(regiao).toHaveTextContent('')
@@ -106,7 +106,7 @@ describe('Roteador, foco e região viva', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     renderizar()
     const regiao = screen.getByRole('status')
-    fireEvent.click(screen.getByRole('link', { name: 'Ir para o Hangar' }))
+    fireEvent.click(screen.getByRole('link', { name: 'Ir para o Catálogo' }))
     expect(screen.getByRole('alert')).toHaveTextContent('falha simulada da página')
     expect(screen.getByRole('main')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Pular para o conteúdo' })).toBeInTheDocument()

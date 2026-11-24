@@ -77,12 +77,12 @@ describe('LinkInterno', () => {
     render(
       <>
         <LinkInterno href="/plano-de-voo" aria-current="page" {...props}>
-          Plano de voo
+          Plano de Carreira
         </LinkInterno>
         <MostrarLocal />
       </>,
     )
-    return screen.getByRole('link', { name: 'Plano de voo' })
+    return screen.getByRole('link', { name: 'Plano de Carreira' })
   }
 
   it('tem href real, repassa aria-current e navega no clique principal', () => {

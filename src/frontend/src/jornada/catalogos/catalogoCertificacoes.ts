@@ -5,7 +5,7 @@ export interface Certificacao {
   id: string
   /** Nome público da certificação, usado só como referência de mercado. */
   nome: string
-  /** O que a escala exercita que se relaciona com a referência. */
+  /** O que a etapa exercita que se relaciona com a referência. */
   descricao: string
   rotaId: IdRota
   escalaIds: readonly string[]
@@ -14,7 +14,7 @@ export interface Certificacao {
 }
 
 export const AVISO_CERTIFICACOES =
-  'Referências de mercado. Os nomes pertencem aos respectivos emissores. O IT Flight Simulator não tem parceria com emissores, não equivale a nenhuma prova e não emite certificado.'
+  'Referências de mercado. Os nomes pertencem aos respectivos emissores. O IT Career Simulator não tem parceria com emissores, não equivale a nenhuma prova e não emite certificado.'
 
 export const CATALOGO_CERTIFICACOES: readonly Certificacao[] = [
   {
