@@ -125,12 +125,12 @@ Estado auditado: `main` em `e6aae5c` (local igual ao remoto), 15/nov/2026. Leitu
 | `gh repo view` | Repositório público, branch padrão `main`, criado em 14/nov/2026 17:29 UTC, push mais recente 15/nov 18:35 UTC |
 | `gh run list` | Nenhuma execução (sem GitHub Actions) |
 | `gh api commits` | Topo remoto: `e6aae5c`, `7be12f4`, `e0bad6a`. Commit `3ff0faa` (mensagem com rótulo W22, mesma hora de `7be12f4`) existe no repositório remoto mas **sem ancestral comum** com `e6aae5c` |
-| `vercel whoami`, `project ls`, `alias ls`, `ls` | Projeto `it-flight-simulator-hackbrasil` em equipe `core-hub-lab`, domínio `itflight.nascia.ia.br` e `it-flight-simulator-hackbrasil.vercel.app`, implantação em produção "Ready" |
+| `vercel whoami`, `project ls`, `alias ls`, `ls` | Projeto `it-career-simulator-hackbrasil` em equipe `core-hub-lab`, domínio `itflight.nascia.ia.br` e `it-flight-simulator-hackbrasil.vercel.app`, implantação em produção "Ready" |
 | Acesso HTTP | `https://it-flight-simulator-hackbrasil.vercel.app` responde 200; `https://itflight.nascia.ia.br` retorna 200 com **tela de login Cloudflare Access** (cabeçalho `CF-Access-Domain`, título "Sign in") |
 | `render services` | `it-flight-simulator-api` (web service, runtime docker, plano free, região Oregon, auto deploy na `main`, última atualização 15/nov 04:24 UTC) e outro serviço gratuito de outro projeto (`vitru-agent-gateway`) na mesma conta |
 | `/health/ready` | `{"status":"ready","store":"Postgres"}` em 13,8 s na primeira chamada (inclui ativação do serviço) |
 | CORS | Origem do Vercel e do domínio personalizado recebem `Access-Control-Allow-Origin`; origem estranha não recebe |
-| `neonctl projects list` (por organização) | Projeto `it-flight-simulator-hackbrasil`, PostgreSQL 17, AWS `us-east-2` (Ohio), computação 0,25 a 2 CU, criado em 14/nov 17:26 UTC; outro projeto da conta em `sa-east-1` |
+| `neonctl projects list` (por organização) | Projeto `it-career-simulator-hackbrasil`, PostgreSQL 17, AWS `us-east-2` (Ohio), computação 0,25 a 2 CU, criado em 14/nov 17:26 UTC; outro projeto da conta em `sa-east-1` |
 | `cloudflare` (CLI `cf`) | Um perfil de autenticação chamado `default`; não listei zonas para limitar escopo. A presença do Access no domínio indica regra de acesso ativa |
 
 **Lacunas entre código local, GitHub e deploy**

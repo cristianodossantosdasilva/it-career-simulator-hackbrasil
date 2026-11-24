@@ -1,4 +1,4 @@
-# AGENTS.md — IT Flight Simulator (Hack Brasil 2026)
+# AGENTS.md — IT Career Simulator (Hack Brasil 2026)
 
 Diretrizes técnicas e de arquitetura para contribuições neste repositório.
 

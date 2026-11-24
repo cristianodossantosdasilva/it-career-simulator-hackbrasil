@@ -1,4 +1,4 @@
-# Planejamento Pedagógico, Regulação e Matriz Curricular Técnica 560h — IT Flight Simulator
+# Planejamento Pedagógico, Regulação e Matriz Curricular Técnica 560h — IT Career Simulator
 
 > **Documento Mestre de Engenharia Educacional, Curricular, Comercial e de Arquitetura de Produto**  
 > **Deliberação Conjunta:** Cristiano dos Santos da Silva + Antigravity e Orchestrator (Argon)  
@@ -9,7 +9,7 @@
 
 ## 1. Visão Geral Executiva e Posicionamento Estratégico
 
-O **IT Flight Simulator** tem como propósito receber um aluno totalmente leigo (**"cru"**, sem vivência prévia na área de tecnologia) e formá-lo com **nível de conhecimento técnico real, rigor operacional e autonomia prática** em até **8 meses (32 semanas / 560 horas)** de treinamento intensivo, com **100% das Unidades Curriculares dotadas de laboratório simulado interativo dedicado** e simulação corporativa realista na empresa fictícia **Aurora Logística S.A.** (`aurora.local`).
+O **IT Career Simulator** tem como propósito receber um aluno totalmente leigo (**"cru"**, sem vivência prévia na área de tecnologia) e formá-lo com **nível de conhecimento técnico real, rigor operacional e autonomia prática** em até **8 meses (32 semanas / 560 horas)** de treinamento intensivo, com **100% das Unidades Curriculares dotadas de laboratório simulado interativo dedicado** e simulação corporativa realista na empresa fictícia **Aurora Logística S.A.** (`aurora.local`).
 
 Em vez de prometer formações milagrosas de "Engenheiro Sênior" em poucos dias — ou limitar a grade a poucas horas superficiais — o programa entrega a **densidade técnica e laboratorial equivalente à de um Curso Técnico profissionalizante**, operado sob formato ágil de **Curso Livre de Qualificação Profissional e Capacitação Prática** em **2 Ciclos Estratégicos**:
 
@@ -31,7 +31,7 @@ Em vez de prometer formações milagrosas de "Engenheiro Sênior" em poucos dias
 
 ### 2.1. Base Legal Brasileira para Operação como Aplicação Real
 
-| Marco Legal ou Normativo | Aplicação Prática no IT Flight Simulator |
+| Marco Legal ou Normativo | Aplicação Prática no IT Career Simulator |
 | :--- | :--- |
 | **LDB — Lei nº 9.394/1996** *(Art. 39, parágrafo 2º, inciso I e Art. 42)* | Enquadra a formação na modalidade de Educação Profissional e Tecnológica como **Curso Livre de Qualificação Profissional e Capacitação Prática** e **cursos preparatórios livres para certificações**, abertos ao público sem exigência de credenciamento prévio no MEC/SISTEC. Permite atualização contínua dos simuladores no ritmo real do mercado. |
 | **Educação Profissional Livre (LDB Art. 42 e Resolução CNE/CP nº 1/2021)** | Garante autonomia institucional para estruturar matrizes curriculares extensas por competências e emitir **Certificado de Conclusão de Curso Livre e Microcertificados Modulares** com ementa, CBO e horas práticas efetivamente medidas pelo motor determinístico. Utiliza rigorosamente *"Certificado de Conclusão de Curso Livre"* e jamais promete equivalência a *"Diploma Técnico"* ou certificação FIC institucional antes de eventual credenciamento formal. |
@@ -71,7 +71,7 @@ O aprendizado na plataforma segue o **Ciclo Cognitivo de 4 Etapas** (*Aprender �
 3. **Instrução Direta (Barak Rosenshine):** Microaulas com analogia do cotidiano antes dos termos técnicos, exemplos guiados e checagem imediata.
 4. **Teoria da Carga Cognitiva (John Sweller) e Revelação Progressiva (*Progressive Disclosure*):** Nos módulos `UC1` e `UC2`, a tela exibe apenas ferramentas essenciais; em `UC5` a `UC8`, destrava painéis multi-vendor, triggers, console EDR, rack completo e cronômetro competitivo de SLA.
 
-### 3.1. As 5 Ferramentas Nativas do Estúdio de Estudos Integrado (Estilo Notion + Cockpit)
+### 3.1. As 5 Ferramentas Nativas do Estúdio de Estudos Integrado (Estilo Notion + Mesa de Trabalho)
 
 | Ferramenta Integrada | Base Científica | Funcionamento Real Dentro da Aplicação |
 | :--- | :--- | :--- |
@@ -281,7 +281,7 @@ Para que nenhuma Unidade Curricular fique restrita a slides ou formulários est�
 
 1. **`HardwareWorkbenchLab` (UC1):** Bancada 2D Desktop/Notebook/UPS em 5 modos (Raio-X 10 peças, Maleta ESD com penalidade para álcool `70%` ou aspirador comum, Sequência elétrica segura de 6 passos, Telemetria térmica/POST/SMART e Laudo Técnico).
 2. **`OsSystemAdminLab` (UC2):** Console multi-sistema unindo WinRE/`bcdedit`, BitLocker 48 dígitos, Editor de Registro, Services, Monitor Sysinternals, Minidump BSOD, PowerShell e Terminal SSH Linux (`systemd`, `journalctl`, `chmod`, `df`/`du`).
-3. **`NetworkCablingWifiDesignLab` (UC3):** Combina **Bancada Física de Cabeamento RJ-45 (`T568A/B`), Keystone/Patch Panel *Punch Down*, Testador Pino a Pino `1–8` e Rack `U` com Switch PoE** + **Estúdio Visual de Design Wi-Fi inspirado no *Ubiquiti UniFi Design Center*** (planta baixa em escala com paredes atenuadoras `-3 dB` a `-15 dB`, posicionamento de APs UniFi/Cisco/MikroTik/Aruba, *Heatmap RF* `2.4/5/6 GHz`, e Controladora Wi-Fi configurando SSIDs, VLANs, WPA3 `802.1X`, canais e *Captive Portal*).
+3. **`NetworkCablingWifiDesignLab` (UC3):** Combina **Bancada Física de Cabeamento RJ-45 (`T568A/B`), Keystone/Patch Panel *Punch Down*, Testador Pino a Pino `1–8` e Rack `U` com Switch PoE** + **Estúdio Visual de Design Wi-Fi inspirado no *Ubiquiti UniFi Design Center*** (planta baixa em etapa com paredes atenuadoras `-3 dB` a `-15 dB`, posicionamento de APs UniFi/Cisco/MikroTik/Aruba, *Heatmap RF* `2.4/5/6 GHz`, e Controladora Wi-Fi configurando SSIDs, VLANs, WPA3 `802.1X`, canais e *Captive Portal*).
 4. **`CorporateWorkspaceLab` (UC4):** Active Directory `dsa.msc`, Admin Center Microsoft 365/Exchange, Fila de Impressão RAW `9100`/WSD + Scanner SMB, Gerenciador ICP-Brasil A1/A3 (`SCardSvr`, PIN/PUK) e Mesa ITSM.
 5. **`ServerSustainmentLab` (UC5):** Editor de GPO (`gpmc.msc`, `LSDOU`, `gpresult /h`), Simulador de Permissões Share vs. NTFS + FSRM, DHCP/DNS Server, Forense Event Viewer (`Event ID 4740`) e Sala de Crise RCA.
 6. **`MultiVendorNetworkFirewallLab` (UC6):** Emulação sintática e visual fiel de comandos e fluxos de fabricantes líderes consolidados:
@@ -294,14 +294,14 @@ Para que nenhuma Unidade Curricular fique restrita a slides ou formulários est�
 
 ## 6. Arquitetura de Evolução Futura (Onda 4): Simulador de Chamada em Vídeo e Voz ao Vivo com Agentes de IA
 
-A **Onda 4** introduzirá o módulo **`VideoCallSimulator` (Chamada em Vídeo e Voz ao Vivo com Agentes de IA)** dentro do Cockpit para treinar comunicação verbal sob câmera, calma e firmeza diante de situações humanas reais.
+A **Onda 4** introduzirá o módulo **`VideoCallSimulator` (Chamada em Vídeo e Voz ao Vivo com Agentes de IA)** dentro do Mesa de Trabalho para treinar comunicação verbal sob câmera, calma e firmeza diante de situações humanas reais.
 
 ```mermaid
 flowchart LR
     ALUNO["Aluno (Microfone e Camera WebRTC opcionais)"]
     MOTOR["Motor Deterministico .NET 10<br/>(Autoridade Unica do Estado e Nota)"]
     LIVE["Gateway Multimodal Live API<br/>(Voz Neural pt-BR + Contexto Read-Only)"]
-    AVATAR["Janela Video Call no Cockpit<br/>(Avatar 2.5D/3D + Tela Compartilhada Simulada)"]
+    AVATAR["Janela Video Call no Mesa de Trabalho<br/>(Avatar 2.5D/3D + Tela Compartilhada Simulada)"]
     JUIZ["Juiz 360 + Replay<br/>(Rubrica Tecnica + Rubrica Comunicacional -> JCS/SHA-256)"]
 
     MOTOR -->|"Snapshot Read-Only (SLA, Servicos, Logs)"| LIVE
@@ -351,7 +351,7 @@ O uso preparatório e educacional de interfaces e conceitos inspirados em fabric
 1. **Liberdade de Ensino Preparatório (LDB Art. 42 e Resolução CNE/CP nº 1/2021):** Qualquer plataforma de curso livre pode oferecer capacitação e simulados preparatórios para exames técnicos externos de mercado.
 2. **Uso Nominativo Lícito e Vedação de Confusão de Trade Dress (Lei da Propriedade Industrial — Lei nº 9.279/1996, Art. 132, incisos I e II, e Art. 195):** A lei permite citar marcas registradas de terceiros (Cisco, Fortinet, MikroTik, Ubiquiti, Microsoft, Veeam, CompTIA, AWS) exclusivamente para **indicar compatibilidade ou objetivo preparatório**, **proibindo estritamente** copiar logotipos, marcas figurativas ou *trade dress* idêntico de consoles proprietários (**Art. 195 — concorrência desleal**). Os consoles simulados utilizam **identidade visual autoral própria**, sem logotipos de fabricantes antes de convênio formal.
    - *Salvaguarda obrigatória na plataforma:* Exibir aviso explícito de que *"Todas as marcas pertencem aos seus respectivos titulares; os laboratórios independentes utilizam consoles com interface autoral e motores simulados educacionais próprios para fins didáticos e preparatórios"* até a eventual ativação de parceria oficial (*Vendor Academy*).
-3. **Simulação Autoral sem Pirataria de Firmware/ISO (Lei de Software nº 9.609/1998):** Os simuladores do **IT Flight Simulator** nunca redistribuem nem executam cópias não licenciadas de firmwares ou imagens proprietárias fechadas (ex.: IOS/FortiOS reais); toda a sintaxe, comportamento de protocolos RFC/IEEE e painéis são implementados em código próprio no motor `.NET 10` e `React`, migrando para imagens oficiais **apenas** quando fornecidas diretamente pelos fabricantes via licença acadêmica.
+3. **Simulação Autoral sem Pirataria de Firmware/ISO (Lei de Software nº 9.609/1998):** Os simuladores do **IT Career Simulator** nunca redistribuem nem executam cópias não licenciadas de firmwares ou imagens proprietárias fechadas (ex.: IOS/FortiOS reais); toda a sintaxe, comportamento de protocolos RFC/IEEE e painéis são implementados em código próprio no motor `.NET 10` e `React`, migrando para imagens oficiais **apenas** quando fornecidas diretamente pelos fabricantes via licença acadêmica.
 4. **Proibição Absoluta de *Brain Dumps* (Lei de Direitos Autorais nº 9.610/1998 e Termos NDA):** Todas as questões teóricas e PBQs dos futuros Simulados de Certificação serão **100% inéditas e autorais**, construídas com base nos *Exam Blueprints* públicos oficiais, jamais reproduzindo questões reais vazadas de provas (*dumps*).
 5. **Transparência CDC (Lei nº 8.078/1990):** Diferenciar claramente no documento emitido e na página de vendas o **Certificado de Conclusão de Curso Livre da plataforma** *(com carga horária medida de forma auditável)* versus o **Exame Oficial de Certificação** (pago e aplicado externamente via Pearson VUE / Kryterion / centro autorizado, salvo quando houver voucher parceiro).
 
@@ -419,9 +419,9 @@ O Hack Brasil 2026 (até 30/nov/2026) roda a custo zero: Render, Neon e Vercel e
 ## 10. Estratégia de Implementação Sem Regressão (Do Hackathon às 560h e Certificações)
 
 1. **Preservação Integral das Suítes Atuais:** Nenhuma alteração de evolução quebra os contratos retrocompatíveis da `Simulador.Api` ou as suítes automatizadas atuais: as suítes `xUnit` (`Simulador.Dominio.Tests`, `Simulador.Api.Tests` e `Simulador.Infra.IntegrationTests` no CI), `Vitest` (`axe-core`) e `Playwright`. As contagens medidas ficam no [README](../README.md#como-testar) e no CI.
-2. **Migração Sincronizada de Interface e Segurança Base (Concluída em `src/` no Hackathon):** Tema Claro Educacional AWS Skill Builder (com alternância para escuro), Missão 0 em 4 passos, Glossário rápido, Matriz transparente MVP vs. Roadmap, Debrief da Caixa-Preta, remoção sincronizada do caractere E comercial e endurecimento criptográfico (`JCS RFC 8785 UTF-8 + SHA-256 + assinatura ECDSA P-256`, `UseForwardedHeaders`, limites body/dados, `Demo:PermitirParametrosDeTeste` e expurgo `> 2 dias`) já implantados e testados com zero regressão.
+2. **Migração Sincronizada de Interface e Segurança Base (Concluída em `src/` no Hackathon):** Tema Claro Educacional AWS Skill Builder (com alternância para escuro), Missão 0 em 4 passos, Glossário rápido, Matriz transparente MVP vs. Roadmap, Debrief da Revisão, remoção sincronizada do caractere E comercial e endurecimento criptográfico (`JCS RFC 8785 UTF-8 + SHA-256 + assinatura ECDSA P-256`, `UseForwardedHeaders`, limites body/dados, `Demo:PermitirParametrosDeTeste` e expurgo `> 2 dias`) já implantados e testados com zero regressão.
 3. **Cronograma de Entrega em 4 Ondas (Do Hackathon ao Produto Completo):**
-   - **Hackathon (até 30/nov/2026):** Tema Claro Educacional (com modo escuro opcional) + Missão 0 guiada + Glossário rápido + Matriz MVP vs. Roadmap + Caixa-Preta Replay com Debrief Didático + 5 cenários determinísticos completos no motor `.NET 10` (`JCS RFC 8785 UTF-8 + SHA-256 + ECDSA P-256`) a **R\$ 0,00** em `https://it-flight-simulator-hackbrasil.vercel.app`.
+   - **Hackathon (até 30/nov/2026):** Tema Claro Educacional (com modo escuro opcional) + Missão 0 guiada + Glossário rápido + Matriz MVP vs. Roadmap + Revisão Replay com Debrief Didático + 5 cenários determinísticos completos no motor `.NET 10` (`JCS RFC 8785 UTF-8 + SHA-256 + ECDSA P-256`) a **R\$ 0,00** em `https://it-career-simulator-hackbrasil.vercel.app`.
    - **Onda 1 (Meses 1–2 pós-Hackathon):** Contas multi-tenant (elegível a *WorkOS* + *Resend* do Hackathon), Aulas + Flashcards `SM-2`, Caderno Cornell, Mentor Feynman/STAR, `HardwareWorkbenchLab` completo (`UC1`), estreia de `NetworkCablingWifiDesignLab` parte física RJ-45/Rack `U` (`LAB-UC3-01/02`), 1º cenário N3-B (`falha-backup-restore`) e triagem SLA (`LAB-UC4-01`) — **20 cenários ativos**.
    - **Onda 2 (Meses 3–5):** Entrega de **100% do Ciclo 1 (280h / 40 cenários)** incluindo `OsSystemAdminLab`, Estúdio Wi-Fi Design estilo UniFi, `CorporateWorkspaceLab`, **Certificado Parcial de Curso Livre Júnior (280h)**, e núcleo de `UC5` (GPO/Lockout), `UC7` (Rack 42U/iSCSI/Snapshots/VSS/Cloud Backup WORM) e `UC8` (IAM/BEC) — **55 cenários ativos**.
    - **Onda 3 (Meses 6–7):** Entrega integral dos **8 Laboratórios Dedicados (`UC1` a `UC8`) e 80 cenários (560h)** — incluindo `MultiVendorNetworkFirewallLab` completo (**Cisco IOS, MikroTik RouterOS/WinBox, UniFi, Fortinet NGFW GeoIP/Content Filter/Gateway AV** em interface visual autoral sem trade dress de terceiros), `CyberBlueTeamSqlLab` com **Console Antivírus/EDR**, Painel B2B, emissor de **Certificado de Conclusão de Curso Livre (560h)** e abertura do **Centro de Simulados de Certificações e Parcerias *Vendor Academies*** — **80 / 80 cenários ativos**.

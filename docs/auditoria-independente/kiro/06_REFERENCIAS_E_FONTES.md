@@ -66,7 +66,7 @@ Não consultados ou sem conteúdo útil: Udemy, Coursera, Rocketseat e Escola DN
 
 1. `PRAGMA integrity_check;` e `PRAGMA foreign_key_check;` (retornos `ok` e vazio)
 2. `SELECT ... FROM v_project_state_current ORDER BY project;`
-3. `SELECT slug,name FROM project WHERE slug LIKE '%flight%' OR ...;`
+3. `SELECT slug,name FROM project WHERE slug LIKE '%career%' OR ...;`
 4. `SELECT kind,seq,substr(text,1,350) FROM state_item WHERE state_id = <estado do projeto simulador-carreira-ti>;`
 5. `SELECT * FROM v_stage_current WHERE project='simulador-carreira-ti';`
 6. `SELECT ... FROM checkpoint WHERE project_id = <id> ORDER BY recorded_at DESC LIMIT 4;`

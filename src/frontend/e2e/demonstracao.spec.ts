@@ -1,18 +1,18 @@
 import { type Locator, type Page, type Request, expect, test } from '@playwright/test'
-import { CHAVE_CARTAO_EMBARQUE, serializarCartao } from '../src/jornada/armazenamento/cartaoEmbarque'
+import { CHAVE_CARTAO_PERFIL, serializarCartao } from '../src/jornada/armazenamento/cartaoPerfil'
 import { CHAVE_MODO_DEMONSTRACAO, serializarModoDemonstracao } from '../src/jornada/armazenamento/modoDemonstracao'
-import { CHAVE_REGISTROS_VOO } from '../src/jornada/armazenamento/registrosVoo'
+import { CHAVE_REGISTROS_MISSAO } from '../src/jornada/armazenamento/registrosMissao'
 import type { IdMissao } from '../src/jornada/catalogos/catalogoRotas'
-import { CHECKIN_RAPIDO, ROTEIRO_CHECKIN, rotuloDaResposta } from '../src/jornada/catalogos/catalogoVocacional'
+import { DIAGNOSTICO_RAPIDO, ROTEIRO_DIAGNOSTICO, rotuloDaResposta } from '../src/jornada/catalogos/catalogoVocacional'
 import { textosDaMissao } from '../src/jornada/componentes/textosDaMissao'
 import { CARTAO_DE_TESTE } from '../src/testes/armazenamentoFalso'
 
-const NOME_CONTROLE = 'Liberar todas as escalas para demonstração'
+const NOME_CONTROLE = 'Liberar todas as etapas para demonstração'
 const CARTAO = serializarCartao(CARTAO_DE_TESTE)
 const MODO_ATIVO = serializarModoDemonstracao({
   versao: 1,
   ativo: true,
-  origem: 'plano-de-voo',
+  origem: 'plano-de-carreira',
   alteradoEm: '2026-11-20T12:00:00.000Z',
 })
 
@@ -86,35 +86,35 @@ test.afterEach(() => {
 })
 
 test.describe('Modo de demonstração', () => {
-  test('atalho sem cartão: check-in rápido, Cabine, modo ativo e uma única sessão', async ({ page }) => {
+  test('atalho sem cartão: diagnóstico rápido, Mesa de Trabalho, modo ativo e uma única sessão', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: 'Experimentar um voo agora' }).click()
-    await expect(page).toHaveURL(/\/check-in\?modo=rapido$/)
-    await expect(page.getByRole('heading', { level: 2, name: 'Check-in rápido' })).toBeVisible()
-    for (const pergunta of ROTEIRO_CHECKIN.perguntas) {
-      const rotulo = rotuloDaResposta(pergunta.id, CHECKIN_RAPIDO.respostas[pergunta.id]) ?? ''
+    await page.getByRole('button', { name: 'Atender meu primeiro chamado' }).click()
+    await expect(page).toHaveURL(/\/diagnostico\?modo=rapido$/)
+    await expect(page.getByRole('heading', { level: 2, name: 'Diagnóstico rápido' })).toBeVisible()
+    for (const pergunta of ROTEIRO_DIAGNOSTICO.perguntas) {
+      const rotulo = rotuloDaResposta(pergunta.id, DIAGNOSTICO_RAPIDO.respostas[pergunta.id]) ?? ''
       await expect(page.getByText(rotulo, { exact: true })).toBeVisible()
     }
     const entradas = await page.evaluate(() => window.history.length)
-    await page.getByRole('button', { name: 'Confirmar e embarcar' }).click()
-    await expect(page).toHaveURL(/\/cabine\/pasta-rede-inacessivel$/)
+    await page.getByRole('button', { name: 'Confirmar e iniciar' }).click()
+    await expect(page).toHaveURL(/\/mesa-de-trabalho\/pasta-rede-inacessivel$/)
     expect(await page.evaluate(() => window.history.length)).toBe(entradas)
-    await expect(page.getByRole('heading', { level: 1, name: 'Cabine' })).toBeFocused()
+    await expect(page.getByRole('heading', { level: 1, name: 'Mesa de Trabalho' })).toBeFocused()
     await expect(page.getByRole('status').filter({ hasText: 'Modo de demonstração ativado' })).toHaveCount(1)
     await expect.poll(() => criacoesDeSessao().length).toBe(1)
     expect(JSON.parse((await lerChave(page, CHAVE_MODO_DEMONSTRACAO)) ?? 'null')).toMatchObject({ ativo: true })
-    expect(JSON.parse((await lerChave(page, CHAVE_CARTAO_EMBARQUE)) ?? 'null')).toMatchObject({
-      origem: 'checkin-rapido',
+    expect(JSON.parse((await lerChave(page, CHAVE_CARTAO_PERFIL)) ?? 'null')).toMatchObject({
+      origem: 'diagnostico-rapido',
     })
-    expect(await lerChave(page, CHAVE_REGISTROS_VOO)).toBeNull()
+    expect(await lerChave(page, CHAVE_REGISTROS_MISSAO)).toBeNull()
   })
 
-  test('atalho com cartão: Cabine direta, cartão intacto e voltar leva ao Início', async ({ page }) => {
-    await semear(page, { [CHAVE_CARTAO_EMBARQUE]: CARTAO })
+  test('atalho com cartão: Mesa de Trabalho direta, cartão intacto e voltar leva ao Início', async ({ page }) => {
+    await semear(page, { [CHAVE_CARTAO_PERFIL]: CARTAO })
     await page.goto('/')
-    await page.getByRole('button', { name: 'Experimentar um voo agora' }).click()
-    await expect(page).toHaveURL(/\/cabine\/pasta-rede-inacessivel$/)
-    expect(await lerChave(page, CHAVE_CARTAO_EMBARQUE)).toBe(CARTAO)
+    await page.getByRole('button', { name: 'Atender meu primeiro chamado' }).click()
+    await expect(page).toHaveURL(/\/mesa-de-trabalho\/pasta-rede-inacessivel$/)
+    expect(await lerChave(page, CHAVE_CARTAO_PERFIL)).toBe(CARTAO)
     expect(JSON.parse((await lerChave(page, CHAVE_MODO_DEMONSTRACAO)) ?? 'null')).toMatchObject({ ativo: true })
     await page.goBack()
     await expect(page).toHaveURL(/\/$/)
@@ -122,8 +122,8 @@ test.describe('Modo de demonstração', () => {
   })
 
   test('controle só com teclado: libera, sobrevive a recarga e desativa', async ({ page }) => {
-    await semear(page, { [CHAVE_CARTAO_EMBARQUE]: CARTAO })
-    await page.goto('/plano-de-voo')
+    await semear(page, { [CHAVE_CARTAO_PERFIL]: CARTAO })
+    await page.goto('/plano-de-carreira')
     const controle = page.getByRole('switch', { name: NOME_CONTROLE })
     await expect(controle).toHaveAttribute('aria-checked', 'false')
     await focarPorTeclado(page, controle)
@@ -131,11 +131,11 @@ test.describe('Modo de demonstração', () => {
     await expect(controle).toHaveAttribute('aria-checked', 'true')
     await expect(page.getByText('Liberada para demonstração', { exact: true })).toHaveCount(4)
     await expect(
-      cartaoDaMissao(page, 'sre-cloud-latencia').getByRole('link', { name: /Embarcar/ }),
-    ).toHaveAttribute('href', '/cabine/sre-cloud-latencia')
+      cartaoDaMissao(page, 'sre-cloud-latencia').getByRole('link', { name: /Iniciar/ }),
+    ).toHaveAttribute('href', '/mesa-de-trabalho/sre-cloud-latencia')
     const backup = cartaoDaMissao(page, 'falha-backup-restore')
     await expect(backup.getByText('Em preparação', { exact: true })).toHaveCount(0)
-    await expect(backup.getByRole('link', { name: /Embarcar/ })).toHaveAttribute('href', '/cabine/falha-backup-restore')
+    await expect(backup.getByRole('link', { name: /Iniciar/ })).toHaveAttribute('href', '/mesa-de-trabalho/falha-backup-restore')
 
     await page.reload()
     await expect(page.getByRole('switch', { name: NOME_CONTROLE })).toHaveAttribute('aria-checked', 'true')
@@ -145,30 +145,30 @@ test.describe('Modo de demonstração', () => {
     await expect(cartaoDaMissao(page, 'incidente-massivo').getByText('Bloqueada', { exact: true })).toBeVisible()
     await expect(cartaoDaMissao(page, 'sre-cloud-latencia').getByText('Bloqueada', { exact: true })).toBeVisible()
     expect(JSON.parse((await lerChave(page, CHAVE_MODO_DEMONSTRACAO)) ?? 'null')).toMatchObject({ ativo: false })
-    expect(await lerChave(page, CHAVE_REGISTROS_VOO)).toBeNull()
+    expect(await lerChave(page, CHAVE_REGISTROS_MISSAO)).toBeNull()
   })
 
-  test('portão do cartão vale com o modo ativo: sem cartão a Cabine vai ao check-in e não cria sessão', async ({
+  test('portão do cartão vale com o modo ativo: sem cartão a Mesa de Trabalho vai ao diagnóstico e não cria sessão', async ({
     page,
   }) => {
     await semear(page, { [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
-    await page.goto('/cabine/incidente-massivo')
-    await expect(page).toHaveURL(/\/check-in\?motivo=sem-cartao$/)
+    await page.goto('/mesa-de-trabalho/incidente-massivo')
+    await expect(page).toHaveURL(/\/diagnostico\?motivo=sem-cartao$/)
     expect(criacoesDeSessao()).toHaveLength(0)
   })
 
-  test('Brevê com o modo ativo e sem registros mostra o estado vazio', async ({ page }) => {
-    await semear(page, { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
-    await page.goto('/breve')
-    await expect(page.getByText(/Você ainda não tem voos registrados/)).toBeVisible()
+  test('Portfólio com o modo ativo e sem registros mostra o estado vazio', async ({ page }) => {
+    await semear(page, { [CHAVE_CARTAO_PERFIL]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
+    await page.goto('/portfolio')
+    await expect(page.getByText(/Você ainda não tem missões registradas/)).toBeVisible()
     await expect(page.getByRole('link', { name: 'Modo de demonstração ativo' })).toBeVisible()
-    expect(await lerChave(page, CHAVE_REGISTROS_VOO)).toBeNull()
+    expect(await lerChave(page, CHAVE_REGISTROS_MISSAO)).toBeNull()
     expect(requisicoes.filter((r) => r.metodo === 'POST')).toHaveLength(0)
   })
 
   test('valor corrompido na chave do modo abre desativado e sem erro no console', async ({ page }) => {
-    await semear(page, { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: '{' })
-    await page.goto('/plano-de-voo')
+    await semear(page, { [CHAVE_CARTAO_PERFIL]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: '{' })
+    await page.goto('/plano-de-carreira')
     await expect(page.getByRole('switch', { name: NOME_CONTROLE })).toHaveAttribute('aria-checked', 'false')
     await expect(page.getByRole('link', { name: 'Modo de demonstração ativo' })).toHaveCount(0)
     expect(errosDoConsole).toEqual([])
@@ -176,8 +176,8 @@ test.describe('Modo de demonstração', () => {
 
   test('em 375 px o controle e o indicador cabem, sem rolagem horizontal, com alvo de 44 px', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 })
-    await semear(page, { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
-    await page.goto('/plano-de-voo')
+    await semear(page, { [CHAVE_CARTAO_PERFIL]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
+    await page.goto('/plano-de-carreira')
     const controle = page.getByRole('switch', { name: NOME_CONTROLE })
     const indicador = page.getByRole('link', { name: 'Modo de demonstração ativo' })
     for (const alvo of [controle, indicador]) {

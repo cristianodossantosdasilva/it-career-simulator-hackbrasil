@@ -1,10 +1,10 @@
 /**
- * Modo_de_Demonstração: atalho de avaliação para a banca. Este módulo não importa o cliente da API nem os
- * módulos do cartão, dos registros e dos voos ativos, e só conhece a chave `itfs_modo_demonstracao`.
+ * Modo_de_Demonstração: atalho para conhecer todas as etapas. Este módulo não importa o cliente da API nem os
+ * módulos do cartão, dos registros e das missões ativas, e só conhece a chave `itfs_modo_demonstracao`.
  */
 export const CHAVE_MODO_DEMONSTRACAO = 'itfs_modo_demonstracao'
 
-export type OrigemModoDemonstracao = 'plano-de-voo' | 'atalho-experimentar'
+export type OrigemModoDemonstracao = 'plano-de-carreira' | 'atalho-experimentar'
 
 export interface ModoDemonstracao {
   versao: 1
@@ -15,7 +15,7 @@ export interface ModoDemonstracao {
   alteradoEm: string
 }
 
-const ORIGENS: readonly OrigemModoDemonstracao[] = ['plano-de-voo', 'atalho-experimentar']
+const ORIGENS: readonly OrigemModoDemonstracao[] = ['plano-de-carreira', 'atalho-experimentar']
 
 /** Pura e total: nunca lança. Devolve nulo para qualquer texto fora do formato da versão 1. */
 export function analisarModoDemonstracao(texto: string | null): ModoDemonstracao | null {

@@ -5,7 +5,7 @@ import type { SessaoProjecao } from '../api/types'
 import { ChatApp } from '../apps/ChatApp/ChatApp'
 import { SimuDeskApp } from '../apps/SimuDeskApp/SimuDeskApp'
 import { nivelPorCenarioId } from '../educacao/catalogoEducacional'
-import { CATALOGO_ROTAS, missoesDaEscala } from '../jornada/catalogos/catalogoRotas'
+import { CATALOGO_ROTAS, missoesDaEtapa } from '../jornada/catalogos/catalogoRotas'
 import { rotuloDoEvento } from '../replay/rotulosEvento'
 import { projecaoDeTeste } from '../testes/apiDeTeste'
 import { obterProximaDicaMissao } from './dicaMissao'
@@ -55,7 +55,7 @@ function passosFeitos(sessao: SessaoProjecao): number {
 }
 
 describe('Níveis de aulas dos cenários', () => {
-  it('nivelPorCenarioId devolve o nível da escala do catálogo, inclusive para os cenários novos', () => {
+  it('nivelPorCenarioId devolve o nível da etapa do catálogo, inclusive para os cenários novos', () => {
     expect(nivelPorCenarioId('reset-senha-desbloqueio')?.id).toBe('help-desk-n1')
     expect(nivelPorCenarioId('pasta-rede-inacessivel')?.id).toBe('service-desk-n1-jr')
     expect(nivelPorCenarioId('incidente-massivo')?.id).toBe('n2-pleno')
@@ -69,8 +69,8 @@ describe('Níveis de aulas dos cenários', () => {
   })
   it('toda Missão do catálogo tem título e descrição próprios', () => {
     for (const rota of CATALOGO_ROTAS) {
-      for (const escala of rota.escalas) {
-        for (const { missao } of missoesDaEscala(escala)) {
+      for (const etapa of rota.etapas) {
+        for (const { missao } of missoesDaEtapa(etapa)) {
           expect(missao.titulo, missao.id).toBeTruthy()
           expect(missao.descricao, missao.id).toBeTruthy()
         }

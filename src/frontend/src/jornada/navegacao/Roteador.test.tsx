@@ -2,7 +2,7 @@ import '@testing-library/jest-dom/vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CARTAO_DE_TESTE, criarArmazenamentoFalso } from '../../testes/armazenamentoFalso'
-import { CHAVE_CARTAO_EMBARQUE, serializarCartao } from '../armazenamento/cartaoEmbarque'
+import { CHAVE_CARTAO_PERFIL, serializarCartao } from '../armazenamento/cartaoPerfil'
 import { ProvedorArmazenamentoJornada } from '../ProvedorArmazenamentoJornada'
 import { reiniciarLocalAtual } from './navegador'
 import type { DecisaoPortao } from './portoes'
@@ -41,31 +41,31 @@ afterEach(() => {
 })
 
 describe('Roteador com portões', () => {
-  it('sem cartão, /plano-de-voo termina em /check-in?motivo=sem-cartao sem aumentar o histórico', () => {
+  it('sem cartão, /plano-de-carreira termina em /diagnostico?motivo=sem-cartao sem aumentar o histórico', () => {
     const tamanhoAntes = window.history.length
-    abrir('/plano-de-voo')
-    expect(window.location.pathname).toBe('/check-in')
+    abrir('/plano-de-carreira')
+    expect(window.location.pathname).toBe('/diagnostico')
     expect(window.location.search).toBe('?motivo=sem-cartao')
     expect(window.history.length).toBe(tamanhoAntes)
-    expect(screen.getByRole('heading', { level: 1, name: 'Check-in' })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Plano de voo' })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Diagnóstico' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Plano de Carreira' })).not.toBeInTheDocument()
   })
 
   it('cartão corrompido equivale a ausente, sem erro não tratado', () => {
     const erro = vi.spyOn(console, 'error')
-    abrir('/cabine/pasta-rede-inacessivel', { [CHAVE_CARTAO_EMBARQUE]: '{"versao":1,"rotaId":' })
-    expect(window.location.pathname).toBe('/check-in')
-    expect(screen.getByRole('heading', { level: 1, name: 'Check-in' })).toBeInTheDocument()
+    abrir('/mesa-de-trabalho/pasta-rede-inacessivel', { [CHAVE_CARTAO_PERFIL]: '{"versao":1,"rotaId":' })
+    expect(window.location.pathname).toBe('/diagnostico')
+    expect(screen.getByRole('heading', { level: 1, name: 'Diagnóstico' })).toBeInTheDocument()
     expect(erro).not.toHaveBeenCalled()
   })
 
-  it('com cartão, exibe o Plano de voo e repassa o aviso de escala bloqueada à Cabine', () => {
-    const cartao = { [CHAVE_CARTAO_EMBARQUE]: serializarCartao(CARTAO_DE_TESTE) }
-    abrir('/plano-de-voo', cartao)
-    expect(screen.getByRole('heading', { level: 1, name: 'Plano de voo' })).toBeInTheDocument()
+  it('com cartão, exibe o Plano de Carreira e repassa o aviso de etapa bloqueada à Mesa de Trabalho', () => {
+    const cartao = { [CHAVE_CARTAO_PERFIL]: serializarCartao(CARTAO_DE_TESTE) }
+    abrir('/plano-de-carreira', cartao)
+    expect(screen.getByRole('heading', { level: 1, name: 'Plano de Carreira' })).toBeInTheDocument()
     cleanup()
-    abrir('/cabine/incidente-massivo', cartao)
-    expect(window.location.pathname).toBe('/cabine/incidente-massivo')
-    expect(screen.getByText('Portão: aviso-escala-bloqueada')).toBeInTheDocument()
+    abrir('/mesa-de-trabalho/incidente-massivo', cartao)
+    expect(window.location.pathname).toBe('/mesa-de-trabalho/incidente-massivo')
+    expect(screen.getByText('Portão: aviso-etapa-bloqueada')).toBeInTheDocument()
   })
 })

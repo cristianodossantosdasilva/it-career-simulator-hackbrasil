@@ -1,6 +1,6 @@
 # Auditoria Independente Multi-IA de UI, UX, Design System e Produto (Anti-"Cara de IA")
 
-Esta pasta centraliza a auditoria visual, ergonomica e de arquitetura de produto do **IT Flight Simulator** realizada de forma independente pelos tres agentes CLI (**Kiro CLI**, **Codex CLI** e **GitHub Copilot CLI**), atuando como especialistas em UI, UX, Design System e Produto EdTech/SaaS.
+Esta pasta centraliza a auditoria visual, ergonomica e de arquitetura de produto do **IT Career Simulator** realizada de forma independente pelos tres agentes CLI (**Kiro CLI**, **Codex CLI** e **GitHub Copilot CLI**), atuando como especialistas em UI, UX, Design System e Produto EdTech/SaaS.
 
 ## Objetivo
 

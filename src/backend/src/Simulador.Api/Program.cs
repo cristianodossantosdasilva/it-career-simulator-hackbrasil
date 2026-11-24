@@ -138,7 +138,7 @@ app.UseRateLimiter();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.UseSwaggerUI(opt => opt.SwaggerEndpoint("/openapi/v1.json", "IT Flight Simulator API v1"));
+    app.UseSwaggerUI(opt => opt.SwaggerEndpoint("/openapi/v1.json", "IT Career Simulator API v1"));
 }
 
 static IResult ErroProblema(int status, string type, string detail, object? extras = null)
@@ -350,7 +350,7 @@ app.MapGet("/api/sessoes/{id:guid}/replay", async (
             seq = e.Seq,
             tipo = e.Tipo,
             minutoSimulado = e.MinutoSimulado,
-            // SessaoIniciada gravada antes do alinhamento das escalas traz o rotulo antigo em "nivel". O evento fica
+            // SessaoIniciada gravada antes do alinhamento das etapas traz o rotulo antigo em "nivel". O evento fica
             // intacto no Postgres (append-only, e o hash da trilha o le); a leitura devolve o nome da projecao.
             payload = e.Tipo == "SessaoIniciada"
                 ? e.Dados.Where(kv => relatorio.Concluida || !string.Equals(kv.Key, "causa", StringComparison.OrdinalIgnoreCase))
@@ -409,8 +409,8 @@ app.MapPost("/api/carreira/resumo", async (
                 competencias.Add(comp);
         }
 
-        // Promocoes por escala do Catalogo de Rotas. Help Desk N1, Service Desk N1 Jr e N2 Pleno seguem a regra
-        // que ja valia para a escala correspondente; as quatro missoes da N3 Senior exigem todos os criterios.
+        // Promocoes por etapa do Catalogo de Rotas. Help Desk N1, Service Desk N1 Jr e N2 Pleno seguem a regra
+        // que ja valia para a etapa correspondente; as quatro missoes da N3 Senior exigem todos os criterios.
         if (meta.CenarioId == "reset-senha-desbloqueio" && av.Concluida && !av.IncidenteSeguranca)
             concluiuHelpDeskN1 = true;
         if (meta.CenarioId == "pasta-rede-inacessivel" && av.Concluida && av.Criterios.FirstOrDefault(c => c.Id == "J2")?.Atendido == true)
@@ -430,7 +430,7 @@ app.MapPost("/api/carreira/resumo", async (
         {
             sessaoId = id,
             cenarioId = meta.CenarioId,
-            // O nome da escala vem da projecao (catalogo atual), nao do meta gravado no Postgres: sessoes antigas
+            // O nome da etapa vem da projecao (catalogo atual), nao do meta gravado no Postgres: sessoes antigas
             // ainda dentro do prazo de 30 dias guardam o rotulo da escada anterior e passam a sair com o nome novo.
             nivel = estado.Meta.Nivel,
             concluida = av.Concluida,
@@ -448,7 +448,7 @@ app.MapPost("/api/carreira/resumo", async (
         : concluiuN2Pleno ? "N2 Pleno"
         : concluiuServiceDeskN1Jr ? "Service Desk N1 Jr"
         : concluiuHelpDeskN1 ? "Help Desk N1"
-        : "Sem escala concluída";
+        : "Sem etapa concluída";
 
     var nucleo = new
     {

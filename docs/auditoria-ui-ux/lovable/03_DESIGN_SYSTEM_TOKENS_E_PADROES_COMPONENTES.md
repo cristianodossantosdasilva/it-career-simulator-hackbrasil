@@ -1,6 +1,6 @@
 # Entregavel 03 — Design System: Tokens, Tipografia, Iconografia e Componentes
 
-> **Auditoria Especializada de UI/UX e Design System — IT Flight Simulator**  
+> **Auditoria Especializada de UI/UX e Design System — IT Career Simulator**  
 > **Auditor Responsavel:** Lovable  
 > **Data:** Novembro de 2026  
 > **Pasta Oficial do Entregavel:** `docs/auditoria-ui-ux/lovable/03_DESIGN_SYSTEM_TOKENS_E_PADROES_COMPONENTES.md`  
@@ -11,7 +11,7 @@
 
 ## 1. Fundamentos do Design System e Filosofia Anti-AI Slop
 
-Para eliminar de vez o aspecto de modelo de IA e alcancar o nivel de produtos consolidados como **AWS Cloudscape**, **Microsoft Learn** e **Linear**, o Design System do IT Flight Simulator e baseado em tres regras fundamentais:
+Para eliminar de vez o aspecto de modelo de IA e alcancar o nivel de produtos consolidados como **AWS Cloudscape**, **Microsoft Learn** e **Linear**, o Design System do IT Career Simulator e baseado em tres regras fundamentais:
 
 1. **Substituicao Total de Emojis por Icones Vetoriais SVG**:
    - Todo emoji decorativo e eliminado da interface.
@@ -26,7 +26,7 @@ Para eliminar de vez o aspecto de modelo de IA e alcancar o nivel de produtos co
 
 ---
 
-## 2. Tokens de Design (Modo Claro Padrao e Modo Escuro Cockpit)
+## 2. Tokens de Design (Modo Claro Padrao e Modo Escuro Mesa de Trabalho)
 
 Abaixo estao os tokens CSS semanticos prontos para substituir o bloco inicial em `src/frontend/src/index.css`:
 
@@ -96,7 +96,7 @@ Abaixo estao os tokens CSS semanticos prontos para substituir o bloco inicial em
 [data-theme='dark'] {
   color-scheme: dark;
   
-  /* Superficies e Camadas Cockpit Escuro */
+  /* Superficies e Camadas Mesa de Trabalho Escuro */
   --bg-canvas: #090d16;       /* Fundo imersivo austero */
   --bg-surface: #0f172a;      /* Slate 900 */
   --bg-elevated: #1e293b;     /* Slate 800 */

@@ -10,7 +10,7 @@ import {
 } from './textosDemonstracao'
 
 /**
- * Seção do Plano de voo com o interruptor do modo de demonstração. O clique e as teclas Espaço e Enter
+ * Seção do Plano de Carreira com o interruptor do modo de demonstração. O clique e as teclas Espaço e Enter
  * (ativação nativa do botão) alternam o modo. O estado vai em texto, ícone e `aria-checked`.
  */
 export function ControleModoDemonstracao() {
@@ -28,7 +28,7 @@ export function ControleModoDemonstracao() {
         aria-labelledby={idRotulo}
         aria-describedby={idExplicacao}
         className="controle-modo-demonstracao"
-        onClick={() => definirModoDemonstracao(!modoDemonstracao, 'plano-de-voo')}
+        onClick={() => definirModoDemonstracao(!modoDemonstracao, 'plano-de-carreira')}
       >
         <Icone nome={modoDemonstracao ? 'modo-ativo' : 'modo-inativo'} tamanho={20} />
         <span id={idRotulo} className="controle-modo-demonstracao-rotulo">
@@ -38,7 +38,7 @@ export function ControleModoDemonstracao() {
           {modoDemonstracao ? ESTADO_MODO_ATIVADO : ESTADO_MODO_DESATIVADO}
         </span>
       </button>
-      <p id={idExplicacao} className="escala-nota">
+      <p id={idExplicacao} className="etapa-nota">
         {EXPLICACAO_MODO}
       </p>
     </section>

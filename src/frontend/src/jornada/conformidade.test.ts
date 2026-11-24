@@ -48,7 +48,7 @@ describe('Conformidade da jornada', () => {
     const caminhos = ESCOPO.map(([caminho]) => caminho)
     expect(ESCOPO.length).toBeGreaterThan(50)
     expect(caminhos).toContain('/src/jornada/ProvedorJornada.tsx')
-    expect(caminhos).toContain('/src/jornada/paginas/PaginaCabine.tsx')
+    expect(caminhos).toContain('/src/jornada/paginas/PaginaMesa.tsx')
     expect(caminhos).toContain('/src/tema/resolvedor.ts')
     for (const alterado of ALTERADOS_FORA_DA_JORNADA) expect(caminhos, alterado).toContain(alterado)
   })

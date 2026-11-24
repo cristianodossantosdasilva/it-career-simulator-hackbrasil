@@ -31,14 +31,14 @@ Caminhos relativos a src/frontend/src. Razões de contraste calculadas por mim c
 | Dois botões primários com destinos diferentes | confirmado | TelaInicial.tsx:276 (Estagiário) e TabelaMissoes.tsx:117 (cenário selecionado) |
 | É estado e não CSS, igual nos dois temas | confirmado | print tactical__missoes e corporate__missoes mostram a linha 2 selecionada |
 | focus é persistido em localStorage | confirmado | catalogoEducacional.ts:753 (chave itfs_academia_v3), 792 a 814: carregarEstadoAcademia faz spread de parsed sobre base. Quem já salvou n1 continua com n1. Não há como distinguir escolha deliberada de padrão antigo sem uma versão ou um marcador. |
-| Todo E2E clica em um rádio antes de Decolar, exceto Demo rápida | confirmado | e2e/jornadas.spec.ts:11 a 20, 29, 121, 153, 192, 241, 305, 349 e visual.spec.ts:77. App.test.tsx:123 também clica. |
-| Remover a pré-seleção não quebra os testes | confirmado com ressalva | jornadas.spec.ts:14 e 15 usam decolar.focus() e Enter. Funciona porque o rádio é ativado antes. Se o botão ficar com o atributo disabled, só funciona depois da seleção. Está compatível, mas o atributo disabled tira o botão do foco do teclado e do leitor de tela, ver crítica C2. |
+| Todo E2E clica em um rádio antes de Iniciar, exceto Demo rápida | confirmado | e2e/jornadas.spec.ts:11 a 20, 29, 121, 153, 192, 241, 305, 349 e visual.spec.ts:77. App.test.tsx:123 também clica. |
+| Remover a pré-seleção não quebra os testes | confirmado com ressalva | jornadas.spec.ts:14 e 15 usam iniciar.focus() e Enter. Funciona porque o rádio é ativado antes. Se o botão ficar com o atributo disabled, só funciona depois da seleção. Está compatível, mas o atributo disabled tira o botão do foco do teclado e do leitor de tela, ver crítica C2. |
 
-Achado novo, não está no documento de contexto: o print desktop-1440__corporate__aulas.png abre a Academia em Analista Jr (N1), Módulo 2 de 5, com Teoria 0%. Um aluno novo cai no segundo nível, não no primeiro. A causa é o mesmo focus n1. Já obterProximaAcao (catalogoEducacional.ts:877) percorre os níveis a partir do Estagiário, então o Primeiro Voo manda para o Estagiário e a Aula manda para o N1. Duas fontes de verdade contradizem uma à outra.
+Achado novo, não está no documento de contexto: o print desktop-1440__corporate__aulas.png abre a Academia em Analista Jr (N1), Módulo 2 de 5, com Teoria 0%. Um aluno novo cai no segundo nível, não no primeiro. A causa é o mesmo focus n1. Já obterProximaAcao (catalogoEducacional.ts:877) percorre os níveis a partir do Estagiário, então o Primeiro Missão manda para o Estagiário e a Aula manda para o N1. Duas fontes de verdade contradizem uma à outra.
 
 ### P2. Missão 0 abaixo das missões
 
-Confirmado. TelaInicial.tsx: PrimeiroVoo (269), TabelaMissoes (282), seção Missão 0 (295 a 310), Glossário (312), Transparência (323). O print mede 1440 por 2004 px, e a Missão 0 começa em torno de y 1340. Os 4 passos da Missão 0 repetem em parte os 3 passos do Primeiro Voo (Estudar, Praticar, Revisar), com objetivo diferente: o Primeiro Voo descreve a jornada da Academia e a Missão 0 descreve o que fazer dentro do chamado.
+Confirmado. TelaInicial.tsx: PrimeiroVoo (269), TabelaMissoes (282), seção Missão 0 (295 a 310), Glossário (312), Transparência (323). O print mede 1440 por 2004 px, e a Missão 0 começa em torno de y 1340. Os 4 passos da Missão 0 repetem em parte os 3 passos do Primeiro Missão (Estudar, Praticar, Revisar), com objetivo diferente: o Primeiro Missão descreve a jornada da Academia e a Missão 0 descreve o que fazer dentro do chamado.
 
 ### P3. Contraste e contornos do corporate
 
@@ -70,7 +70,7 @@ Correções e acréscimos ao documento de contexto:
 
 ### Estado limpo, F 20% e Em andamento
 
-Confirmado e causa encontrada. DEFAULT_PAGES (catalogoEducacional.ts:684) semeia duas páginas Cornell com notas já preenchidas, uma para estagiario (703 a 708) e outra para n1 (711 a 717). calcularProgressoNivel (857 a 870) soma 20 em f quando a página Cornell do nível tem mais de 20 caracteres de notas. Resultado em estado limpo: estagiario e n1 com f 20%, e descreverEstado (TabelaMissoes.tsx:22 a 26) devolve "Em andamento" porque f maior que 0. Só os níveis com página semeada ficam assim. É um defeito de dados, não de CSS: o texto de exemplo conta como progresso do aluno. Nos prints, Nível 1 e Nível 2 mostram "Em andamento, T 0%, F 20%, P 0%" e o Primeiro Voo diz "Teoria em 0%". Mesmo efeito na Credencial: "Estagiário Teoria 0%, Fixação 20%, Prática 100%".
+Confirmado e causa encontrada. DEFAULT_PAGES (catalogoEducacional.ts:684) semeia duas páginas Cornell com notas já preenchidas, uma para estagiario (703 a 708) e outra para n1 (711 a 717). calcularProgressoNivel (857 a 870) soma 20 em f quando a página Cornell do nível tem mais de 20 caracteres de notas. Resultado em estado limpo: estagiario e n1 com f 20%, e descreverEstado (TabelaMissoes.tsx:22 a 26) devolve "Em andamento" porque f maior que 0. Só os níveis com página semeada ficam assim. É um defeito de dados, não de CSS: o texto de exemplo conta como progresso do aluno. Nos prints, Nível 1 e Nível 2 mostram "Em andamento, T 0%, F 20%, P 0%" e o Primeiro Missão diz "Teoria em 0%". Mesmo efeito na Credencial: "Estagiário Teoria 0%, Fixação 20%, Prática 100%".
 
 Os prints de laboratório e credencial não são de estado limpo: a spec visual executa um turno do Estagiário antes (XP 60, Prática 100%). Isso é esperado, mas muda a leitura de "estado limpo" nos prints.
 
@@ -113,7 +113,7 @@ Busca feita por leitura de index.css e dos arquivos citados. A confirmar no nave
 | D1 usa o atributo disabled | O botão desabilitado some do foco do teclado e do leitor de tela, e o motivo só aparece em texto avulso. | Usar aria-disabled com texto de apoio ligado por aria-describedby e bloquear o clique. Não usar o atributo disabled para esse caso. |
 | D1 muda focus padrão para estagiario | Correto, mas não resolve quem já tem n1 salvo. | Decisão do usuário (pergunta 4). Recomendação: não migrar. |
 | D2 recolher com details quando há progresso | Tecnicamente ok. Risco: details sem estado persistido reabre a cada visita. | Calcular o atributo open só na montagem a partir de temProgresso e não persistir. |
-| D2 sem tratar a sobreposição | O Primeiro Voo e a Missão 0 repetem a ideia de "como começar". | Manter as duas seções, mas Missão 0 logo depois do Primeiro Voo e antes da tabela, com título e texto que a diferenciam (o que fazer dentro do chamado). Não fundir agora. |
+| D2 sem tratar a sobreposição | O Primeiro Missão e a Missão 0 repetem a ideia de "como começar". | Manter as duas seções, mas Missão 0 logo depois do Primeiro Missão e antes da tabela, com título e texto que a diferenciam (o que fazer dentro do chamado). Não fundir agora. |
 | E3 de tokens com modelo forte | A decisão de design fica fechada por limiares medidos neste plano. Com limiares fechados o modelo intermediário basta. Modelo forte só se a reiteração falhar duas vezes. | Rebaixar para sonnet. |
 | E4 inspeção visual sem ordem | Pode competir com E3 (tokens) se as telas forem ajustadas antes dos tokens. | E5 só depois de E4. |
 | E5 e E6 | Revalidação e fechamento corretos. | Renumerados como E6 e E7. |
@@ -156,19 +156,19 @@ Convenção: cada etapa é uma sessão nova. Todas começam com economia-desenvo
 
 ### E2. Estado inicial: pré-seleção, focus e progresso falso (sim2-implementador)
 
-- Objetivo: nenhuma missão selecionada ao abrir; focus inicial coerente com o Primeiro Voo; progresso do aluno sem contar notas semeadas.
+- Objetivo: nenhuma missão selecionada ao abrir; focus inicial coerente com o Primeiro Missão; progresso do aluno sem contar notas semeadas.
 - Arquivos exatos: src/frontend/src/workstation/TelaInicial.tsx (estado cenario como string vazia e seletor), src/frontend/src/workstation/TabelaMissoes.tsx (botão com aria-disabled, texto de apoio, ids com aria-describedby), src/frontend/src/educacao/catalogoEducacional.ts (focus inicial e hasNotes), testes src/frontend/src/App.test.tsx, src/frontend/src/educacao/*.test.* (criar teste de calcularProgressoNivel em estado limpo se não existir) e src/frontend/e2e/jornadas.spec.ts apenas se um seletor quebrar.
-- Critérios de aceite: ao abrir em estado limpo nenhum rádio de missão marcado; botão Decolar com aria-disabled verdadeiro, texto "Escolha uma missão" visível e associado; ao selecionar, aria-disabled some; Demo rápida continua iniciando Nível 2 com C1; focus inicial estagiario; calcularProgressoNivel em estado limpo devolve t 0, f 0, p 0 para todos os níveis e a tabela mostra "Não iniciada" nos 5; com notas editadas pelo aluno em página Cornell, f volta a subir; usuário com n1 salvo permanece em n1; ids intactos.
-- Menor conjunto de testes: npm.cmd test -- --run src/App.test.tsx e o teste novo; npm.cmd run lint. E2E: apenas "Feliz 1" e o teste 375 de jornadas.spec.ts (npx.cmd playwright test e2e/jornadas.spec.ts -g "Feliz 1" --project=chromium e a variante 375), por serem os que clicam Decolar.
+- Critérios de aceite: ao abrir em estado limpo nenhum rádio de missão marcado; botão Iniciar com aria-disabled verdadeiro, texto "Escolha uma missão" visível e associado; ao selecionar, aria-disabled some; Demo rápida continua iniciando Nível 2 com C1; focus inicial estagiario; calcularProgressoNivel em estado limpo devolve t 0, f 0, p 0 para todos os níveis e a tabela mostra "Não iniciada" nos 5; com notas editadas pelo aluno em página Cornell, f volta a subir; usuário com n1 salvo permanece em n1; ids intactos.
+- Menor conjunto de testes: npm.cmd test -- --run src/App.test.tsx e o teste novo; npm.cmd run lint. E2E: apenas "Feliz 1" e o teste 375 de jornadas.spec.ts (npx.cmd playwright test e2e/jornadas.spec.ts -g "Feliz 1" --project=chromium e a variante 375), por serem os que clicam Iniciar.
 - Riscos: seletores por role e texto; hasNotes precisa distinguir texto semeado do digitado (comparar com o valor de DEFAULT_PAGES ou marcar página editada); páginas do Caderno dependem de focus.
 - Dependência: E1 (branch e grafo) e resposta à pergunta 1.
 - Sessão nova: sim.
 
 ### E3. Ordem da Missão 0 (sim2-implementador)
 
-- Objetivo: Missão 0 logo depois do Primeiro Voo e antes da tabela de missões.
+- Objetivo: Missão 0 logo depois do Primeiro Missão e antes da tabela de missões.
 - Arquivos exatos: src/frontend/src/workstation/TelaInicial.tsx; se virar componente, src/frontend/src/workstation/MissaoZero.tsx; CSS mínimo em src/frontend/src/index.css apenas se necessário; testes em App.test.tsx.
-- Critérios de aceite: ordem DOM Primeiro Voo, Missão 0, Missões, Glossário, Transparência; sem progresso a Missão 0 vem aberta; com progresso vem recolhida (details sem atributo open); título e lead diferenciam da seção Primeiro Voo; sem rolagem horizontal em 375 px; altura total em 1440 px não aumenta mais que 5% (hoje 2004 px) quando recolhida.
+- Critérios de aceite: ordem DOM Primeiro Missão, Missão 0, Missões, Glossário, Transparência; sem progresso a Missão 0 vem aberta; com progresso vem recolhida (details sem atributo open); título e lead diferenciam da seção Primeiro Missão; sem rolagem horizontal em 375 px; altura total em 1440 px não aumenta mais que 5% (hoje 2004 px) quando recolhida.
 - Menor conjunto de testes: npm.cmd test -- --run src/App.test.tsx; npm.cmd run lint; npx.cmd playwright test e2e/visual.spec.ts --project=desktop-1440 -g "missoes" só para ver o PNG (um projeto).
 - Riscos: foco do teclado e ordem de leitura; testes que dependem de posição.
 - Dependência: E2.
@@ -259,7 +259,7 @@ Portas e limitador:
 ## 8. Decisões do usuário
 
 1. Pré-seleção ao abrir.
-   - Recomendação: nenhuma missão selecionada, botão Decolar com aria-disabled e texto "Escolha uma missão".
+   - Recomendação: nenhuma missão selecionada, botão Iniciar com aria-disabled e texto "Escolha uma missão".
    - Alternativa: pré-selecionar o Nível 1.
    - Custo de mudar depois: baixo (um valor de useState e dois testes).
 2. A linha final da etapa 10 em docs/auditoria-ui-ux/consolidado/00_PLANO_EXECUCAO_E_PROGRESSO.md entra em um commit separado de documentação no começo do ciclo?

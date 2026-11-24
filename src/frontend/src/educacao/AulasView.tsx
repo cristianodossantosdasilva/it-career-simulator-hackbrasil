@@ -22,7 +22,7 @@ interface AulasViewProps {
   onIniciarLaboratorio: (cenarioId: IdMissao) => void
   /**
    * Aviso de que a prática da missão ainda não está liberada, ou null com o portão aberto. Com aviso, o
-   * botão deixa de prometer a Cabine: mostra o estado e leva ao Plano de voo.
+   * botão deixa de prometer a Mesa de Trabalho: mostra o estado e leva ao Plano de Carreira.
    */
   avisoDaPratica?: (cenarioId: IdMissao) => string | null
   /** Nível do título da aula. As páginas da jornada têm o próprio h1 e passam 2. */
@@ -208,8 +208,8 @@ export function AulasView({
             aria-describedby={avisoDoNivel ? 'aviso-pratica-nivel' : undefined}
             onClick={() => onIniciarLaboratorio(L.cenarioId)}
           >
-            <Icone nome={avisoDoNivel ? 'plano-de-voo' : 'praticar'} tamanho={16} />
-            {avisoDoNivel ? 'Ver o Plano de voo' : 'Praticar no laboratório'}
+            <Icone nome={avisoDoNivel ? 'plano-de-carreira' : 'praticar'} tamanho={16} />
+            {avisoDoNivel ? 'Ver o Plano de Carreira' : 'Praticar no laboratório'}
           </button>
           {avisoDoNivel && (
             <p id="aviso-pratica-nivel" className="muted mt-1">
@@ -466,8 +466,8 @@ export function AulasView({
                                 aria-describedby={avisoDaAula ? 'aviso-pratica-aula' : undefined}
                                 onClick={() => onIniciarLaboratorio(cenarioDaAula)}
                               >
-                                <Icone nome={avisoDaAula ? 'plano-de-voo' : 'praticar'} tamanho={16} />
-                                {avisoDaAula ? 'Ver o Plano de voo' : 'Praticar agora'}
+                                <Icone nome={avisoDaAula ? 'plano-de-carreira' : 'praticar'} tamanho={16} />
+                                {avisoDaAula ? 'Ver o Plano de Carreira' : 'Praticar agora'}
                               </button>
                               {avisoDaAula && (
                                 <p id="aviso-pratica-aula" className="muted">

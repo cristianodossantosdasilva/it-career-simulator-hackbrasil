@@ -3,14 +3,14 @@
 **Data de emissao:** `2026-11-15T22:44-03:00` (`2026-11-16T01:44Z`)  
 **Origem:** Sessao anterior Antigravity (creditos encerrando)  
 **Destino:** **Kiro CLI** (`kiro-cli`) assumindo continuidade integral  
-**Projeto no DevLedger:** slug `simulador-carreira-ti` | raiz `D:\Projetos\Ativos\it-flight-simulator-hackbrasil`
+**Projeto no DevLedger:** slug `simulador-carreira-ti` | raiz `D:\Projetos\Ativos\it-career-simulator-hackbrasil`
 
 ---
 
 ## 1. Fotografia Exata do Estado Atual
 
 ### 1.1. Repositorio Git
-- **Caminho local:** `D:\Projetos\Ativos\it-flight-simulator-hackbrasil`
+- **Caminho local:** `D:\Projetos\Ativos\it-career-simulator-hackbrasil`
 - **Branch atual:** `main`
 - **Ultimo commit (`HEAD`):** `6b437451c14b434f73693c91713b643cb4e243d0` (`fix(ui,a11y): corrigir quebra de linha da navegacao mobile 375px`)
 - **Commits recentes relevantes:**
@@ -58,12 +58,12 @@ Os tres agentes CLI finalizaram de forma independente todos os entregaveis pedid
 
 ### Consensos Criticos Ja Identificados Nas 3 Auditorias
 - **Erradicar os "tells" de interface gerada por IA:** remover os **81 emojis estruturais** (substituir por icones SVG consistentes / `lucide-react`), eliminar a **faixa arco-iris `.topnav::after`** de 4 cores, remover *eyebrows* em caixa alta, strings com pontos medios (`A · B · C`), proliferacao de chips/pills coloridas, e eliminar os 42 `style={{...}}` inline em favor de tokens semanticos limpos.
-- **Tornar o "Primeiro Voo" o objeto central (acima da dobra):** em vez de abrir com widgets de Pomodoro, streak e barras 0% em 5 cards iguais (ou scroll de 7056px no mobile), destacar retomada, proxima missao / Primeiro Voo e fluxo claro **Estudar -> Praticar no Split-Screen -> Revisar na Caixa-Preta**.
+- **Tornar o "Primeiro Missão" o objeto central (acima da dobra):** em vez de abrir com widgets de Pomodoro, streak e barras 0% em 5 cards iguais (ou scroll de 7056px no mobile), destacar retomada, proxima missao / Primeiro Missão e fluxo claro **Estudar -> Praticar no Split-Screen -> Revisar na Revisão**.
 - **Unificar Academia e Workstation:** sair do sentimento de "dois sites diferentes" para um **AppShell coeso** com barra superior limpa (ou sidebar colapsavel) e **Split-Screen Lab** (roteiro/checklist da missao lado a lado com o console operacional).
 - **Transformar as ferramentas em software real:**
   - **Aurora ITSM:** fila e detalhe estilo Jira Service Management / Linear com **SLA visivel**, prioridade real, separacao entre resposta publica e nota interna.
-  - **SimuDesk:** painel cockpit tecnico legivel (em vez de 2 inputs largos antes da conexao).
-  - **Caixa-Preta Replay:** sair do `<pre>` com JSON bruto para **timeline visual estilo Datadog/Vercel Logs**, comparativo de decisoes e **Credencial Verificavel ECDSA P-256** com cara de badge tecnico oficial (estilo Credly/AWS).
+  - **SimuDesk:** painel mesa de trabalho tecnico legivel (em vez de 2 inputs largos antes da conexao).
+  - **Revisão Replay:** sair do `<pre>` com JSON bruto para **timeline visual estilo Datadog/Vercel Logs**, comparativo de decisoes e **Credencial Verificavel ECDSA P-256** com cara de badge tecnico oficial (estilo Credly/AWS).
   - **Tutor / Mentor:** transparencia no rotulo e exercicio guiado sem promessa enganosa de chat LLM generico.
 
 ---
@@ -83,7 +83,7 @@ Os tres agentes CLI finalizaram de forma independente todos os entregaveis pedid
 3. Respeitar a meta de zero scroll horizontal (`overflow375=false`), contraste WCAG AA >= 4.5:1 e suporte limpo aos modos claro e escuro.
 
 ### Etapa 3 — Validacao Completa Local
-Executar dentro de `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\src\frontend` (usando `.cmd` no Windows):
+Executar dentro de `D:\Projetos\Ativos\it-career-simulator-hackbrasil\src\frontend` (usando `.cmd` no Windows):
 - `npm.cmd run lint` (exigir 0 erros e 0 warnings)
 - `npm.cmd test -- --run` (`Vitest + axe-core`, corrigindo ou atualizando seletores apenas se o copy mudar intencionalmente, mantendo cobertura integral)
 - `npm.cmd run build` (`tsc -b`, `vite build` e `check-bundle-secrets.mjs`)
@@ -100,4 +100,4 @@ Executar dentro de `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\src\fronte
 
 ## 4. Limite Honesto Sobre O Estado Temporario da Maquina
 - O servidor estatico temporario do prototipo antigo na porta `127.0.0.1:4180` pertencia a sessao anterior e pode se encerrar quando a janela/sessao Antigravity fechar; se precisar abri-lo novamente para comparacao visual, basta servir `C:\Users\Black\.gemini\antigravity\brain\7af3228f-a969-42a1-a65d-becbf5a06ae0\scratch\prototipo-redesign`.
-- Para visualizar o novo mockup do Kiro diretamente no navegador, abra `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\auditoria-ui-ux\kiro\05_MOCKUP_ALTA_FIDELIDADE.html`.
+- Para visualizar o novo mockup do Kiro diretamente no navegador, abra `D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\auditoria-ui-ux\kiro\05_MOCKUP_ALTA_FIDELIDADE.html`.

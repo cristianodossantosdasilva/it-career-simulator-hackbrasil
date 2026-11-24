@@ -7,7 +7,7 @@ import { ITENS_MENU, hrefDoItem, itemAtivoDoMenu } from './catalogoNavegacao'
 const PAGINAS = Object.keys(NOME_PAGINA) as IdPagina[]
 
 describe('catalogoNavegacao', () => {
-  it('Feature: jornada-de-voo, Property 19: Item ativo do menu', () => {
+  it('Feature: jornada-de-missao, Property 19: Item ativo do menu', () => {
     paraTodo(
       'item ativo do menu',
       (g) => ({ pagina: g.escolher(PAGINAS), missaoAtiva: g.escolher(MISSOES_CATALOGO) }),
@@ -24,18 +24,18 @@ describe('catalogoNavegacao', () => {
     )
   })
 
-  it('páginas de fluxo não marcam item, e a Cabine some sem voo ativo', () => {
-    for (const pagina of ['check-in', 'caixa-preta', 'treino', 'nao-encontrada'] as const) {
+  it('páginas de fluxo não marcam item, e a Mesa de Trabalho some sem missão ativa', () => {
+    for (const pagina of ['diagnostico', 'revisao', 'treino', 'nao-encontrada'] as const) {
       expect(itemAtivoDoMenu(pagina)).toBeNull()
     }
-    const cabine = ITENS_MENU.find((item) => item.id === 'cabine')
-    expect(cabine && hrefDoItem(cabine, { missaoAtiva: null })).toBeNull()
-    expect(cabine && hrefDoItem(cabine, { missaoAtiva: 'incidente-massivo' })).toBe('/cabine/incidente-massivo')
+    const mesa = ITENS_MENU.find((item) => item.id === 'mesa-de-trabalho')
+    expect(mesa && hrefDoItem(mesa, { missaoAtiva: null })).toBeNull()
+    expect(mesa && hrefDoItem(mesa, { missaoAtiva: 'incidente-massivo' })).toBe('/mesa-de-trabalho/incidente-massivo')
     expect(ITENS_MENU.filter((item) => item.grupo === 'principal').map((item) => item.id)).toEqual([
       'inicio',
       'plano',
-      'cabine',
-      'breve',
+      'mesa-de-trabalho',
+      'portfolio',
     ])
     expect(ITENS_MENU.every((item) => !item.rotulo.includes('&'))).toBe(true)
   })

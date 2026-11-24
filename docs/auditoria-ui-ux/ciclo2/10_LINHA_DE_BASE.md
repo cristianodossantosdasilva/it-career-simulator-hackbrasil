@@ -12,7 +12,7 @@ Gerado em 2026-11-16T10:56:51.113Z por e2e/contraste.relatorio.mjs, a partir dos
 | axe-core | 4.14.0 (regra color-contrast, injetado por page.addScriptTag) |
 | Projetos | desktop-1280, desktop-1440, mobile-375, tablet-768 |
 | Telas | 10 (Missões, Aulas, Caderno, Mentor, Credencial, Laboratório: ITSM, Laboratório: Chat, Laboratório: SimuDesk, Laboratório: KB, Juiz 360 e Replay) |
-| Estados | limpo (sem missão iniciada), missão iniciada (laboratório logo após Decolar), turno concluído (depois de resolver o chamado do Nível 1) |
+| Estados | limpo (sem missão iniciada), missão iniciada (laboratório logo após Iniciar), turno concluído (depois de resolver o chamado do Nível 1) |
 | Temas | tactical e corporate |
 | Viewports | 375, 768, 1280 e 1440 de largura |
 

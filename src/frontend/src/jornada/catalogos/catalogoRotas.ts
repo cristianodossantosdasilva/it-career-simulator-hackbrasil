@@ -1,6 +1,6 @@
 import type { StatusDisponibilidade } from './status'
 
-/** Identificadores de cenário do backend distribuídos pelas escalas da rota Suporte de TI. */
+/** Identificadores de cenário do backend distribuídos pelas etapas da rota Suporte de TI. */
 export type IdMissao =
   | 'reset-senha-desbloqueio'
   | 'pasta-rede-inacessivel'
@@ -12,10 +12,10 @@ export type IdMissao =
 
 export type IdVertente = 'n3-a-redes-nuvem' | 'n3-b-data-center-backup' | 'n3-c-seguranca-dados'
 
-export type IdEscala = 'help-desk-n1' | 'service-desk-n1-jr' | 'n2-pleno' | 'n3-senior'
+export type IdEtapa = 'help-desk-n1' | 'service-desk-n1-jr' | 'n2-pleno' | 'n3-senior'
 
 export interface Causa {
-  /** Código do cenário no backend, por exemplo C1 ou GATEWAY. Nunca exibido no Plano de voo. */
+  /** Código do cenário no backend, por exemplo C1 ou GATEWAY. Nunca exibido no Plano de Carreira. */
   codigo: string
   status: StatusDisponibilidade
 }
@@ -38,11 +38,11 @@ export interface Vertente {
   missoes: readonly Missao[]
 }
 
-export interface Escala {
-  id: IdEscala
+export interface Etapa {
+  id: IdEtapa
   nome: string
   descricao: string
-  /** Escalas 1 a 3. Vazio na N3 Sênior. */
+  /** Etapas 1 a 3. Vazio na N3 Sênior. */
   missoes: readonly Missao[]
   /** Só na N3 Sênior, na ordem N3-A, N3-B, N3-C. Vazio nas demais. */
   vertentes: readonly Vertente[]
@@ -54,7 +54,7 @@ export interface Rota {
   descricao: string
   status: StatusDisponibilidade
   /** A ordem do array é a ordem da rota. */
-  escalas: readonly Escala[]
+  etapas: readonly Etapa[]
 }
 
 export const CATALOGO_ROTAS = [
@@ -63,7 +63,7 @@ export const CATALOGO_ROTAS = [
     nome: 'Suporte de TI',
     descricao: 'Atendimento de chamados, investigação de causa e comunicação com o usuário na Aurora Logística.',
     status: 'disponivel',
-    escalas: [
+    etapas: [
       {
         id: 'help-desk-n1',
         nome: 'Help Desk N1',
@@ -195,21 +195,21 @@ export const CATALOGO_ROTAS = [
     nome: 'Infraestrutura e nuvem',
     descricao: 'Servidores, redes corporativas e serviços em nuvem.',
     status: 'em-preparacao',
-    escalas: [],
+    etapas: [],
   },
   {
     id: 'desenvolvimento',
     nome: 'Desenvolvimento de software',
     descricao: 'Construção, testes e manutenção de aplicações.',
     status: 'futuro',
-    escalas: [],
+    etapas: [],
   },
   {
     id: 'dados',
     nome: 'Dados e análise',
     descricao: 'Consultas, modelagem e análise de dados para decisões.',
     status: 'futuro',
-    escalas: [],
+    etapas: [],
   },
 ] as const satisfies readonly Rota[]
 
@@ -224,32 +224,32 @@ export function rotaPorId(id: string): Rota | null {
   return ROTAS.find((rota) => rota.id === id) ?? null
 }
 
-/** Missões da Escala na ordem do catálogo, com a Vertente de cada uma (nula nas Escalas 1 a 3). */
-export function missoesDaEscala(escala: Escala): readonly { missao: Missao; vertente: Vertente | null }[] {
+/** Missões da Etapa na ordem do catálogo, com a Vertente de cada uma (nula nas Etapas 1 a 3). */
+export function missoesDaEtapa(etapa: Etapa): readonly { missao: Missao; vertente: Vertente | null }[] {
   return [
-    ...escala.missoes.map((missao) => ({ missao, vertente: null })),
-    ...escala.vertentes.flatMap((vertente) => vertente.missoes.map((missao) => ({ missao, vertente }))),
+    ...etapa.missoes.map((missao) => ({ missao, vertente: null })),
+    ...etapa.vertentes.flatMap((vertente) => vertente.missoes.map((missao) => ({ missao, vertente }))),
   ]
 }
 
-export function escalaDaMissao(
+export function etapaDaMissao(
   missao: string,
-): { rota: Rota; escala: Escala; indice: number; vertente: Vertente | null; missao: Missao } | null {
+): { rota: Rota; etapa: Etapa; indice: number; vertente: Vertente | null; missao: Missao } | null {
   for (const rota of ROTAS) {
-    for (const [indice, escala] of rota.escalas.entries()) {
-      const encontrada = missoesDaEscala(escala).find((item) => item.missao.id === missao)
-      if (encontrada) return { rota, escala, indice, vertente: encontrada.vertente, missao: encontrada.missao }
+    for (const [indice, etapa] of rota.etapas.entries()) {
+      const encontrada = missoesDaEtapa(etapa).find((item) => item.missao.id === missao)
+      if (encontrada) return { rota, etapa, indice, vertente: encontrada.vertente, missao: encontrada.missao }
     }
   }
   return null
 }
 
 export function ehIdMissao(valor: string): valor is IdMissao {
-  return escalaDaMissao(valor) !== null
+  return etapaDaMissao(valor) !== null
 }
 
-/** Nome do nível de estudo da Missão: a Vertente na N3 Sênior, senão a escala. Nulo se a Missão não existe. */
+/** Nome do nível de estudo da Missão: a Vertente na N3 Sênior, senão a etapa. Nulo se a Missão não existe. */
 export function nomeDoNivelDaMissao(missao: string): string | null {
-  const local = escalaDaMissao(missao)
-  return local ? (local.vertente?.nome ?? local.escala.nome) : null
+  const local = etapaDaMissao(missao)
+  return local ? (local.vertente?.nome ?? local.etapa.nome) : null
 }

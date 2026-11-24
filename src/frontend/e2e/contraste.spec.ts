@@ -1,8 +1,8 @@
 import { existsSync } from 'node:fs'
 import { expect, test, type Page, type TestInfo } from '@playwright/test'
-import { CHAVE_CARTAO_EMBARQUE, serializarCartao } from '../src/jornada/armazenamento/cartaoEmbarque'
+import { CHAVE_CARTAO_PERFIL, serializarCartao } from '../src/jornada/armazenamento/cartaoPerfil'
 import { CHAVE_MODO_DEMONSTRACAO, serializarModoDemonstracao } from '../src/jornada/armazenamento/modoDemonstracao'
-import { CHAVE_REGISTROS_VOO, serializarRegistros } from '../src/jornada/armazenamento/registrosVoo'
+import { CHAVE_REGISTROS_MISSAO, serializarRegistros } from '../src/jornada/armazenamento/registrosMissao'
 import { CARTAO_DE_TESTE, registroDeTeste } from '../src/testes/armazenamentoFalso'
 import { CATALOGO_TEMAS, type IdTema } from '../src/tema/catalogo'
 import { CHAVE_CONTRASTE, CHAVE_TEMA } from '../src/tema/persistencia'
@@ -24,8 +24,8 @@ import {
  * depois de gravar o JSON, falha se houver violação da WCAG 2.2 AA: texto (axe), contorno de container,
  * controle, divisor e foco, texto abaixo de 12 px, status sem texto nem ícone e cores do terminal.
  *
- * Grupos: estudo (páginas da jornada sem voo, mais o painel de aparência aberto), demonstracao (Início e
- * Plano de voo com o modo ativo), laboratorio (Cabine, Caixa-preta e Brevê com um voo concluído) e terminal
+ * Grupos: estudo (páginas da jornada sem missão, mais o painel de aparência aberto), demonstracao (Início e
+ * Plano de Carreira com o modo ativo), laboratorio (Mesa de Trabalho, Revisão e Portfólio com uma missão concluída) e terminal
  * (SimuDesk conectado da Service Desk N1 Jr, onde o terminal existe e as cores dele são conferidas).
  * O contraste padrão roda em todos os projetos visuais. O alto contraste roda só em mobile-375 e desktop-1440.
  * Uma tela que não abre vira célula "não calculável" com o motivo, e o relatório lista essas células.
@@ -46,7 +46,7 @@ const REGISTRO_DA_HELP_DESK = serializarRegistros([registroDeTeste('reset-senha-
 const MODO_ATIVO = serializarModoDemonstracao({
   versao: 1,
   ativo: true,
-  origem: 'plano-de-voo',
+  origem: 'plano-de-carreira',
   alteradoEm: '2026-11-20T12:00:00.000Z',
 })
 
@@ -55,7 +55,7 @@ async function preparar(
   page: Page,
   tema: IdTema,
   contraste: Contraste,
-  chaves: Record<string, string> = { [CHAVE_CARTAO_EMBARQUE]: CARTAO },
+  chaves: Record<string, string> = { [CHAVE_CARTAO_PERFIL]: CARTAO },
 ) {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.addInitScript(
@@ -82,10 +82,10 @@ async function abrir(page: Page, tema: IdTema, contraste: Contraste, caminho: st
   await expect(page.getByRole('heading', { level: 1, name: h1 }).first()).toBeVisible()
   await conferirAparencia(page, tema, contraste)
 }
-/** O Replay vive na Caixa-preta, aberta pelo link da Cabine. */
-async function abrirCaixaPreta(page: Page) {
+/** O Replay vive na Revisão, aberta pelo link da Mesa de Trabalho. */
+async function abrirRevisao(page: Page) {
   await page.getByRole('link', { name: /Juiz 360º e Replay/i }).click()
-  await expect(page).toHaveURL(/\/caixa-preta\//)
+  await expect(page).toHaveURL(/\/revisao\//)
   await expect(page.getByText(T.replay.concluida, { exact: true })).toBeVisible()
 }
 function criarColetor(page: Page, testInfo: TestInfo, tema: Tema, contraste: Contraste, grupo: Grupo) {
@@ -140,15 +140,15 @@ function criarColetor(page: Page, testInfo: TestInfo, tema: Tema, contraste: Con
 }
 const PAGINAS_DE_ESTUDO = [
   { tela: 'Início', caminho: '/', h1: 'Início' },
-  { tela: 'Check-in', caminho: '/check-in', h1: 'Check-in' },
-  { tela: 'Check-in rápido', caminho: '/check-in?modo=rapido', h1: 'Check-in' },
-  { tela: 'Plano de voo', caminho: '/plano-de-voo', h1: 'Plano de voo' },
-  { tela: 'Brevê', caminho: '/breve', h1: 'Brevê' },
-  { tela: 'Hangar', caminho: '/hangar', h1: 'Hangar' },
+  { tela: 'Diagnóstico', caminho: '/diagnostico', h1: 'Diagnóstico' },
+  { tela: 'Diagnóstico rápido', caminho: '/diagnostico?modo=rapido', h1: 'Diagnóstico' },
+  { tela: 'Plano de Carreira', caminho: '/plano-de-carreira', h1: 'Plano de Carreira' },
+  { tela: 'Portfólio', caminho: '/portfolio', h1: 'Portfólio' },
+  { tela: 'Catálogo', caminho: '/catalogo', h1: 'Catálogo' },
   { tela: 'Aulas', caminho: '/aulas', h1: 'Aulas' },
   { tela: 'Treino de explicação', caminho: '/aulas/treino', h1: 'Treino de explicação' },
   { tela: 'Caderno', caminho: '/caderno', h1: 'Caderno de estudos' },
-  { tela: 'Comandante', caminho: '/comandante', h1: 'Comandante' },
+  { tela: 'Mentor', caminho: '/mentor', h1: 'Mentor' },
   { tela: 'Página não encontrada', caminho: '/nao-existe', h1: 'Página não encontrada' },
 ] as const
 
@@ -162,7 +162,7 @@ for (const tema of TEMAS) {
         test.skip(!contrastesDoProjeto(testInfo.project.name).includes(contraste), 'Alto contraste só em mobile-375 e desktop-1440')
       })
 
-      test('estudo: páginas da jornada sem voo e painel de aparência (estado limpo)', async ({ page }, testInfo) => {
+      test('estudo: páginas da jornada sem missão e painel de aparência (estado limpo)', async ({ page }, testInfo) => {
         const coletor = criarColetor(page, testInfo, tema, contraste, 'estudo')
         try {
           await preparar(page, tema.id, contraste)
@@ -182,16 +182,16 @@ for (const tema of TEMAS) {
         coletor.exigirSemViolacoes()
       })
 
-      test('demonstração: Início e Plano de voo com o modo ativo (selo e indicador)', async ({ page }, testInfo) => {
+      test('demonstração: Início e Plano de Carreira com o modo ativo (selo e indicador)', async ({ page }, testInfo) => {
         const coletor = criarColetor(page, testInfo, tema, contraste, 'demonstracao')
         try {
-          await preparar(page, tema.id, contraste, { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
+          await preparar(page, tema.id, contraste, { [CHAVE_CARTAO_PERFIL]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
           await abrir(page, tema.id, contraste, '/', 'Início')
           await coletor.medir('Início', 'modo de demonstração ativo', async () => {
             await expect(page.getByRole('link', { name: 'Modo de demonstração ativo' })).toBeVisible()
           })
-          await coletor.medir('Plano de voo', 'modo de demonstração ativo', async () => {
-            await abrir(page, tema.id, contraste, '/plano-de-voo', 'Plano de voo')
+          await coletor.medir('Plano de Carreira', 'modo de demonstração ativo', async () => {
+            await abrir(page, tema.id, contraste, '/plano-de-carreira', 'Plano de Carreira')
             await expect(page.getByText('Liberada para demonstração', { exact: true }).first()).toBeVisible()
             await expect(page.getByRole('link', { name: 'Modo de demonstração ativo' })).toBeVisible()
           })
@@ -202,7 +202,7 @@ for (const tema of TEMAS) {
         coletor.exigirSemViolacoes()
       })
 
-      test('laboratório: Cabine, Caixa-preta e Brevê (missão iniciada e turno concluído)', async ({ page }, testInfo) => {
+      test('laboratório: Mesa de Trabalho, Revisão e Portfólio (missão iniciada e turno concluído)', async ({ page }, testInfo) => {
         const coletor = criarColetor(page, testInfo, tema, contraste, 'laboratorio')
         const abrirFerramenta = (nome: RegExp, confirmacao: () => Promise<void>) => async () => {
           await page.getByRole('button', { name: nome }).click()
@@ -214,14 +214,14 @@ for (const tema of TEMAS) {
         const kb = abrirFerramenta(/Intranet \/ KB/i, () =>
           expect(page.getByRole('region', { name: 'Intranet e Base de Conhecimento' })).toBeVisible())
         try {
-          await preparar(page, tema.id, contraste, { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
-          await page.goto('/cabine/triagem-engenharia-social?nova=1')
+          await preparar(page, tema.id, contraste, { [CHAVE_CARTAO_PERFIL]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
+          await page.goto('/mesa-de-trabalho/triagem-engenharia-social?nova=1')
           await expect(page.getByRole('heading', { name: /CH-0001/i })).toBeVisible()
           await conferirAparencia(page, tema.id, contraste)
-          await coletor.medir('Cabine: ITSM', 'missão iniciada', async () => {})
-          await coletor.medir('Cabine: Chat', 'missão iniciada', chat)
-          await coletor.medir('Cabine: SimuDesk', 'missão iniciada', simudesk)
-          await coletor.medir('Cabine: KB', 'missão iniciada', kb)
+          await coletor.medir('Mesa de Trabalho: ITSM', 'missão iniciada', async () => {})
+          await coletor.medir('Mesa de Trabalho: Chat', 'missão iniciada', chat)
+          await coletor.medir('Mesa de Trabalho: SimuDesk', 'missão iniciada', simudesk)
+          await coletor.medir('Mesa de Trabalho: KB', 'missão iniciada', kb)
           // Conclui o turno da triagem (mesmo roteiro de e2e/visual.spec.ts).
           await page.getByRole('button', { name: /ITSM \/ Chamados/i }).click()
           await page.getByRole('button', { name: T.itsm.assumirChamado }).click()
@@ -234,14 +234,14 @@ for (const tema of TEMAS) {
           await page.getByRole('button', { name: T.itsm.recusarReset }).click()
           await page.getByLabel(T.itsm.notaResolucao).fill('Solicitação recusada conforme política de segurança KB-001.')
           await page.getByRole('button', { name: T.itsm.resolverChamado }).click()
-          await coletor.medir('Cabine: ITSM', 'turno concluído', async () => {})
-          await coletor.medir('Cabine: Chat', 'turno concluído', chat)
-          await coletor.medir('Cabine: SimuDesk', 'turno concluído', simudesk)
-          await coletor.medir('Cabine: KB', 'turno concluído', kb)
-          await coletor.medir('Caixa-preta', 'turno concluído', () => abrirCaixaPreta(page))
-          await coletor.medir('Brevê', 'turno concluído', async () => {
-            await page.getByRole('navigation', { name: 'Navegação principal' }).getByRole('link', { name: 'Brevê' }).click()
-            await expect(page.getByRole('heading', { level: 1, name: 'Brevê' })).toBeVisible()
+          await coletor.medir('Mesa de Trabalho: ITSM', 'turno concluído', async () => {})
+          await coletor.medir('Mesa de Trabalho: Chat', 'turno concluído', chat)
+          await coletor.medir('Mesa de Trabalho: SimuDesk', 'turno concluído', simudesk)
+          await coletor.medir('Mesa de Trabalho: KB', 'turno concluído', kb)
+          await coletor.medir('Revisão', 'turno concluído', () => abrirRevisao(page))
+          await coletor.medir('Portfólio', 'turno concluído', async () => {
+            await page.getByRole('navigation', { name: 'Navegação principal' }).getByRole('link', { name: 'Portfólio' }).click()
+            await expect(page.getByRole('heading', { level: 1, name: 'Portfólio' })).toBeVisible()
             await page.getByRole('button', { name: 'Atualizar resumo' }).click()
           })
         } finally {
@@ -254,8 +254,8 @@ for (const tema of TEMAS) {
       test('terminal: SimuDesk conectado com saída de comando', async ({ page }, testInfo) => {
         const coletor = criarColetor(page, testInfo, tema, contraste, 'terminal')
         try {
-          await preparar(page, tema.id, contraste, { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_REGISTROS_VOO]: REGISTRO_DA_HELP_DESK })
-          await page.goto('/cabine/pasta-rede-inacessivel?semente=2&causa=C3&nova=1')
+          await preparar(page, tema.id, contraste, { [CHAVE_CARTAO_PERFIL]: CARTAO, [CHAVE_REGISTROS_MISSAO]: REGISTRO_DA_HELP_DESK })
+          await page.goto('/mesa-de-trabalho/pasta-rede-inacessivel?semente=2&causa=C3&nova=1')
           await expect(page.getByRole('heading', { name: /CH-0001/i })).toBeVisible()
           await conferirAparencia(page, tema.id, contraste)
           await page.getByRole('button', { name: T.itsm.assumirChamado }).click()
@@ -265,7 +265,7 @@ for (const tema of TEMAS) {
           await page.getByLabel(/Ramal/i).fill('2042')
           await page.getByRole('button', { name: /Validar Identidade/i }).click()
           await expect(page.getByText(T.chat.identidadeVerificada)).toBeVisible()
-          await coletor.medir('Cabine: SimuDesk com terminal', 'missão iniciada', async () => {
+          await coletor.medir('Mesa de Trabalho: SimuDesk com terminal', 'missão iniciada', async () => {
             await page.getByRole('button', { name: /SimuDesk Remoto/i }).click()
             await page.getByRole('button', { name: T.simudesk.preencherConectar }).click()
             await page.getByLabel('Comando do terminal').fill('net start')

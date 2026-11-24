@@ -68,6 +68,14 @@ export function ItsmApp({ sessao, onAcao, ocupado, onAbrirKb }: Props) {
         <h2>
           Fila de chamados <span className="muted">({sessao.chamados.length})</span>
         </h2>
+        {sessao.chamados.length > 1 && !ehTriagem && !ehIncidenteMassivo && (
+          <p className="muted">
+            Esta missão usa o chamado {sessao.chamados[0].id}. Os outros chamados da fila são só contexto.
+          </p>
+        )}
+        <p className="muted">
+          Prioridade mostra o quanto o chamado é urgente. SLA é o prazo para resolvê-lo.
+        </p>
         <div className="tabela-rolagem">
           <table className="tabela-dados fila-chamados">
             <caption className="sr-only">Chamados da sessão. Use o botão da chave para abrir o detalhe.</caption>

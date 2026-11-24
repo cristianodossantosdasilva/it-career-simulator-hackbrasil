@@ -29,8 +29,8 @@ Verificados com `graphify query` e leitura dirigida, sem ler os fontes inteiros.
 | Os testes de navegação clicam em `button` com nome `/📖 Aulas/`, `/📓 Caderno/`, `/🤖 Mentor IA/` dentro de `navigation` com nome `/Navegação principal/i`. | `App.test.tsx` linhas 99 a 110 | Remover emoji muda esses nomes: o teste é atualizado na etapa 2. Os itens de navegação devem continuar `button`. Dois `nav` com nome que casa com `/Navegação principal/i` (rail e barra inferior) quebrariam o seletor. Usar um único `nav` que muda de posição por CSS. |
 | O Kiro propõe itens de navegação como `<a href>`. | Kiro 05, seção 4.2 | Rejeitado. Sem roteador, o papel `button` preserva os testes. |
 | `axe-core` e Vitest já estão instalados. `lucide-react` não está. Não há `@fontsource`. | `package.json` | Ícones por biblioteca e fontes empacotadas exigem `npm install` e a confirmação do usuário (regra 7). |
-| O Playwright tem um projeto desktop e a spec `jornadas.spec.ts` usa nomes como `Decolar no Simulador`, `Assumir Chamado`, `Consultar Politica KB-001`, `Juiz 360º e Replay`. | `playwright.config.ts`, `e2e/jornadas.spec.ts` | Corrigir acentos e renomear botões exige atualizar a spec no mesmo passo. Criar `src/textos/workstation.ts` e importar nos componentes e nos testes. |
-| `App.test.tsx` exige `heading` "IT Flight Simulator" e "Missão 0", `radio` por nome de cenário e o painel "Progressão de Carreira e Currículo Vivo" com botão de exportar. | `App.test.tsx` linhas 39 a 96 | A nova home mantém `h1` com "IT Flight Simulator" e o grupo de rádios. O teste muda de forma deliberada para a Missão 0 e para o painel de carreira. |
+| O Playwright tem um projeto desktop e a spec `jornadas.spec.ts` usa nomes como `Iniciar no Simulador`, `Assumir Chamado`, `Consultar Politica KB-001`, `Juiz 360º e Replay`. | `playwright.config.ts`, `e2e/jornadas.spec.ts` | Corrigir acentos e renomear botões exige atualizar a spec no mesmo passo. Criar `src/textos/workstation.ts` e importar nos componentes e nos testes. |
+| `App.test.tsx` exige `heading` "IT Career Simulator" e "Missão 0", `radio` por nome de cenário e o painel "Progressão de Carreira e Currículo Vivo" com botão de exportar. | `App.test.tsx` linhas 39 a 96 | A nova home mantém `h1` com "IT Career Simulator" e o grupo de rádios. O teste muda de forma deliberada para a Missão 0 e para o painel de carreira. |
 
 ## 3. Convergências entre as auditorias
 
@@ -68,7 +68,7 @@ Cada item traz as opções, a escolhida, o motivo e o risco.
 | Copilot | Inter ou Plus Jakarta Sans, corpo 15 px | IBM Plex Mono |
 | Lovable | Inter ou Plus Jakarta Sans | JetBrains Mono |
 
-**Escolha (proposta):** Inter Variable para interface e leitura, JetBrains Mono para chave de chamado, minuto simulado, hash e terminal. Escala de 11 a 36 px, corpo de leitura 16 px com altura de linha 1.7, corpo de interface 14 px, `tabular-nums` em SLA e minutos.
+**Escolha (proposta):** Inter Variable para interface e leitura, JetBrains Mono para chave de chamado, minuto simulado, hash e terminal. Etapa de 11 a 36 px, corpo de leitura 16 px com altura de linha 1.7, corpo de interface 14 px, `tabular-nums` em SLA e minutos.
 
 **Motivo:** o Kiro mediu que a fonte hoje depende da máquina (Inter declarada, sem `@font-face`), então escolas caem em Segoe UI ou Arial. Empacotar resolve isso. Inter e JetBrains Mono formam um par com famílias distintas e têm licença OFL. Plus Jakarta Sans e IBM Plex Mono são alternativas válidas, mas não trazem ganho que compense uma terceira família.
 
@@ -78,15 +78,15 @@ Cada item traz as opções, a escolhida, o motivo e o risco.
 
 | Fonte | Proposta |
 |---|---|
-| Kiro | Um CTA "Iniciar primeiro voo" e uma tabela de 5 cenários. Pomodoro e plano vão para o menu de perfil. |
+| Kiro | Um CTA "Iniciar primeiro missão" e uma tabela de 5 cenários. Pomodoro e plano vão para o menu de perfil. |
 | Codex | "Retomar missão", "Próxima missão" e lista de todas as missões. |
 | Copilot | "Continuar" e cartões de trilha, mais uma linha "Hoje" com revisão e foco. |
 | Lovable | Não detalha a home. |
 
 **Escolha (proposta):** um bloco principal que muda conforme o estado, seguido da tabela de missões do Kiro.
-- Sem progresso: "Iniciar primeiro voo" (cenário 1, com o guia da Missão 0 já aberto no laboratório).
+- Sem progresso: "Iniciar primeiro missão" (cenário 1, com o guia da Missão 0 já aberto no laboratório).
 - Com progresso: "Retomar missão" com a etapa atual (ideia do Codex).
-- Abaixo: tabela semântica de 5 linhas (nível, cenário, tempo, estado). Cada linha é um `radio` estilizado como linha, e o botão do cenário selecionado continua chamado "Decolar no Simulador".
+- Abaixo: tabela semântica de 5 linhas (nível, cenário, tempo, estado). Cada linha é um `radio` estilizado como linha, e o botão do cenário selecionado continua chamado "Iniciar no Simulador".
 - Pomodoro, plano de estudo, meta, streak e XP vão para um bloco "Seu progresso" no menu de perfil. O bloco de carreira e o verificador de currículo vão para o destino "Credencial" (extração, sem redesenho).
 
 **Motivo:** o Kiro mediu 7056 px de altura no celular e 6 blocos competindo no primeiro viewport. O Codex acerta ao tratar o aluno que volta de forma diferente do aluno novo, e o vídeo de 3 minutos exige um caminho curto. Cartões de trilha do Copilot repetem o problema de peso igual dos cartões atuais.
@@ -168,7 +168,7 @@ Cada item traz as opções, a escolhida, o motivo e o risco.
 
 **Escolha (proposta):** a do Kiro, com a condição do Codex. A tela é o "produto final" da aprendizagem e entra inteira em PRE_BANCA: linha do tempo, painel de critérios, comparativo e cartão de credencial.
 
-**Motivo:** é a tela que o pitch promete (Caixa-Preta e Currículo Vivo) e a mais crua hoje (`<pre>` com JSON). A condição do Codex já está atendida, porque `CriterioAvaliacaoDto` traz `motivo` e `praticaEsperada`, e `EventoDto` traz `criterios`.
+**Motivo:** é a tela que o pitch promete (Revisão e Currículo Vivo) e a mais crua hoje (`<pre>` com JSON). A condição do Codex já está atendida, porque `CriterioAvaliacaoDto` traz `motivo` e `praticaEsperada`, e `EventoDto` traz `criterios`.
 
 **Risco:** `ReplayView.test.tsx` e a spec E2E usam `range` com `id="replay-range"`, botão `aria-label="Ver evento sequencia N"` e `Consultar KB: <uri>`. Preservar. A verificação continua usando `verificarCurriculoVivoJson` em `utils/jcs.ts`, sem edição. Faixa de pontuação numérica do Copilot fica fora, porque o motor devolve critérios binários e XP, não nota de 0 a 100.
 
@@ -176,7 +176,7 @@ Cada item traz as opções, a escolhida, o motivo e o risco.
 
 | Tema | Opções | Escolha (proposta) | Motivo | Risco |
 |---|---|---|---|---|
-| Identidade visual e paleta | Kiro "Quadro de operações" (petróleo `#0B6E8A`, claro padrão). Codex "Console de campo" (petróleo `#075B78`, barra de contexto escura no turno). Copilot "cockpit Aurora" (azul `#1769AA`). Lovable azul `#0284C7` com topo `#0F172A`. | Kiro: claro por padrão, escuro alternativo, acento petróleo. Os tokens do Kiro têm contraste calculado. Os do Codex e do Copilot declaram que não foram medidos. | Menos retrabalho de contraste. Cor de acento única e estados semânticos. | Etapa 2 mede cada par com `utils/contraste.ts`. Qualquer par abaixo de 4.5:1 é ajustado ali. |
+| Identidade visual e paleta | Kiro "Quadro de operações" (petróleo `#0B6E8A`, claro padrão). Codex "Console de campo" (petróleo `#075B78`, barra de contexto escura no turno). Copilot "mesa de trabalho Aurora" (azul `#1769AA`). Lovable azul `#0284C7` com topo `#0F172A`. | Kiro: claro por padrão, escuro alternativo, acento petróleo. Os tokens do Kiro têm contraste calculado. Os do Codex e do Copilot declaram que não foram medidos. | Menos retrabalho de contraste. Cor de acento única e estados semânticos. | Etapa 2 mede cada par com `utils/contraste.ts`. Qualquer par abaixo de 4.5:1 é ajustado ali. |
 | Nome do Mentor | Kiro mantém "Mentor". Codex renomeia para "Tutor de estudo". Copilot "Revisar com perguntas". | "Mentor", com subtítulo "Respostas guiadas pelo conteúdo da trilha". Sem "IA" no rótulo. | `responderMentor` é função local e determinística. O Codex tem razão sobre a expectativa criada. Manter o substantivo preserva o vocabulário do produto. | `App.test.tsx` busca o heading `Mentor IA`. O teste muda na etapa 4. |
 | Largura do guia no laboratório | Kiro 32 por cento (mínimo 280 px). Codex 300 a 340 px. Copilot 240 a 280 px com console extra. Lovable 35 por cento. | 32 por cento, mínimo 280 px, máximo 50 por cento, persistência em `localStorage`, divisória com teclado. Abaixo de 1024 px vira gaveta. | Faixa comum às fontes. A terceira coluna do Copilot reduz a área das ferramentas. | Pointer events e teclado precisam de teste. |
 | Command palette | Kiro PRE_BANCA. Codex, Copilot e Lovable pós. | `POS` | Não está no caminho dos 6 cliques do vídeo. Custa um dia e traz foco preso e combobox para testar. | Nenhum para a banca. |
@@ -239,7 +239,7 @@ Critério de passagem: app compila, home antiga ainda funciona dentro do shell, 
 | Cold start | novo `ui/ColdStartNotice.tsx`, usado a partir do estado `ocupado` do `App.tsx`. Sem editar `api/client.ts` |
 | Teste | `App.test.tsx` (headings, rádios, painel de carreira), `e2e/jornadas.spec.ts` (nomes de botão se mudarem), testes novos do guia e do split |
 
-Critério de passagem: botão "Decolar no Simulador" e rádios de nível preservados, `aria-label="Aplicativos da Workstation"` preservado, home abaixo de 1800 px em 375, guia marca tarefa só por evento do motor.
+Critério de passagem: botão "Iniciar no Simulador" e rádios de nível preservados, `aria-label="Aplicativos da Workstation"` preservado, home abaixo de 1800 px em 375, guia marca tarefa só por evento do motor.
 
 ### Etapa 4: estudo (sim-implementador-ui)
 

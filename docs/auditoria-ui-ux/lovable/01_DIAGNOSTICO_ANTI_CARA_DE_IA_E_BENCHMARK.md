@@ -1,6 +1,6 @@
 # Entregavel 01 — Diagnostico Anti-Cara de IA (Anti-AI Slop) e Benchmark de Mercado
 
-> **Auditoria Especializada de UI/UX e Design System — IT Flight Simulator**  
+> **Auditoria Especializada de UI/UX e Design System — IT Career Simulator**  
 > **Auditor Responsavel:** Lovable  
 > **Data:** Novembro de 2026  
 > **Pasta Oficial do Entregavel:** `docs/auditoria-ui-ux/lovable/01_DIAGNOSTICO_ANTI_CARA_DE_IA_E_BENCHMARK.md`  
@@ -11,7 +11,7 @@
 
 ## 1. Contexto e Postura da Auditoria
 
-Esta auditoria foi executada com independencia absoluta, sem concessoes de cortesia e com rigor de estudio senior de Design de Produto. O IT Flight Simulator possui um motor deterministico robusto em C# .NET 10, arquitetura orientada a eventos e rigor criptografico admiravel (RFC 8785 JCS, ECDSA P-256). Contudo, a camada visual atual do frontend (`src/frontend/src/`) sofre de sintomas cronicos de geracao sintetica automatizada por IA (conhecidos no mercado como *AI-slop*), alem de uma aparencia de template SaaS generico adaptado as pressas.
+Esta auditoria foi executada com independencia absoluta, sem concessoes de cortesia e com rigor de estudio senior de Design de Produto. O IT Career Simulator possui um motor deterministico robusto em C# .NET 10, arquitetura orientada a eventos e rigor criptografico admiravel (RFC 8785 JCS, ECDSA P-256). Contudo, a camada visual atual do frontend (`src/frontend/src/`) sofre de sintomas cronicos de geracao sintetica automatizada por IA (conhecidos no mercado como *AI-slop*), alem de uma aparencia de template SaaS generico adaptado as pressas.
 
 O fundador identificou o problema com exatidao: a aplicacao no ar (`https://it-flight-simulator-hackbrasil.vercel.app`) parece uma versao branca do layout antigo, mantendo a estrutura engessada de dashboards de IA, cards repetitivos, iconografia informal com emojis e falta de identidade propria de um simulador de engenharia e suporte tecnico.
 
@@ -73,7 +73,7 @@ A inspecao profunda do codigo-fonte (`index.css`, `TelaInicial.tsx`, `BarraSuper
   - Nos laboratorios interativos (AWS Jam e Cloud Quest), as instrucoes ficam sempre visiveis em um painel retratil lateral, enquanto o console ativo da AWS ocupa a area nobre da tela.
 - **O que copiar**:
   - Header corporativo austero com logotipo monocromatico e perfil resumido.
-  - Painel de instrucoes do laboratorio persistente ao lado do cockpit operacional.
+  - Painel de instrucoes do laboratorio persistente ao lado do mesa de trabalho operacional.
 - **O que evitar**:
   - A frieza burocratica excessiva que pode desmotivar um estudante de ensino medio da rede publica.
 
@@ -96,7 +96,7 @@ A inspecao profunda do codigo-fonte (`index.css`, `TelaInicial.tsx`, `BarraSuper
   - O modo "Foco de Estudo", onde a navegacao global desaparece para maximizar a concentracao na aula ou no laboratorio.
   - O sistema de anotacoes sincronizado com o topico atual da aula.
 - **O que evitar**:
-  - Layouts de player de video quando a interacao principal do IT Flight Simulator e texto, comandos de terminal e tickets de suporte.
+  - Layouts de player de video quando a interacao principal do IT Career Simulator e texto, comandos de terminal e tickets de suporte.
 
 ### 4.4. TryHackMe e Hack The Box Academy (O Modelo de Ouro para Simuladores)
 - **O que fazem com perfeicao**:
@@ -105,9 +105,9 @@ A inspecao profunda do codigo-fonte (`index.css`, `TelaInicial.tsx`, `BarraSuper
     - Painel direito (65% da largura): A maquina virtual, o terminal, o navegador corporativo ou o console de tickets.
   - Nao existe necessidade de adivinhar o que fazer: cada tarefa possui um objetivo binario claro.
 - **O que copiar**:
-  - Esta e exatamente a arquitetura que falta a Workstation do IT Flight Simulator. Em vez de abas isoladas que escondem o contexto, o aluno deve ver o roteiro/guia do Tech Lead fixo na esquerda e o ITSM/SimuDesk na direita.
+  - Esta e exatamente a arquitetura que falta a Workstation do IT Career Simulator. Em vez de abas isoladas que escondem o contexto, o aluno deve ver o roteiro/guia do Tech Lead fixo na esquerda e o ITSM/SimuDesk na direita.
 - **O que evitar**:
-  - Estetica excessivamente dark mode "hacker neon" verde/roxo de filmes antigos. O IT Flight Simulator prepara para Service Desk, Redes e Operacoes corporativas reais, portanto a estetica deve ser de estacao corporativa limpa.
+  - Estetica excessivamente dark mode "hacker neon" verde/roxo de filmes antigos. O IT Career Simulator prepara para Service Desk, Redes e Operacoes corporativas reais, portanto a estetica deve ser de estacao corporativa limpa.
 
 ### 4.5. Linear e Jira Service Management
 - **O que fazem com perfeicao**:
@@ -118,7 +118,7 @@ A inspecao profunda do codigo-fonte (`index.css`, `TelaInicial.tsx`, `BarraSuper
 
 ---
 
-## 5. Diretrizes para a Identidade Visual Autoral do IT Flight Simulator
+## 5. Diretrizes para a Identidade Visual Autoral do IT Career Simulator
 
 Para eliminar em definitivo a cara de template de IA, a identidade visual deve se ancorar nos seguintes principios de produto:
 

@@ -11,7 +11,7 @@ import type { SessaoProjecao } from '../api/types'
  */
 const CENARIOS_SEM_ACESSO_REMOTO: readonly string[] = ['reset-senha-desbloqueio']
 
-/** Cenários entregues pela spec cenarios-por-escala, com solicitante e texto próprios. */
+/** Cenários entregues pela spec cenarios-por-etapa, com solicitante e texto próprios. */
 const CENARIOS_COM_SOLICITANTE_PROPRIO: readonly string[] = ['reset-senha-desbloqueio', 'falha-backup-restore']
 
 /** Serviços externos de incidente-massivo. O console os expõe desde o início, como o próprio sintoma. */

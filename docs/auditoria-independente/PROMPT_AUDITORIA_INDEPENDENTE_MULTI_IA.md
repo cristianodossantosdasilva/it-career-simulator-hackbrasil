@@ -1,4 +1,4 @@
-# Prompt Mestre de Auditoria Independente Multi-IA — IT Flight Simulator (Hack Brasil 2026)
+# Prompt Mestre de Auditoria Independente Multi-IA — IT Career Simulator (Hack Brasil 2026)
 
 > **Uso:** Aplicável em pé de igualdade ao **Kiro CLI**, **Codex CLI** e **GitHub Copilot CLI**.  
 > **Postura Esperada:** Pesquisa 100% independente, pensamento crítico autônomo e zero alinhamento automático com decisões anteriores deste projeto. Questione premissas, aponte erros, proponha inclusões, cortes, correções e novas ideias em todas as frentes.
@@ -7,7 +7,7 @@
 
 ## 1. Mandato de Autonomia e Regras Operacionais
 
-Você foi convocado como **banca multidisciplinar independente** para auditar integralmente o projeto **IT Flight Simulator** — desde o regulamento oficial do **Hack Brasil 2026** até a governança, arquitetura de código, banco de dados, infraestrutura em nuvem, experiência de usuário, proposta pedagógica, viabilidade financeira, contabilidade e blindagem jurídica.
+Você foi convocado como **banca multidisciplinar independente** para auditar integralmente o projeto **IT Career Simulator** — desde o regulamento oficial do **Hack Brasil 2026** até a governança, arquitetura de código, banco de dados, infraestrutura em nuvem, experiência de usuário, proposta pedagógica, viabilidade financeira, contabilidade e blindagem jurídica.
 
 ### Invariantes de Execução
 1. **Autonomia de Pesquisa e Opinião Própria:**
@@ -17,9 +17,9 @@ Você foi convocado como **banca multidisciplinar independente** para auditar in
    - **NÃO modifique nenhum arquivo em `src/`, nenhuma configuração de deploy, nenhum recurso no Vercel/Render/Neon/Cloudflare/GitHub e nenhum dado no banco DevLedger ou PostgreSQL.**
    - Toda ação em CLIs externas, Git e SQLite deve ser exclusivamente de consulta/leitura (ex.: `sqlite3 -readonly`, `git status`, `git log`, `ls`/`list`, `inspect`, `get`).
    - Apenas **grave os seus relatórios** dentro da sua pasta designada:
-     - Kiro CLI: `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\auditoria-independente\kiro\`
-     - Codex CLI: `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\auditoria-independente\codex\`
-     - GitHub Copilot CLI: `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\auditoria-independente\copilot\`
+     - Kiro CLI: `D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\auditoria-independente\kiro\`
+     - Codex CLI: `D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\auditoria-independente\codex\`
+     - GitHub Copilot CLI: `D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\auditoria-independente\copilot\`
 3. **Privacidade em Bases de Conhecimento Históricas:**
    - Ao consultar repositórios e snapshots de suporte para inspiração de cenários e incidentes, utilize apenas padrões técnicos, fluxos e categorias de falha. **Nunca copie nem registre em seus relatórios nomes de pessoas reais, CPFs/CNPJs reais, credenciais, tokens ou nomes de empresas clientes reais.**
 4. **Regra Editorial do Repositório (Proibição de E Comercial):**
@@ -30,7 +30,7 @@ Você foi convocado como **banca multidisciplinar independente** para auditar in
 ## 2. Mapa Completo de Recursos, Caminhos e CLIs Disponíveis
 
 ### 2.1. Repositório Principal do Projeto (Hack Brasil 2026)
-- **Raiz:** `D:\Projetos\Ativos\it-flight-simulator-hackbrasil`
+- **Raiz:** `D:\Projetos\Ativos\it-career-simulator-hackbrasil`
 - **Regras e Documentação Estratégica:**
   - `README.md` e `AGENTS.md`
   - `docs/CONTEXTO_HACK_BRASIL_2026.md`
@@ -42,11 +42,11 @@ Você foi convocado como **banca multidisciplinar independente** para auditar in
   - `docs/vetores-jcs-sha256.json`
   - `docs/rfc/PROJETO_SIMULADOR_CARREIRA_TI_DISCUSSAO_IAS.md`
   - `docs/rfc/MANIFESTO_PASTA_REDE_INACESSIVEL_v1.1.md`
-- **Código-Fonte Backend (`.NET 10` / C#):** `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\src\backend`
+- **Código-Fonte Backend (`.NET 10` / C#):** `D:\Projetos\Ativos\it-career-simulator-hackbrasil\src\backend`
   - Solution `Simulador.slnx` com `Simulador.Dominio`, `Simulador.Cenarios`, `Simulador.Itsm`, `Simulador.Avaliacao`, `Simulador.Dialogo`, `Simulador.Infra`, `Simulador.Api` e suíte `tests/` (`xUnit`).
-- **Código-Fonte Frontend (`React 19` + `TypeScript` + `Vite`):** `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\src\frontend`
+- **Código-Fonte Frontend (`React 19` + `TypeScript` + `Vite`):** `D:\Projetos\Ativos\it-career-simulator-hackbrasil\src\frontend`
   - Código da Workstation em `src/`, testes `Vitest + axe-core`, testes E2E `Playwright` em `e2e/jornadas.spec.ts` e `scripts/check-bundle-secrets.mjs`.
-- **Grafo de Conhecimento de Código (Graphify):** `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\graphify-out`
+- **Grafo de Conhecimento de Código (Graphify):** `D:\Projetos\Ativos\it-career-simulator-hackbrasil\graphify-out`
 - **Protótipo Visual UX Redesign (em revisão):**
   - Arquivos estáticos: `C:\Users\Black\.gemini\antigravity\brain\7af3228f-a969-42a1-a65d-becbf5a06ae0\scratch\prototipo-redesign\index.html`
   - Servidor local ativo (quando disponível): `http://127.0.0.1:4180`
@@ -71,7 +71,7 @@ Todas as ferramentas abaixo estão instaladas no ambiente do autor; **verifique 
 - **Render CLI (`render.exe`):** `C:\Users\Black\AppData\Local\Microsoft\WinGet\Links\render.exe` (blueprint em `render.yaml`)
 - **Neon CLI (`neonctl.cmd` / `neon.cmd`):** `C:\Users\Black\AppData\Roaming\npm\neonctl.cmd` (projetos/branches PostgreSQL)
 - **Cloudflare CLI (`cloudflare.cmd`):** `C:\Users\Black\AppData\Roaming\npm\cloudflare.cmd`
-- **Infraestrutura Docker Local:** `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docker-compose.yml` (`postgres:17-alpine` na porta `5432`, API na `8080`, frontend na `5173`).
+- **Infraestrutura Docker Local:** `D:\Projetos\Ativos\it-career-simulator-hackbrasil\docker-compose.yml` (`postgres:17-alpine` na porta `5432`, API na `8080`, frontend na `5173`).
 
 ### 2.4. Bases de Conhecimento de Suporte Reais e Sanitizadas (Somente Leitura)
 Use para avaliar a aderência dos cenários propostos à realidade do suporte de TI no Brasil e sugerir novos incidentes, preventivas e procedimentos técnicos:
@@ -167,22 +167,22 @@ Antes de encerrar sua entrega, verifique:
 
 ## 6. Chamadas Prontas no Caminho do Repositório Local com Permissão e Acesso Total
 
-Comandos prontos para PowerShell executando cada agente diretamente dentro de `D:\Projetos\Ativos\it-flight-simulator-hackbrasil`, com permissão total de ferramentas, diretórios (`D:/` e `C:\Users\Black`), busca web e uso dos executáveis `.cmd`/`.exe` (evitando bloqueio de `.ps1`):
+Comandos prontos para PowerShell executando cada agente diretamente dentro de `D:\Projetos\Ativos\it-career-simulator-hackbrasil`, com permissão total de ferramentas, diretórios (`D:/` e `C:\Users\Black`), busca web e uso dos executáveis `.cmd`/`.exe` (evitando bloqueio de `.ps1`):
 
 ### 6.1. Kiro CLI (`kiro-cli`)
 ```powershell
-Set-Location "D:\Projetos\Ativos\it-flight-simulator-hackbrasil"; kiro-cli chat --trust-all-tools --trust-workspace "Leia integralmente D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\auditoria-independente\PROMPT_AUDITORIA_INDEPENDENTE_MULTI_IA.md e execute a auditoria completa de forma 100% independente, critica e sem vies previo. Voce tem acesso e autonomia total para ler o repositorio principal (D:\Projetos\Ativos\it-flight-simulator-hackbrasil), consultar o DevLedger em somente leitura (D:\GitHub\cristianodossantosdasilva\DevLedger\data\devledger.db via skill C:\Users\Black\.kiro\skills\devledger-retomar\SKILL.md), inspecionar as KBs listadas, checar o prototipo visual (http://127.0.0.1:4180), rodar consultas de leitura nas CLIs instaladas usando .cmd/.exe (gh.exe, vercel.cmd, render.exe, neonctl.cmd, cloudflare.cmd) e pesquisar na web o regulamento oficial do Hack Brasil 2026 (https://www.hackbrasil.com/). Assuma as 7 frentes descritas no arquivo (Produto, UX/UI, Educacional, Financeiro, Contador, Advogado e Dev Senior/Arquiteto). Nao modifique nada em src/, bancos ou infraestrutura agora. Grave todos os 6 entregaveis obrigatorios (MDs e CSVs, respeitando zero caractere E comercial e privacidade das KBs) exclusivamente em: D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\auditoria-independente\kiro"
+Set-Location "D:\Projetos\Ativos\it-career-simulator-hackbrasil"; kiro-cli chat --trust-all-tools --trust-workspace "Leia integralmente D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\auditoria-independente\PROMPT_AUDITORIA_INDEPENDENTE_MULTI_IA.md e execute a auditoria completa de forma 100% independente, critica e sem vies previo. Voce tem acesso e autonomia total para ler o repositorio principal (D:\Projetos\Ativos\it-career-simulator-hackbrasil), consultar o DevLedger em somente leitura (D:\GitHub\cristianodossantosdasilva\DevLedger\data\devledger.db via skill C:\Users\Black\.kiro\skills\devledger-retomar\SKILL.md), inspecionar as KBs listadas, checar o prototipo visual (http://127.0.0.1:4180), rodar consultas de leitura nas CLIs instaladas usando .cmd/.exe (gh.exe, vercel.cmd, render.exe, neonctl.cmd, cloudflare.cmd) e pesquisar na web o regulamento oficial do Hack Brasil 2026 (https://www.hackbrasil.com/). Assuma as 7 frentes descritas no arquivo (Produto, UX/UI, Educacional, Financeiro, Contador, Advogado e Dev Senior/Arquiteto). Nao modifique nada em src/, bancos ou infraestrutura agora. Grave todos os 6 entregaveis obrigatorios (MDs e CSVs, respeitando zero caractere E comercial e privacidade das KBs) exclusivamente em: D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\auditoria-independente\kiro"
 ```
 *(Para rodar sem interação na linha de comando, acrescente `--no-interactive` após `--trust-workspace`.)*
 
 ### 6.2. Codex CLI (`codex.cmd`)
 ```powershell
-Set-Location "D:\Projetos\Ativos\it-flight-simulator-hackbrasil"; codex.cmd -C "D:\Projetos\Ativos\it-flight-simulator-hackbrasil" --dangerously-bypass-approvals-and-sandbox --search --add-dir "D:/" --add-dir "C:\Users\Black" "Leia integralmente D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\auditoria-independente\PROMPT_AUDITORIA_INDEPENDENTE_MULTI_IA.md e execute a auditoria completa de forma 100% independente, critica e sem vies previo. Voce tem acesso e autonomia total para ler o repositorio principal (D:\Projetos\Ativos\it-flight-simulator-hackbrasil), consultar o DevLedger em somente leitura (D:\GitHub\cristianodossantosdasilva\DevLedger\data\devledger.db via skill C:\Users\Black\.codex\skills\devledger-retomar\SKILL.md), inspecionar as KBs listadas, checar o prototipo visual (http://127.0.0.1:4180), rodar consultas de leitura nas CLIs instaladas usando .cmd/.exe (gh.exe, vercel.cmd, render.exe, neonctl.cmd, cloudflare.cmd) e pesquisar na web o regulamento oficial do Hack Brasil 2026 (https://www.hackbrasil.com/). Assuma as 7 frentes descritas no arquivo (Produto, UX/UI, Educacional, Financeiro, Contador, Advogado e Dev Senior/Arquiteto). Nao modifique nada em src/, bancos ou infraestrutura agora. Grave todos os 6 entregaveis obrigatorios (MDs e CSVs, respeitando zero caractere E comercial e privacidade das KBs) exclusivamente em: D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\auditoria-independente\codex"
+Set-Location "D:\Projetos\Ativos\it-career-simulator-hackbrasil"; codex.cmd -C "D:\Projetos\Ativos\it-career-simulator-hackbrasil" --dangerously-bypass-approvals-and-sandbox --search --add-dir "D:/" --add-dir "C:\Users\Black" "Leia integralmente D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\auditoria-independente\PROMPT_AUDITORIA_INDEPENDENTE_MULTI_IA.md e execute a auditoria completa de forma 100% independente, critica e sem vies previo. Voce tem acesso e autonomia total para ler o repositorio principal (D:\Projetos\Ativos\it-career-simulator-hackbrasil), consultar o DevLedger em somente leitura (D:\GitHub\cristianodossantosdasilva\DevLedger\data\devledger.db via skill C:\Users\Black\.codex\skills\devledger-retomar\SKILL.md), inspecionar as KBs listadas, checar o prototipo visual (http://127.0.0.1:4180), rodar consultas de leitura nas CLIs instaladas usando .cmd/.exe (gh.exe, vercel.cmd, render.exe, neonctl.cmd, cloudflare.cmd) e pesquisar na web o regulamento oficial do Hack Brasil 2026 (https://www.hackbrasil.com/). Assuma as 7 frentes descritas no arquivo (Produto, UX/UI, Educacional, Financeiro, Contador, Advogado e Dev Senior/Arquiteto). Nao modifique nada em src/, bancos ou infraestrutura agora. Grave todos os 6 entregaveis obrigatorios (MDs e CSVs, respeitando zero caractere E comercial e privacidade das KBs) exclusivamente em: D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\auditoria-independente\codex"
 ```
-*(Para execução em lote não interativa, utilize `codex.cmd exec -C "D:\Projetos\Ativos\it-flight-simulator-hackbrasil" --dangerously-bypass-approvals-and-sandbox --add-dir "D:/" --add-dir "C:\Users\Black" "<MESMO PROMPT>"`.)*
+*(Para execução em lote não interativa, utilize `codex.cmd exec -C "D:\Projetos\Ativos\it-career-simulator-hackbrasil" --dangerously-bypass-approvals-and-sandbox --add-dir "D:/" --add-dir "C:\Users\Black" "<MESMO PROMPT>"`.)*
 
 ### 6.3. GitHub Copilot CLI (`copilot.cmd`)
 ```powershell
-Set-Location "D:\Projetos\Ativos\it-flight-simulator-hackbrasil"; copilot.cmd --yolo --add-dir "D:/" --add-dir "C:\Users\Black" -i "Leia integralmente D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\auditoria-independente\PROMPT_AUDITORIA_INDEPENDENTE_MULTI_IA.md e execute a auditoria completa de forma 100% independente, critica e sem vies previo. Voce tem acesso e autonomia total para ler o repositorio principal (D:\Projetos\Ativos\it-flight-simulator-hackbrasil), consultar o DevLedger em somente leitura (D:\GitHub\cristianodossantosdasilva\DevLedger\data\devledger.db via skill C:\Users\Black\.copilot\skills\devledger-retomar\SKILL.md), inspecionar as KBs listadas, checar o prototipo visual (http://127.0.0.1:4180), rodar consultas de leitura nas CLIs instaladas usando .cmd/.exe (gh.exe, vercel.cmd, render.exe, neonctl.cmd, cloudflare.cmd) e pesquisar na web o regulamento oficial do Hack Brasil 2026 (https://www.hackbrasil.com/). Assuma as 7 frentes descritas no arquivo (Produto, UX/UI, Educacional, Financeiro, Contador, Advogado e Dev Senior/Arquiteto). Nao modifique nada em src/, bancos ou infraestrutura agora. Grave todos os 6 entregaveis obrigatorios (MDs e CSVs, respeitando zero caractere E comercial e privacidade das KBs) exclusivamente em: D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\auditoria-independente\copilot"
+Set-Location "D:\Projetos\Ativos\it-career-simulator-hackbrasil"; copilot.cmd --yolo --add-dir "D:/" --add-dir "C:\Users\Black" -i "Leia integralmente D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\auditoria-independente\PROMPT_AUDITORIA_INDEPENDENTE_MULTI_IA.md e execute a auditoria completa de forma 100% independente, critica e sem vies previo. Voce tem acesso e autonomia total para ler o repositorio principal (D:\Projetos\Ativos\it-career-simulator-hackbrasil), consultar o DevLedger em somente leitura (D:\GitHub\cristianodossantosdasilva\DevLedger\data\devledger.db via skill C:\Users\Black\.copilot\skills\devledger-retomar\SKILL.md), inspecionar as KBs listadas, checar o prototipo visual (http://127.0.0.1:4180), rodar consultas de leitura nas CLIs instaladas usando .cmd/.exe (gh.exe, vercel.cmd, render.exe, neonctl.cmd, cloudflare.cmd) e pesquisar na web o regulamento oficial do Hack Brasil 2026 (https://www.hackbrasil.com/). Assuma as 7 frentes descritas no arquivo (Produto, UX/UI, Educacional, Financeiro, Contador, Advogado e Dev Senior/Arquiteto). Nao modifique nada em src/, bancos ou infraestrutura agora. Grave todos os 6 entregaveis obrigatorios (MDs e CSVs, respeitando zero caractere E comercial e privacidade das KBs) exclusivamente em: D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\auditoria-independente\copilot"
 ```
 *(No GitHub Copilot CLI, `--trust-folder` vale apenas no modo não interativo `-p` e é incompatível com `-i`; `--yolo` já ativa `--allow-all-tools --allow-all-paths --allow-all-urls`. Para encerrar automaticamente ao finalizar sem sessão interativa, use `copilot.cmd --yolo --trust-folder --add-dir "D:/" --add-dir "C:\Users\Black" -p "<MESMO PROMPT>"`.)*

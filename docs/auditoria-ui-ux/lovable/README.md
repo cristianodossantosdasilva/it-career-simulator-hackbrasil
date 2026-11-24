@@ -1,8 +1,8 @@
 # Auditoria de UI, UX e Design System — Lovable
 
 > **Auditor Responsavel:** Lovable  
-> **Projeto:** IT Flight Simulator (Hackathon Brasil)  
-> **Repositorio Oficial:** https://github.com/cristianodossantosdasilva/it-flight-simulator-hackbrasil  
+> **Projeto:** IT Career Simulator (Hackathon Brasil)  
+> **Repositorio Oficial:** https://github.com/cristianodossantosdasilva/it-career-simulator-hackbrasil  
 > **Caminho da Pasta no Repositorio:** `docs/auditoria-ui-ux/lovable/`  
 > **Data de Emissao:** Novembro de 2026  
 
@@ -13,8 +13,8 @@
 Este diretorio reune os entregaveis da auditoria independente conduzida pelo **Lovable** com foco exclusivo em:
 1. **Eliminacao de Vicios de IA (Anti-AI-Slop):** remocao da estetica generica, faixas decorativas supérfluas e excesso de emojis.
 2. **Benchmark com Lideres da Industria:** adocao de padroes consolidados do AWS Skill Builder, Microsoft Learn, Udemy, TryHackMe e Linear.
-3. **Nova Arquitetura de Informacao:** transicao da navegacao confusa para a **Workstation Split-Screen** (35% Guia do Tech Lead e 65% Cockpit de Ferramentas).
-4. **Design System Operacional:** tokens semanticos de cor, contraste WCAG AAA, escala tipografica limpa e substituicao integral de 92 emojis por icones vetoriais SVG reais.
+3. **Nova Arquitetura de Informacao:** transicao da navegacao confusa para a **Workstation Split-Screen** (35% Guia do Tech Lead e 65% Mesa de Trabalho de Ferramentas).
+4. **Design System Operacional:** tokens semanticos de cor, contraste WCAG AAA, etapa tipografica limpa e substituicao integral de 92 emojis por icones vetoriais SVG reais.
 5. **Especificacao Tecnica e Codigo Pronto:** componentes React e estilos CSS prontos para refatoracao gradual preservando 100% dos testes e contratos de API.
 
 ---
