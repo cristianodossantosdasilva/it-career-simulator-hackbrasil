@@ -1,0 +1,36 @@
+/* Cabine no esquema CertSim: cabeçalho de progresso e mapa de chamados. Só tokens de index.css. */
+.cabine-progresso { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); flex: 1 1 320px; min-width: 0; }
+.cabine-progresso-texto { font-weight: var(--font-weight-semibold); color: var(--text-primary); white-space: nowrap; }
+.cabine-progresso-barra { flex: 1 1 120px; min-width: 96px; height: 4px; border-radius: 999px; overflow: hidden; accent-color: var(--accent-primary); }
+.cabine-progresso-barra::-webkit-progress-bar { background: var(--bg-elevated); }
+.cabine-progresso-barra::-webkit-progress-value { background: var(--accent-primary); }
+.cabine-progresso-barra::-moz-progress-bar { background: var(--accent-primary); }
+.cabine-titulo-linha { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); width: 100%; min-width: 0; }
+.cabine-titulo-linha .barra-contexto-acoes { flex-wrap: wrap; }
+.cabine-modo { display: inline-flex; border: 1px solid var(--border-control); border-radius: var(--radius-md); overflow: hidden; }
+.cabine-modo button { min-height: var(--touch-target); padding: 0 var(--space-3); background: var(--bg-surface); color: var(--text-secondary); font-weight: var(--font-weight-semibold); border: 0; cursor: pointer; }
+.cabine-modo button[aria-pressed='true'] { background: var(--accent-solid); color: var(--text-primary); }
+.cabine-sla { min-width: 0; }
+.cabine-sair { min-height: var(--touch-target); }
+.cabine-nota-modo { width: 100%; margin: 0; color: var(--text-secondary); font-size: var(--font-size-sm); }
+
+.mapa-chamados { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3) var(--space-4) var(--space-4); border-top: 1px solid var(--border-subtle); }
+.mapa-chamados-cabecalho { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-2); }
+.mapa-filtros { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+.mapa-filtro { min-height: var(--touch-target); cursor: pointer; }
+.mapa-filtro[aria-pressed='true'] { background: var(--accent-surface); border-color: var(--accent-primary); color: var(--accent-text); }
+.mapa-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.mapa-item { display: flex; align-items: stretch; gap: var(--space-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); background: var(--bg-elevated); min-width: 0; }
+.mapa-item[data-atual='true'] { border-color: var(--accent-primary); background: var(--accent-surface); }
+.mapa-item-botao { flex: 1 1 auto; min-width: 0; min-height: var(--touch-target); display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-1); padding: var(--space-2); background: transparent; border: 0; color: var(--text-primary); text-align: left; cursor: pointer; }
+.mapa-item-chave { color: var(--accent-text); font-size: var(--font-size-xs); }
+.mapa-item-titulo { overflow-wrap: anywhere; font-size: var(--font-size-sm); }
+.mapa-selos { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+.mapa-selo { padding: 2px var(--space-2); border-radius: 999px; border: 1px solid var(--border-control); font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--text-secondary); }
+.mapa-selo[data-selo='atual'] { color: var(--accent-text); border-color: var(--accent-primary); }
+.mapa-selo[data-selo='resolvido'] { color: var(--status-success-text); background: var(--status-success-surface); border-color: var(--status-success); }
+.mapa-selo[data-selo='sla-vencido'] { color: var(--status-danger-text); background: var(--status-danger-surface); border-color: var(--status-danger); }
+.mapa-selo[data-selo='revisar'] { color: var(--status-warning-text); background: var(--status-warning-surface); border-color: var(--status-warning-border); }
+.mapa-revisar { flex: none; width: var(--touch-target); min-height: var(--touch-target); display: inline-flex; align-items: center; justify-content: center; background: transparent; border: 0; border-left: 1px solid var(--border-subtle); color: var(--text-secondary); cursor: pointer; }
+.mapa-revisar[aria-pressed='true'] { color: var(--status-warning-text); background: var(--status-warning-surface); }
+.mapa-vazio { margin: 0; }

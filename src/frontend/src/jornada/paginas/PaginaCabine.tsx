@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { DadosDaSessao } from '../cabine/DadosDaSessao'
-import { TurnoDaCabine } from '../cabine/TurnoDaCabine'
+import { CabineAtiva } from '../cabine/CabineAtiva'
 import type { IdMissao } from '../catalogos/catalogoRotas'
 import { AvisoHonesto } from '../componentes/AvisoHonesto'
 import { textosDaMissao } from '../componentes/textosDaMissao'
@@ -91,12 +90,14 @@ export function PaginaCabine({ rota, portao }: { rota: RotaCabine; portao: Decis
 
   return (
     <div className={pronto ? 'workstation' : 'page pagina-jornada'}>
-      <header className="cabine-titulo">
-        <h1>{NOME_PAGINA.cabine}</h1>
-        <span className="dado-contexto">{textosDaMissao(missao).titulo}</span>
-        {pronto && <DadosDaSessao />}
-      </header>
-      {pronto && <TurnoDaCabine />}
+      {pronto ? (
+        <CabineAtiva missao={missao} />
+      ) : (
+        <header className="cabine-titulo">
+          <h1>{NOME_PAGINA.cabine}</h1>
+          <span className="dado-contexto">{textosDaMissao(missao).titulo}</span>
+        </header>
+      )}
       {portao.tipo === 'aviso-missao-em-preparacao' && (
         <AvisoHonesto acoes={[LINK_PLANO]}>{TEXTO_MISSAO_EM_PREPARACAO_CABINE}</AvisoHonesto>
       )}

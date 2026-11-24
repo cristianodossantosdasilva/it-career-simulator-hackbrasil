@@ -183,4 +183,30 @@ describe('Página Plano de voo', () => {
     expect(within(within(n3).getByText('CompTIA Security+').closest('li') as HTMLElement).getByText('Futuro')).toBeInTheDocument()
     expect(screen.getAllByText(AVISO_CERTIFICACOES)).toHaveLength(4)
   })
+
+  it('permite alternar entre Modo Treino e Modo Missão, filtrar domínios com peso e exibe as 5 regras', () => {
+    abrir()
+    expect(screen.getByRole('heading', { level: 2, name: 'Configuração do voo' })).toBeInTheDocument()
+    const grupoModo = screen.getByRole('group', { name: 'Modo de operação' })
+    const treino = within(grupoModo).getByRole('button', { name: /Modo Treino/ })
+    const missao = within(grupoModo).getByRole('button', { name: /Modo Missão/ })
+    expect(treino).toHaveAttribute('aria-pressed', 'true')
+
+    fireEvent.click(missao)
+    expect(missao).toHaveAttribute('aria-pressed', 'true')
+    expect(window.localStorage.getItem('itfs_modo_cabine')).toBe('missao')
+    expect(screen.getByRole('button', { name: 'Iniciar em Modo Missão' })).toBeInTheDocument()
+
+    const regras = screen.getByRole('region', { name: 'Pronto para começar?' })
+    expect(within(regras).getAllByRole('listitem')).toHaveLength(5)
+
+    const chipHelpDesk = screen.getByRole('button', { name: /Help Desk N1/ })
+    expect(within(chipHelpDesk).getByText('15%')).toBeInTheDocument()
+    expect(within(chipHelpDesk).getByText('Recomendado')).toBeInTheDocument()
+
+    fireEvent.click(chipHelpDesk)
+    expect(screen.queryByRole('heading', { level: 2, name: 'Help Desk N1' })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Selecionar todos' }))
+    expect(screen.getByRole('heading', { level: 2, name: 'Help Desk N1' })).toBeInTheDocument()
+  })
 })

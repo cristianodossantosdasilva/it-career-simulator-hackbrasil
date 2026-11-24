@@ -1,7 +1,7 @@
 import { type FormEvent, type RefObject, useEffect, useReducer, useRef, useState } from 'react'
 import { Icone } from '../../ui/Icone'
 import type { CartaoEmbarque as DadosDoCartao } from '../armazenamento/cartaoEmbarque'
-import { rotaPorId } from '../catalogos/catalogoRotas'
+import { type IdEscala, rotaPorId } from '../catalogos/catalogoRotas'
 import {
   ROTEIRO_CHECKIN,
   TEXTO_PONTO_DE_PARTIDA,
@@ -10,6 +10,8 @@ import {
 } from '../catalogos/catalogoVocacional'
 import { ROTA_PADRAO_DE_EMBARQUE, indicarRota, montarCartaoDoCheckIn, rotaDeEmbarque } from '../catalogos/regrasIndicacao'
 import { APRESENTACAO_STATUS } from '../catalogos/status'
+import { ConfiguracaoModoVoo } from '../checkin/ConfiguracaoModoVoo'
+import { type ModoCabine, calcularDominiosDaRota, gravarModoCabine, lerModoCabine } from '../checkin/configuracaoVoo'
 import { ESTADO_INICIAL_CHECKIN, reduzirCheckIn, respostasCompletas } from '../checkin/reduzirCheckIn'
 import { PainelComandante } from '../comandante/PainelComandante'
 import { AvisoHonesto } from '../componentes/AvisoHonesto'
@@ -101,13 +103,14 @@ function PerguntaAtual({
 }
 
 /**
- * Página Check-in: perguntas do roteiro, indicação de rota por regra fixa, confirmação e cartão de
- * embarque. Sem rede e sem IA. O cartão só é gravado depois de confirmar.
+ * Página Check-in: perguntas do roteiro, indicação de rota por regra fixa, confirmação, cartão de
+ * embarque e configuração Treino vs Missão com as cinco regras de preparo. Sem rede e sem IA.
  */
 export function PaginaCheckIn({ rota }: { rota: RotaCheckIn }) {
-  const { cartao, definirCartao, avisoGravacao, dispensarAvisoGravacao } = useArmazenamentoJornada()
+  const { cartao, registros, definirCartao, avisoGravacao, dispensarAvisoGravacao } = useArmazenamentoJornada()
   const [estado, despachar] = useReducer(reduzirCheckIn, ESTADO_INICIAL_CHECKIN)
   const [emitido, setEmitido] = useState<DadosDoCartao | null>(null)
+  const [modo, setModo] = useState<ModoCabine>(lerModoCabine)
   const refLegenda = useRef<HTMLLegendElement | null>(null)
   const refTitulo = useRef<HTMLHeadingElement | null>(null)
 
@@ -126,6 +129,24 @@ export function PaginaCheckIn({ rota }: { rota: RotaCheckIn }) {
   const rotaIndicada = indicacao ? rotaPorId(indicacao.rotaId) : null
   const rotaIndisponivel = indicacao ? rotaDeEmbarque(indicacao.rotaId) !== indicacao.rotaId : false
   const rotaDeSuporte = rotaPorId(ROTA_PADRAO_DE_EMBARQUE)
+  const dominios = rotaDeSuporte ? calcularDominiosDaRota(rotaDeSuporte, registros) : []
+  const [dominiosSelecionados, setDominiosSelecionados] = useState<readonly IdEscala[]>(() =>
+    dominios.map((dominio) => dominio.id),
+  )
+
+  function mudarModo(novoModo: ModoCabine) {
+    setModo(novoModo)
+    gravarModoCabine(novoModo)
+  }
+
+  function alternarDominio(id: IdEscala) {
+    setDominiosSelecionados((atuais) => {
+      if (atuais.includes(id)) {
+        return atuais.length > 1 ? atuais.filter((item) => item !== id) : atuais
+      }
+      return [...atuais, id]
+    })
+  }
 
   function confirmar() {
     if (!respostas) return
@@ -217,26 +238,37 @@ export function PaginaCheckIn({ rota }: { rota: RotaCheckIn }) {
       )}
 
       {!rota.rapido && estado.fase === 'cartao' && emitido && (
-        <section className="secao-jornada" aria-labelledby="checkin-concluido-titulo">
-          <h2 id="checkin-concluido-titulo" ref={refTitulo} tabIndex={-1}>
-            Check-in concluído
-          </h2>
-          {avisoGravacao && (
-            <AvisoHonesto acoes={[{ tipo: 'botao', rotulo: 'Entendi', aoClicar: dispensarAvisoGravacao }]}>
-              {avisoGravacao}
-            </AvisoHonesto>
-          )}
-          <CartaoEmbarque cartao={emitido}>
-            <LinkInterno href="/plano-de-voo" className="btn btn-primary">
-              <Icone nome="plano-de-voo" tamanho={20} />
-              <span>Ir para o Plano de voo</span>
-            </LinkInterno>
-            <button type="button" className="btn btn-secondary" onClick={() => despachar({ tipo: 'reiniciar' })}>
-              <Icone nome="virar" tamanho={20} />
-              <span>Refazer o check-in</span>
-            </button>
-          </CartaoEmbarque>
-        </section>
+        <>
+          <section className="secao-jornada" aria-labelledby="checkin-concluido-titulo">
+            <h2 id="checkin-concluido-titulo" ref={refTitulo} tabIndex={-1}>
+              Check-in concluído
+            </h2>
+            {avisoGravacao && (
+              <AvisoHonesto acoes={[{ tipo: 'botao', rotulo: 'Entendi', aoClicar: dispensarAvisoGravacao }]}>
+                {avisoGravacao}
+              </AvisoHonesto>
+            )}
+            <CartaoEmbarque cartao={emitido}>
+              <LinkInterno href="/plano-de-voo" className="btn btn-primary">
+                <Icone nome="plano-de-voo" tamanho={20} />
+                <span>Ir para o Plano de voo</span>
+              </LinkInterno>
+              <button type="button" className="btn btn-secondary" onClick={() => despachar({ tipo: 'reiniciar' })}>
+                <Icone nome="virar" tamanho={20} />
+                <span>Refazer o check-in</span>
+              </button>
+            </CartaoEmbarque>
+          </section>
+
+          <ConfiguracaoModoVoo
+            modo={modo}
+            aoMudarModo={mudarModo}
+            dominios={dominios}
+            dominiosSelecionados={dominiosSelecionados}
+            aoAlternarDominio={alternarDominio}
+            aoSelecionarTodosDominios={() => setDominiosSelecionados(dominios.map((d) => d.id))}
+          />
+        </>
       )}
 
       <PainelComandante papel="consultor" pagina="check-in" />

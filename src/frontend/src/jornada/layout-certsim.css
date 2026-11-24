@@ -1,0 +1,25 @@
+/* Layout inspirado na organizacao do CertSim: modos, escopo, resultado. Somente tokens de index.css. */
+.grade-atalhos-inicio,.grade-modos-voo,.grade-fortes-fracos{display:grid;gap:var(--space-4);grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.cartao-modo-voo{display:flex;flex-direction:column;gap:var(--space-2);padding:var(--space-5);text-align:left;color:var(--text-primary);background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);min-height:var(--touch-target);cursor:pointer}
+.cartao-modo-voo:hover{background:var(--bg-hover)}
+.cartao-modo-voo-ativo{background:var(--accent-surface);border:2px solid var(--accent-primary)}
+.cartao-modo-voo-topo{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap}
+.seletor-dominios{display:flex;flex-direction:column;gap:var(--space-3);padding:var(--space-5);background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-lg)}
+.grade-chips-dominios{display:flex;flex-wrap:wrap;gap:var(--space-3)}
+.chip-dominio{display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);padding:0 var(--space-4);color:var(--text-primary);background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);cursor:pointer}
+.chip-dominio-ativo{color:var(--accent-text);background:var(--accent-surface);border-color:var(--accent-primary)}
+.chip-dominio-nome{font-weight:var(--font-weight-semibold)}
+.quadro-pronto-comecar{padding:var(--space-5);background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-lg)}
+.lista-regras-voo{margin:0;padding-left:var(--space-5);display:grid;gap:var(--space-2);color:var(--text-secondary)}
+.resultado-cabecalho{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--space-3)}
+.resultado-placar{display:flex;flex-direction:column;align-items:center;gap:var(--space-2);padding:var(--space-5);background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-lg)}
+.resultado-percentual{font-size:4rem;line-height:1;font-weight:var(--font-weight-bold);color:var(--status-success-text)}
+.resultado-competencias{padding:var(--space-5);background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-lg)}
+.lista-competencias{list-style:none;margin:0;padding:0;display:grid;gap:var(--space-4)}
+.item-competencia{display:grid;gap:var(--space-2)}
+.item-competencia-topo{display:flex;justify-content:space-between;gap:var(--space-3)}
+.item-competencia progress{width:100%;height:8px;accent-color:var(--accent-primary)}
+.resultado-revisao{display:grid;gap:var(--space-3)}
+.lista-revisao-criterios{display:grid;gap:var(--space-2);margin:0;padding:0;list-style:none}
+.revisao-criterio-resumo{min-height:var(--touch-target);display:flex;align-items:center;gap:var(--space-3);padding:0 var(--space-4);background:var(--bg-elevated);border-radius:var(--radius-md);cursor:pointer}
+.revisao-criterio-corpo{padding:var(--space-3) var(--space-4);color:var(--text-secondary)}

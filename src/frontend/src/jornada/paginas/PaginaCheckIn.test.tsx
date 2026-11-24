@@ -153,4 +153,14 @@ describe('Página Check-in', () => {
     expect(screen.getByText(/Não foi possível guardar neste navegador/)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Ir para o Plano de voo/ })).toBeInTheDocument()
   })
+
+  it('ao concluir o check-in mostra configuração Treino vs Missão, domínios com peso e as 5 regras', () => {
+    abrir()
+    checkInDeSuporte()
+    ativarPeloTeclado(screen.getByRole('button', { name: /Confirmar e gerar o cartão de embarque/ }))
+    expect(screen.getByRole('heading', { level: 2, name: 'Configuração do voo' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Modo Treino/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Modo Missão/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 3, name: 'Pronto para começar?' })).toBeInTheDocument()
+  })
 })

@@ -77,4 +77,40 @@ describe('Página Caixa-preta', () => {
     expect(await screen.findByRole('heading', { name: 'Relatório do Juiz 360º' })).toBeInTheDocument()
     expect(pedidos.slice(tentativasAntes).every((url) => url.endsWith('/api/sessoes/sessao-x/replay'))).toBe(true)
   })
+
+  it('exibe resultado percentual, competências, fortes e fracos, revisão expansível e botões de ação', async () => {
+    const replay = replayDeTeste('sessao-x', 'pasta-rede-inacessivel')
+    replay.avaliacao.criterios = [
+      {
+        id: 'identidade',
+        descricao: 'Validou a identidade do solicitante',
+        atendido: true,
+        eventoSeq: 1,
+        motivo: 'Solicitou matrícula antes de agir.',
+        praticaEsperada: null,
+        linkKb: null,
+      },
+      {
+        id: 'diagnostico',
+        descricao: 'Verificou DNS na estação',
+        atendido: false,
+        eventoSeq: null,
+        motivo: 'Não executou consulta DNS.',
+        praticaEsperada: 'Executar nslookup no SimuDesk.',
+        linkKb: 'kb-dns',
+      },
+    ]
+    simularApi({ missao: 'pasta-rede-inacessivel', replay })
+    abrir('sessao-x')
+
+    const resultado = await screen.findByRole('region', { name: 'Resultado da missão' })
+    expect(within(resultado).getByText('50%')).toBeInTheDocument()
+    expect(within(resultado).getByText('1 de 2 critérios atendidos')).toBeInTheDocument()
+    expect(within(resultado).getByRole('heading', { name: 'Desempenho por competência' })).toBeInTheDocument()
+    expect(within(resultado).getByRole('heading', { name: 'Pontos fortes (1)' })).toBeInTheDocument()
+    expect(within(resultado).getByRole('heading', { name: 'Áreas a melhorar (1)' })).toBeInTheDocument()
+    expect(within(resultado).getByRole('heading', { name: 'Revisão critério a critério' })).toBeInTheDocument()
+    expect(within(resultado).getByRole('button', { name: 'Refazer a missão' })).toBeInTheDocument()
+    expect(within(resultado).getByRole('link', { name: 'Nova missão' })).toHaveAttribute('href', '/plano-de-voo')
+  })
 })

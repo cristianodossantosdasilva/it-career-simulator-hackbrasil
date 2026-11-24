@@ -1,15 +1,18 @@
 import { Icone } from '../../ui/Icone'
 import { BotaoExperimentar } from '../demonstracao/BotaoExperimentar'
 import { DemonstracaoCheckIn } from '../componentes/DemonstracaoCheckIn'
+import { escalaDaMissao } from '../catalogos/catalogoRotas'
 import { JORNADA, TEXTOS_HOME } from '../catalogos/catalogoVocacional'
 import { useArmazenamentoJornada } from '../contextoArmazenamentoJornada'
 import { PainelComandante } from '../comandante/PainelComandante'
 import { LinkInterno } from '../navegacao/LinkInterno'
-import { NOME_PAGINA } from '../navegacao/rotas'
+import { NOME_PAGINA, enderecoDe } from '../navegacao/rotas'
 
-/** Página Início: apresenta o produto, mostra um exemplo do check-in e diz o que o guia não faz. */
+/** Página Início: acesso rápido para continuar missão, atalhos da jornada, demonstração e limites. */
 export function PaginaInicio() {
-  const { cartao } = useArmazenamentoJornada()
+  const { cartao, registros, voosAtivos } = useArmazenamentoJornada()
+  const ultimaLocal = voosAtivos.ultimaMissao ? escalaDaMissao(voosAtivos.ultimaMissao) : null
+
   return (
     <div className="page pagina-jornada">
       <header>
@@ -44,6 +47,91 @@ export function PaginaInicio() {
           </>
         )}
       </header>
+
+      {(ultimaLocal || cartao) && (
+        <section className="secao-jornada" aria-labelledby="inicio-continuar-titulo">
+          <h2 id="inicio-continuar-titulo" className="h2">
+            Continuar missão
+          </h2>
+          {ultimaLocal ? (
+            <div className="cartao-missao">
+              <p className="eyebrow">Voo em andamento</p>
+              <h3 className="cartao-missao-titulo">{ultimaLocal.missao.titulo}</h3>
+              <p className="muted">
+                Escala: {ultimaLocal.escala.nome} · Sessão salva neste navegador
+              </p>
+              <div className="acoes-linha">
+                <LinkInterno
+                  href={enderecoDe({
+                    pagina: 'cabine',
+                    missao: ultimaLocal.missao.id,
+                    semente: null,
+                    causa: null,
+                    nova: false,
+                  })}
+                  className="btn btn-primary"
+                >
+                  <Icone nome="embarcar" tamanho={20} />
+                  <span>Continuar missão</span>
+                </LinkInterno>
+                <LinkInterno href="/plano-de-voo" className="btn btn-secondary">
+                  <Icone nome="plano-de-voo" tamanho={20} />
+                  <span>Escolher outro chamado</span>
+                </LinkInterno>
+              </div>
+            </div>
+          ) : (
+            <div className="cartao-missao">
+              <p className="pagina-jornada-texto">
+                {registros.length > 0
+                  ? `Você já registrou ${registros.length} ${registros.length === 1 ? 'missão concluída' : 'missões concluídas'}.`
+                  : 'Seu cartão de embarque está pronto. Configure o modo Treino ou Missão no Plano de voo.'}
+              </p>
+              <div className="acoes-linha">
+                <LinkInterno href="/plano-de-voo" className="btn btn-primary">
+                  <Icone nome="embarcar" tamanho={20} />
+                  <span>Configurar próxima missão</span>
+                </LinkInterno>
+              </div>
+            </div>
+          )}
+        </section>
+      )}
+
+      <section className="secao-jornada" aria-labelledby="inicio-atalhos-titulo">
+        <h2 id="inicio-atalhos-titulo" className="h2">
+          Atalhos rápidos
+        </h2>
+        <div className="grade-atalhos-inicio">
+          {cartao ? (
+            <LinkInterno href="/plano-de-voo" className="btn btn-secondary">
+              <Icone nome="plano-de-voo" tamanho={20} />
+              <span>Configurar voo (Treino ou Missão)</span>
+            </LinkInterno>
+          ) : (
+            <LinkInterno href="/check-in" className="btn btn-secondary">
+              <Icone nome="check-in" tamanho={20} />
+              <span>Iniciar Check-in</span>
+            </LinkInterno>
+          )}
+          <LinkInterno href="/aulas" className="btn btn-secondary">
+            <Icone nome="aulas" tamanho={20} />
+            <span>Aulas e fundamentos</span>
+          </LinkInterno>
+          <LinkInterno href="/breve" className="btn btn-secondary">
+            <Icone nome="credencial" tamanho={20} />
+            <span>Brevê e histórico</span>
+          </LinkInterno>
+          <LinkInterno href="/caderno" className="btn btn-secondary">
+            <Icone nome="caderno" tamanho={20} />
+            <span>Caderno de estudos</span>
+          </LinkInterno>
+          <LinkInterno href="/comandante" className="btn btn-secondary">
+            <Icone nome="mentor" tamanho={20} />
+            <span>Comandante</span>
+          </LinkInterno>
+        </div>
+      </section>
 
       <section className="secao-jornada" aria-labelledby="inicio-passos">
         <h2 id="inicio-passos">{TEXTOS_HOME.jornadaTitulo}</h2>

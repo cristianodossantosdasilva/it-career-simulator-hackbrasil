@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   ETAPAS_MISSAO_ZERO,
   GLOSSARIO_INICIANTE,
@@ -7,8 +8,10 @@ import {
   obterProximaAcao,
 } from '../../educacao/catalogoEducacional'
 import { PrimeiroVoo } from '../../workstation/PrimeiroVoo'
-import { type IdMissao, ehIdMissao, rotaPorId } from '../catalogos/catalogoRotas'
+import { type IdEscala, type IdMissao, ehIdMissao, rotaPorId } from '../catalogos/catalogoRotas'
 import { ROTA_PADRAO_DE_EMBARQUE } from '../catalogos/regrasIndicacao'
+import { ConfiguracaoModoVoo } from '../checkin/ConfiguracaoModoVoo'
+import { type ModoCabine, calcularDominiosDaRota, gravarModoCabine, lerModoCabine } from '../checkin/configuracaoVoo'
 import { PainelComandante } from '../comandante/PainelComandante'
 import { AvisoHonesto } from '../componentes/AvisoHonesto'
 import { ConviteCopiloto } from '../componentes/ConviteCopiloto'
@@ -33,8 +36,8 @@ function missoesEmbarcaveis(visoes: readonly VisaoEscala[]) {
 }
 
 /**
- * Plano de voo: próximo passo, roteiro da Missão 0, escalas da rota com as missões, opções avançadas e
- * convite. O progresso das escalas vem só dos Registros_de_Voo. O Embarcar nunca leva Causa nem semente.
+ * Plano de voo: configuração Treino vs Missão, seletor de domínios com peso, quadro Pronto para
+ * começar, próximo passo, roteiro da Missão 0, escalas da rota, opções avançadas e convite.
  */
 export function PaginaPlanoDeVoo() {
   const { cartao, registros, modoDemonstracao } = useArmazenamentoJornada()
@@ -42,7 +45,19 @@ export function PaginaPlanoDeVoo() {
   const { sessaoId, sessao, ocupado } = useVoo()
   const rota = rotaPorId(cartao?.rotaId ?? '') ?? rotaPorId(ROTA_PADRAO_DE_EMBARQUE)
   const visoes = rota ? calcularProgressoRota(rota, registros, { modoDemonstracao }) : []
-  const embarcaveis = missoesEmbarcaveis(visoes)
+  const dominios = rota ? calcularDominiosDaRota(rota, registros) : []
+
+  const [modo, setModo] = useState<ModoCabine>(lerModoCabine)
+  const [dominiosSelecionados, setDominiosSelecionados] = useState<readonly IdEscala[]>(() =>
+    dominios.map((dominio) => dominio.id),
+  )
+
+  const visoesFiltradas =
+    dominiosSelecionados.length > 0
+      ? visoes.filter((visao) => dominiosSelecionados.includes(visao.escala.id))
+      : visoes
+
+  const embarcaveis = missoesEmbarcaveis(visoesFiltradas)
   // Quem ainda não tem registro vem primeiro: o primeiro voo é o primeiro que a rota libera e que falta fazer.
   const primeira = embarcaveis.find((missao) => missao.estado !== 'concluida') ?? embarcaveis[0] ?? null
 
@@ -55,6 +70,24 @@ export function PaginaPlanoDeVoo() {
     estadoAcademia.pitches.length > 0 ||
     xpExibido > 0
   const sessaoAtiva = Boolean(sessaoId && sessao)
+
+  function mudarModo(novoModo: ModoCabine) {
+    setModo(novoModo)
+    gravarModoCabine(novoModo)
+  }
+
+  function alternarDominio(id: IdEscala) {
+    setDominiosSelecionados((atuais) => {
+      if (atuais.includes(id)) {
+        return atuais.length > 1 ? atuais.filter((item) => item !== id) : atuais
+      }
+      return [...atuais, id]
+    })
+  }
+
+  function selecionarTodosDominios() {
+    setDominiosSelecionados(dominios.map((dominio) => dominio.id))
+  }
 
   function irParaPrimeiraMissao() {
     if (primeira) navegar(enderecoDaCabine(primeira.missao))
@@ -93,6 +126,23 @@ export function PaginaPlanoDeVoo() {
           {AVISO_CARTAO_DO_CHECKIN_RAPIDO}
         </AvisoHonesto>
       )}
+      <ConfiguracaoModoVoo
+        modo={modo}
+        aoMudarModo={mudarModo}
+        dominios={dominios}
+        dominiosSelecionados={dominiosSelecionados}
+        aoAlternarDominio={alternarDominio}
+        aoSelecionarTodosDominios={selecionarTodosDominios}
+        acaoPrincipal={
+          primeira
+            ? {
+                rotulo: modo === 'missao' ? 'Iniciar em Modo Missão' : 'Iniciar em Modo Treino',
+                aoClicar: irParaPrimeiraMissao,
+                desabilitado: ocupado,
+              }
+            : undefined
+        }
+      />
       <PrimeiroVoo
         temProgresso={temProgresso}
         sessaoAtiva={sessaoAtiva}
@@ -126,7 +176,7 @@ export function PaginaPlanoDeVoo() {
           ))}
         </ol>
       </details>
-      <ListaEscalas visoes={visoes} />
+      <ListaEscalas visoes={visoesFiltradas} />
       <OpcoesAvancadas visoes={visoes} />
       <details className="glossary-details">
         <summary>Glossário rápido para iniciantes (ITSM, SimuDesk, KB, Caixa-Preta e Semente)</summary>

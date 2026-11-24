@@ -3,6 +3,7 @@ import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CARTAO_DE_TESTE, criarArmazenamentoFalso } from '../../testes/armazenamentoFalso'
 import { CHAVE_CARTAO_EMBARQUE, serializarCartao } from '../armazenamento/cartaoEmbarque'
+import { CHAVE_VOOS_ATIVOS, serializarVoosAtivos } from '../armazenamento/voosAtivos'
 import { TEXTOS_HOME } from '../catalogos/catalogoVocacional'
 import { ProvedorArmazenamentoJornada } from '../ProvedorArmazenamentoJornada'
 import { PaginaInicio } from './PaginaInicio'
@@ -60,5 +61,24 @@ describe('Página Início', () => {
     const armazenamento = abrir()
     expect(armazenamento.gravacoes).toHaveLength(0)
     expect(espiao).not.toHaveBeenCalled()
+  })
+
+  it('mostra Continuar missão quando há voo ativo e exibe os atalhos rápidos', () => {
+    abrir({
+      [CHAVE_CARTAO_EMBARQUE]: serializarCartao(CARTAO_DE_TESTE),
+      [CHAVE_VOOS_ATIVOS]: serializarVoosAtivos({
+        versao: 1,
+        ultimaMissao: 'pasta-rede-inacessivel',
+        porMissao: { 'pasta-rede-inacessivel': 'sessao-ativa-1' },
+      }),
+    })
+    expect(screen.getByRole('heading', { level: 2, name: 'Continuar missão' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Continuar missão' })).toHaveAttribute(
+      'href',
+      '/cabine/pasta-rede-inacessivel',
+    )
+    expect(screen.getByRole('heading', { level: 2, name: 'Atalhos rápidos' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Aulas e fundamentos' })).toHaveAttribute('href', '/aulas')
+    expect(screen.getByRole('link', { name: 'Brevê e histórico' })).toHaveAttribute('href', '/breve')
   })
 })

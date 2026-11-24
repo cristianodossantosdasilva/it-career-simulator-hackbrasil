@@ -18,6 +18,11 @@ import { LinkInterno } from '../navegacao/LinkInterno'
 import { navegar } from '../navegacao/navegador'
 import { enderecoDe } from '../navegacao/rotas'
 import type { Aba } from '../contextosJornada'
+import { MapaDeChamados } from './MapaDeChamados'
+import { chamadoEmFoco } from './filaDeChamados'
+import type { EstadoCabine } from './useEstadoCabine'
+
+const TEXTO_SEM_DICA = 'Modo Missão: dicas ocultas. Mude para Treino para ver o próximo passo.'
 
 const FERRAMENTAS: readonly Aba[] = ['itsm', 'chat', 'simudesk', 'kb']
 
@@ -25,7 +30,8 @@ const FERRAMENTAS: readonly Aba[] = ['itsm', 'chat', 'simudesk', 'kb']
  * Turno de atendimento da Cabine: guia da missão, aplicativos e gavetas de notas e do Comandante. O
  * motor decide todo estado: aqui só saem ações do participante.
  */
-export function TurnoDaCabine() {
+export function TurnoDaCabine({ estado }: { estado: EstadoCabine }) {
+  const { modo, setFocoId, focoId, marcas, alternarRevisar } = estado
   const { estadoAcademia, atualizarEstadoAcademia } = useAcademia()
   const {
     sessaoId,
@@ -126,14 +132,26 @@ export function TurnoDaCabine() {
       <SplitLabWorkspace
         resumoGuia={`${passosFeitos} de ${roteiroAtual.passos.length} passos`}
         guia={
-          <MissionGuide
-            cenarioId={sessao.meta.cenarioId}
-            contexto={contextoRoteiro}
-            proximoPasso={dicaAtual}
-            tituloMissao={textosMissao.titulo}
-            onAbrirFerramenta={(ferramenta) => setAba(ferramenta)}
-            onAbrirCaixaPreta={() => navegar(enderecoCaixaPreta)}
-          />
+          <>
+            <MissionGuide
+              cenarioId={sessao.meta.cenarioId}
+              contexto={contextoRoteiro}
+              proximoPasso={modo === 'treino' ? dicaAtual : TEXTO_SEM_DICA}
+              tituloMissao={textosMissao.titulo}
+              onAbrirFerramenta={(ferramenta) => setAba(ferramenta)}
+              onAbrirCaixaPreta={() => navegar(enderecoCaixaPreta)}
+            />
+            <MapaDeChamados
+              chamados={sessao.chamados}
+              atualId={chamadoEmFoco(sessao.chamados, focoId)?.id ?? null}
+              marcas={marcas}
+              aoEscolher={(id) => {
+                setFocoId(id)
+                setAba('itsm')
+              }}
+              aoAlternarRevisar={alternarRevisar}
+            />
+          </>
         }
         consola={
           <>
@@ -247,7 +265,7 @@ export function TurnoDaCabine() {
                   <Icone nome="fechar" />
                 </button>
               </div>
-              <PainelComandante papel="copiloto" pagina="cabine" dicaMissao={dicaAtual} />
+              <PainelComandante papel="copiloto" pagina="cabine" dicaMissao={modo === 'treino' ? dicaAtual : null} />
             </aside>
           ) : undefined
         }

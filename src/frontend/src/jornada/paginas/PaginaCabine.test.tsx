@@ -66,6 +66,23 @@ describe('Página Cabine', () => {
     expect(screen.getByRole('link', { name: /Juiz 360º e Replay/ })).toHaveAttribute('href', '/caixa-preta/sessao-nova')
   })
 
+  it('mostra o cabeçalho "Chamado X de N", o mapa com filtros e alterna Treino e Missão', async () => {
+    simularApi({ missao: 'pasta-rede-inacessivel' })
+    montar('pasta-rede-inacessivel')
+    await screen.findByRole('navigation', { name: 'Aplicativos da Cabine' })
+    expect(screen.getByText(/Chamado/, { selector: '.cabine-progresso-texto' })).toHaveTextContent(/Chamado \d+ de \d+/)
+    expect(screen.getByRole('progressbar', { name: /Progresso da missão/ })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Mapa de chamados' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^Todos/ })).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(screen.getByRole('button', { name: /^Para revisar/ }))
+    expect(screen.getByText('Nenhum chamado neste filtro.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Treino' })).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(screen.getByRole('button', { name: 'Missão' }))
+    expect(screen.getByRole('button', { name: 'Missão' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByText(/dicas ocultas/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Sair e salvar progresso/ })).toBeInTheDocument()
+  })
+
   it('reescreve o endereço sem os parâmetros de teste depois de criar a sessão', async () => {
     const chamadas = simularApi({ missao: 'pasta-rede-inacessivel' })
     montar('pasta-rede-inacessivel', '?semente=42&causa=C1&nova=1')
