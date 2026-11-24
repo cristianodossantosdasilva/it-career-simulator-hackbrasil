@@ -6,7 +6,7 @@ import { APOIO_ATALHO_EXPERIMENTAR, ROTULO_ATALHO_EXPERIMENTAR } from './textosD
 
 /**
  * Atalho_Experimentar da Página Início. É botão e não link porque, com cartão, a ação também ativa o
- * modo. Sem cartão, leva ao Check-in_Rápido. Nunca troca o cartão.
+ * modo. Sem cartão, leva ao Diagnóstico_Rápido. Nunca troca o cartão.
  */
 export function BotaoExperimentar({ destaque = false }: { destaque?: boolean }) {
   const armazenamento = useArmazenamentoJornada()
@@ -19,7 +19,7 @@ export function BotaoExperimentar({ destaque = false }: { destaque?: boolean }) 
         aria-describedby={idApoio}
         onClick={() => executarPlanoDemonstracao(planejarAtalho(armazenamento.cartao), armazenamento)}
       >
-        <Icone nome="embarcar" tamanho={20} />
+        <Icone nome="iniciar" tamanho={20} />
         <span>{ROTULO_ATALHO_EXPERIMENTAR}</span>
       </button>
       <p id={idApoio} className="muted atalho-experimentar-apoio">

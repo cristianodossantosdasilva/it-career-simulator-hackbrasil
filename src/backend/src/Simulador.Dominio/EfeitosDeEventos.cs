@@ -1,7 +1,7 @@
 namespace Simulador.Dominio;
 
 /// <summary>
-/// Efeito de cada Evento dos cenarios por escala sobre o estado da estacao e do dialogo.
+/// Efeito de cada Evento dos cenarios por etapa sobre o estado da estacao e do dialogo.
 /// Usado pelo Motor (ao dobrar os Eventos de um comando) e pela Projecao (ao reconstruir a sessao),
 /// de modo que estado calculado e estado reconstruido coincidam por construcao.
 /// </summary>

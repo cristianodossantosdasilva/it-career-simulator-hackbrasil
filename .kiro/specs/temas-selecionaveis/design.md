@@ -2,7 +2,7 @@
 
 ## Overview
 
-Este documento descreve como o IT Flight Simulator passa de dois temas fixos para um Sistema_de_Temas com catálogo, resolução de precedência, configuração da empresa cliente, Modo_Alto_Contraste e seletor acessível. A base é a branch `main` no commit 19bbb18. Todos os caminhos de código abaixo são relativos a `src/frontend/`, salvo indicação.
+Este documento descreve como o IT Career Simulator passa de dois temas fixos para um Sistema_de_Temas com catálogo, resolução de precedência, configuração da empresa cliente, Modo_Alto_Contraste e seletor acessível. A base é a branch `main` no commit 19bbb18. Todos os caminhos de código abaixo são relativos a `src/frontend/`, salvo indicação.
 
 A primeira entrega contém quatro temas (Operação, Corporativo, Editorial e Acolhedor) e o Modo_Alto_Contraste. Telemetria fica fora do Catálogo_de_Temas, mas os testes genéricos já passam a valer para ele quando entrar.
 
@@ -50,7 +50,7 @@ O usuário aprovou D1 a D11 no requirements.md e delegou as escolhas abaixo. D10
 | DT-13 | `prefers-color-scheme` é lido uma vez, no carregamento. Mudança do sistema operacional durante a sessão não troca o tema. | Evita troca de tema sem ação do aluno no meio de um chamado. O Requisito 2.6 só pede troca quando o Resolvedor_de_Tema determina outro tema. |
 | DT-14 | A varredura de cores roda em `scripts/check-regras-estilo.ts`, chamada pelo script `postlint` do `package.json`. O script roda com a remoção de tipos nativa do Node (22.18 ou mais novo). | `npm run lint` executa `postlint` em seguida e falha se ele falhar. O CI usa Node 22 atual, o Dockerfile usa `node:22-alpine` e a máquina local tem Node 24.19. |
 | DT-15 | A Spec_de_Contraste passa a falhar por limiar. Temas com Modo_Alto_Contraste desligado rodam nas quatro larguras. Com o modo ligado, rodam em 375 e 1440 px. | O Requisito 8.4 exige falha. Medir alto contraste em duas larguras cobre todas as telas sem quadruplicar o tempo da suíte. |
-| DT-16 | Os projetos visuais do Playwright passam a ter altura de 900 px. Entra o projeto `zoom-200`, com janela de 640 por 450 px CSS e fator de escala 2, que equivale a 1280 px com zoom de 200 por cento. | Requisitos 8.6 e 8.7. |
+| DT-16 | Os projetos visuais do Playwright passam a ter altura de 900 px. Entra o projeto `zoom-200`, com janela de 640 por 450 px CSS e fator de etapa 2, que equivale a 1280 px com zoom de 200 por cento. | Requisitos 8.6 e 8.7. |
 | DT-17 | Fora do Modo_Alto_Contraste, os pares de componente medidos contra 3 para 1 são `--border-control`, `--focus-ring` e `--accent-primary`. As cores base de status (`--status-success`, `--status-warning`, `--status-danger`) ficam fora desse limite. Com o modo ligado, elas entram, com mínimo de 4,5 para 1. | Fora do alto contraste, todo indicador de status vem com texto ou ícone (Requisito 8.8), então a cor não carrega a informação sozinha. O `corporativo`, com os valores do tema hoje chamado `corporate`, tem `--status-warning` com 2,91 para 1 sobre `--bg-elevated`. O Requisito 7.5 cita ícones de status de forma explícita só para o alto contraste. |
 | DT-18 | O bloco `[data-theme='tactical'], .dark` da `main` vira `[data-theme='operacao']`, sem `.dark`, e o bloco `:root, [data-theme='corporate']` vira `[data-theme='corporativo']`, sem `:root`. A propriedade `color-scheme` sai dos blocos de tema e vai para regras próprias (`html.dark` e `html:not(.dark)`). | Com `.dark` no seletor, Editorial (escuro) herdaria tokens do `operacao` por empate de especificidade. Sem `color-scheme` dentro do bloco, cada bloco declara só nomes do contrato (Requisito 1.4). Sem JavaScript, o `index.html` fica com `data-theme="operacao" class="dark"`, o Tema_Padrão_do_Produto (D1). |
 | DT-19 | `scripts/check-bundle-secrets.mjs` passa a varrer todo o `dist/`, inclusive `index.html` e `config/`. | O envelope da configuração fica no `index.html`, fora de `dist/assets/` (Requisitos 5.6 e 13.8). |
@@ -600,7 +600,7 @@ A lista abaixo cobre todo arquivo da `main` que usa `data-theme`, `corporate`, `
 | Arquivo | Mudança |
 |---|---|
 | `index.html` | Troca `data-theme="tactical"` por `data-theme="operacao"`, com `class="dark"`, como estado sem JavaScript. O plugin injeta o bloco JSON e o script no início do `head`. |
-| `src/shell/tema.ts` | Removido. O tipo `TemaShell = 'tactical' \| 'corporate'`, a chave `itfs_theme`, o padrão `tactical` e os rótulos "Modo Cockpit Tático - Treinamento" e "Console Corporativo - Auditoria B2B" saem sem substituto de compatibilidade. Os papéis passam para `src/tema/catalogo.ts` (`IdTema`, `TEMA_PADRAO_PRODUTO = 'operacao'`, nomes visíveis) e `src/tema/persistencia.ts` (`CHAVE_TEMA = 'itfs_tema'`, `CHAVE_CONTRASTE = 'itfs_contraste'`). |
+| `src/shell/tema.ts` | Removido. O tipo `TemaShell = 'tactical' \| 'corporate'`, a chave `itfs_theme`, o padrão `tactical` e os rótulos "Modo Mesa de Trabalho Tático - Treinamento" e "Console Corporativo - Auditoria B2B" saem sem substituto de compatibilidade. Os papéis passam para `src/tema/catalogo.ts` (`IdTema`, `TEMA_PADRAO_PRODUTO = 'operacao'`, nomes visíveis) e `src/tema/persistencia.ts` (`CHAVE_TEMA = 'itfs_tema'`, `CHAVE_CONTRASTE = 'itfs_contraste'`). |
 | `src/shell/AlternadorTema.tsx` | Removido, com as opções `tactical` e `corporate` e os ícones `tema-tatico` e `tema-corporativo`. |
 | `src/main.tsx` | Remove `aplicarTema(carregarTema())` e o import de `./shell/tema`. Cria o armazém com `obterArmazemAparencia()` antes do `render`, para que o primeiro render já leia o estado do `html`. |
 | `src/shell/AppShell.tsx` | Remove o import de `./tema`, o estado `TemaShell` e o efeito de tema. Mantém densidade e sessão. |
@@ -939,7 +939,7 @@ As cores base de status passam de 4,5 sobre `bg-canvas`, `bg-surface` e `bg-elev
 
 ### Registro de sincronização com o Figma
 
-Arquivo_Figma: "IT Flight Simulator - Design", fileKey `wa7yLJvkj6BvvnssUqDx1H`.
+Arquivo_Figma: "IT Career Simulator - Design", fileKey `wa7yLJvkj6BvvnssUqDx1H`.
 
 Limite de modos (Requisito 12.3). Registro de 2026-11-17: a página de comparação de planos da Figma ([Compare Figma plans and features](https://help.figma.com/hc/en-us/articles/360040328273-Compare-Figma-plans-and-features)) informa até 10 modos por coleção no plano Professional, e o fórum oficial ([Unable to Create Modes in Figma Education Plan](https://forum.figma.com/report-a-problem-6/unable-to-create-modes-in-figma-education-plan-55105)) informa o mesmo limite de 10 para o plano Education. O catálogo precisa de 4 modos nesta entrega e de 5 com Telemetria. Nenhum tema fica fora do Arquivo_Figma. A pessoa que criar os modos `editorial` e `acolhedor` confirma o limite no próprio arquivo; se a Figma pedir upgrade, esta seção recebe o limite real, a data e a lista de temas fora, sempre mantendo `corporativo` e `operacao`.
 
@@ -1268,7 +1268,7 @@ Os Requisitos 11.2 e 11.3 decorrem de duas garantias: o frontend envia as mesmas
 
 ### Itens de entrega fora do código
 
-- Corrigir o DESIGN.md (`docs/design/DESIGN.md`, hoje na cópia de trabalho `it-flight-simulator-hackbrasil-design`): `operacao` (Operação) como Tema_Padrão_do_Produto em lugar de `corporate`; troca de `tactical` e `corporate` por `operacao` e `corporativo` em todo o documento (D10); catálogo com os quatro temas e os nomes visíveis novos; tabelas de cor de Editorial e Acolhedor; a regra 3.1 e o checklist da seção 7 passam de "nos dois temas" para "em todos os temas do catálogo, com e sem alto contraste".
+- Corrigir o DESIGN.md (`docs/design/DESIGN.md`, hoje na cópia de trabalho `it-career-simulator-hackbrasil-design`): `operacao` (Operação) como Tema_Padrão_do_Produto em lugar de `corporate`; troca de `tactical` e `corporate` por `operacao` e `corporativo` em todo o documento (D10); catálogo com os quatro temas e os nomes visíveis novos; tabelas de cor de Editorial e Acolhedor; a regra 3.1 e o checklist da seção 7 passam de "nos dois temas" para "em todos os temas do catálogo, com e sem alto contraste".
 - Documentar no README do frontend o arquivo `config/tema-cliente.json`, o exemplo, os campos e o aviso de que mudar o arquivo publicado sem refazer o build não tem efeito.
 - No Arquivo_Figma, renomear os modos `tactical` e `corporate` para `operacao` e `corporativo`, criar os modos `editorial` e `acolhedor`, conforme os passos do Registro de sincronização com o Figma, e atualizar o registro deste documento.
 

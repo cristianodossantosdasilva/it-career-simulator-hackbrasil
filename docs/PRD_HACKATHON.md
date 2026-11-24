@@ -1,9 +1,9 @@
-# PRD — IT Flight Simulator (Edição Hack Brasil 2026)
+# PRD — IT Career Simulator (Edição Hack Brasil 2026)
 
-**Produto:** IT Flight Simulator — Simulador Prático de Carreira em TI  
+**Produto:** IT Career Simulator — Simulador Prático de Carreira em TI  
 **Time:** CVE-K (Cristiano Silva, Enzo Santos e Kauan Dantas — 3 integrantes ativos)  
 **Trilha:** Acesso à educação (Hack Brasil 2026)  
-**Demo Pública Oficial:** `https://it-flight-simulator-hackbrasil.vercel.app`  
+**Demo Pública Oficial:** `https://it-career-simulator-hackbrasil.vercel.app`  
 **Prazo de entrega:** 30/nov/2026 às 23h59 (BRT)  
 
 ---
@@ -12,7 +12,7 @@
 
 Milhares de pessoas fora da área de TI desejam ingressar no mercado de tecnologia, e milhares de estudantes já consomem teoria passiva, mas todos esbarram no **"paradoxo do júnior"**: não conseguem a primeira oportunidade porque não possuem vivência prática em operação corporativa real (ITSM, SLA, atendimento sob pressão, manutenção física preventiva, cabeamento de rede, diagnóstico de causa raiz e postura de segurança).
 
-O **IT Flight Simulator** resolve essa lacuna combinando uma **Plataforma de Aprendizagem Ativa** (aulas curtas com analogias, recordação ativa, repetição espaçada, caderno estilo Notion no Método Cornell, Técnica de Feynman e Pitch STAR) com uma **Workstation Corporativa Simulada** e **8 Laboratórios Interativos Dedicados** (1 por Unidade Curricular — começando no Hackathon por Hardware/UPS e evoluindo para Cabeamento/Rack `U`, Estúdio Wi-Fi Design, Redes Multi-Vendor, Firewall NGFW, Data Center 42U com Cloud Backup WORM e Blue Team/EDR) na empresa fictícia **Aurora Logística** (`aurora.local`).
+O **IT Career Simulator** resolve essa lacuna combinando uma **Plataforma de Aprendizagem Ativa** (aulas curtas com analogias, recordação ativa, repetição espaçada, caderno estilo Notion no Método Cornell, Técnica de Feynman e Pitch STAR) com uma **Workstation Corporativa Simulada** e **8 Laboratórios Interativos Dedicados** (1 por Unidade Curricular — começando no Hackathon por Hardware/UPS e evoluindo para Cabeamento/Rack `U`, Estúdio Wi-Fi Design, Redes Multi-Vendor, Firewall NGFW, Data Center 42U com Cloud Backup WORM e Blue Team/EDR) na empresa fictícia **Aurora Logística** (`aurora.local`).
 
 Em vez de promessas irreais ou cargas horárias superficiais, o estudo de caso inaugural entrega profundidade equivalente à grade de um curso técnico profissionalizante em **560 horas distribuídas em até 8 meses (32 semanas)** em **2 Ciclos Estratégicos**:
 - **Ciclo 1 (Meses 1 a 4 · Semanas 1 a 16 · 280h):** *Prontidão Rápida para o Mercado* — do zero ao **Técnico de Suporte Júnior (N1) e Field Service**, apto a trabalhar já ao final do 4º mês;
@@ -29,14 +29,14 @@ Em vez de promessas irreais ou cargas horárias superficiais, o estudo de caso i
 1. **Experiência completa ponta a ponta sem login obrigatório:** qualquer avaliador acessa a demonstração com 1 clique (sessão anônima com semente configurável), podendo iniciar desde o nível zero ou testar diretamente qualquer cenário.
 2. **Proibição Absoluta de E Comercial na Interface:** Nenhum título, aba, página, botão ou rótulo de tela utiliza o símbolo E comercial — adota-se exclusivamente **"e"**.
 3. **Experiência Educacional no MVP vs. Ciclo Cognitivo Completo (Roadmap):**
-   - **Implementado no MVP Hackathon:** **Tema Claro Educacional** (leitura confortável com modo escuro opcional), **Missão 0 guiada em 4 passos**, **Glossário rápido**, **Matriz transparente de Escopo (MVP vs. Roadmap)**, **Debrief Didático da Caixa-Preta** e aviso explícito de operação 100% sintética.
+   - **Implementado no MVP Hackathon:** **Tema Claro Educacional** (leitura confortável com modo escuro opcional), **Missão 0 guiada em 4 passos**, **Glossário rápido**, **Matriz transparente de Escopo (MVP vs. Roadmap)**, **Debrief Didático da Revisão** e aviso explícito de operação 100% sintética.
    - **Roadmap Ondas 1–3 (Pós-Hackathon):** Microaulas com analogias e recordação ativa + **Repetição Espaçada (SM-2)**, **Caderno estilo Notion (Método Cornell)**, **Mentor IA (Feynman e Pitch STAR)** e **Bancadas Físicas dedicadas (`UC1` a `UC8`)** com `HardwareWorkbenchLab` (peças/ESD/pasta térmica/upgrade) e Cabeamento T568A/B + Rack PoE.
 4. **Os 4 Motores Determinísticos funcionando de ponta a ponta:**
    - **Workstation Unificada:** Desktop corporativo no navegador com 4 apps integrados (**ITSM**, **Comunicador/Chat**, **SimuDesk Acesso Remoto**, **Intranet/KB**).
    - **Clientes Sintéticos e Tech Lead (Máquina de Estados e Sistema em 3 Atos):** Personas distintas com gatilho determinístico de liberação de acesso remoto e diálogo roteirizado sem dependência de chave externa.
    - **Chaos Injector (Injeção de Falhas):** Cenários parametrizados por semente (`SplitMix64`) para impedir "receita decorada" (e flag `Demo:PermitirParametrosDeTeste` configurada como `true` por padrão no modo demonstração do Hackathon e reversível para `false` em ambientes de prova fechada).
-   - **Juiz 360º, Replay e Currículo Vivo:** Avaliação determinística por critérios binários observáveis na trilha de eventos (*Event Sourcing*) + linha do tempo navegável (**Caixa-Preta do Atendimento**) + **Currículo Vivo** verificável offline em `/verificar` por **JCS (RFC 8785 UTF-8) + SHA-256 + assinatura ECDSA P-256**.
-5. **Visão Futura Onda 4 (Simulador de Chamada em Vídeo com Agentes de IA):** Evolução pós-Hackathon onde o estudante atende clientes leigos, gestores sob pressão de SLA P1, ataques de engenharia social (*Vishing*) e entrevistas técnicas em chamada de vídeo e voz ao vivo dentro do cockpit, com o motor `.NET 10` mantendo autoridade exclusiva sobre o estado técnico.
+   - **Juiz 360º, Replay e Currículo Vivo:** Avaliação determinística por critérios binários observáveis na trilha de eventos (*Event Sourcing*) + linha do tempo navegável (**Revisão do Atendimento**) + **Currículo Vivo** verificável offline em `/verificar` por **JCS (RFC 8785 UTF-8) + SHA-256 + assinatura ECDSA P-256**.
+5. **Visão Futura Onda 4 (Simulador de Chamada em Vídeo com Agentes de IA):** Evolução pós-Hackathon onde o estudante atende clientes leigos, gestores sob pressão de SLA P1, ataques de engenharia social (*Vishing*) e entrevistas técnicas em chamada de vídeo e voz ao vivo dentro do mesa de trabalho, com o motor `.NET 10` mantendo autoridade exclusiva sobre o estado técnico.
 
 ---
 
@@ -72,7 +72,7 @@ Em vez de promessas irreais ou cargas horárias superficiais, o estudo de caso i
 1. **ITSM (Ticket Manager):** Fila com status, SLA em tempo real, categoria, prioridade (Urgência x Impacto), notas públicas/internas, criação/vinculação de Problema ITIL, escalonamento e resolução.
 2. **Comunicador Corporativo (Chat):** Cliente Simulado (só libera ID/PIN após triagem e verificação de identidade) e Tech Lead (botão explícito de "Pedir Pista" em 3 atos sem penalidade automática).
 3. **SimuDesk (Acesso Remoto e Consoles):** Conexão via ID/PIN, terminal interativo com dois contextos (`UsuarioPadrao` vs. `Elevado`), catálogo declarado de comandos e painéis operacionais (Diretório, Serviços, DNS, Logs, Cluster Kubernetes/PgBouncer/Ingress e Console SQL Read-Only).
-4. **Intranet / KB, Replay e Currículo Vivo:** Base de Conhecimento pesquisável (26+ artigos sintéticos), **Avaliação 360º com Debrief Didático e Replay da Caixa-Preta em linha do tempo** e exportação do **Currículo Vivo** verificável offline em `/verificar` via **JCS (RFC 8785 UTF-8) + SHA-256 + assinatura ECDSA P-256**.
+4. **Intranet / KB, Replay e Currículo Vivo:** Base de Conhecimento pesquisável (26+ artigos sintéticos), **Avaliação 360º com Debrief Didático e Replay da Revisão em linha do tempo** e exportação do **Currículo Vivo** verificável offline em `/verificar` via **JCS (RFC 8785 UTF-8) + SHA-256 + assinatura ECDSA P-256**.
 
 ---
 

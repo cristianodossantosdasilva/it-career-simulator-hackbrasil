@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: it-flight-simulator-api
+    name: it-career-simulator-api
     runtime: docker
     plan: free
     dockerfilePath: ./src/backend/Dockerfile

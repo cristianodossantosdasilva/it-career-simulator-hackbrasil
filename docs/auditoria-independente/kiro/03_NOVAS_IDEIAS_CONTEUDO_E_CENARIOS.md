@@ -63,14 +63,14 @@ Cada cenário pode reaproveitar o motor atual, o ITSM e o Juiz 360 sem mudar con
 
 ## 3. Mecânicas de aprendizagem e gamificação (baratas e coerentes com o motor)
 
-1. **Caixa-preta do atendimento:** o Replay vira o centro da identidade do produto. Linha do tempo, decisões, o que foi observado e o que o motor julgou.
+1. **Revisão do atendimento:** o Replay vira o centro da identidade do produto. Linha do tempo, decisões, o que foi observado e o que o motor julgou.
 2. **Revisão pós-incidente sem culpa:** após cada cenário, formulário curto (linha do tempo, impacto, causa, ação de prevenção) avaliado por checklist objetivo.
 3. **Chamado bem escrito:** critérios binários sobre o texto do chamado (continha sintoma, impacto, o que foi testado, próximo passo). Treina a habilidade mais cobrada em N1.
 4. **Cartas de decisão:** "resolver ou escalar" com custo explícito de cada escolha.
 5. **Plantão do dia:** semente do dia igual para todos (sem placar com dados pessoais), para comparar estratégia.
 6. **Trilha reversa:** mostrar a solução de outra pessoa (anonimizada) e pedir para achar a falha de procedimento.
 7. **Mapa de competências** em vez de XP isolado: cada critério do Juiz alimenta uma habilidade (triagem, diagnóstico, comunicação, segurança, documentação).
-8. **Checklist de pré-voo:** antes de agir em produção simulada, o aluno marca verificações (identidade, backup, janela, plano de volta). Reforça cultura de mudança segura.
+8. **Checklist de pré-missão:** antes de agir em produção simulada, o aluno marca verificações (identidade, backup, janela, plano de volta). Reforça cultura de mudança segura.
 9. **Dificuldade adaptativa por semente:** causas mais difíceis só depois de dois acertos na causa fácil.
 10. **Modo "ajuda gradual":** pista 1 conceitual, pista 2 de ferramenta, pista 3 de comando; custo em XP só da terceira.
 

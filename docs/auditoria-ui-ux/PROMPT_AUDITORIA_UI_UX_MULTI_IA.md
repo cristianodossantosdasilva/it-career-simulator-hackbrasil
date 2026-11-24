@@ -19,15 +19,15 @@ Assuma simultaneamente o papel de um **time senior de estudio de Design de Produ
 Seu trabalho e:
 - Apontar **exatamente onde e por que** a UI atual parece feita por IA.
 - Mostrar **como produtos reais lideres de mercado resolvem os mesmos problemas**.
-- Desenhar a arquitetura visual, os fluxos de UX, o Design System e **o que precisa ser implementado em codigo** (novos componentes, layouts, bancadas visuais interativas, icones vetoriais SVG, estados e transicoes) para que o **IT Flight Simulator** pareca um produto real de classe mundial — mantendo viabilidade para a janela do **Hack Brasil 2026 (ate 30/nov/2026)** e evoluindo no pos-hackathon.
+- Desenhar a arquitetura visual, os fluxos de UX, o Design System e **o que precisa ser implementado em codigo** (novos componentes, layouts, bancadas visuais interativas, icones vetoriais SVG, estados e transicoes) para que o **IT Career Simulator** pareca um produto real de classe mundial — mantendo viabilidade para a janela do **Hack Brasil 2026 (ate 30/nov/2026)** e evoluindo no pos-hackathon.
 
 ### Regra de Ouro de Isolamento
 - **NAO modifique** nenhum arquivo em `src/`, `package.json`, testes, scripts, bancos de dados, Cloudflare, Render ou Vercel durante esta auditoria.
 - **NAO leia nem copie** conclusoes de pastas irmaes em `docs/auditoria-ui-ux/` (`kiro/`, `codex/`, `copilot/`). Sua auditoria deve ser 100% independente.
 - Grave seus entregaveis **exclusivamente** na pasta designada para voce:
-  - Kiro CLI: `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\auditoria-ui-ux\kiro\`
-  - Codex CLI: `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\auditoria-ui-ux\codex\`
-  - GitHub Copilot CLI: `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\auditoria-ui-ux\copilot\`
+  - Kiro CLI: `D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\auditoria-ui-ux\kiro\`
+  - Codex CLI: `D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\auditoria-ui-ux\codex\`
+  - GitHub Copilot CLI: `D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\auditoria-ui-ux\copilot\`
 - **NAO use o caractere E comercial** em nenhum arquivo `.md`, `.csv`, `.html`, `.css` ou comentario (substitua sempre por `"e"` ou virgula). Evite tambem o verbo que representa forma passada de sair no idioma portugues (prefira `"foi publicado"`, `"deixou"`, `"partiu"`).
 
 ---
@@ -59,7 +59,7 @@ Antes de inspecionar uma linha de CSS ou propor telas, **leia integralmente** as
 Inspecione **todas** as fontes abaixo (codigo, aplicacao no ar, prototipo anterior e screenshots reais):
 
 ### A. Aplicacao no Ar e Prototipo
-1. **Producao ao vivo:** `https://it-flight-simulator-hackbrasil.vercel.app` (navegue com Playwright/Chromium headless ou ferramenta de browser disponivel se possivel, em `1440x900`, `1280x800` e `375x812`, abrindo **Painel**, **Aulas**, **Caderno**, **Mentor**, **Missao ITSM/Chat/SimuDesk/Intranet** e **Caixa-Preta Replay**).
+1. **Producao ao vivo:** `https://it-flight-simulator-hackbrasil.vercel.app` (navegue com Playwright/Chromium headless ou ferramenta de browser disponivel se possivel, em `1440x900`, `1280x800` e `375x812`, abrindo **Painel**, **Aulas**, **Caderno**, **Mentor**, **Missao ITSM/Chat/SimuDesk/Intranet** e **Revisão Replay**).
 2. **Prototipo HTML anterior (servidor local quando ativo):** `http://127.0.0.1:4180` e codigo em `C:\Users\Black\.gemini\antigravity\brain\7af3228f-a969-42a1-a65d-becbf5a06ae0\scratch\prototipo-redesign\index.html` — avalie honestamente tanto o que o usuario gostou no prototipo quanto onde o proprio prototipo tambem sofria de "cara de IA".
 
 ### B. Capturas de Tela Reais Renderizadas
@@ -72,26 +72,26 @@ Abra e examine visualmente os screenshots capturados na maquina (alem de novos q
 
 ### C. Codigo-Fonte Frontend e Documentacao do Produto
 - CSS e entrada principal:
-  - `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\src\frontend\src\index.css`
-  - `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\src\frontend\src\App.tsx`
-  - `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\src\frontend\src\workstation\TelaInicial.tsx`
+  - `D:\Projetos\Ativos\it-career-simulator-hackbrasil\src\frontend\src\index.css`
+  - `D:\Projetos\Ativos\it-career-simulator-hackbrasil\src\frontend\src\App.tsx`
+  - `D:\Projetos\Ativos\it-career-simulator-hackbrasil\src\frontend\src\workstation\TelaInicial.tsx`
 - Camada educacional atual:
-  - `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\src\frontend\src\educacao\BarraSuperior.tsx`
-  - `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\src\frontend\src\educacao\AulasView.tsx`
-  - `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\src\frontend\src\educacao\CadernoView.tsx`
-  - `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\src\frontend\src\educacao\MentorView.tsx`
-  - `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\src\frontend\src\educacao\catalogoEducacional.ts`
+  - `D:\Projetos\Ativos\it-career-simulator-hackbrasil\src\frontend\src\educacao\BarraSuperior.tsx`
+  - `D:\Projetos\Ativos\it-career-simulator-hackbrasil\src\frontend\src\educacao\AulasView.tsx`
+  - `D:\Projetos\Ativos\it-career-simulator-hackbrasil\src\frontend\src\educacao\CadernoView.tsx`
+  - `D:\Projetos\Ativos\it-career-simulator-hackbrasil\src\frontend\src\educacao\MentorView.tsx`
+  - `D:\Projetos\Ativos\it-career-simulator-hackbrasil\src\frontend\src\educacao\catalogoEducacional.ts`
 - Simuladores operacionais e Replay:
-  - `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\src\frontend\src\apps\ItsmApp\ItsmApp.tsx`
-  - `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\src\frontend\src\apps\ChatApp\ChatApp.tsx`
-  - `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\src\frontend\src\apps\SimuDeskApp\SimuDeskApp.tsx`
-  - `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\src\frontend\src\apps\IntranetApp\IntranetApp.tsx`
-  - `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\src\frontend\src\replay\ReplayView.tsx`
-  - `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\src\frontend\src\data\kbCatalogo.ts`
+  - `D:\Projetos\Ativos\it-career-simulator-hackbrasil\src\frontend\src\apps\ItsmApp\ItsmApp.tsx`
+  - `D:\Projetos\Ativos\it-career-simulator-hackbrasil\src\frontend\src\apps\ChatApp\ChatApp.tsx`
+  - `D:\Projetos\Ativos\it-career-simulator-hackbrasil\src\frontend\src\apps\SimuDeskApp\SimuDeskApp.tsx`
+  - `D:\Projetos\Ativos\it-career-simulator-hackbrasil\src\frontend\src\apps\IntranetApp\IntranetApp.tsx`
+  - `D:\Projetos\Ativos\it-career-simulator-hackbrasil\src\frontend\src\replay\ReplayView.tsx`
+  - `D:\Projetos\Ativos\it-career-simulator-hackbrasil\src\frontend\src\data\kbCatalogo.ts`
 - Visao de produto e curriculo de 8 laboratorios / 560h:
-  - `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\PRD_HACKATHON.md`
-  - `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\PLANEJAMENTO_PEDAGOGICO_E_MATRIZ_560H.md`
-  - `D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\ARQUITETURA_HACKATHON.md`
+  - `D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\PRD_HACKATHON.md`
+  - `D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\PLANEJAMENTO_PEDAGOGICO_E_MATRIZ_560H.md`
+  - `D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\ARQUITETURA_HACKATHON.md`
 
 ---
 
@@ -103,10 +103,10 @@ Conduza a auditoria em **6 frentes integradas**. Para cada frente, seja especifi
 Responda com rigor cirurgico:
 1. Quais sao todos os elementos no codigo atual (`index.css`, `TelaInicial.tsx`, `BarraSuperior.tsx`, `AulasView.tsx`, `CadernoView.tsx`, `MentorView.tsx`, `ItsmApp.tsx`, `SimuDeskApp.tsx`, `ReplayView.tsx`) que denunciam imediatamente que a UI foi gerada por IA?
    - Exemplos para investigar a fundo: uso pesado de emojis (casa, livro, caderno, robô, ferramenta, mochila, fone, quebra-cabeça, nuvem, medalha, fogo, estrela e pergaminho) em vez de icones vetoriais SVG com espessura de traco consistente (`1.5px`/`1.75px`); faixa arco-iris decorativa de 4 cores; excesso de *cards* brancos identicos com `border-radius: 12px`; proliferacao de *badges/pills* coloridas em todo lugar; metadados com pontos medios; *copy* verbosa ou autoexplicativa demais ("Nunca atuou em TI? Comece aqui"); falta de contraste de densidade entre areas editoriais e areas operacionais.
-2. Qual deve ser a **identidade visual autoral do IT Flight Simulator** (um simulador de engenharia de suporte, operacoes de TI e carreira tecnica) — incluindo paleta, linguagem visual, uso estrategico de cor e iconografia SVG (ex.: `lucide-react` ou icones proprios de telemetria/servicos)?
+2. Qual deve ser a **identidade visual autoral do IT Career Simulator** (um simulador de engenharia de suporte, operacoes de TI e carreira tecnica) — incluindo paleta, linguagem visual, uso estrategico de cor e iconografia SVG (ex.: `lucide-react` ou icones proprios de telemetria/servicos)?
 
 ### Frente 2 — Benchmarking Profundo com Produtos Lideres de Mercado
-Pesquise na web (verificando interfaces e padroes reais de 2025/2026) e compare o **IT Flight Simulator** com referencias concretas:
+Pesquise na web (verificando interfaces e padroes reais de 2025/2026) e compare o **IT Career Simulator** com referencias concretas:
 1. **AWS Skill Builder / AWS Cloudscape Design System:** Como estruturam **Learning Plans**, headers limpos, cards de trilha com metadados enxutos, **Quest / Game-based labs** e **Interactive Labs** sem excesso visual?
 2. **Microsoft Learn (+ Interactive Sandbox):** Como combinam barra superior limpa, sumario/breadcrumbs, modulo de leitura com largura confortavel (< 75ch), **Unit Progress** e botao direto de abrir o **Sandbox** lado a lado ou integrado?
 3. **Udemy / Coursera (Course Player):** Como funciona um **Course Player profissional** (player/conteudo principal a esquerda, curriculo em acordeao colapsavel a direita, abas inferiores sincronizadas de **Visao Geral**, **Caderno/Anotacoes**, **Recursos/KB**, **Mentor/Q e A**)?
@@ -117,19 +117,19 @@ Traduza **cada benchmark** em decisoes concretas: "O que copiar estruturalmente"
 
 ### Frente 3 — Arquitetura de Informacao, Navegacao e Fluxos de Aprendizagem (UX)
 Avalie e redesenhe os fluxos de ponta a ponta:
-1. **Primeira impressao (0 a 30 segundos — Primeiro Voo):** O que o aluno deve ver ao abrir `/` pela primeira vez (para o jurado do Hack Brasil e para o aluno iniciante de 15 a 22 anos) sem cair em paredes de texto ou 4 banners empilhados?
+1. **Primeira impressao (0 a 30 segundos — Primeiro Missão):** O que o aluno deve ver ao abrir `/` pela primeira vez (para o jurado do Hack Brasil e para o aluno iniciante de 15 a 22 anos) sem cair em paredes de texto ou 4 banners empilhados?
 2. **Unificacao da Jornada Aprender -> Praticar -> Revisar -> Comprovar:**
    - Hoje `Painel`, `Aulas`, `Caderno` e `Mentor` parecem abas soltas e a `Workstation` entra num modo separado.
    - Proponha a arquitetura ideal de **Shell de Produto** (ex.: Sidebar/Rail colapsavel ou Top App Bar minimalista + Course Player integrado com o Simulador em Split-Screen, permitindo ver instrucoes da licao ou checklist de onboarding enquanto opera o ITSM/SimuDesk).
 3. **Micro-copy e Clareza Pedagogica:** Aplicando `plain-writing`, simplifique titulos, CTAs e descricoes que hoje parecem manuais ou textos escritos por LLM.
 
-### Frente 4 — Redesign Profissional da Workstation Operacional (`ITSM`, `Chat`, `SimuDesk`, `Intranet`, `Caixa-Preta Replay`)
+### Frente 4 — Redesign Profissional da Workstation Operacional (`ITSM`, `Chat`, `SimuDesk`, `Intranet`, `Revisão Replay`)
 A parte onde o aluno passa o turno de trabalho precisa parecer **ferramentas reais de empresa**, nao divs estilizadas:
 1. **Aurora ITSM (`ItsmApp.tsx`):** Como transforma-lo em uma fila/console tipo **Jira Service Management / Zendesk / Linear** (lista/tabela com prioridade, SLA countdown visual real, painel de detalhe, timeline de atividades, *macros* ou respostas estruturadas, separacao clara entre nota interna e resposta ao solicitante)?
 2. **Aurora Chat (`ChatApp.tsx`):** Como transforma-lo em um cliente de mensageria corporativa crivel (tipo **Slack / Microsoft Teams**: thread visual, card de usuario solicitante com cargo/matricula, badge de verificacao pendente/confirmada, chips de perguntas rapidas bem resolvidos)?
-3. **SimuDesk (`SimuDeskApp.tsx`):** Como dar cara de **cockpit tecnico real** (painel de host/cluster, diagnostico com barra de status, terminal/logs com tipografia monospace legivel, diferenciação clara entre ambientes Windows/AD/Rede e Cloud/Kubernetes)?
+3. **SimuDesk (`SimuDeskApp.tsx`):** Como dar cara de **mesa de trabalho tecnico real** (painel de host/cluster, diagnostico com barra de status, terminal/logs com tipografia monospace legivel, diferenciação clara entre ambientes Windows/AD/Rede e Cloud/Kubernetes)?
 4. **Intranet KB (`IntranetApp.tsx`):** Como transformar a Base de Conhecimento em um portal estilo **Notion / Confluence / Microsoft Learn** com busca instantanea, indice lateral e passos copiaveis/acionaveis?
-5. **Caixa-Preta Replay (`ReplayView.tsx`):** Como fazer a tela pos-turno parecer um **timeline/auditoria estilo Datadog / Vercel Logs / Loom Chapters** com linha do tempo interativa, score por criterio (Triagem, Seguranca, Diagnostico, Comunicacao), comparativo "O que voce fez vs. Pratica recomendada" e card verificavel do **Curriculo Vivo (ECDSA P-256)** com aparencia de credencial tecnica autentica (ex.: estilo Credly/AWS Badge)?
+5. **Revisão Replay (`ReplayView.tsx`):** Como fazer a tela pos-turno parecer um **timeline/auditoria estilo Datadog / Vercel Logs / Loom Chapters** com linha do tempo interativa, score por criterio (Triagem, Seguranca, Diagnostico, Comunicacao), comparativo "O que voce fez vs. Pratica recomendada" e card verificavel do **Curriculo Vivo (ECDSA P-256)** com aparencia de credencial tecnica autentica (ex.: estilo Credly/AWS Badge)?
 
 ### Frente 5 — O Que Precisa Ser Implementado em Codigo (Novos Componentes, Bancadas Visuais e Interatividade)
 Alem de estilizar o que existe, **o que falta construir de verdade** para o produto se destacar? Especifique claramente em duas faixas temporais:
@@ -145,10 +145,10 @@ Alem de estilizar o que existe, **o que falta construir de verdade** para o prod
 
 ### Frente 6 — Design System Completo e Guardrails Tecnicos (WCAG 2.2 AA + Zero Regressao em Testes)
 Entregue a especificacao tecnica executavel para o time de engenharia implementar sem quebrar nada:
-1. **Tokens CSS Semânticos (Claro como padrao principal + Escuro para modo Cockpit):**
+1. **Tokens CSS Semânticos (Claro como padrao principal + Escuro para modo Mesa de Trabalho):**
    - Cores de superficie em niveis (`--bg-canvas`, `--bg-surface`, `--bg-elevated`, `--bg-subtle`), bordas (`--border-hairline`, `--border-strong`), texto com contraste >= 4.5:1 (`--text-primary`, `--text-secondary`, `--text-muted`), acento principal coeso (sem mistura gratuita de 5 cores vibrantes).
-   - Escala tipografica (`Plus Jakarta Sans` ou `Inter` para UI + `JetBrains Mono` ou `IBM Plex Mono` para terminais/IDs/tickets), *line-height*, *letter-spacing* e limites de linha (`65ch` a `72ch` em leitura).
-   - Escala de espacamento (`4px` base grid), raios consistentes por hierarquia (`4px`/`6px` controles densos, `8px`/`10px` paineis — sem "tudo pill" ou "tudo 16px") e sombras minimas (preferencia por borda de `1px` + leve contraste de fundo estilo Linear/Cloudscape).
+   - Etapa tipografica (`Plus Jakarta Sans` ou `Inter` para UI + `JetBrains Mono` ou `IBM Plex Mono` para terminais/IDs/tickets), *line-height*, *letter-spacing* e limites de linha (`65ch` a `72ch` em leitura).
+   - Etapa de espacamento (`4px` base grid), raios consistentes por hierarquia (`4px`/`6px` controles densos, `8px`/`10px` paineis — sem "tudo pill" ou "tudo 16px") e sombras minimas (preferencia por borda de `1px` + leve contraste de fundo estilo Linear/Cloudscape).
 2. **Anatomia de Componentes-Chave (Estados: default, hover, focus-visible, active, disabled, loading, error, empty):**
    - Barra de navegacao global, Cards de Cenario, Tabela/Fila ITSM, Terminal/SimuDesk, Modal/Drawer, Botoes (primario, secundario, ghost, destrutivo), Tabs e Badges semanticas discretas.
 3. **Preservacao de Acessibilidade e Testes (`Vitest + axe-core` e `Playwright`):**
@@ -171,7 +171,7 @@ Grave **exatamente estes 5 arquivos** (podendo adicionar o prototipo HTML opcion
      1) **Home / Catalogo de Missoes e Trilhas (estilo AWS Skill Builder)**
      2) **Course Player + Guia da Licao (estilo Udemy / Microsoft Learn)**
      3) **Workstation Split-Screen em Turno (Painel de Tarefa/Dicas + ITSM/Chat/SimuDesk/KB)**
-     4) **Caixa-Preta Replay + Credencial Curriculo Vivo (estilo Datadog Timeline + Credly)**
+     4) **Revisão Replay + Credencial Curriculo Vivo (estilo Datadog Timeline + Credly)**
    - Revisao de micro-copy (antes vs. depois, sem texto de LLM).
 
 3. **`03_DESIGN_SYSTEM_TOKENS_E_PADROES_COMPONENTES.md`**
@@ -206,22 +206,22 @@ Grave **exatamente estes 5 arquivos** (podendo adicionar o prototipo HTML opcion
 
 ## 7. Chamadas Prontas no PowerShell para Executar os 3 Agentes CLI
 
-Comandos prontos para copiar e colar no PowerShell, executando cada agente dentro de `D:\Projetos\Ativos\it-flight-simulator-hackbrasil` com acesso total de leitura, skills, diretorios (`D:/` e `C:\Users\Black`) e web:
+Comandos prontos para copiar e colar no PowerShell, executando cada agente dentro de `D:\Projetos\Ativos\it-career-simulator-hackbrasil` com acesso total de leitura, skills, diretorios (`D:/` e `C:\Users\Black`) e web:
 
 ### 7.1. Kiro CLI (`kiro-cli`)
 ```powershell
-Set-Location "D:\Projetos\Ativos\it-flight-simulator-hackbrasil"; kiro-cli chat --trust-all-tools --trust-workspace "Leia integralmente D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\auditoria-ui-ux\PROMPT_AUDITORIA_UI_UX_MULTI_IA.md e todas as skills de UI/UX e Design listadas na Secao 2. Execute uma auditoria 100% independente, franca e profunda focada em UI Design, UX, Design System, eliminacao total de 'cara de IA' (anti-AI-slop) e especificacao do que implementar para o IT Flight Simulator atingir nivel de produto comercial (inspirado em AWS Skill Builder/Cloudscape, Microsoft Learn, Udemy, TryHackMe e Linear). Inspecione https://it-flight-simulator-hackbrasil.vercel.app, os screenshots indicados, o prototipo http://127.0.0.1:4180 e o codigo em src/frontend/src/. Nao modifique src/, bancos ou infraestrutura. Grave todos os 5 entregaveis obrigatorios (e opcionalmente o mockup HTML de alta fidelidade, com zero caractere E comercial) exclusivamente em: D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\auditoria-ui-ux\kiro"
+Set-Location "D:\Projetos\Ativos\it-career-simulator-hackbrasil"; kiro-cli chat --trust-all-tools --trust-workspace "Leia integralmente D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\auditoria-ui-ux\PROMPT_AUDITORIA_UI_UX_MULTI_IA.md e todas as skills de UI/UX e Design listadas na Secao 2. Execute uma auditoria 100% independente, franca e profunda focada em UI Design, UX, Design System, eliminacao total de 'cara de IA' (anti-AI-slop) e especificacao do que implementar para o IT Career Simulator atingir nivel de produto comercial (inspirado em AWS Skill Builder/Cloudscape, Microsoft Learn, Udemy, TryHackMe e Linear). Inspecione https://it-flight-simulator-hackbrasil.vercel.app, os screenshots indicados, o prototipo http://127.0.0.1:4180 e o codigo em src/frontend/src/. Nao modifique src/, bancos ou infraestrutura. Grave todos os 5 entregaveis obrigatorios (e opcionalmente o mockup HTML de alta fidelidade, com zero caractere E comercial) exclusivamente em: D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\auditoria-ui-ux\kiro"
 ```
 *(Para rodar sem interacao na linha de comando, acrescente `--no-interactive` apos `--trust-workspace`.)*
 
 ### 7.2. Codex CLI (`codex.cmd`)
 ```powershell
-Set-Location "D:\Projetos\Ativos\it-flight-simulator-hackbrasil"; codex.cmd -C "D:\Projetos\Ativos\it-flight-simulator-hackbrasil" --dangerously-bypass-approvals-and-sandbox --search --add-dir "D:/" --add-dir "C:\Users\Black" "Leia integralmente D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\auditoria-ui-ux\PROMPT_AUDITORIA_UI_UX_MULTI_IA.md e todas as skills de UI/UX e Design listadas na Secao 2. Execute uma auditoria 100% independente, franca e profunda focada em UI Design, UX, Design System, eliminacao total de 'cara de IA' (anti-AI-slop) e especificacao do que implementar para o IT Flight Simulator atingir nivel de produto comercial (inspirado em AWS Skill Builder/Cloudscape, Microsoft Learn, Udemy, TryHackMe e Linear). Inspecione https://it-flight-simulator-hackbrasil.vercel.app, os screenshots indicados, o prototipo http://127.0.0.1:4180 e o codigo em src/frontend/src/. Nao modifique src/, bancos ou infraestrutura. Grave todos os 5 entregaveis obrigatorios (e opcionalmente o mockup HTML de alta fidelidade, com zero caractere E comercial) exclusivamente em: D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\auditoria-ui-ux\codex"
+Set-Location "D:\Projetos\Ativos\it-career-simulator-hackbrasil"; codex.cmd -C "D:\Projetos\Ativos\it-career-simulator-hackbrasil" --dangerously-bypass-approvals-and-sandbox --search --add-dir "D:/" --add-dir "C:\Users\Black" "Leia integralmente D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\auditoria-ui-ux\PROMPT_AUDITORIA_UI_UX_MULTI_IA.md e todas as skills de UI/UX e Design listadas na Secao 2. Execute uma auditoria 100% independente, franca e profunda focada em UI Design, UX, Design System, eliminacao total de 'cara de IA' (anti-AI-slop) e especificacao do que implementar para o IT Career Simulator atingir nivel de produto comercial (inspirado em AWS Skill Builder/Cloudscape, Microsoft Learn, Udemy, TryHackMe e Linear). Inspecione https://it-flight-simulator-hackbrasil.vercel.app, os screenshots indicados, o prototipo http://127.0.0.1:4180 e o codigo em src/frontend/src/. Nao modifique src/, bancos ou infraestrutura. Grave todos os 5 entregaveis obrigatorios (e opcionalmente o mockup HTML de alta fidelidade, com zero caractere E comercial) exclusivamente em: D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\auditoria-ui-ux\codex"
 ```
-*(Para execucao em lote nao interativa, utilize `codex.cmd exec -C "D:\Projetos\Ativos\it-flight-simulator-hackbrasil" --dangerously-bypass-approvals-and-sandbox --add-dir "D:/" --add-dir "C:\Users\Black" "<MESMO PROMPT>"`.)*
+*(Para execucao em lote nao interativa, utilize `codex.cmd exec -C "D:\Projetos\Ativos\it-career-simulator-hackbrasil" --dangerously-bypass-approvals-and-sandbox --add-dir "D:/" --add-dir "C:\Users\Black" "<MESMO PROMPT>"`.)*
 
 ### 7.3. GitHub Copilot CLI (`copilot.cmd`)
 ```powershell
-Set-Location "D:\Projetos\Ativos\it-flight-simulator-hackbrasil"; copilot.cmd --yolo --add-dir "D:/" --add-dir "C:\Users\Black" -i "Leia integralmente D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\auditoria-ui-ux\PROMPT_AUDITORIA_UI_UX_MULTI_IA.md e todas as skills de UI/UX e Design listadas na Secao 2. Execute uma auditoria 100% independente, franca e profunda focada em UI Design, UX, Design System, eliminacao total de 'cara de IA' (anti-AI-slop) e especificacao do que implementar para o IT Flight Simulator atingir nivel de produto comercial (inspirado em AWS Skill Builder/Cloudscape, Microsoft Learn, Udemy, TryHackMe e Linear). Inspecione https://it-flight-simulator-hackbrasil.vercel.app, os screenshots indicados, o prototipo http://127.0.0.1:4180 e o codigo em src/frontend/src/. Nao modifique src/, bancos ou infraestrutura. Grave todos os 5 entregaveis obrigatorios (e opcionalmente o mockup HTML de alta fidelidade, com zero caractere E comercial) exclusivamente em: D:\Projetos\Ativos\it-flight-simulator-hackbrasil\docs\auditoria-ui-ux\copilot"
+Set-Location "D:\Projetos\Ativos\it-career-simulator-hackbrasil"; copilot.cmd --yolo --add-dir "D:/" --add-dir "C:\Users\Black" -i "Leia integralmente D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\auditoria-ui-ux\PROMPT_AUDITORIA_UI_UX_MULTI_IA.md e todas as skills de UI/UX e Design listadas na Secao 2. Execute uma auditoria 100% independente, franca e profunda focada em UI Design, UX, Design System, eliminacao total de 'cara de IA' (anti-AI-slop) e especificacao do que implementar para o IT Career Simulator atingir nivel de produto comercial (inspirado em AWS Skill Builder/Cloudscape, Microsoft Learn, Udemy, TryHackMe e Linear). Inspecione https://it-flight-simulator-hackbrasil.vercel.app, os screenshots indicados, o prototipo http://127.0.0.1:4180 e o codigo em src/frontend/src/. Nao modifique src/, bancos ou infraestrutura. Grave todos os 5 entregaveis obrigatorios (e opcionalmente o mockup HTML de alta fidelidade, com zero caractere E comercial) exclusivamente em: D:\Projetos\Ativos\it-career-simulator-hackbrasil\docs\auditoria-ui-ux\copilot"
 ```
 *(Para encerrar automaticamente ao finalizar sem sessao interativa no Copilot CLI, troque `-i` por `--trust-folder -p`.)*

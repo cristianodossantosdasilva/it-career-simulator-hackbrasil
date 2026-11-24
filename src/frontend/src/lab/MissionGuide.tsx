@@ -13,7 +13,7 @@ interface MissionGuideProps {
   proximoPasso: string
   tituloMissao: string
   onAbrirFerramenta: (ferramenta: FerramentaLab) => void
-  onAbrirCaixaPreta: () => void
+  onAbrirRevisao: () => void
 }
 
 /** Resume o roteiro e o checklist da missao. A conclusao de cada passo vem so da projecao do motor. */
@@ -23,7 +23,7 @@ export function MissionGuide({
   proximoPasso,
   tituloMissao,
   onAbrirFerramenta,
-  onAbrirCaixaPreta,
+  onAbrirRevisao,
 }: MissionGuideProps) {
   const roteiro = roteiroDoCenario(cenarioId)
   const feitos = roteiro.passos.map((passo) => passo.concluido(contexto))
@@ -44,7 +44,7 @@ export function MissionGuide({
           <span className="dado-mono">{totalFeitos}</span> de <span className="dado-mono">{roteiro.passos.length}</span>{' '}
           passos concluídos
         </p>
-        <progress className="medidor" value={totalFeitos} max={roteiro.passos.length} aria-label="Passos da missão concluídos" />
+        <progress className="medidor" value={totalFeitos} max={roteiro.passos.length} aria-label="Passos da missão concluídas" />
       </div>
 
       <ol className="checklist" aria-label="Checklist da missão">
@@ -86,8 +86,8 @@ export function MissionGuide({
         <h3 className="lab-guia-subtitulo">Próximo passo</h3>
         <p>{proximoPasso}</p>
         {completo && (
-          <button type="button" className="btn btn-primary btn-sm" onClick={onAbrirCaixaPreta}>
-            Revisar na Caixa-Preta
+          <button type="button" className="btn btn-primary btn-sm" onClick={onAbrirRevisao}>
+            Revisar na Revisão
             <Icone nome="avancar" tamanho={16} />
           </button>
         )}

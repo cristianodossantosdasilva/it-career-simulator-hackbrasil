@@ -181,7 +181,7 @@ public class PastaRedeC4Tests
         [("incidente-massivo", "v0.1-hackathon", "DOMINIO_SUSPENSO")] = "e5a89381d82e116347eece8a4b2b35539b3e80a0e4bc577c00185e1b9a02206e"
     };
 
-    // Os hashes acima foram medidos com o rotulo de nivel da escada anterior. O rotulo passou a ser o nome da escala
+    // Os hashes acima foram medidos com o rotulo de nivel da escada anterior. O rotulo passou a ser o nome da etapa
     // do Catalogo de Rotas; o hash e conferido com o rotulo antigo para continuar provando que o restante da Definicao
     // (estacao, fila, causa, sorteio) nao mudou.
     private static readonly Dictionary<string, string> RotuloAnteriorDoNivel = new()

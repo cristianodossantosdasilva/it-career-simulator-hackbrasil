@@ -463,17 +463,17 @@ public static class Motor
                     break;
                 }
 
-                var escala = ComandosPorEscala.TentarExecutar(novo, cmd, cenario);
-                if (escala is not null)
+                var etapa = ComandosPorEtapa.TentarExecutar(novo, cmd, cenario);
+                if (etapa is not null)
                 {
-                    novo = escala.NovoEstado;
+                    novo = etapa.NovoEstado;
                     gerados.Add(new(++seqAtual, "ComandoExecutado", new Dictionary<string, object?>
                     {
                         ["comando"] = cmd,
                         ["privilegio"] = novo.Estacao.Privilegio.ToString(),
-                        ["saida"] = escala.Saida
+                        ["saida"] = etapa.Saida
                     }, minutoDestino));
-                    foreach (var ev in escala.Eventos)
+                    foreach (var ev in etapa.Eventos)
                         gerados.Add(new(++seqAtual, ev.Tipo, ev.Dados, minutoDestino));
                     break;
                 }
@@ -629,7 +629,7 @@ public static class Motor
                 if (cenario.Titular is not null)
                 {
                     // Atalho do painel: mesma regra do comando redefinir-senha, sem ComandoExecutado.
-                    var atalho = ComandosPorEscala.RedefinirSenha(novo, cenario);
+                    var atalho = ComandosPorEtapa.RedefinirSenha(novo, cenario);
                     novo = atalho.NovoEstado;
                     foreach (var ev in atalho.Eventos)
                         gerados.Add(new(++seqAtual, ev.Tipo, ev.Dados, minutoDestino));

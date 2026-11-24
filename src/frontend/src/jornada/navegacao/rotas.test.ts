@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { LESSONS, LEVELS } from '../../educacao/catalogoEducacional'
 import { type Gerador, paraTodo } from '../../testes/propriedade'
-import { CATALOGO_ROTAS, type Missao, type Rota, missoesDaEscala } from '../catalogos/catalogoRotas'
+import { CATALOGO_ROTAS, type Missao, type Rota, missoesDaEtapa } from '../catalogos/catalogoRotas'
 import {
   type IdPagina,
   NOME_PAGINA,
@@ -12,7 +12,7 @@ import {
 } from './rotas'
 
 const MISSOES: readonly Missao[] = (CATALOGO_ROTAS as readonly Rota[]).flatMap((rota) =>
-  rota.escalas.flatMap((escala) => missoesDaEscala(escala).map((item) => item.missao)),
+  rota.etapas.flatMap((etapa) => missoesDaEtapa(etapa).map((item) => item.missao)),
 )
 const IDS_MISSAO = MISSOES.map((m) => m.id)
 const AULAS = Object.values(LESSONS).flatMap((aulas) => aulas.map((aula) => aula.id))
@@ -20,19 +20,19 @@ const NIVEIS = LEVELS.map((nivel) => nivel.id)
 
 const PADROES_CONHECIDOS: readonly [string, IdPagina][] = [
   ['/', 'inicio'],
-  ['/check-in', 'check-in'],
-  ['/plano-de-voo', 'plano-de-voo'],
-  ['/breve', 'breve'],
-  ['/hangar', 'hangar'],
+  ['/diagnostico', 'diagnostico'],
+  ['/plano-de-carreira', 'plano-de-carreira'],
+  ['/portfolio', 'portfolio'],
+  ['/catalogo', 'catalogo'],
   ['/aulas', 'aulas'],
   ['/aulas/treino', 'treino'],
   ['/caderno', 'caderno'],
-  ['/comandante', 'comandante'],
+  ['/mentor', 'mentor'],
 ]
 
 const SEGMENTOS = [
-  '', 'cabine', 'caixa-preta', 'breve', 'aulas', 'treino', 'check-in', 'plano-de-voo', 'hangar',
-  'caderno', 'comandante', 'Breve', 'brevê', 'x', '..', '%20', ...IDS_MISSAO,
+  '', 'mesa-de-trabalho', 'revisao', 'portfolio', 'aulas', 'treino', 'diagnostico', 'plano-de-carreira', 'catalogo',
+  'caderno', 'mentor', 'Portfólio', 'portfólio', 'x', '..', '%20', ...IDS_MISSAO,
 ]
 
 function gerarCaminho(g: Gerador): string {
@@ -42,7 +42,7 @@ function gerarCaminho(g: Gerador): string {
     case 1:
       return `/${g.lista((gg) => gg.escolher(SEGMENTOS), 4).join('/')}`
     case 2:
-      return `/${g.escolher(['cabine', 'caixa-preta'])}/${g.escolher([...IDS_MISSAO, g.texto(12), 'sessao-1'])}${g.escolher(['', '/'])}`
+      return `/${g.escolher(['mesa-de-trabalho', 'revisao'])}/${g.escolher([...IDS_MISSAO, g.texto(12), 'sessao-1'])}${g.escolher(['', '/'])}`
     default:
       return `${g.escolher(PADROES_CONHECIDOS)[0]}${g.escolher(['', '/', '//', '/x'])}`
   }
@@ -60,14 +60,14 @@ function gerarRotaValida(g: Gerador): RotaResolvida {
     case 0:
       return { pagina: 'inicio' }
     case 1:
-      return { pagina: 'check-in', motivo: g.escolher(['sem-cartao', null] as const), rapido: g.escolher([true, false]) }
+      return { pagina: 'diagnostico', motivo: g.escolher(['sem-cartao', null] as const), rapido: g.escolher([true, false]) }
     case 2:
-      return { pagina: 'plano-de-voo' }
+      return { pagina: 'plano-de-carreira' }
     case 3: {
       const missao = g.escolher(MISSOES)
       const disponiveis = missao.causas.filter((c) => c.status === 'disponivel').map((c) => c.codigo)
       return {
-        pagina: 'cabine',
+        pagina: 'mesa-de-trabalho',
         missao: missao.id,
         semente: g.escolher([null, g.inteiro(0, 1_000_000)]),
         causa: disponiveis.length > 0 ? g.escolher([null, ...disponiveis]) : null,
@@ -79,12 +79,12 @@ function gerarRotaValida(g: Gerador): RotaResolvida {
       const tamanho = g.inteiro(1, 64)
       let sessao = ''
       for (let i = 0; i < tamanho; i += 1) sessao += alfabeto[g.inteiro(0, alfabeto.length - 1)]
-      return { pagina: 'caixa-preta', sessao }
+      return { pagina: 'revisao', sessao }
     }
     case 5:
-      return { pagina: 'breve' }
+      return { pagina: 'portfolio' }
     case 6:
-      return { pagina: 'hangar' }
+      return { pagina: 'catalogo' }
     case 7:
       return {
         pagina: 'aulas',
@@ -97,7 +97,7 @@ function gerarRotaValida(g: Gerador): RotaResolvida {
     case 9:
       return { pagina: 'caderno' }
     default:
-      return { pagina: 'comandante' }
+      return { pagina: 'mentor' }
   }
 }
 
@@ -107,7 +107,7 @@ function separar(endereco: string): [string, string] {
 }
 
 describe('resolverEndereco', () => {
-  // Feature: jornada-de-voo, Property 1: Resolução de endereço total e única
+  // Feature: jornada-de-missao, Property 1: Resolução de endereço total e única
   it('resolve todo par (caminho, busca) para exatamente uma rota', () => {
     paraTodo(
       'Property 1',
@@ -121,18 +121,18 @@ describe('resolverEndereco', () => {
           expect(rota.pagina).toBe(conhecido[1])
           return
         }
-        const cabine = /^\/cabine\/([^/]+)$/.exec(semBarra)
-        if (cabine) {
-          if ((IDS_MISSAO as readonly string[]).includes(cabine[1])) {
-            expect(rota).toMatchObject({ pagina: 'cabine', missao: cabine[1] })
+        const mesa = /^\/mesa-de-trabalho\/([^/]+)$/.exec(semBarra)
+        if (mesa) {
+          if ((IDS_MISSAO as readonly string[]).includes(mesa[1])) {
+            expect(rota).toMatchObject({ pagina: 'mesa-de-trabalho', missao: mesa[1] })
           } else {
-            expect(rota).toEqual({ pagina: 'nao-encontrada', caminho, missaoDesconhecida: cabine[1] })
+            expect(rota).toEqual({ pagina: 'nao-encontrada', caminho, missaoDesconhecida: mesa[1] })
           }
           return
         }
-        const caixa = /^\/caixa-preta\/([A-Za-z0-9-]{1,64})$/.exec(semBarra)
+        const caixa = /^\/revisao\/([A-Za-z0-9-]{1,64})$/.exec(semBarra)
         if (caixa) {
-          expect(rota).toEqual({ pagina: 'caixa-preta', sessao: caixa[1] })
+          expect(rota).toEqual({ pagina: 'revisao', sessao: caixa[1] })
           return
         }
         expect(rota).toEqual({ pagina: 'nao-encontrada', caminho, missaoDesconhecida: null })
@@ -141,21 +141,21 @@ describe('resolverEndereco', () => {
   })
 
   it('aceita barra final e combinações independentes de motivo e modo', () => {
-    expect(resolverEndereco('/breve/', '')).toEqual({ pagina: 'breve' })
-    expect(resolverEndereco('/check-in', '?motivo=sem-cartao&modo=rapido')).toEqual({
-      pagina: 'check-in',
+    expect(resolverEndereco('/portfolio/', '')).toEqual({ pagina: 'portfolio' })
+    expect(resolverEndereco('/diagnostico', '?motivo=sem-cartao&modo=rapido')).toEqual({
+      pagina: 'diagnostico',
       motivo: 'sem-cartao',
       rapido: true,
     })
-    expect(resolverEndereco('/check-in', '?motivo=outro&modo=lento')).toEqual({
-      pagina: 'check-in',
+    expect(resolverEndereco('/diagnostico', '?motivo=outro&modo=lento')).toEqual({
+      pagina: 'diagnostico',
       motivo: null,
       rapido: false,
     })
-    expect(resolverEndereco('/caixa-preta/abc_def', '')).toMatchObject({ pagina: 'nao-encontrada' })
+    expect(resolverEndereco('/revisao/abc_def', '')).toMatchObject({ pagina: 'nao-encontrada' })
   })
 
-  // Feature: jornada-de-voo, Property 2: Ida e volta de endereço
+  // Feature: jornada-de-missao, Property 2: Ida e volta de endereço
   it('devolve a rota original ao resolver o endereço gerado por enderecoDe', () => {
     paraTodo('Property 2', gerarRotaValida, (rota) => {
       const [caminho, busca] = separar(enderecoDe(rota))
@@ -163,7 +163,7 @@ describe('resolverEndereco', () => {
     })
   })
 
-  // Feature: jornada-de-voo, Property 2: Ida e volta de endereço (Causa fora do catálogo ou em preparação)
+  // Feature: jornada-de-missao, Property 2: Ida e volta de endereço (Causa fora do catálogo ou em preparação)
   it('ignora causa em preparação ou fora do catálogo', () => {
     paraTodo(
       'Property 2, causa',
@@ -173,15 +173,15 @@ describe('resolverEndereco', () => {
         return { missao: missao.id, causa: g.escolher([...indisponiveis, g.texto(8), 'C9', 'OUTRA']) }
       },
       ({ missao, causa }) => {
-        const rota = resolverEndereco(`/cabine/${missao}`, `?causa=${encodeURIComponent(causa)}`)
-        expect(rota).toMatchObject({ pagina: 'cabine', missao, causa: null })
+        const rota = resolverEndereco(`/mesa-de-trabalho/${missao}`, `?causa=${encodeURIComponent(causa)}`)
+        expect(rota).toMatchObject({ pagina: 'mesa-de-trabalho', missao, causa: null })
       },
     )
   })
 })
 
 describe('tituloDocumento', () => {
-  // Feature: jornada-de-voo, Property 3: Título do documento
+  // Feature: jornada-de-missao, Property 3: Título do documento
   it('compõe o nome da página com o nome do produto, sem E comercial', () => {
     const paginas = Object.keys(NOME_PAGINA) as IdPagina[]
     expect(paginas).toHaveLength(12)
@@ -191,7 +191,7 @@ describe('tituloDocumento', () => {
       (pagina) => {
         const nome = NOME_PAGINA[pagina]
         const titulo = tituloDocumento(nome)
-        expect(titulo).toBe(`${nome}, IT Flight Simulator`)
+        expect(titulo).toBe(`${nome}, IT Career Simulator`)
         expect(nome).not.toContain('&')
         expect(titulo).not.toContain('&')
       },

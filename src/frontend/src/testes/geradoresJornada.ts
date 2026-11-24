@@ -1,22 +1,22 @@
 import type { AvaliacaoResponse } from '../api/types'
-import type { CartaoEmbarque } from '../jornada/armazenamento/cartaoEmbarque'
-import type { RegistroDeVoo } from '../jornada/armazenamento/registrosVoo'
-import type { VoosAtivos } from '../jornada/armazenamento/voosAtivos'
+import type { CartaoPerfil } from '../jornada/armazenamento/cartaoPerfil'
+import type { RegistroDeMissao } from '../jornada/armazenamento/registrosMissao'
+import type { MissoesAtivas } from '../jornada/armazenamento/missoesAtivas'
 import {
   CATALOGO_ROTAS,
   type IdMissao,
   type Missao,
   type Rota,
-  escalaDaMissao,
-  missoesDaEscala,
+  etapaDaMissao,
+  missoesDaEtapa,
   rotaPorId,
 } from '../jornada/catalogos/catalogoRotas'
 import type { StatusDisponibilidade } from '../jornada/catalogos/status'
 import type { Gerador } from './propriedade'
 
 export const ROTA_SUPORTE: Rota = rotaPorId('suporte-ti') as Rota
-export const MISSOES_CATALOGO: readonly IdMissao[] = ROTA_SUPORTE.escalas.flatMap((escala) =>
-  missoesDaEscala(escala).map((item) => item.missao.id),
+export const MISSOES_CATALOGO: readonly IdMissao[] = ROTA_SUPORTE.etapas.flatMap((etapa) =>
+  missoesDaEtapa(etapa).map((item) => item.missao.id),
 )
 const IDS_ROTA = CATALOGO_ROTAS.map((rota) => rota.id)
 
@@ -32,15 +32,15 @@ export function gerarDataIso(g: Gerador): string {
   return new Date(Date.UTC(2026, g.inteiro(0, 11), g.inteiro(1, 28), g.inteiro(0, 23), g.inteiro(0, 59))).toISOString()
 }
 
-export function gerarCartao(g: Gerador): CartaoEmbarque {
+export function gerarCartao(g: Gerador): CartaoPerfil {
   return {
     versao: 1,
-    versaoRoteiro: g.escolher(['checkin-v1', 'checkin-v2']),
+    versaoRoteiro: g.escolher(['diagnostico-v1', 'diagnostico-v2']),
     rotaIndicadaId: g.escolher(IDS_ROTA),
     rotaId: 'suporte-ti',
-    primeiraEscalaId: g.escolher(ROTA_SUPORTE.escalas).id,
+    primeiraEtapaId: g.escolher(ROTA_SUPORTE.etapas).id,
     respostas: { interesse: g.texto(12), situacao: g.texto(12), ritmo: g.texto(12) },
-    origem: g.escolher(['checkin', 'checkin-rapido'] as const),
+    origem: g.escolher(['diagnostico', 'diagnostico-rapido'] as const),
     emitidoEm: gerarDataIso(g),
   }
 }
@@ -66,10 +66,10 @@ export function gerarAvaliacao(g: Gerador, concluida = true): AvaliacaoResponse 
   }
 }
 
-export function gerarRegistro(g: Gerador, sessaoId: string, missao: IdMissao = g.escolher(MISSOES_CATALOGO)): RegistroDeVoo {
-  const local = escalaDaMissao(missao)
+export function gerarRegistro(g: Gerador, sessaoId: string, missao: IdMissao = g.escolher(MISSOES_CATALOGO)): RegistroDeMissao {
+  const local = etapaDaMissao(missao)
   const avaliacao = gerarAvaliacao(g)
-  // Escala e Vertente gravadas às vezes divergem do catálogo atual, como num registro antigo.
+  // Etapa e Vertente gravadas às vezes divergem do catálogo atual, como num registro antigo.
   const divergente = g.inteiro(0, 3) === 0
   return {
     versao: 1,
@@ -77,7 +77,7 @@ export function gerarRegistro(g: Gerador, sessaoId: string, missao: IdMissao = g
     missao,
     versaoCenario: g.escolher(['1.0.0', '2.1.0']),
     rotaId: 'suporte-ti',
-    escalaId: divergente ? 'help-desk-n1' : (local?.escala.id ?? 'help-desk-n1'),
+    etapaId: divergente ? 'help-desk-n1' : (local?.etapa.id ?? 'help-desk-n1'),
     vertenteId: divergente ? null : (local?.vertente?.id ?? null),
     concluidoEm: gerarDataIso(g),
     resultado: {
@@ -91,12 +91,12 @@ export function gerarRegistro(g: Gerador, sessaoId: string, missao: IdMissao = g
 }
 
 /** Registros com `sessaoId` distintos e missões sorteadas do catálogo. */
-export function gerarRegistros(g: Gerador, maximo = 8): RegistroDeVoo[] {
+export function gerarRegistros(g: Gerador, maximo = 8): RegistroDeMissao[] {
   const quantidade = g.inteiro(0, maximo)
   return Array.from({ length: quantidade }, (_, i) => gerarRegistro(g, `sessao-${i}-${g.inteiro(0, 9999)}`))
 }
 
-export function gerarVoosAtivos(g: Gerador): VoosAtivos {
+export function gerarMissoesAtivas(g: Gerador): MissoesAtivas {
   const porMissao: Partial<Record<IdMissao, string>> = {}
   for (const missao of MISSOES_CATALOGO) if (g.inteiro(0, 1) === 1) porMissao[missao] = gerarIdSessao(g)
   return { versao: 1, ultimaMissao: g.inteiro(0, 2) === 0 ? null : g.escolher(MISSOES_CATALOGO), porMissao }
@@ -119,10 +119,10 @@ function comStatus(g: Gerador, missao: Missao, opcoes: { missoes: boolean; causa
 export function gerarRotaComStatus(g: Gerador, opcoes = { missoes: true, causas: true }): Rota {
   return {
     ...ROTA_SUPORTE,
-    escalas: ROTA_SUPORTE.escalas.map((escala) => ({
-      ...escala,
-      missoes: escala.missoes.map((missao) => comStatus(g, missao, opcoes)),
-      vertentes: escala.vertentes.map((vertente) => ({
+    etapas: ROTA_SUPORTE.etapas.map((etapa) => ({
+      ...etapa,
+      missoes: etapa.missoes.map((missao) => comStatus(g, missao, opcoes)),
+      vertentes: etapa.vertentes.map((vertente) => ({
         ...vertente,
         missoes: vertente.missoes.map((missao) => comStatus(g, missao, opcoes)),
       })),
@@ -138,10 +138,10 @@ export function comCausasDisponiveis(rota: Rota): Rota {
   })
   return {
     ...rota,
-    escalas: rota.escalas.map((escala) => ({
-      ...escala,
-      missoes: escala.missoes.map(disponivel),
-      vertentes: escala.vertentes.map((vertente) => ({ ...vertente, missoes: vertente.missoes.map(disponivel) })),
+    etapas: rota.etapas.map((etapa) => ({
+      ...etapa,
+      missoes: etapa.missoes.map(disponivel),
+      vertentes: etapa.vertentes.map((vertente) => ({ ...vertente, missoes: vertente.missoes.map(disponivel) })),
     })),
   }
 }

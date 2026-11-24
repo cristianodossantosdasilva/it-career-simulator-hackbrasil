@@ -4,7 +4,7 @@
 
 O produto ja tem um conceito forte: ensinar suporte de TI por meio de chamados, evidencia, simulacao e replay auditavel. A interface, porem, ainda comunica prototipo educacional montado por componentes genericos. O problema nao e falta de cor ou de funcionalidade. E falta de hierarquia, ritmo visual e uma linguagem propria de ferramenta operacional.
 
-Na captura de referencia, a home e mais clara que a versao publicada, mas ainda parece uma pagina de cards de onboarding. Na versao publicada em 1440 px, a barra superior, a legenda de quatro cores, os chips, os paineis brancos e os emojis competem pela atencao. Em 375 px, a navegacao quebra em varias linhas antes de o conteudo principal comecar. Isso faz o primeiro voo parecer um painel responsivo improvisado, nao um produto que sabe qual e a proxima acao.
+Na captura de referencia, a home e mais clara que a versao publicada, mas ainda parece uma pagina de cards de onboarding. Na versao publicada em 1440 px, a barra superior, a legenda de quatro cores, os chips, os paineis brancos e os emojis competem pela atencao. Em 375 px, a navegacao quebra em varias linhas antes de o conteudo principal comecar. Isso faz o primeiro missão parecer um painel responsivo improvisado, nao um produto que sabe qual e a proxima acao.
 
 O caminho recomendado e reduzir elementos decorativos, preservar o tema de operacoes e tornar a jornada uma linha continua: escolher missao, estudar a unidade, executar o turno, revisar evidencias e emitir uma credencial.
 
@@ -38,7 +38,7 @@ O caminho recomendado e reduzir elementos decorativos, preservar o tema de opera
 
 ## Identidade visual proposta
 
-Nome visual: **cockpit de suporte Aurora**. A referencia nao deve ser aviao decorativo. Deve ser a linguagem de uma equipe que recebe sinais, classifica risco, investiga e registra evidencias.
+Nome visual: **mesa de trabalho de suporte Aurora**. A referencia nao deve ser aviao decorativo. Deve ser a linguagem de uma equipe que recebe sinais, classifica risco, investiga e registra evidencias.
 
 - Fundo editorial claro: cinza frio quase branco.
 - Fundo operacional: azul grafite muito escuro.

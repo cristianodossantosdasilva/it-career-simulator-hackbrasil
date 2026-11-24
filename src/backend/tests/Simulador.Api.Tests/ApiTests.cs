@@ -289,7 +289,7 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
     }
 
     [Fact]
-    public async Task CarreiraResumo_ExponePromocoesPorEscalaComoPendentesSemSessoes()
+    public async Task CarreiraResumo_ExponePromocoesPorEtapaComoPendentesSemSessoes()
     {
         var response = await _client.PostAsJsonAsync("/api/carreira/resumo", new { sessaoIds = Array.Empty<string>(), apelido = "Nome fora do hash" });
         response.EnsureSuccessStatusCode();
@@ -297,7 +297,7 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
         var promocoes = resumo.GetProperty("promocoes");
         foreach (var chave in new[] { "helpDeskN1Concluido", "serviceDeskN1JrConcluido", "n2PlenoConcluido", "n3ARedesNuvemConcluido", "n3BDataCenterBackupConcluido", "n3CTriagemConcluido", "n3CSqlConcluido" })
             Assert.False(promocoes.GetProperty(chave).GetBoolean(), chave);
-        Assert.Equal("Sem escala concluída", resumo.GetProperty("cargoAtual").GetString());
+        Assert.Equal("Sem etapa concluída", resumo.GetProperty("cargoAtual").GetString());
         Assert.Equal("Nome fora do hash", resumo.GetProperty("apelido").GetString());
         var nucleo = new
         {

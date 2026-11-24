@@ -11,14 +11,14 @@ import { usePomodoro } from '../workstation/usePomodoro'
 import {
   type Aba,
   ContextoAcademia,
-  ContextoVoo,
-  type OpcoesAberturaVoo,
-  type ResultadoAberturaVoo,
+  ContextoMissao,
+  type OpcoesAberturaMissao,
+  type ResultadoAberturaMissao,
   type ValorAcademia,
-  type ValorVoo,
+  type ValorMissao,
 } from './contextosJornada'
-import { type RegistroDeVoo, criarRegistro } from './armazenamento/registrosVoo'
-import { decidirInicioCabine } from './cabine/decidirInicioCabine'
+import { type RegistroDeMissao, criarRegistro } from './armazenamento/registrosMissao'
+import { decidirInicioMesa } from './mesa/decidirInicioMesa'
 import { type IdMissao, ehIdMissao } from './catalogos/catalogoRotas'
 import { useArmazenamentoJornada } from './contextoArmazenamentoJornada'
 import { ProvedorArmazenamentoJornada } from './ProvedorArmazenamentoJornada'
@@ -48,19 +48,19 @@ function salvarSessaoId(id: string): string[] {
 }
 
 /**
- * Estado da Academia, do voo e do Armazenamento_Local acima do Roteador, para que a sessão e o
+ * Estado da Academia, da missão e do Armazenamento_Local acima do Roteador, para que a sessão e o
  * cronômetro continuem em memória quando a pessoa troca de página.
  */
 export function ProvedorJornada({ children, armazenamento }: { children: ReactNode; armazenamento?: Storage }) {
   return (
     <ProvedorArmazenamentoJornada armazenamento={armazenamento}>
-      <ProvedorAcademiaEVoo>{children}</ProvedorAcademiaEVoo>
+      <ProvedorAcademiaEMissao>{children}</ProvedorAcademiaEMissao>
     </ProvedorArmazenamentoJornada>
   )
 }
 
-/** Estado da Academia e do voo em memória, compartilhado pelas páginas por rota. */
-function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
+/** Estado da Academia e da missão em memória, compartilhado pelas páginas por rota. */
+function ProvedorAcademiaEMissao({ children }: { children: ReactNode }) {
   // Academia
   const [estadoAcademia, setEstadoAcademia] = useState<EstadoAcademia>(() => carregarEstadoAcademia())
   const [resumoCarreira, setResumoCarreira] = useState<CarreiraResumoResponse | null>(null)
@@ -80,7 +80,7 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
   )
   const pomodoro = usePomodoro(creditarMinutos)
 
-  // Voo
+  // Missão
   const [sessaoId, setSessaoId] = useState<string | null>(null)
   const [sessao, setSessao] = useState<SessaoProjecao | null>(null)
   const [aba, setAba] = useState<Aba>('itsm')
@@ -144,9 +144,9 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const [registroRecente, setRegistroRecente] = useState<RegistroDeVoo | null>(null)
+  const [registroRecente, setRegistroRecente] = useState<RegistroDeMissao | null>(null)
   const [falhaRegistro, setFalhaRegistro] = useState(false)
-  /** Sessão em memória lida fora do ciclo de renderização, para a decisão de abertura da Cabine. */
+  /** Sessão em memória lida fora do ciclo de renderização, para a decisão de abertura da Mesa de Trabalho. */
   const sessaoAtualRef = useRef<SessaoProjecao | null>(null)
   const sessaoIdAtualRef = useRef<string | null>(null)
   function definirSessao(id: string, proj: SessaoProjecao) {
@@ -160,7 +160,7 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
     setSessao(proj)
   }
 
-  /** Estado de cabine novo para um turno que acabou de abrir, como em iniciarSessao antes da jornada. */
+  /** Estado de mesa de trabalho novo para um turno que acabou de abrir, como em iniciarSessao antes da jornada. */
   function prepararTurno(id: string, proj: SessaoProjecao, cenarioId: string) {
     // Identificador fora do catálogo (nivel nulo) mantém o foco de estudo que o aluno já tinha.
     const nivel = nivelPorCenarioId(cenarioId)
@@ -174,14 +174,14 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
   }
 
   const armazenamentoJornada = useArmazenamentoJornada()
-  const aberturasEmAndamento = useRef(new Map<IdMissao, Promise<ResultadoAberturaVoo>>())
+  const aberturasEmAndamento = useRef(new Map<IdMissao, Promise<ResultadoAberturaMissao>>())
 
-  async function executarAbertura(missao: IdMissao, opcoes: OpcoesAberturaVoo): Promise<ResultadoAberturaVoo> {
+  async function executarAbertura(missao: IdMissao, opcoes: OpcoesAberturaMissao): Promise<ResultadoAberturaMissao> {
     const atual = sessaoAtualRef.current
-    const decisao = decidirInicioCabine(
+    const decisao = decidirInicioMesa(
       missao,
       atual ? { cenarioId: atual.meta.cenarioId } : null,
-      armazenamentoJornada.lerVoosAtivosAtuais(),
+      armazenamentoJornada.lerMissoesAtivasAtuais(),
       opcoes.nova,
     )
     if (decisao.tipo === 'usar-memoria' && sessaoIdAtualRef.current) {
@@ -202,7 +202,7 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
       const criada = await apiClient.criarSessao(pedido)
       const proj = await apiClient.obterSessao(criada.sessaoId)
       const ids = salvarSessaoId(criada.sessaoId)
-      armazenamentoJornada.registrarVooAtivo(missao, criada.sessaoId)
+      armazenamentoJornada.registrarMissaoAtiva(missao, criada.sessaoId)
       prepararTurno(criada.sessaoId, proj, missao)
       void atualizarResumoCarreira(ids)
       return { tipo: 'pronto', sessaoId: criada.sessaoId, retomada: false }
@@ -220,16 +220,16 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
   }
 
   /**
-   * Abre o voo da missão: usa a sessão em memória, retoma a registrada ou cria outra. Uma promessa
+   * Abre a missão da missão: usa a sessão em memória, retoma a registrada ou cria outra. Uma promessa
    * em andamento por missão evita que a dupla execução de efeitos do StrictMode crie duas sessões.
    */
   const executarAberturaRef = useRef(executarAbertura)
-  // Efeito de layout: roda antes dos efeitos comuns das páginas, que chamam abrirVoo ao montar.
+  // Efeito de layout: roda antes dos efeitos comuns das páginas, que chamam abrirMissao ao montar.
   useLayoutEffect(() => {
     executarAberturaRef.current = executarAbertura
   })
-  // Identidade estável, para que a página possa pôr abrirVoo na lista de dependências do efeito.
-  const abrirVoo = useCallback((missao: IdMissao, opcoes: OpcoesAberturaVoo): Promise<ResultadoAberturaVoo> => {
+  // Identidade estável, para que a página possa pôr abrirMissao na lista de dependências do efeito.
+  const abrirMissao = useCallback((missao: IdMissao, opcoes: OpcoesAberturaMissao): Promise<ResultadoAberturaMissao> => {
     const emAndamento = aberturasEmAndamento.current.get(missao)
     if (emAndamento) return emAndamento
     const promessa = executarAberturaRef.current(missao, opcoes).finally(() => {
@@ -240,18 +240,18 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
   }, [])
 
   /**
-   * Único caminho que grava Registro_de_Voo: consulta a avaliação do Juiz 360º e grava só com
+   * Único caminho que grava Registro_de_Missão: consulta a avaliação do Juiz 360º e grava só com
    * `concluida: true`. Falha não bloqueia o turno e pode ser tentada de novo.
    */
-  async function registrarVooConcluido(id: string, proj: SessaoProjecao) {
+  async function registrarMissaoConcluido(id: string, proj: SessaoProjecao) {
     try {
       const avaliacao = await apiClient.obterAvaliacao(id)
       setFalhaRegistro(false)
       const registro = criarRegistro(id, proj, avaliacao, new Date())
       if (!registro) return
-      armazenamentoJornada.registrarVoo(registro)
+      armazenamentoJornada.registrarMissao(registro)
       setRegistroRecente(registro)
-      // O resumo da carreira acompanha o voo concluído sem o aluno precisar pedir. Só a Cabine chega aqui.
+      // O resumo da carreira acompanha a missão concluída sem o aluno precisar pedir. Só a Mesa de Trabalho chega aqui.
       void atualizarResumoCarreira()
     } catch {
       setFalhaRegistro(true)
@@ -261,7 +261,7 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
   async function tentarRegistrarDeNovo() {
     const id = sessaoIdAtualRef.current
     const proj = sessaoAtualRef.current
-    if (id && proj) await registrarVooConcluido(id, proj)
+    if (id && proj) await registrarMissaoConcluido(id, proj)
   }
 
   async function executarAcao(tipo: string, dados?: Record<string, unknown>) {
@@ -284,7 +284,7 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
               : { ...prev, labsDone: [...prev.labsDone, concluido], xp: prev.xp + 60, weekMin: prev.weekMin + 15 },
           )
         }
-        void registrarVooConcluido(sessaoId, res.projecao)
+        void registrarMissaoConcluido(sessaoId, res.projecao)
       }
       for (const ev of res.eventos) {
         if (ev.tipo === 'AcaoRejeitada') {
@@ -361,7 +361,7 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
     pomodoro,
   }
 
-  const valorVoo: ValorVoo = {
+  const valorMissao: ValorMissao = {
     sessaoId,
     sessao,
     aba,
@@ -376,7 +376,7 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
     artigoKbSelecionado,
     abrirKbDoItsm,
     fecharArtigoKb,
-    abrirVoo,
+    abrirMissao,
     registroRecente,
     falhaRegistro,
     tentarRegistrarDeNovo,
@@ -386,7 +386,7 @@ function ProvedorAcademiaEVoo({ children }: { children: ReactNode }) {
 
   return (
     <ContextoAcademia.Provider value={valorAcademia}>
-      <ContextoVoo.Provider value={valorVoo}>{children}</ContextoVoo.Provider>
+      <ContextoMissao.Provider value={valorMissao}>{children}</ContextoMissao.Provider>
     </ContextoAcademia.Provider>
   )
 }

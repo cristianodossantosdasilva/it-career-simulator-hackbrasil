@@ -7,7 +7,7 @@ Uma missão tem quatro verbos visíveis: **Aprender, Praticar, Revisar, Comprova
 ## Mapa de informação
 
 ```text
-IT Flight Simulator
+IT Career Simulator
 ├── Início
 │   ├── Retomar
 │   └── Próxima missão
@@ -33,7 +33,7 @@ O Tutor de estudo entra como apoio contextual na aula ou no painel da missão, n
 
 1. **Primeira visita:** explicar em uma frase que o aluno vai atender um chamado fictício e tomar decisões técnicas. Exibir botão “Começar primeira missão”. Disponibilizar “Como funciona” em quatro passos curtos, recolhido por padrão.
 2. **Escolha:** selecionar trilha com nome, pré-requisito, tempo estimado e objetivo. Mostrar progresso já iniciado e uma ação primária por trilha.
-3. **Preparação:** abrir uma unidade breve, informar a ferramenta que será usada e o critério de conclusão. O aluno pode ir direto à missão se já conhece o conteúdo.
+3. **Preparação:** abrir uma unidade portfólio, informar a ferramenta que será usada e o critério de conclusão. O aluno pode ir direto à missão se já conhece o conteúdo.
 4. **Turno:** fixar guia e estado da missão ao lado da ferramenta ativa. Instrução atual, evidência esperada, ação segura e progresso ficam visíveis sem voltar à aula.
 5. **Revisão:** após resolver o cenário, apresentar Replay de eventos. Cada critério aponta para o evento que o prova ou para a etapa que faltou.
 6. **Comprovação:** mostrar a competência registrada, origem, data e integridade criptográfica. Distinguir currículo exportado de certificação formal.
@@ -44,7 +44,7 @@ O Tutor de estudo entra como apoio contextual na aula ou no painel da missão, n
 
 ```text
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│ IT Flight Simulator     Início   Trilhas   Caderno   Progresso       Perfil   │ 56
+│ IT Career Simulator     Início   Trilhas   Caderno   Progresso       Perfil   │ 56
 ├──────────────────────────────────────────────────────────────────────────────┤
 │ Retomar missão                                                                │
 │ Pasta de rede inacessível                                      [Continuar]     │
@@ -131,7 +131,7 @@ O guia usa 300 a 340 px em 1440; a ferramenta fica com o restante. O divisor pod
 
 ```text
 ┌───────────────────────────────┐
-│ IT Flight Simulator       ☰   │
+│ IT Career Simulator       ☰   │
 ├───────────────────────────────┤
 │ Retomar missão                │
 │ Pasta de rede inacessível     │

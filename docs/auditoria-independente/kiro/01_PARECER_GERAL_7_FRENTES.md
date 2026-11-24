@@ -1,6 +1,6 @@
 # Parecer Geral da Banca Independente, 7 Frentes (Kiro CLI)
 
-- Projeto: IT Flight Simulator, time CVE-K, trilha "Acesso à educação", Hack Brasil 2026
+- Projeto: IT Career Simulator, time CVE-K, trilha "Acesso à educação", Hack Brasil 2026
 - Data da auditoria: 15/nov/2026 (faltam 15 dias para a submissão de 30/nov/2026, 23h59 BRT)
 - Estado auditado: branch main, commit local e6aae5c (igual ao remoto), com 8 arquivos de documentação modificados e 1 não rastreado, ainda sem commit
 - Método: leitura do código em `src/`, execução dos testes de backend em cópia temporária fora do repositório, consulta somente leitura ao DevLedger, ao GitHub, à Vercel, à Render, à Neon e à Cloudflare, navegação no demo publicado e no protótipo, leitura do regulamento oficial e pesquisa de preços e legislação
@@ -24,7 +24,7 @@
 6. A documentação pública do repositório expõe nome completo de quatro pessoas e o motivo pessoal e a localidade da saída de uma delas.
 7. A interface publicada ainda exibe `E comercial` em três títulos, violando o `AGENTS.md` do próprio projeto.
 
-**Veredito de posicionamento.** Para o critério "Execução técnica" (primeiro desempate) o projeto está bem posicionado se o demo for estável e verificável. Para "Impacto" (segundo desempate) está fraco: não há evidência de aprendizagem de pessoas reais, e a narrativa de "560 horas e 80 laboratórios" é uma promessa que a banca consegue desmentir em dois minutos olhando o menu. Recomendação central: **reduzir a promessa, endurecer o que existe e provar impacto com um piloto pequeno**, em vez de tentar construir Aulas, Caderno e Mentor em 15 dias.
+**Veredito de posicionamento.** Para o critério "Execução técnica" (primeiro desempate) o projeto está bem posicionado se o demo for estável e verificável. Para "Impacto" (segundo desempate) está fraco: não há evidência de aprendizagem de pessoas reais, e a narrativa de "560 horas e 80 laboratórios" é uma promessa que a banca consegue desmentir em dois minutos olhando o menu. Recomendação central: **reduzir a promessa, endurecer o que existe e provar impacto com um analista pequeno**, em vez de tentar construir Aulas, Caderno e Mentor em 15 dias.
 
 ---
 
@@ -63,11 +63,11 @@
 - Currículo Vivo com verificação correta, assinada e com demonstração de adulteração detectada.
 - README honesto com matriz "Implementado, Em construção, Roadmap".
 - Vídeo de até 3 minutos com uma história, não com cinco níveis em fila.
-- Evidência de impacto mínima (piloto de 5 a 10 iniciantes, tempo e depoimentos).
+- Evidência de impacto mínima (analista de 5 a 10 iniciantes, tempo e depoimentos).
 
 **Fica como roadmap declarado:** 560 horas, 80 laboratórios, Aulas, SM-2, Caderno, Mentor IA, certificações, B2B, vídeo ao vivo com agentes.
 
-**Narrativa e vídeo.** O nome já tem uma metáfora forte e subaproveitada: simulador de voo tem **caixa-preta**. O Replay é a caixa-preta do atendimento. Proposta de fio condutor: "Piloto não aprende voando de verdade no primeiro dia. Quem começa em TI aprende no primeiro dia de verdade, com o chamado real." Impacto social concreto: o custo de errar sai do cliente e vai para o simulador, a dados 100% sintéticos, grátis e sem login. O roteiro atual (DEPLOY_E_VIDEO.md) tem 10 trechos de 15 a 25 segundos e percorre cinco níveis; é denso demais para ser compreendido por quem nunca viu o produto. Estrutura sugerida na seção 5.
+**Narrativa e vídeo.** O nome já tem uma metáfora forte e subaproveitada: simulador de missão tem **caixa-preta**. O Replay é a caixa-preta do atendimento. Proposta de fio condutor: "Analista não aprende voando de verdade no primeiro dia. Quem começa em TI aprende no primeiro dia de verdade, com o chamado real." Impacto social concreto: o custo de errar sai do cliente e vai para o simulador, a dados 100% sintéticos, grátis e sem login. O roteiro atual (DEPLOY_E_VIDEO.md) tem 10 trechos de 15 a 25 segundos e percorre cinco níveis; é denso demais para ser compreendido por quem nunca viu o produto. Estrutura sugerida na seção 5.
 
 ### Frente 2. UX, UI e acessibilidade
 
@@ -143,7 +143,7 @@ Ordem sugerida e estimativa (um desenvolvedor, em dias úteis de trabalho concen
 | P0 | Retirar da documentação pública nomes completos e motivo e localidade da saída de integrante; atualizar o painel do time em hackbrasil.com (composição até 30/nov) | 0,25 dia | Sem dado pessoal de terceiro nos arquivos |
 | P1 | Missão 0 (4 passos) antes do Nível 1, glossário em dica de contexto, opções avançadas recolhidas, acentuação correta | 2 dias | 3 iniciantes concluem sem ajuda |
 | P1 | Debrief didático no Replay: por critério, o que foi observado, por que importa e link para a KB | 1,5 dia | Tela de Replay explica, não só lista |
-| P1 | Piloto com 5 a 10 iniciantes: tempo até concluir Nível 2, erros, depoimento; publicar resumo anonimizado | 1 dia | Números reais no vídeo e no README |
+| P1 | Analista com 5 a 10 iniciantes: tempo até concluir Nível 2, erros, depoimento; publicar resumo anonimizado | 1 dia | Números reais no vídeo e no README |
 | P1 | Disponibilidade: Render Starter (cerca de US$ 7) de 28/nov a 16/dez, ou monitor externo a cada 10 minutos (cuidado com o limite de horas gratuitas, ver 05); mesma região de banco | 0,25 dia | Primeira resposta abaixo de 3 s |
 | P1 | Vídeo (roteiro da seção 5.1), legendas, hospedagem sem login | 1,5 dia | Menos de 3:00, abre sem login |
 | P2 | Revisão de realidade da documentação: PRD, arquitetura, contexto e cronograma separam implementado de roadmap, com números de teste corretos | 0,5 dia | Nenhuma promessa sem código |
@@ -158,7 +158,7 @@ Ordem sugerida e estimativa (um desenvolvedor, em dias úteis de trabalho concen
 3. 0:50 a 1:50. Nível 2 completo, em ritmo legível: validar identidade, SimuDesk, diagnosticar antes de alterar, resolver.
 4. 1:50 a 2:15. Replay e Juiz 360: critérios binários observáveis, debrief didático. Montagem de 8 segundos com os Níveis 3, 4 e 4b ("mais quatro desafios").
 5. 2:15 a 2:40. Currículo Vivo assinado: verificação offline; trocar um caractere e mostrar "adulterado".
-6. 2:40 a 2:55. Resultado do piloto (números reais), custo zero, repositório e demo.
+6. 2:40 a 2:55. Resultado do analista (números reais), custo zero, repositório e demo.
 
 ---
 
@@ -177,7 +177,7 @@ Ordem sugerida e estimativa (um desenvolvedor, em dias úteis de trabalho concen
 1. O tema final do Hackathon é claro (protótipo) ou escuro (atual)?
 2. Aceita pagar cerca de US$ 7 pela Render Starter durante a avaliação para eliminar a espera de ativação?
 3. Autoriza reescrever documentos públicos para retirar dados pessoais do time (sem reescrever histórico Git)?
-4. Há integrantes dispostos a participar do piloto com iniciantes reais?
+4. Há integrantes dispostos a participar do analista com iniciantes reais?
 
 ---
 

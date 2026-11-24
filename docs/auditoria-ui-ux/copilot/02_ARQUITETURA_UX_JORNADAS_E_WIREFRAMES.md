@@ -11,7 +11,7 @@ O produto deve responder sempre a tres perguntas:
 ## Arquitetura de informacao
 
 ```text
-IT Flight Simulator
+IT Career Simulator
 |-- Inicio
 |   |-- Continuar missao
 |   |-- Trilhas
@@ -40,7 +40,7 @@ IT Flight Simulator
 - Uma acao primaria por tela.
 - O estado da missao permanece visivel ao alternar entre ferramentas.
 
-## Jornada Primeiro Voo
+## Jornada Primeiro Missão
 
 Ao abrir pela primeira vez, o aluno ve uma missao recomendada, nao uma explicacao do produto. O bloco inicial deve conter: titulo da missao, problema em uma frase, tempo estimado, nivel, proxima acao e resultado esperado. O restante fica abaixo.
 

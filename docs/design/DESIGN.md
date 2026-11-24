@@ -1,8 +1,8 @@
-# DESIGN.md: direção visual do IT Flight Simulator
+# DESIGN.md: direção visual do IT Career Simulator
 
 Documento lido por pessoas e por ferramentas de IA (Lovable, Google Stitch, Figma, Kiro). Escopo: aparência e interação. Regras de domínio e de arquitetura ficam em `AGENTS.md`.
 
-Estado em 2026-11-20, na branch `jornada-de-voo`. Quando este arquivo divergir de `src/frontend/src/index.css`, o código vale e este arquivo deve ser corrigido.
+Estado em 2026-11-20, na branch `jornada-de-carreira`. Quando este arquivo divergir de `src/frontend/src/index.css`, o código vale e este arquivo deve ser corrigido.
 
 ## 1. Produto em uma frase
 

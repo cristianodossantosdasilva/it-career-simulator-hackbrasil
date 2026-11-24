@@ -1,11 +1,11 @@
-# Arquitetura Técnica — IT Flight Simulator (Edição Hack Brasil 2026)
+# Arquitetura Técnica — IT Career Simulator (Edição Hack Brasil 2026)
 
 ## 1. Visão Geral e Princípio Central
 
 A aplicação adota uma arquitetura de **Simulação Web Determinística + Camada Pedagógica Desacoplada + Diálogo Auditável**:
 - **O Motor Determinístico é a única autoridade** sobre o estado da estação simulada, privilégios, acesso remoto, SLA e avaliação.
 - **O Diálogo (`Simulador.Dialogo`) não lê nem altera o estado diretamente**, não inventa saídas de terminal e não atribui notas arbitrárias: ele apenas conduz a interação a partir dos fatos liberados pelo motor. Esse princípio permanece inviolável na **Onda 4** com o módulo de **Chamada em Vídeo e Voz ao Vivo com Agentes de IA**.
-- **Estado reconstruível por eventos (*Event Sourcing* leve):** toda ação do usuário no laboratório gera eventos imutáveis (*append-only*), permitindo **Replay exato (Caixa-Preta + Debrief Didático)** na interface e auditoria determinística pelo **Juiz 360º**.
+- **Estado reconstruível por eventos (*Event Sourcing* leve):** toda ação do usuário no laboratório gera eventos imutáveis (*append-only*), permitindo **Replay exato (Revisão + Debrief Didático)** na interface e auditoria determinística pelo **Juiz 360º**.
 - **Arquitetura Aditiva de Não-Regressão:** a interface educacional implementada no MVP (**Tema Claro Educacional com alternância para modo escuro, Missão 0 guiada em 4 passos, Glossário rápido, Matriz transparente de Escopo MVP vs. Roadmap e verificação assimétrica ECDSA P-256**) e os módulos futuros (*Aulas com SM-2, 8 Laboratórios Dedicados UC1 a UC8, Centro de Simulados, Caderno estilo Notion/Cornell e Mentor IA*) preservam os contratos REST sem quebrar os seletores, as suítes `xUnit` (mais integração `PostgreSQL 17` no CI), `Vitest + axe-core` e `Playwright` (contagens medidas no [README](../README.md#como-testar) e no CI).
 
 ---
@@ -37,7 +37,7 @@ A migração sincronizada abaixo já foi **implementada em `src/`** e validada c
 ## 3. Stack Tecnológica
 
 - **Backend:** ASP.NET Core (`.NET 10`), monólito modular em C#, com `UseForwardedHeaders` (`ForwardLimit=2` para proxy reverso Render/Vercel), limite de payload de requisição (`32 KB`), limite de `Dados` em `/acoes` (`16 KB`), guarda `Demo:PermitirParametrosDeTeste`, assinatura assimétrica **ECDSA P-256 (`SHA256`, formato IEEE P1363)** e canonicalização **JCS (RFC 8785 UTF-8)**.
-- **Frontend:** `React 19` + `TypeScript` + `Vite`, com Design System Claro/Escuro em CSS custom properties, **Missão 0 guiada em 4 passos**, **Glossário rápido**, **Debrief Didático da Caixa-Preta**, **Matriz transparente MVP vs. Roadmap**, verificação automatizada de contraste (`contraste.ts`) e acessibilidade (`axe-core`), verificação offline `JCS (RFC 8785 UTF-8) + SHA-256 + ECDSA P-256` (`Web Crypto API`) e testes E2E (`Playwright`).
+- **Frontend:** `React 19` + `TypeScript` + `Vite`, com Design System Claro/Escuro em CSS custom properties, **Missão 0 guiada em 4 passos**, **Glossário rápido**, **Debrief Didático da Revisão**, **Matriz transparente MVP vs. Roadmap**, verificação automatizada de contraste (`contraste.ts`) e acessibilidade (`axe-core`), verificação offline `JCS (RFC 8785 UTF-8) + SHA-256 + ECDSA P-256` (`Web Crypto API`) e testes E2E (`Playwright`).
 - **Banco de Dados:** `PostgreSQL 17` (persistência de sessões anônimas e trilha de eventos em `JSONB` com TTL configurável e expurgo automático de sessões expiradas há `> 2 dias`) — com abstração `IEventStore` e provedor `InMemoryEventStore` para execução leve e testes sem banco externo.
 - **Persistência Pedagógica Local (MVP) → Multi-Tenant (Produto Real):** Anotações Cornell, flashcards SM-2, progresso de aulas nas 8 Unidades Curriculares (`UC1` a `UC8`, 560h), plano de estudos e missões das Bancadas Físicas persistem em `localStorage` no navegador durante o Hackathon (zero fricção de login), com previsão de sincronização por usuário/instituição no PostgreSQL na Onda 1/2.
 - **Diálogo e IA (`IClienteDialogo` + Arquitetura Híbrida 80/20 + Futura Chamada em Vídeo Onda 4):**
@@ -83,7 +83,7 @@ src/
         │   ├── DataCenterStorageCloudBackupLab/  # UC7: Rack 42U/PDU A+B, RAID/SMART, SAN iSCSI, Hypervisor, Cloud Backup WORM 3-2-1-1-0
         │   ├── CyberBlueTeamSqlLab/              # UC8: IAM/Conditional Access, SPF/DKIM/DMARC/BEC, Console Antivirus/EDR e SQL Read-Only
         │   └── CertificationPracticeCenter/      # Pos-Hackathon: Simulados autorais (PBQs) e integracao Vendor Academies
-        ├── replay/                   # Caixa-Preta do Atendimento + Debrief Didático + Relatório do Juiz 360
+        ├── replay/                   # Revisão do Atendimento + Debrief Didático + Relatório do Juiz 360
         ├── utils/                    # Canonicalização JCS (RFC 8785 UTF-8) + SHA-256 + ECDSA P-256 + contraste WCAG
         └── workstation/              # Shell unificado (Tema Claro/Escuro), Missão 0, Glossário, Escopo MVP vs. Roadmap e Verificador /verificar
 ```
@@ -131,5 +131,5 @@ O estado de cada sessão é dividido em subsistemas independentes e auditáveis 
 ## 7. Estratégia de Deploy, Segurança e Custos
 
 - **Containerização e CI:** `Dockerfile` para backend `.NET 10` e frontend `React/Vite` (Nginx), `docker-compose.yml` para execução local (`PostgreSQL 17` + Backend + Frontend) e workflow [GitHub Actions CI](../.github/workflows/ci.yml) validando `xUnit`, integração `PostgreSQL 17`, `oxlint`, `Vitest`, build e `Playwright`.
-- **Hospedagem Oficial (MVP):** Frontend público no Vercel em `https://it-flight-simulator-hackbrasil.vercel.app` (`src/frontend/vercel.json` com headers de segurança HTTP e rewrite SPA), backend `.NET 10` na Render (`it-flight-simulator-api`, via `render.yaml`) e `PostgreSQL 17` gerenciado no Neon (`vitru-agent-gateway` preventivamente suspenso na Render com backup versionado para preservar 100% da cota gratuita durante a avaliação).
+- **Hospedagem Oficial (MVP):** Frontend público no Vercel em `https://it-career-simulator-hackbrasil.vercel.app` (`src/frontend/vercel.json` com headers de segurança HTTP e rewrite SPA), backend `.NET 10` na Render (`it-career-simulator-api`, via `render.yaml`) e `PostgreSQL 17` gerenciado no Neon (`vitru-agent-gateway` preventivamente suspenso na Render com backup versionado para preservar 100% da cota gratuita durante a avaliação).
 - **Custo:** o hackathon roda a custo zero, porque toda a simulação opera em motor de estado leve, sem VMs individuais na nuvem. O modelo de negócio é tratado fora do repositório público.

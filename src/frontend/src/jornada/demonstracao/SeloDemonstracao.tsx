@@ -2,8 +2,8 @@ import { Icone } from '../../ui/Icone'
 import { TEXTO_SELO_DEMONSTRACAO } from './textosDemonstracao'
 
 /**
- * Selo de uma Escala com o modo de demonstração ativo. Mesma estrutura de `SeloStatus`, com ícone e
- * texto, e cor de informação: não usa a cor de sucesso para não ser confundido com Escala concluída.
+ * Selo de uma Etapa com o modo de demonstração ativo. Mesma estrutura de `SeloStatus`, com ícone e
+ * texto, e cor de informação: não usa a cor de sucesso para não ser confundido com Etapa concluída.
  */
 export function SeloDemonstracao() {
   return (

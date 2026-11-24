@@ -348,7 +348,7 @@ async function instalarAuxiliares(page: Page) {
     }
 
     ct.papeis = [
-      ['container', '.edu-card, .panel, .glossary-details, .card-section, table, .painel-bloco, .step-box, .chat, .chat-log, .passo-jornada, .estado-vazio, .resposta-checkin-rapido, .escala, .grupo-vertente, .cartao-missao, .convite-copiloto, .opcoes-avancadas, .indicacao-checkin, .demonstracao-checkin, .cartao-embarque, .breve-piloto, .registro-voo, .resumo-local, .rota-hangar, .papel-comandante'],
+      ['container', '.edu-card, .panel, .glossary-details, .card-section, table, .painel-bloco, .step-box, .chat, .chat-log, .passo-jornada, .estado-vazio, .resposta-diagnostico-rapido, .etapa, .grupo-vertente, .cartao-missao, .convite-mentor, .opcoes-avancadas, .indicacao-diagnostico, .demonstracao-diagnostico, .cartao-perfil, .portfolio-analista, .registro-missao, .resumo-local, .rota-catalogo, .papel-mentor'],
       ['divisor', 'table th, table td, .itsm-nota'],
       ['controle', 'button, input:not([type=hidden]), select, textarea, summary'],
     ]

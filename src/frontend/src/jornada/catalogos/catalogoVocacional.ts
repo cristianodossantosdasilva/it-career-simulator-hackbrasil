@@ -1,16 +1,16 @@
 /**
- * Conteúdo do Início e do Check-in. Tudo aqui é texto escrito e estático: sem rede, sem IA, sem motor,
- * sem Event Store e sem Juiz 360º. O Comandante explica e encaminha; quem avalia o aluno é o motor
+ * Conteúdo do Início e do Diagnóstico. Tudo aqui é texto escrito e estático: sem rede, sem IA, sem motor,
+ * sem Event Store e sem Juiz 360º. O Mentor explica e encaminha; quem avalia o aluno é o motor
  * determinístico do backend.
  *
  * Os textos de apresentação (`TEXTOS_HOME`, `JORNADA`, `RESPOSTAS_FOCO`) vêm do catálogo da home
- * vocacional. O roteiro do check-in é novo e soma pontos fixos por resposta.
+ * vocacional. O roteiro do diagnóstico é novo e soma pontos fixos por resposta.
  */
-import type { PerguntaCheckIn as IdPerguntaCheckIn } from '../armazenamento/cartaoEmbarque'
+import type { PerguntaDiagnostico as IdPerguntaDiagnostico } from '../armazenamento/cartaoPerfil'
 import type { IdRota } from './catalogoRotas'
 
 export const TEXTOS_HOME = {
-  marca: 'IT Flight Simulator',
+  marca: 'IT Career Simulator',
   contexto: 'Aurora Logística, empresa fictícia com dados sintéticos',
   titulo: 'Descubra uma profissão fazendo o trabalho',
   lead:
@@ -54,7 +54,7 @@ export const JORNADA: readonly PassoJornada[] = [
     id: 'orientacao',
     titulo: 'Receber orientação',
     texto:
-      'Revise suas decisões na Caixa-preta. O Juiz 360º avalia por critérios observáveis e o Brevê registra o que você fez.',
+      'Revise suas decisões na Revisão. O Juiz 360º avalia por critérios observáveis e o Portfólio registra o que você fez.',
   },
   {
     id: 'decidir',
@@ -87,29 +87,29 @@ export const PERGUNTA_FOCO: PerguntaDemonstracao = {
 
 export const RESPOSTAS_FOCO: Readonly<Record<string, string>> = {
   rotina:
-    'Em Suporte Técnico você recebe pedidos de usuários, confere a política da empresa, investiga com cuidado e registra o que fez. Na Cabine isso acontece em um chamado simulado da Aurora Logística.',
+    'Em Suporte Técnico você recebe pedidos de usuários, confere a política da empresa, investiga com cuidado e registra o que fez. Na Mesa de Trabalho isso acontece em um chamado simulado da Aurora Logística.',
   competencias:
     'A experiência exercita a leitura do chamado, a comunicação com o usuário, a verificação de identidade, a investigação antes de alterar qualquer coisa e o registro claro do que foi feito.',
   avaliacao:
-    'Ao final do voo você vê a linha do tempo das suas decisões e a avaliação por critérios. Quem avalia é o Juiz 360º da plataforma, não este guia.',
+    'Ao final da missão você vê a linha do tempo das suas decisões e a avaliação por critérios. Quem avalia é o Juiz 360º da plataforma, não este guia.',
 }
 
-/** Versão gravada no Cartão_de_Embarque. Muda quando perguntas, opções ou pesos mudam. */
-export const VERSAO_ROTEIRO = 'checkin-v1'
+/** Versão gravada no Cartão_de_Perfil. Muda quando perguntas, opções ou pesos mudam. */
+export const VERSAO_ROTEIRO = 'diagnostico-v1'
 
-export interface OpcaoCheckIn {
+export interface OpcaoDiagnostico {
   id: string
   rotulo: string
   pesos: Partial<Record<IdRota, number>>
 }
 
 export interface PerguntaRoteiro {
-  id: IdPerguntaCheckIn
+  id: IdPerguntaDiagnostico
   enunciado: string
-  opcoes: readonly OpcaoCheckIn[]
+  opcoes: readonly OpcaoDiagnostico[]
 }
 
-export const ROTEIRO_CHECKIN: { versao: string; perguntas: readonly PerguntaRoteiro[] } = {
+export const ROTEIRO_DIAGNOSTICO: { versao: string; perguntas: readonly PerguntaRoteiro[] } = {
   versao: VERSAO_ROTEIRO,
   perguntas: [
     {
@@ -164,16 +164,16 @@ export const ROTEIRO_CHECKIN: { versao: string; perguntas: readonly PerguntaRote
 }
 
 /**
- * Check-in_Rápido: respostas padrão que indicam Suporte de TI, a rota disponível. Os identificadores
- * existem em ROTEIRO_CHECKIN. Quem confirma não escolhe nada, e o texto abaixo diz isso.
+ * Diagnóstico_Rápido: respostas padrão que indicam Suporte de TI, a rota disponível. Os identificadores
+ * existem em ROTEIRO_DIAGNOSTICO. Quem confirma não escolhe nada, e o texto abaixo diz isso.
  */
-export const CHECKIN_RAPIDO: {
-  respostas: Readonly<Record<IdPerguntaCheckIn, string>>
+export const DIAGNOSTICO_RAPIDO: {
+  respostas: Readonly<Record<IdPerguntaDiagnostico, string>>
   explicacao: string
 } = {
   respostas: { interesse: 'ajudar-pessoas', situacao: 'perguntar-o-que-aparece', ritmo: 'praticar' },
   explicacao:
-    'O check-in rápido usa as respostas padrão abaixo para levar você a um voo em um passo. Você pode refazer o check-in completo quando quiser, e o cartão novo substitui este.',
+    'O diagnóstico rápido usa as respostas padrão abaixo para levar você a uma missão em um passo. Você pode refazer o diagnóstico completo quando quiser, e o cartão novo substitui este.',
 }
 
 /** Texto fixo por rota, o começo da justificativa da indicação. */
@@ -188,8 +188,8 @@ export const JUSTIFICATIVAS: Readonly<Record<IdRota, string>> = {
 
 /** Complemento da justificativa conforme o ritmo escolhido. */
 export const TEXTOS_RITMO: Readonly<Record<'estudar' | 'praticar', string>> = {
-  estudar: 'Você prefere estudar antes: as Aulas ajudam a se preparar e o Plano de voo espera por você.',
-  praticar: 'Você prefere ir direto ao chamado: o Plano de voo mostra a primeira missão da rota.',
+  estudar: 'Você prefere estudar antes: as Aulas ajudam a se preparar e o Plano de Carreira espera por você.',
+  praticar: 'Você prefere ir direto ao chamado: o Plano de Carreira mostra a primeira missão da rota.',
 }
 
 export const TEXTO_REGRA_INDICACAO = 'A indicação soma pontos fixos por resposta. Não usa IA e não avalia você.'
@@ -198,14 +198,14 @@ export const TEXTO_PONTO_DE_PARTIDA =
   'Esta indicação é um ponto de partida. A decisão de por onde seguir continua sendo sua.'
 
 /** Rótulo da opção escolhida, ou nulo quando o identificador não existe nesta versão do roteiro. */
-export function rotuloDaResposta(pergunta: IdPerguntaCheckIn, opcaoId: string): string | null {
-  const alvo = ROTEIRO_CHECKIN.perguntas.find((item) => item.id === pergunta)
+export function rotuloDaResposta(pergunta: IdPerguntaDiagnostico, opcaoId: string): string | null {
+  const alvo = ROTEIRO_DIAGNOSTICO.perguntas.find((item) => item.id === pergunta)
   return alvo?.opcoes.find((opcao) => opcao.id === opcaoId)?.rotulo ?? null
 }
 
-/** Convite_Copiloto: bloco informativo do Plano de voo, sem formulário e sem envio de dados. */
-export const CONVITE_COPILOTO = {
-  titulo: 'Seja copiloto do projeto',
+/** Convite_Mentor: bloco informativo do Plano de Carreira, sem formulário e sem envio de dados. */
+export const CONVITE_MENTOR = {
+  titulo: 'Seja mentor do projeto',
   texto:
-    'O IT Flight Simulator procura pessoas que queiram ajudar a escrever cenários, revisar textos e testar missões. Este convite é só informativo: não há formulário e nada sai deste navegador.',
+    'O IT Career Simulator procura pessoas que queiram ajudar a escrever cenários, revisar textos e testar missões. Este convite é só informativo: não há formulário e nada sai deste navegador.',
 } as const

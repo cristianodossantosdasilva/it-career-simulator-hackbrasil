@@ -1,6 +1,6 @@
 # Contexto Oficial: Hack Brasil 2026 — Time CVE-K
 
-Este é o repositório oficial do **IT Flight Simulator — Simulador Prático de Carreira em TI**, desenvolvido pelo time **CVE-K** para competir no **Hack Brasil 2026** (https://hackbrasil.com/).
+Este é o repositório oficial do **IT Career Simulator — Simulador Prático de Carreira em TI**, desenvolvido pelo time **CVE-K** para competir no **Hack Brasil 2026** (https://hackbrasil.com/).
 
 ## 1. Time CVE-K (3 Integrantes Ativos)
 - **Cristiano dos Santos da Silva** (`LIDERANÇA`) — Cibersegurança, Cloud, Eng. Software (.NET, Python, React/TS, PostgreSQL) e IA.
@@ -27,7 +27,7 @@ Este é o repositório oficial do **IT Flight Simulator — Simulador Prático d
 ## 5. Entregáveis Obrigatórios até 30/nov 23h59
 1. Nome, frase de apresentação, descrição do projeto e trilha (`Acesso à educação`).
 2. Link do repositório público no GitHub com documentação clara e instruções de execução.
-3. Link da **demo pública oficial funcionando no ar**: `https://it-flight-simulator-hackbrasil.vercel.app` (Vercel no frontend conectado à API `it-flight-simulator-api` no Render e PostgreSQL no Neon — sem barreira de login para a banca testar; o serviço não relacionado `vitru-agent-gateway` foi preventivamente suspenso na Render com backup versionado para preservar 100% da cota gratuita durante a avaliação).
+3. Link da **demo pública oficial funcionando no ar**: `https://it-career-simulator-hackbrasil.vercel.app` (Vercel no frontend conectado à API `it-career-simulator-api` no Render e PostgreSQL no Neon — sem barreira de login para a banca testar; o serviço não relacionado `vitru-agent-gateway` foi preventivamente suspenso na Render com backup versionado para preservar 100% da cota gratuita durante a avaliação).
 4. Link de **vídeo de até 3 minutos**, acessível sem login, demonstrando o produto em funcionamento.
 
 ## 6. Critérios de Avaliação (40 pontos — peso igual 0–10 cada; mín. 20 pts)
