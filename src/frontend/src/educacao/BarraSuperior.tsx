@@ -13,7 +13,7 @@ export const ID_NAV_MAIS = 'nav-mais'
 
 interface BarraSuperiorProps {
   paginaAtual: IdPagina
-  /** Missão da missão ativo. Sem ela, o item Mesa de Trabalho não aparece. */
+  /** Missão da missão ativa. Sem ela, o item Mesa de Trabalho não aparece. */
   missaoAtiva: IdMissao | null
   /** Modo de demonstração ativo: a barra de contexto mostra o indicador em toda página. */
   modoDemonstracao?: boolean
@@ -170,7 +170,7 @@ export function BarraSuperior({
           <MenuPerfil
             estado={estado}
             xpTotal={xpTotal}
-            onMudarFoco={paginaAtual !== 'cabine' ? onMudarFoco : undefined}
+            onMudarFoco={paginaAtual !== 'mesa-de-trabalho' ? onMudarFoco : undefined}
             onAbrirCurriculo={onAbrirCurriculo}
           >
             {conteudoPerfil}

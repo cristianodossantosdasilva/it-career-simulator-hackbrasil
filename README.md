@@ -14,12 +14,12 @@ Faltam pessoas na base da área de TI: técnicos de suporte, atendentes de servi
 
 O IT Career Simulator ataca os dois pontos:
 
-- **Aprender fazendo.** Cada missão é um chamado da empresa fictícia Aurora Logística. A pessoa investiga, age, etapa e registra, como num posto de trabalho.
+- **Aprender fazendo.** Cada missão é um chamado da empresa fictícia Aurora Logística. A pessoa investiga, age, registra e confere o resultado, como num posto de trabalho.
 - **Consultoria vocacional antes da formação.** O Diagnóstico indica por onde começar, a partir de respostas curtas, e deixa a pessoa experimentar o trabalho antes de se comprometer. Isso reduz a evasão causada por escolha às cegas.
 
 ## A narrativa da missão
 
-Todo o produto usa a metáfora de uma missão. A pessoa evolui de **Passageiro** a **Copiloto** e a **Analista**: primeiro observa e faz o Diagnóstico, depois atua com apoio, e por fim conduz o atendimento sozinha.
+Todo o produto segue a progressão de carreira em TI. A pessoa evolui de **Iniciante** a **Analista Jr** e a **Analista**: primeiro observa e faz o Diagnóstico, depois atua com apoio, e por fim conduz o atendimento sozinha.
 
 O **Mentor** acompanha a missão em quatro papéis:
 
@@ -37,16 +37,16 @@ O Mentor orienta, não altera estado e não avalia. A avaliação técnica vem d
 | Rota | Página | Função |
 | --- | --- | --- |
 | `/` | Início | Apresenta a proposta e o atalho para experimentar. |
-| `/check-in` | Diagnóstico | Consultoria vocacional: respostas curtas e indicação de rota. |
-| `/plano-de-voo` | Plano de Carreira | Rota indicada, etapas e modo de demonstração. |
-| `/cabine/:missao` | Mesa de Trabalho | Atendimento da missão, com ITSM, Chat, SimuDesk e Intranet. |
-| `/caixa-preta/:sessao` | Caixa-preta | Replay e debrief da sessão, com o Juiz 360º. |
-| `/breve` | Portfólio | Missões registrados e acompanhamento do portfólio de analista. |
-| `/hangar` | Catálogo | Catálogo de etapas, vertentes e referências de certificação. |
+| `/diagnostico` | Diagnóstico | Consultoria vocacional: respostas curtas e indicação de rota. |
+| `/plano-de-carreira` | Plano de Carreira | Rota indicada, etapas e modo de demonstração. |
+| `/mesa-de-trabalho/:missao` | Mesa de Trabalho | Atendimento da missão, com ITSM, Chat, SimuDesk e Intranet. |
+| `/revisao/:sessao` | Revisão | Replay e debrief da sessão, com o Juiz 360º. |
+| `/portfolio` | Portfólio | Missões registradas e acompanhamento do portfólio de analista. |
+| `/catalogo` | Catálogo | Catálogo de etapas, vertentes e referências de certificação. |
 | `/aulas` | Aulas | Microaulas por nível. |
 | `/aulas/treino` | Treino de explicação | Prática de explicar o conteúdo com as próprias palavras. |
 | `/caderno` | Caderno | Anotações e plano de estudos. |
-| `/comandante` | Mentor | Conversa com os quatro papéis do guia. |
+| `/mentor` | Mentor | Conversa com os quatro papéis do guia. |
 
 ## Etapas e cenários
 
@@ -68,7 +68,7 @@ A tabela completa, com comandos, eventos e critérios do Juiz 360º de cada caus
 
 Quem avalia não precisa fazer o Diagnóstico completo. O atalho **Experimentar**, na página Início, leva ao Diagnóstico rápido e depois à Mesa de Trabalho com a missão de demonstração (`pasta-rede-inacessivel`). O modo também pode ser ligado e desligado no Plano de Carreira.
 
-O modo libera as etapas e não conta como missão concluído. Ele não cria Registro de Missão por si só, mas uma missão concluído grava Registro de Missão, com o modo ligado ou não. O modo usa uma chave própria no navegador (`itfs_modo_demonstracao`). Os dados são sintéticos e as sessões são anônimas.
+O modo libera as etapas e não conta como missão concluída. Ele não cria Registro de Missão por si só, mas uma missão concluída grava Registro de Missão, com o modo ligado ou não. O modo usa uma chave própria no navegador (`itfs_modo_demonstracao`). Os dados são sintéticos e as sessões são anônimas.
 
 ## Arquitetura
 

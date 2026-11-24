@@ -1,17 +1,17 @@
 import { Icone } from '../../ui/Icone'
 import { BotaoExperimentar } from '../demonstracao/BotaoExperimentar'
-import { DemonstracaoCheckIn } from '../componentes/DemonstracaoCheckIn'
-import { escalaDaMissao } from '../catalogos/catalogoRotas'
+import { DemonstracaoDiagnostico } from '../componentes/DemonstracaoDiagnostico'
+import { etapaDaMissao } from '../catalogos/catalogoRotas'
 import { JORNADA, TEXTOS_HOME } from '../catalogos/catalogoVocacional'
 import { useArmazenamentoJornada } from '../contextoArmazenamentoJornada'
-import { PainelComandante } from '../comandante/PainelComandante'
+import { PainelMentor } from '../mentor/PainelMentor'
 import { LinkInterno } from '../navegacao/LinkInterno'
 import { NOME_PAGINA, enderecoDe } from '../navegacao/rotas'
 
 /** Página Início: acesso rápido para continuar missão, atalhos da jornada, demonstração e limites. */
 export function PaginaInicio() {
-  const { cartao, registros, voosAtivos } = useArmazenamentoJornada()
-  const ultimaLocal = voosAtivos.ultimaMissao ? escalaDaMissao(voosAtivos.ultimaMissao) : null
+  const { cartao, registros, missoesAtivas } = useArmazenamentoJornada()
+  const ultimaLocal = missoesAtivas.ultimaMissao ? etapaDaMissao(missoesAtivas.ultimaMissao) : null
 
   return (
     <div className="page pagina-jornada">
@@ -24,12 +24,12 @@ export function PaginaInicio() {
         {cartao ? (
           <>
             <div className="acoes-linha">
-              <LinkInterno href="/plano-de-voo" className="btn btn-primary btn-lg">
-                <Icone nome="plano-de-voo" tamanho={20} />
+              <LinkInterno href="/plano-de-carreira" className="btn btn-primary btn-lg">
+                <Icone nome="plano-de-carreira" tamanho={20} />
                 <span>Ir para o Plano de Carreira</span>
               </LinkInterno>
-              <LinkInterno href="/check-in" className="btn btn-secondary btn-lg">
-                <Icone nome="check-in" tamanho={20} />
+              <LinkInterno href="/diagnostico" className="btn btn-secondary btn-lg">
+                <Icone nome="diagnostico" tamanho={20} />
                 <span>Refazer o diagnóstico</span>
               </LinkInterno>
             </div>
@@ -39,8 +39,8 @@ export function PaginaInicio() {
           <>
             <BotaoExperimentar destaque />
             <div className="acoes-linha">
-              <LinkInterno href="/check-in" className="btn btn-secondary btn-lg">
-                <Icone nome="check-in" tamanho={20} />
+              <LinkInterno href="/diagnostico" className="btn btn-secondary btn-lg">
+                <Icone nome="diagnostico" tamanho={20} />
                 <span>Fazer o diagnóstico completo</span>
               </LinkInterno>
             </div>
@@ -58,12 +58,12 @@ export function PaginaInicio() {
               <p className="eyebrow">Missão em andamento</p>
               <h3 className="cartao-missao-titulo">{ultimaLocal.missao.titulo}</h3>
               <p className="muted">
-                Escala: {ultimaLocal.escala.nome} · Sessão salva neste navegador
+                Etapa: {ultimaLocal.etapa.nome} · Sessão salva neste navegador
               </p>
               <div className="acoes-linha">
                 <LinkInterno
                   href={enderecoDe({
-                    pagina: 'cabine',
+                    pagina: 'mesa-de-trabalho',
                     missao: ultimaLocal.missao.id,
                     semente: null,
                     causa: null,
@@ -71,11 +71,11 @@ export function PaginaInicio() {
                   })}
                   className="btn btn-primary"
                 >
-                  <Icone nome="embarcar" tamanho={20} />
+                  <Icone nome="iniciar" tamanho={20} />
                   <span>Continuar missão</span>
                 </LinkInterno>
-                <LinkInterno href="/plano-de-voo" className="btn btn-secondary">
-                  <Icone nome="plano-de-voo" tamanho={20} />
+                <LinkInterno href="/plano-de-carreira" className="btn btn-secondary">
+                  <Icone nome="plano-de-carreira" tamanho={20} />
                   <span>Escolher outro chamado</span>
                 </LinkInterno>
               </div>
@@ -88,8 +88,8 @@ export function PaginaInicio() {
                   : 'Seu cartão de perfil está pronto. Configure o modo Treino ou Missão no Plano de Carreira.'}
               </p>
               <div className="acoes-linha">
-                <LinkInterno href="/plano-de-voo" className="btn btn-primary">
-                  <Icone nome="embarcar" tamanho={20} />
+                <LinkInterno href="/plano-de-carreira" className="btn btn-primary">
+                  <Icone nome="iniciar" tamanho={20} />
                   <span>Configurar próxima missão</span>
                 </LinkInterno>
               </div>
@@ -104,13 +104,13 @@ export function PaginaInicio() {
         </h2>
         <div className="grade-atalhos-inicio">
           {cartao ? (
-            <LinkInterno href="/plano-de-voo" className="btn btn-secondary">
-              <Icone nome="plano-de-voo" tamanho={20} />
+            <LinkInterno href="/plano-de-carreira" className="btn btn-secondary">
+              <Icone nome="plano-de-carreira" tamanho={20} />
               <span>Configurar missão (Treino ou Missão)</span>
             </LinkInterno>
           ) : (
-            <LinkInterno href="/check-in" className="btn btn-secondary">
-              <Icone nome="check-in" tamanho={20} />
+            <LinkInterno href="/diagnostico" className="btn btn-secondary">
+              <Icone nome="diagnostico" tamanho={20} />
               <span>Iniciar Diagnóstico</span>
             </LinkInterno>
           )}
@@ -118,7 +118,7 @@ export function PaginaInicio() {
             <Icone nome="aulas" tamanho={20} />
             <span>Aulas e fundamentos</span>
           </LinkInterno>
-          <LinkInterno href="/breve" className="btn btn-secondary">
+          <LinkInterno href="/portfolio" className="btn btn-secondary">
             <Icone nome="credencial" tamanho={20} />
             <span>Portfólio e histórico</span>
           </LinkInterno>
@@ -126,7 +126,7 @@ export function PaginaInicio() {
             <Icone nome="caderno" tamanho={20} />
             <span>Caderno de estudos</span>
           </LinkInterno>
-          <LinkInterno href="/comandante" className="btn btn-secondary">
+          <LinkInterno href="/mentor" className="btn btn-secondary">
             <Icone nome="mentor" tamanho={20} />
             <span>Mentor</span>
           </LinkInterno>
@@ -145,7 +145,7 @@ export function PaginaInicio() {
         </ol>
       </section>
 
-      <DemonstracaoCheckIn />
+      <DemonstracaoDiagnostico />
 
       <section className="secao-jornada" aria-labelledby="inicio-limites">
         <h2 id="inicio-limites">{TEXTOS_HOME.limitesTitulo}</h2>
@@ -157,7 +157,7 @@ export function PaginaInicio() {
         </ul>
       </section>
 
-      <PainelComandante papel="consultor" pagina="inicio" />
+      <PainelMentor papel="consultor" pagina="inicio" />
     </div>
   )
 }

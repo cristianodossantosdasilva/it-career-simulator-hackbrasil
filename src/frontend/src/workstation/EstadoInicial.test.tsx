@@ -10,7 +10,7 @@ import {
 } from '../educacao/catalogoEducacional'
 import { abrirAplicacao, irPeloMenu, limparNavegador } from '../testes/abrirAplicacao'
 import { registroDeTeste } from '../testes/armazenamentoFalso'
-import { CHAVE_REGISTROS_VOO, serializarRegistros } from '../jornada/armazenamento/registrosVoo'
+import { CHAVE_REGISTROS_MISSAO, serializarRegistros } from '../jornada/armazenamento/registrosMissao'
 
 afterEach(() => {
   cleanup()
@@ -32,11 +32,11 @@ describe('Estado inicial do Plano de Carreira', () => {
     expect(criarSessao).not.toHaveBeenCalled()
   })
 
-  it('Primeiro Missão leva a Mesa de Trabalho da primeira missao disponivel da rota e abre a sessao', async () => {
+  it('Primeira Missão leva a Mesa de Trabalho da primeira missao disponivel da rota e abre a sessao', async () => {
     const criarSessao = espiarInicioDeSessao()
-    abrirAplicacao('/plano-de-voo')
-    fireEvent.click(screen.getByRole('button', { name: 'Iniciar primeiro missão' }))
-    expect(window.location.pathname).toBe('/cabine/reset-senha-desbloqueio')
+    abrirAplicacao('/plano-de-carreira')
+    fireEvent.click(screen.getByRole('button', { name: 'Iniciar primeira missão' }))
+    expect(window.location.pathname).toBe('/mesa-de-trabalho/reset-senha-desbloqueio')
     await waitFor(() => expect(criarSessao).toHaveBeenCalledTimes(1))
     expect(criarSessao).toHaveBeenCalledWith({ cenarioId: 'reset-senha-desbloqueio' })
   })
@@ -44,8 +44,8 @@ describe('Estado inicial do Plano de Carreira', () => {
   it('Demo rapida inicia a missao de demonstracao com semente 42 e a Causa do catalogo', async () => {
     const criarSessao = espiarInicioDeSessao()
     // A Service Desk N1 Jr só libera depois do registro da Help Desk N1.
-    window.localStorage.setItem(CHAVE_REGISTROS_VOO, serializarRegistros([registroDeTeste('reset-senha-desbloqueio', 'sessao-ajuda')]))
-    abrirAplicacao('/plano-de-voo')
+    window.localStorage.setItem(CHAVE_REGISTROS_MISSAO, serializarRegistros([registroDeTeste('reset-senha-desbloqueio', 'sessao-ajuda')]))
+    abrirAplicacao('/plano-de-carreira')
     const opcoes = screen.getByText('Opções avançadas para teste').closest('details') as HTMLDetailsElement
     opcoes.open = true
     fireEvent.click(within(opcoes).getByRole('link', { name: /Demo rápida/i }))
@@ -74,7 +74,7 @@ describe('Focus inicial da Academia', () => {
   })
 })
 
-describe('Missao 0 depois do Primeiro Missão e antes das etapas', () => {
+describe('Missao 0 depois da Primeira Missão e antes das etapas', () => {
   function secaoMissaoZero() {
     const titulo = screen.getByRole('heading', { level: 2, name: /Missão 0/i })
     const detalhes = titulo.closest('details')
@@ -85,10 +85,10 @@ describe('Missao 0 depois do Primeiro Missão e antes das etapas', () => {
     return a.compareDocumentPosition(b) === Node.DOCUMENT_POSITION_FOLLOWING
   }
 
-  it('ordem no DOM: Primeiro Missão, Missao 0, etapas, Glossario', () => {
-    abrirAplicacao('/plano-de-voo')
+  it('ordem no DOM: Primeira Missão, Missao 0, etapas, Glossario', () => {
+    abrirAplicacao('/plano-de-carreira')
     const ordem = [
-      screen.getByRole('heading', { level: 2, name: 'Iniciar primeiro missão' }),
+      screen.getByRole('heading', { level: 2, name: 'Iniciar primeira missão' }),
       screen.getByRole('heading', { level: 2, name: /Missão 0/i }),
       screen.getByRole('heading', { level: 2, name: 'Help Desk N1' }),
       screen.getByText(/Glossário rápido para iniciantes/i),
@@ -98,40 +98,40 @@ describe('Missao 0 depois do Primeiro Missão e antes das etapas', () => {
     }
   })
 
-  it('o texto de apoio diferencia a Missao 0 do Primeiro Missão', () => {
-    abrirAplicacao('/plano-de-voo')
+  it('o texto de apoio diferencia a Missao 0 da Primeira Missão', () => {
+    abrirAplicacao('/plano-de-carreira')
     expect(secaoMissaoZero()).toHaveTextContent(/dentro do chamado/i)
     expect(screen.getAllByText(/depois que ele estiver aberto/i)).toHaveLength(1)
   })
 
   it('sem progresso a Missao 0 abre aberta', () => {
-    abrirAplicacao('/plano-de-voo')
+    abrirAplicacao('/plano-de-carreira')
     expect(secaoMissaoZero().open).toBe(true)
   })
 
   it('com progresso a Missao 0 abre recolhida e a escolha manual nao e persistida', () => {
     salvarEstadoAcademia({ ...criarEstadoInicialAcademia(), lessonsDone: ['aula-qualquer'] })
-    const primeira = abrirAplicacao('/plano-de-voo')
+    const primeira = abrirAplicacao('/plano-de-carreira')
     const detalhes = secaoMissaoZero()
     expect(detalhes.open).toBe(false)
     detalhes.open = true
     primeira.unmount()
-    abrirAplicacao('/plano-de-voo')
+    abrirAplicacao('/plano-de-carreira')
     expect(secaoMissaoZero().open).toBe(false)
   })
 
-  it('a ordem de Tab percorre Primeiro Missão, Missao 0 e o primeiro Embarcar', () => {
-    abrirAplicacao('/plano-de-voo')
+  it('a ordem de Tab percorre Primeira Missão, Missao 0 e o primeiro Iniciar', () => {
+    abrirAplicacao('/plano-de-carreira')
     const alvos = Array.from(
       document.querySelectorAll<HTMLElement>('button:not([disabled]), summary, a[href], input, select, textarea'),
     )
     // Sem tabindex positivo, a ordem de Tab segue a ordem do DOM.
     expect(alvos.some((el) => el.tabIndex > 0)).toBe(false)
-    const primeiroVoo = screen.getByRole('button', { name: 'Iniciar primeiro missão' })
+    const primeiroMissao = screen.getByRole('button', { name: 'Iniciar primeira missão' })
     const resumoMissaoZero = secaoMissaoZero().querySelector('summary') as HTMLElement
-    const primeiroEmbarcar = screen.getAllByRole('link', { name: /Embarcar/ })[0]
-    expect(alvos.indexOf(primeiroVoo)).toBeGreaterThanOrEqual(0)
-    expect(alvos.indexOf(resumoMissaoZero)).toBeGreaterThan(alvos.indexOf(primeiroVoo))
-    expect(alvos.indexOf(primeiroEmbarcar)).toBeGreaterThan(alvos.indexOf(resumoMissaoZero))
+    const primeiroIniciar = screen.getAllByRole('link', { name: /Iniciar/ })[0]
+    expect(alvos.indexOf(primeiroMissao)).toBeGreaterThanOrEqual(0)
+    expect(alvos.indexOf(resumoMissaoZero)).toBeGreaterThan(alvos.indexOf(primeiroMissao))
+    expect(alvos.indexOf(primeiroIniciar)).toBeGreaterThan(alvos.indexOf(resumoMissaoZero))
   })
 })

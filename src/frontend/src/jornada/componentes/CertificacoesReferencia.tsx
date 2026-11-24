@@ -27,7 +27,7 @@ export function CertificacoesReferencia({
   return (
     <div className="certificacoes-referencia" role="group" aria-labelledby={idTitulo}>
       <Titulo id={idTitulo}>{titulo}</Titulo>
-      <p className="escala-nota">{AVISO_CERTIFICACOES}</p>
+      <p className="etapa-nota">{AVISO_CERTIFICACOES}</p>
       <ul className="lista-certificacoes">
         {itens.map((item) => (
           <li key={item.id} className="item-certificacao">

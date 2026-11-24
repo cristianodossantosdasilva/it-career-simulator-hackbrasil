@@ -15,7 +15,7 @@ function gerarModo(g: Gerador): ModoDemonstracao {
   return {
     versao: 1,
     ativo: g.inteiro(0, 1) === 1,
-    origem: g.escolher(['plano-de-voo', 'atalho-experimentar'] as const),
+    origem: g.escolher(['plano-de-carreira', 'atalho-experimentar'] as const),
     alteradoEm: gerarDataIso(g),
   }
 }
@@ -23,12 +23,12 @@ function gerarModo(g: Gerador): ModoDemonstracao {
 const MODO_ATIVO: ModoDemonstracao = {
   versao: 1,
   ativo: true,
-  origem: 'plano-de-voo',
+  origem: 'plano-de-carreira',
   alteradoEm: '2026-11-20T12:00:00.000Z',
 }
 
 describe('modoDemonstracao', () => {
-  it('Feature: jornada-de-voo, Property 6: Ida e volta do armazenamento (modo de demonstração)', () => {
+  it('Feature: jornada-de-missao, Property 6: Ida e volta do armazenamento (modo de demonstração)', () => {
     paraTodo('ida e volta do modo', gerarModo, (modo) => {
       expect(analisarModoDemonstracao(serializarModoDemonstracao(modo))).toEqual(modo)
       const armazenamento = criarArmazenamentoFalso()
@@ -38,7 +38,7 @@ describe('modoDemonstracao', () => {
     })
   })
 
-  it('Feature: jornada-de-voo, Property 7: Dado inválido é tratado como ausente (modo de demonstração)', () => {
+  it('Feature: jornada-de-missao, Property 7: Dado inválido é tratado como ausente (modo de demonstração)', () => {
     paraTodo(
       'texto arbitrário não ativa o modo',
       (g) => g.escolher([g.texto(40), JSON.stringify(g.texto(10)), '[]', 'null', '{', '{"versao":1}', '{"versao":2,"ativo":true}']),

@@ -1,11 +1,11 @@
 /**
- * Planejamento puro do Atalho_Experimentar e do Check-in_Rápido. Nada aqui lê armazenamento, chama a API
- * ou grava Registro_de_Voo: o plano só descreve o que o componente deve fazer, nesta ordem (gravar o
+ * Planejamento puro do Atalho_Experimentar e do Diagnóstico_Rápido. Nada aqui lê armazenamento, chama a API
+ * ou grava Registro_de_Missão: o plano só descreve o que o componente deve fazer, nesta ordem (gravar o
  * cartão, ativar o modo, navegar).
  */
-import type { CartaoEmbarque } from '../armazenamento/cartaoEmbarque'
+import type { CartaoPerfil } from '../armazenamento/cartaoPerfil'
 import { MISSAO_DEMONSTRACAO, rotaPorId } from '../catalogos/catalogoRotas'
-import { CHECKIN_RAPIDO, VERSAO_ROTEIRO } from '../catalogos/catalogoVocacional'
+import { DIAGNOSTICO_RAPIDO, VERSAO_ROTEIRO } from '../catalogos/catalogoVocacional'
 import { indicarRota } from '../catalogos/regrasIndicacao'
 import type { ValorArmazenamentoJornada } from '../contextoArmazenamentoJornada'
 import { navegar } from '../navegacao/navegador'
@@ -13,39 +13,39 @@ import { enderecoDe } from '../navegacao/rotas'
 
 export interface PlanoDemonstracao {
   /** Nulo: não toca no cartão. */
-  gravarCartao: CartaoEmbarque | null
+  gravarCartao: CartaoPerfil | null
   ativarModo: boolean
   destino: string
   substituirHistorico: boolean
 }
 
-const DESTINO_CHECKIN_RAPIDO = enderecoDe({ pagina: 'check-in', motivo: null, rapido: true })
+const DESTINO_DIAGNOSTICO_RAPIDO = enderecoDe({ pagina: 'diagnostico', motivo: null, rapido: true })
 const DESTINO_MISSAO_DEMONSTRACAO = enderecoDe({
-  pagina: 'cabine',
+  pagina: 'mesa-de-trabalho',
   missao: MISSAO_DEMONSTRACAO,
   semente: null,
   causa: null,
   nova: false,
 })
 
-/** Atalho_Experimentar no Início, e no Check-in_Rápido quando já existe cartão válido. Nunca grava cartão. */
-export function planejarAtalho(cartao: CartaoEmbarque | null): PlanoDemonstracao {
+/** Atalho_Experimentar no Início, e no Diagnóstico_Rápido quando já existe cartão válido. Nunca grava cartão. */
+export function planejarAtalho(cartao: CartaoPerfil | null): PlanoDemonstracao {
   if (!cartao) {
-    return { gravarCartao: null, ativarModo: false, destino: DESTINO_CHECKIN_RAPIDO, substituirHistorico: false }
+    return { gravarCartao: null, ativarModo: false, destino: DESTINO_DIAGNOSTICO_RAPIDO, substituirHistorico: false }
   }
   return { gravarCartao: null, ativarModo: true, destino: DESTINO_MISSAO_DEMONSTRACAO, substituirHistorico: false }
 }
 
-/** Conclusão do Check-in_Rápido sem cartão válido. Substitui a entrada do histórico. */
-export function planejarConclusaoCheckInRapido(agora: Date): PlanoDemonstracao {
-  const { rotaId } = indicarRota(CHECKIN_RAPIDO.respostas)
-  const cartao: CartaoEmbarque = {
+/** Conclusão do Diagnóstico_Rápido sem cartão válido. Substitui a entrada do histórico. */
+export function planejarConclusaoDiagnosticoRapido(agora: Date): PlanoDemonstracao {
+  const { rotaId } = indicarRota(DIAGNOSTICO_RAPIDO.respostas)
+  const cartao: CartaoPerfil = {
     versao: 1,
     versaoRoteiro: VERSAO_ROTEIRO,
     rotaIndicadaId: rotaId,
     rotaId,
-    primeiraEscalaId: rotaPorId(rotaId)?.escalas[0]?.id ?? '',
-    respostas: { ...CHECKIN_RAPIDO.respostas },
+    primeiraEscalaId: rotaPorId(rotaId)?.etapas[0]?.id ?? '',
+    respostas: { ...DIAGNOSTICO_RAPIDO.respostas },
     origem: 'checkin-rapido',
     emitidoEm: agora.toISOString(),
   }

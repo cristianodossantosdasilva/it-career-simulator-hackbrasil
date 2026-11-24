@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { CATALOGO_ROTAS, escalaDaMissao, missoesDaEscala } from '../jornada/catalogos/catalogoRotas'
+import { CATALOGO_ROTAS, etapaDaMissao, missoesDaEtapa } from '../jornada/catalogos/catalogoRotas'
 import {
   AI_KB,
   CARDS,
@@ -34,26 +34,26 @@ const NOMES_DA_TRILHA = [
 describe('Trilha educacional derivada do Catálogo de Rotas', () => {
   it('segue as etapas e as Vertentes do catálogo, na mesma ordem e com os mesmos nomes', () => {
     expect(LEVELS.map((nivel) => nivel.nome)).toEqual(NOMES_DA_TRILHA)
-    const esperados = ROTA.escalas.flatMap((escala) =>
-      escala.vertentes.length > 0 ? escala.vertentes.map((vertente) => vertente.id) : [escala.id],
+    const esperados = ROTA.etapas.flatMap((etapa) =>
+      etapa.vertentes.length > 0 ? etapa.vertentes.map((vertente) => vertente.id) : [etapa.id],
     )
     expect(LEVELS.map((nivel) => nivel.id)).toEqual(esperados)
   })
 
   it('para cada nível, o cenário de prática pertence à etapa (ou Vertente) de mesmo nome', () => {
     for (const nivel of LEVELS) {
-      const local = escalaDaMissao(nivel.cenarioId)
+      const local = etapaDaMissao(nivel.cenarioId)
       expect(local, nivel.id).not.toBeNull()
-      expect(local?.vertente?.nome ?? local?.escala.nome, nivel.id).toBe(nivel.nome)
+      expect(local?.vertente?.nome ?? local?.etapa.nome, nivel.id).toBe(nivel.nome)
       for (const cenarioId of nivel.cenarioIds) {
-        const doCenario = escalaDaMissao(cenarioId)
-        expect(doCenario?.vertente?.nome ?? doCenario?.escala.nome, cenarioId).toBe(nivel.nome)
+        const doCenario = etapaDaMissao(cenarioId)
+        expect(doCenario?.vertente?.nome ?? doCenario?.etapa.nome, cenarioId).toBe(nivel.nome)
       }
     }
   })
 
   it('cada Missão do catálogo pertence a exatamente um nível', () => {
-    const todas = ROTA.escalas.flatMap((escala) => missoesDaEscala(escala).map((item) => item.missao.id))
+    const todas = ROTA.etapas.flatMap((etapa) => missoesDaEtapa(etapa).map((item) => item.missao.id))
     expect(todas.length).toBeGreaterThan(0)
     for (const missao of todas) {
       expect(LEVELS.filter((nivel) => nivel.cenarioIds.includes(missao)), missao).toHaveLength(1)
@@ -63,13 +63,13 @@ describe('Trilha educacional derivada do Catálogo de Rotas', () => {
   })
 
   it('a primeira aula pratica uma missão da primeira etapa', () => {
-    const primeiraEscala = ROTA.escalas[0]
+    const primeiraEtapa = ROTA.etapas[0]
     const primeiraAula = LESSONS[LEVELS[0].id][0]
     expect(primeiraAula.title).toBe('O que faz o Suporte de TI (e o que é um chamado)')
     const cenario = primeiraAula.cenarioId ?? LEVELS[0].cenarioId
     expect(cenario).toBe('reset-senha-desbloqueio')
-    expect(escalaDaMissao(cenario)?.escala.id).toBe(primeiraEscala.id)
-    expect(escalaDaMissao(cenario)?.indice).toBe(0)
+    expect(etapaDaMissao(cenario)?.etapa.id).toBe(primeiraEtapa.id)
+    expect(etapaDaMissao(cenario)?.indice).toBe(0)
   })
 
   it('toda aula pratica uma missão do próprio nível', () => {

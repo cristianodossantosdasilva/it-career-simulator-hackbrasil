@@ -1,0 +1,44 @@
+import { Icone } from '../../ui/Icone'
+import { nomeDoNivelDaMissao } from '../catalogos/catalogoRotas'
+import { useMissao } from '../contextosJornada'
+
+/**
+ * Dados do turno e botões das gavetas, no cabeçalho da Mesa de Trabalho. Sair da Mesa de Trabalho é pelo menu: a sessão
+ * continua em memória.
+ */
+export function DadosDaSessao() {
+  const { sessao, gaveta, setGaveta } = useMissao()
+  if (!sessao) return null
+  // Etapa e Vertente vêm do Catálogo de Rotas. O texto de `meta.nivel` do servidor segue a escada antiga.
+  const nomeDoNivel = nomeDoNivelDaMissao(sessao.meta.cenarioId) ?? sessao.meta.nivel
+  return (
+    <div className="barra-contexto-acoes">
+      <span className="dado-contexto hide-sm">
+        <span className="dado-contexto-rotulo">Nível</span> {nomeDoNivel}
+      </span>
+      <span className="dado-contexto">
+        <Icone nome="relogio" tamanho={16} />
+        <span className="dado-mono">{sessao.meta.minutoSimulado} min</span>
+        <span className="sr-only">de tempo simulado</span>
+      </span>
+      <button
+        type="button"
+        className="botao-contexto"
+        aria-pressed={gaveta === 'notas'}
+        onClick={() => setGaveta((atual) => (atual === 'notas' ? null : 'notas'))}
+      >
+        <Icone nome="notas" />
+        <span className="botao-contexto-texto">Minhas notas</span>
+      </button>
+      <button
+        type="button"
+        className="botao-contexto"
+        aria-pressed={gaveta === 'tutor'}
+        onClick={() => setGaveta((atual) => (atual === 'tutor' ? null : 'tutor'))}
+      >
+        <Icone nome="conversa" />
+        <span className="botao-contexto-texto">Mentor</span>
+      </button>
+    </div>
+  )
+}

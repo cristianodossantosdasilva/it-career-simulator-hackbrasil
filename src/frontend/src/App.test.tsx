@@ -25,7 +25,7 @@ describe('IT Career Simulator UI', () => {
     expect(razaoContraste('#777777', '#777777')).toBeCloseTo(1, 4)
   })
 
-  it('shell tem uma unica navegacao principal por links, sem Mesa de Trabalho sem missão ativo, e troca o tema pelo botao Aparencia', () => {
+  it('shell tem uma unica navegacao principal por links, sem Mesa de Trabalho sem missão ativa, e troca o tema pelo botao Aparencia', () => {
     abrirAplicacao('/')
     const navs = screen.getAllByRole('navigation', { name: /Navegação principal/i })
     expect(navs).toHaveLength(1)
@@ -77,7 +77,7 @@ describe('IT Career Simulator UI', () => {
   })
 
   it('a pagina tem um unico main e o link de salto aponta para ele', () => {
-    const { container } = abrirAplicacao('/plano-de-voo')
+    const { container } = abrirAplicacao('/plano-de-carreira')
     expect(container.querySelectorAll('main')).toHaveLength(1)
     expect(screen.getByRole('link', { name: 'Pular para o conteúdo' })).toHaveAttribute('href', '#conteudo-pagina')
     expect(screen.getByRole('main')).toHaveAttribute('id', 'conteudo-pagina')
@@ -116,7 +116,7 @@ describe('IT Career Simulator UI', () => {
   })
 
   it('Plano de Carreira mostra as etapas, a Missao 0 e as missoes, sem escolha livre de nivel', () => {
-    abrirAplicacao('/plano-de-voo')
+    abrirAplicacao('/plano-de-carreira')
     expect(screen.getByRole('heading', { level: 1, name: 'Plano de Carreira' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /Missão 0/i })).toBeInTheDocument()
     for (const missao of ['triagem-engenharia-social', 'pasta-rede-inacessivel', 'incidente-massivo'] as const) {
@@ -126,16 +126,16 @@ describe('IT Career Simulator UI', () => {
     expect(screen.queryByRole('button', { name: /Iniciar no Simulador/i })).not.toBeInTheDocument()
   })
 
-  it('Plano de Carreira tem o Primeiro Missão como objeto central e guarda Pomodoro, meta e plano no menu de perfil', async () => {
-    const { container } = abrirAplicacao('/plano-de-voo')
-    expect(screen.getByRole('heading', { name: 'Iniciar primeiro missão', level: 2 })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Iniciar primeiro missão' })).toBeInTheDocument()
+  it('Plano de Carreira tem o Primeira Missão como objeto central e guarda Pomodoro, meta e plano no menu de perfil', async () => {
+    const { container } = abrirAplicacao('/plano-de-carreira')
+    expect(screen.getByRole('heading', { name: 'Iniciar primeira missão', level: 2 })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Iniciar primeira missão' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Estudar antes' })).toBeInTheDocument()
-    const fluxo = screen.getByRole('list', { name: 'Fluxo do primeiro missão' })
+    const fluxo = screen.getByRole('list', { name: 'Fluxo do primeira missão' })
     expect(within(fluxo).getAllByRole('listitem').map((item) => within(item).getByRole('heading').textContent)).toEqual([
       'Estudar',
       'Praticar no Split-Screen',
-      'Revisar na Caixa-Preta',
+      'Revisar na Revisão',
     ])
     expect(screen.queryByText(/Timer de foco/i)).not.toBeInTheDocument()
     expect(screen.queryByText(/Meta semanal/i)).not.toBeInTheDocument()
@@ -152,7 +152,7 @@ describe('IT Career Simulator UI', () => {
   it('Portfólio abre pelo menu, mostra o verificador e volta ao Início', () => {
     abrirAplicacao('/')
     irPeloMenu('Portfólio')
-    expect(window.location.pathname).toBe('/breve')
+    expect(window.location.pathname).toBe('/portfolio')
     expect(within(menuPrincipal()).getByRole('link', { name: 'Portfólio' })).toHaveAttribute('aria-current', 'page')
     expect(within(menuPrincipal()).getByRole('link', { name: 'Início' })).not.toHaveAttribute('aria-current')
     expect(screen.getByRole('region', { name: /Verificador local de Currículo Vivo/i })).toBeInTheDocument()

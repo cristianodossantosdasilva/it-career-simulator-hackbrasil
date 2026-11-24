@@ -40,7 +40,7 @@ Requisito do regulamento Hack Brasil 2026: aplicação acessível publicamente p
 
 ### Como a jornada está organizada
 
-A aplicação tem endereços próprios: Início `/`, Diagnóstico `/check-in`, Plano de Carreira `/plano-de-voo`, Mesa de Trabalho `/cabine/:missao`, Caixa-preta `/caixa-preta/:sessao`, Portfólio `/breve`, Catálogo, Aulas, Treino, Caderno e Mentor. O endereço `/verificar` **não existe**: o **Verificador offline** do Currículo Vivo fica no **Portfólio**. A **Missão 0 guiada** e o **Glossário rápido** ficam no **Plano de Carreira**, não no início.
+A aplicação tem endereços próprios: Início `/`, Diagnóstico `/diagnostico`, Plano de Carreira `/plano-de-carreira`, Mesa de Trabalho `/mesa-de-trabalho/:missao`, Revisão `/revisao/:sessao`, Portfólio `/portfolio`, Catálogo `/catalogo`, Aulas, Treino, Caderno e Mentor `/mentor`. O endereço `/verificar` **não existe**: o **Verificador offline** do Currículo Vivo fica no **Portfólio**. A **Missão 0 guiada** e o **Glossário rápido** ficam no **Plano de Carreira**, não no início.
 
 Os antigos "Nível 1" a "Nível 4b" aparecem como etapas: **Help Desk N1**, **Service Desk N1 Jr**, **N2 Pleno** e **N3 Sênior**. A N3 Sênior tem três Vertentes: **N3-A Redes e Nuvem** (`sre-cloud-latencia`), **N3-B Data Center e Backup** e **N3-C Segurança e Dados**, que reúne a triagem de engenharia social (`triagem-engenharia-social`) e o diagnóstico SQL somente leitura (`diagnostico-sql-readonly`). As Aulas seguem a mesma trilha, na mesma ordem e com os mesmos nomes (seis níveis: Help Desk N1, Service Desk N1 Jr, N2 Pleno, N3-A, N3-B e N3-C). O Praticar das Aulas e da Credencial respeita o portão da Mesa de Trabalho: com a etapa bloqueada, mostra o aviso e leva ao Plano de Carreira.
 
@@ -57,13 +57,13 @@ Os antigos "Nível 1" a "Nível 4b" aparecem como etapas: **Help Desk N1**, **Se
 - **0:00 – 0:15 | Início `/`**
   - Time **CVE-K**, trilha *Acesso à educação* e o problema do primeiro emprego em TI. Produto como orientador de carreira pela prática, limites do Mentor e dados sintéticos.
   - Apontar "Refazer o diagnóstico" ou "Fazer diagnóstico" e "Experimentar uma missão agora", dizendo que o segundo é o atalho para a banca.
-- **0:15 – 0:35 | Diagnóstico `/check-in`**
+- **0:15 – 0:35 | Diagnóstico `/diagnostico`**
   - Três perguntas, uma por vez, com volta à pergunta anterior. Indicação **Suporte de TI** com a regra em tela: pontos fixos por resposta, sem IA, a decisão é do aluno.
   - Confirmar e mostrar o Cartão de Perfil.
-- **0:35 – 0:50 | Plano de Carreira `/plano-de-voo`**
+- **0:35 – 0:50 | Plano de Carreira `/plano-de-carreira`**
   - As 4 etapas: Help Desk N1 com a missão Reset de senha e desbloqueio disponível, Service Desk N1 Jr, N2 Pleno e N3 Sênior com "Bloqueada", ícone e a etapa necessária. As três Vertentes da N3 e a contagem de Causas. Certificações como referência de mercado.
   - Missão 0 guiada e Glossário rápido, que estão nesta página.
-  - Ativar "Liberar todas as etapas para demonstração": selos "Liberada para demonstração" nas 3 etapas que estavam bloqueadas, indicador na barra de contexto e o aviso de que a liberação não conta como missão concluído.
+  - Ativar "Liberar todas as etapas para demonstração": selos "Liberada para demonstração" nas 3 etapas que estavam bloqueadas, indicador na barra de contexto e o aviso de que a liberação não conta como missão concluída.
 - **0:50 – 1:10 | Mesa de Trabalho, Service Desk N1 Jr**
   - `pasta-rede-inacessivel`: validar a identidade da Maria (`AUR-1042`) no Comunicador para liberar o SimuDesk remoto, diagnosticar antes de alterar, corrigir a causa e resolver o chamado. Mentor no papel Copiloto.
 - **1:10 – 1:30 | Mesa de Trabalho, N2 Pleno**
@@ -73,9 +73,9 @@ Os antigos "Nível 1" a "Nível 4b" aparecem como etapas: **Help Desk N1**, **Se
 - **1:50 – 2:05 | Mesa de Trabalho, N3-A e N3-C**
   - `sre-cloud-latencia` (N3-A) com `kubectl` e `curl -I` devolvendo `200`.
   - `diagnostico-sql-readonly` (N3-C) com `SELECT` em `pedidos` e `pagamentos` achando `DUPLICADO` em `PED-1002` e o bloqueio *fail-closed* de escrita e injeção.
-- **2:05 – 2:30 | Caixa-preta `/caixa-preta/:sessao` e Portfólio `/breve`**
-  - Recarregar a Caixa-preta para mostrar o endereço próprio. Replay cronológico e Juiz 360º, com o Mentor no papel Mentor: "Quem avalia é o Juiz 360º da plataforma, não este guia".
-  - No Portfólio, só as missões concluídos, agrupados por etapa, e o **Verificador offline** do Currículo Vivo (JCS RFC 8785, SHA-256 e ECDSA P-256 no navegador, sem rede), incluindo a detecção de JSON adulterado.
+- **2:05 – 2:30 | Revisão `/revisao/:sessao` e Portfólio `/portfolio`**
+  - Recarregar a Revisão para mostrar o endereço próprio. Replay cronológico e Juiz 360º, com o Mentor no papel Mentor: "Quem avalia é o Juiz 360º da plataforma, não este guia".
+  - No Portfólio, só as missões concluídas, agrupadas por etapa, e o **Verificador offline** do Currículo Vivo (JCS RFC 8785, SHA-256 e ECDSA P-256 no navegador, sem rede), incluindo a detecção de JSON adulterado.
 - **2:30 – 2:50 | Arquitetura, testes e encerramento**
   - Motor determinístico com Event Sourcing em `.NET 10` e `PostgreSQL 17`, frontend em `React 19` e `TypeScript`, modo de demonstração só no navegador e sem efeito na avaliação.
   - Contagem de testes lida do CI no dia da gravação (ver a medição abaixo) e links do repositório e da demo pública (`https://it-flight-simulator-hackbrasil.vercel.app`).
@@ -86,10 +86,10 @@ Os antigos "Nível 1" a "Nível 4b" aparecem como etapas: **Help Desk N1**, **Se
 Para o texto de submissão e o README, fora do vídeo:
 
 1. Abrir a demo pública e acionar "Experimentar uma missão agora".
-2. No Diagnóstico rápido, conferir as respostas padrão e acionar "Confirmar e embarcar". A Mesa de Trabalho de `pasta-rede-inacessivel` abre com o modo de demonstração ativo.
-3. Concluir o chamado e abrir a Caixa-preta pelo link do aviso. O modo de demonstração não cria Registro de Missão por si só, mas uma missão concluído grava Registro de Missão (visível no Portfólio), com o modo ligado ou não.
-4. Ir ao Plano de Carreira: N2 Pleno e N3 Sênior já estão liberadas para perfil.
-5. Para ver os portões funcionando, desativar o controle no Plano de Carreira: as etapas voltam a seguir as missões concluídos.
+2. No Diagnóstico rápido, conferir as respostas padrão e acionar "Confirmar e iniciar". A Mesa de Trabalho de `pasta-rede-inacessivel` abre com o modo de demonstração ativo.
+3. Concluir o chamado e abrir a Revisão pelo link do aviso. O modo de demonstração não cria Registro de Missão por si só, mas uma missão concluída grava Registro de Missão (visível no Portfólio), com o modo ligado ou não.
+4. Ir ao Plano de Carreira: N2 Pleno e N3 Sênior já estão liberadas para visualização.
+5. Para ver os portões funcionando, desativar o controle no Plano de Carreira: as etapas voltam a seguir as missões concluídas.
 
 ### Testes (medição de 17/nov/2026, branch `jornada-de-voo`)
 

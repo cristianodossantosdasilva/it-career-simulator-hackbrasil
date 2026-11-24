@@ -1,7 +1,7 @@
 import { Component, type ReactNode, useEffect } from 'react'
 import { apiClient } from './api/client'
 import { BarraDaJornada } from './jornada/BarraDaJornada'
-import { useVoo } from './jornada/contextosJornada'
+import { useMissao } from './jornada/contextosJornada'
 import { useLocalAtual } from './jornada/navegacao/navegador'
 import { Roteador } from './jornada/navegacao/Roteador'
 import { renderizarPaginaJornada } from './jornada/paginas/renderizarPaginaJornada'
@@ -33,12 +33,12 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { erro: Error | n
 
 /** AppShell com a densidade derivada da missão em memória. */
 function CascaJornada({ children }: { children: ReactNode }) {
-  const { sessaoId, sessao } = useVoo()
+  const { sessaoId, sessao } = useMissao()
   const local = useLocalAtual()
   const sessaoAtiva = Boolean(sessaoId && sessao)
-  const naCabine = local.caminho.startsWith('/cabine/')
+  const naMesa = local.caminho.startsWith('/mesa-de-trabalho/')
   return (
-    <AppShell densidade={sessaoAtiva && naCabine ? 'operacional' : 'editorial'}>{children}</AppShell>
+    <AppShell densidade={sessaoAtiva && naMesa ? 'operacional' : 'editorial'}>{children}</AppShell>
   )
 }
 

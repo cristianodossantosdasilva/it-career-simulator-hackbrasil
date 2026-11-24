@@ -1,21 +1,21 @@
 import { createContext, useContext } from 'react'
-import type { CartaoEmbarque } from './armazenamento/cartaoEmbarque'
+import type { CartaoPerfil } from './armazenamento/cartaoPerfil'
 import type { OrigemModoDemonstracao } from './armazenamento/modoDemonstracao'
-import type { RegistroDeVoo } from './armazenamento/registrosVoo'
-import type { VoosAtivos } from './armazenamento/voosAtivos'
+import type { RegistroDeMissao } from './armazenamento/registrosMissao'
+import type { MissoesAtivas } from './armazenamento/missoesAtivas'
 import type { IdMissao } from './catalogos/catalogoRotas'
 export const AVISO_FALHA_GRAVACAO =
   'Não foi possível guardar neste navegador. Você pode continuar, mas o Portfólio não vai lembrar desta missão.'
 
 export interface ValorArmazenamentoJornada {
-  cartao: CartaoEmbarque | null
-  registros: readonly RegistroDeVoo[]
-  voosAtivos: VoosAtivos
+  cartao: CartaoPerfil | null
+  registros: readonly RegistroDeMissao[]
+  missoesAtivas: MissoesAtivas
   /** Grava o cartão sem tocar nos registros. O valor novo vale em memória mesmo se a gravação falhar. */
-  definirCartao: (cartao: CartaoEmbarque) => boolean
+  definirCartao: (cartao: CartaoPerfil) => boolean
   /** Idempotente por `sessaoId`. */
-  registrarVoo: (registro: RegistroDeVoo) => boolean
-  registrarVooAtivo: (missao: IdMissao, sessaoId: string) => boolean
+  registrarMissao: (registro: RegistroDeMissao) => boolean
+  registrarMissaoAtiva: (missao: IdMissao, sessaoId: string) => boolean
   /** Modo_de_Demonstração lido uma vez. Inativo em qualquer falha de leitura. */
   modoDemonstracao: boolean
   /**
@@ -26,7 +26,7 @@ export interface ValorArmazenamentoJornada {
   /** O Roteador registra aqui a região viva; devolve a função que desfaz o registro. */
   registrarAnunciador: (anunciar: (texto: string) => void) => () => void
   /** Leitura síncrona do valor mais recente, para quem está fora do ciclo de renderização. */
-  lerVoosAtivosAtuais: () => VoosAtivos
+  lerMissoesAtivasAtuais: () => MissoesAtivas
   /** Aviso não bloqueante da última gravação que falhou. Nulo quando tudo foi guardado. */
   avisoGravacao: string | null
   dispensarAvisoGravacao: () => void

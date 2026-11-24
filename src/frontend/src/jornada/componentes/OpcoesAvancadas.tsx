@@ -1,9 +1,9 @@
 import { useId, useState } from 'react'
 import { Icone } from '../../ui/Icone'
-import { MISSAO_DEMONSTRACAO, escalaDaMissao } from '../catalogos/catalogoRotas'
+import { MISSAO_DEMONSTRACAO, etapaDaMissao } from '../catalogos/catalogoRotas'
 import { LinkInterno } from '../navegacao/LinkInterno'
 import { enderecoDe } from '../navegacao/rotas'
-import type { VisaoEscala } from '../progressoRota'
+import type { VisaoEtapa } from '../progressoRota'
 import { textosDaMissao } from './textosDaMissao'
 
 /** Semente da demo rápida, a mesma que o laboratório usava antes da jornada. */
@@ -11,9 +11,9 @@ export const SEMENTE_DEMO_RAPIDA = 42
 
 const PADRAO_SEMENTE = /^\d{1,15}$/
 
-function visaoDaMissao(visoes: readonly VisaoEscala[], id: string) {
-  for (const escala of visoes) {
-    for (const grupo of escala.grupos) {
+function visaoDaMissao(visoes: readonly VisaoEtapa[], id: string) {
+  for (const etapa of visoes) {
+    for (const grupo of etapa.grupos) {
       const achada = grupo.missoes.find((missao) => missao.missao === id)
       if (achada) return achada
     }
@@ -22,18 +22,18 @@ function visaoDaMissao(visoes: readonly VisaoEscala[], id: string) {
 }
 
 /**
- * Semente e demo rápida como links para a Mesa de Trabalho. Cada link passa pelos mesmos portões do Embarcar:
+ * Semente e demo rápida como links para a Mesa de Trabalho. Cada link passa pelos mesmos portões do Iniciar:
  * etapa bloqueada ou Missão em preparação não ganham link aqui. A Causa da demo rápida sai do catálogo.
  */
-export function OpcoesAvancadas({ visoes }: { visoes: readonly VisaoEscala[] }) {
+export function OpcoesAvancadas({ visoes }: { visoes: readonly VisaoEtapa[] }) {
   const idSemente = useId()
   const idApoio = useId()
   const [semente, setSemente] = useState('')
   const sementeValida = PADRAO_SEMENTE.test(semente) ? Number(semente) : null
   const demonstracao = visaoDaMissao(visoes, MISSAO_DEMONSTRACAO)
-  const causaDemo = escalaDaMissao(MISSAO_DEMONSTRACAO)?.missao.causas.find((causa) => causa.status === 'disponivel')
-  const embarcaveis = visoes.flatMap((escala) =>
-    escala.grupos.flatMap((grupo) => grupo.missoes.filter((missao) => missao.podeEmbarcar)),
+  const causaDemo = etapaDaMissao(MISSAO_DEMONSTRACAO)?.missao.causas.find((causa) => causa.status === 'disponivel')
+  const iniciaveis = visoes.flatMap((etapa) =>
+    etapa.grupos.flatMap((grupo) => grupo.missoes.filter((missao) => missao.podeIniciar)),
   )
   return (
     <details className="opcoes-avancadas">
@@ -43,11 +43,11 @@ export function OpcoesAvancadas({ visoes }: { visoes: readonly VisaoEscala[] }) 
           Para repetir um defeito já visto ou treinar um cenário conhecido. O servidor pode recusar estes parâmetros, e o
           aviso aparece na Mesa de Trabalho.
         </p>
-        {demonstracao?.podeEmbarcar && causaDemo ? (
+        {demonstracao?.podeIniciar && causaDemo ? (
           <p>
             <LinkInterno
               href={enderecoDe({
-                pagina: 'cabine',
+                pagina: 'mesa-de-trabalho',
                 missao: MISSAO_DEMONSTRACAO,
                 semente: SEMENTE_DEMO_RAPIDA,
                 causa: causaDemo.codigo,
@@ -55,7 +55,7 @@ export function OpcoesAvancadas({ visoes }: { visoes: readonly VisaoEscala[] }) 
               })}
               className="btn btn-secondary btn-sm"
             >
-              <Icone nome="embarcar" tamanho={16} />
+              <Icone nome="iniciar" tamanho={16} />
               <span>Demo rápida: semente {SEMENTE_DEMO_RAPIDA}, causa disponível</span>
             </LinkInterno>
           </p>
@@ -85,11 +85,11 @@ export function OpcoesAvancadas({ visoes }: { visoes: readonly VisaoEscala[] }) 
         </div>
         {sementeValida !== null && (
           <ul className="lista-simples">
-            {embarcaveis.map((missao) => (
+            {iniciaveis.map((missao) => (
               <li key={missao.missao}>
                 <LinkInterno
                   href={enderecoDe({
-                    pagina: 'cabine',
+                    pagina: 'mesa-de-trabalho',
                     missao: missao.missao,
                     semente: sementeValida,
                     causa: null,

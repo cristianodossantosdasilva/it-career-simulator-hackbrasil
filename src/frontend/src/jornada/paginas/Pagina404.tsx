@@ -33,8 +33,8 @@ export function Pagina404({ rota }: { rota: Rota404 }) {
           <span>Ir para o Início</span>
         </LinkInterno>
         {ofereceOPlano && (
-          <LinkInterno href="/plano-de-voo" className="btn btn-secondary">
-            <Icone nome="plano-de-voo" tamanho={20} />
+          <LinkInterno href="/plano-de-carreira" className="btn btn-secondary">
+            <Icone nome="plano-de-carreira" tamanho={20} />
             <span>Ir para o Plano de Carreira</span>
           </LinkInterno>
         )}

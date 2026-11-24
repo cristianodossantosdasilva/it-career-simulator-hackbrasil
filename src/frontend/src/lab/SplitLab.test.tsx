@@ -100,7 +100,7 @@ describe('MissionGuide', () => {
         proximoPasso="1) Assuma o chamado."
         tituloMissao="Triagem"
         onAbrirFerramenta={aoAbrir}
-        onAbrirCaixaPreta={vi.fn()}
+        onAbrirRevisao={vi.fn()}
       />,
     )
     const lista = screen.getByRole('list', { name: 'Checklist da missão' })
@@ -109,14 +109,14 @@ describe('MissionGuide', () => {
     expect(itens[0]).toHaveAttribute('aria-current', 'step')
     expect(itens[1]).not.toHaveAttribute('aria-current')
     expect(screen.getByText('1) Assuma o chamado.')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /Revisar na Caixa-Preta/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Revisar na Revisão/i })).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /Abrir ITSM/i }))
     expect(aoAbrir).toHaveBeenCalledWith('itsm')
     expect((await axe.run(container)).violations).toEqual([])
   })
 
-  it('oferece a Caixa-Preta quando todos os passos terminam', () => {
+  it('oferece a Revisão quando todos os passos terminam', () => {
     const aoAbrirReplay = vi.fn()
     const sessao = criarSessao({
       status: 'Resolvido',
@@ -129,11 +129,11 @@ describe('MissionGuide', () => {
         proximoPasso="Missão concluída."
         tituloMissao="Triagem"
         onAbrirFerramenta={vi.fn()}
-        onAbrirCaixaPreta={aoAbrirReplay}
+        onAbrirRevisao={aoAbrirReplay}
       />,
     )
     expect(screen.queryByRole('button', { name: /^Abrir / })).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /Revisar na Caixa-Preta/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Revisar na Revisão/i }))
     expect(aoAbrirReplay).toHaveBeenCalledTimes(1)
   })
 })

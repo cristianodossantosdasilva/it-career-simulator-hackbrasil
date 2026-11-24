@@ -2,27 +2,27 @@ import { BarraSuperior } from '../educacao/BarraSuperior'
 import { obterCardsParaHoje } from '../educacao/catalogoEducacional'
 import { PainelPerfilExtra } from '../workstation/PainelPerfilExtra'
 import { ehIdMissao } from './catalogos/catalogoRotas'
-import { useAcademia, useVoo } from './contextosJornada'
+import { useAcademia, useMissao } from './contextosJornada'
 import { useArmazenamentoJornada } from './contextoArmazenamentoJornada'
 import { navegar } from './navegacao/navegador'
 import { type IdPagina, enderecoDe } from './navegacao/rotas'
 
 /**
- * Barra de navegação da moldura. Reúne os dados da Academia, da missão em memória e das missões guardados
- * neste navegador. O item Mesa de Trabalho só aparece com missão ativo: sessão em memória ou última missão guardada.
+ * Barra de navegação da moldura. Reúne os dados da Academia, da missão em memória e das missões guardadas
+ * neste navegador. O item Mesa de Trabalho só aparece com missão ativa: sessão em memória ou última missão guardada.
  */
 export function BarraDaJornada({ pagina }: { pagina: IdPagina }) {
   const { estadoAcademia, atualizarEstadoAcademia, resumoCarreira, pomodoro } = useAcademia()
-  const { sessao, sessaoId } = useVoo()
-  const { voosAtivos, modoDemonstracao } = useArmazenamentoJornada()
+  const { sessao, sessaoId } = useMissao()
+  const { missoesAtivas, modoDemonstracao } = useArmazenamentoJornada()
   const cenarioEmMemoria = sessao?.meta.cenarioId
   const missaoAtiva =
-    cenarioEmMemoria && ehIdMissao(cenarioEmMemoria) ? cenarioEmMemoria : voosAtivos.ultimaMissao
+    cenarioEmMemoria && ehIdMissao(cenarioEmMemoria) ? cenarioEmMemoria : missoesAtivas.ultimaMissao
   const xpExibido = resumoCarreira ? Math.max(resumoCarreira.xpTotal, estadoAcademia.xp) : estadoAcademia.xp
   const cardsHoje = obterCardsParaHoje(estadoAcademia)
 
   function abrirCurriculo() {
-    navegar(sessaoId && pagina === 'cabine' ? enderecoDe({ pagina: 'caixa-preta', sessao: sessaoId }) : enderecoDe({ pagina: 'breve' }))
+    navegar(sessaoId && pagina === 'mesa-de-trabalho' ? enderecoDe({ pagina: 'revisao', sessao: sessaoId }) : enderecoDe({ pagina: 'portfolio' }))
   }
 
   const conteudoPerfil = ({ fechar }: { fechar: () => void }) => (

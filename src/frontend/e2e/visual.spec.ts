@@ -1,5 +1,5 @@
 import { type Locator, expect, test, type Page, type TestInfo } from '@playwright/test'
-import { CHAVE_CARTAO_EMBARQUE, serializarCartao } from '../src/jornada/armazenamento/cartaoEmbarque'
+import { CHAVE_CARTAO_PERFIL, serializarCartao } from '../src/jornada/armazenamento/cartaoPerfil'
 import { CHAVE_MODO_DEMONSTRACAO, serializarModoDemonstracao } from '../src/jornada/armazenamento/modoDemonstracao'
 import { ITENS_MENU } from '../src/jornada/catalogos/catalogoNavegacao'
 import { CARTAO_DE_TESTE } from '../src/testes/armazenamentoFalso'
@@ -30,7 +30,7 @@ const CARTAO = serializarCartao(CARTAO_DE_TESTE)
 const MODO_ATIVO = serializarModoDemonstracao({
   versao: 1,
   ativo: true,
-  origem: 'plano-de-voo',
+  origem: 'plano-de-carreira',
   alteradoEm: '2026-11-20T12:00:00.000Z',
 })
 const NOME_CONTROLE = 'Liberar todas as etapas para demonstração'
@@ -38,15 +38,15 @@ const NOME_CONTROLE = 'Liberar todas as etapas para demonstração'
 /** Páginas da jornada que abrem só com o cartão semeado, sem servidor. */
 const PAGINAS = [
   { visao: 'inicio', caminho: '/', h1: 'Início' },
-  { visao: 'check-in', caminho: '/check-in', h1: 'Diagnóstico' },
-  { visao: 'check-in-rapido', caminho: '/check-in?modo=rapido', h1: 'Diagnóstico' },
-  { visao: 'plano-de-voo', caminho: '/plano-de-voo', h1: 'Plano de Carreira' },
-  { visao: 'breve', caminho: '/breve', h1: 'Portfólio' },
-  { visao: 'hangar', caminho: '/hangar', h1: 'Catálogo' },
+  { visao: 'diagnostico', caminho: '/diagnostico', h1: 'Diagnóstico' },
+  { visao: 'diagnostico-rapido', caminho: '/diagnostico?modo=rapido', h1: 'Diagnóstico' },
+  { visao: 'plano-de-carreira', caminho: '/plano-de-carreira', h1: 'Plano de Carreira' },
+  { visao: 'portfolio', caminho: '/portfolio', h1: 'Portfólio' },
+  { visao: 'catalogo', caminho: '/catalogo', h1: 'Catálogo' },
   { visao: 'aulas', caminho: '/aulas', h1: 'Aulas' },
   { visao: 'treino', caminho: '/aulas/treino', h1: 'Treino de explicação' },
   { visao: 'caderno', caminho: '/caderno', h1: 'Caderno de estudos' },
-  { visao: 'comandante', caminho: '/comandante', h1: 'Mentor' },
+  { visao: 'mentor', caminho: '/mentor', h1: 'Mentor' },
   { visao: 'nao-encontrada', caminho: '/nao-existe', h1: 'Página não encontrada' },
 ] as const
 
@@ -54,7 +54,7 @@ const PAGINAS = [
 async function preparar(
   page: Page,
   tema: Tema,
-  chaves: Record<string, string> = { [CHAVE_CARTAO_EMBARQUE]: CARTAO },
+  chaves: Record<string, string> = { [CHAVE_CARTAO_PERFIL]: CARTAO },
   contraste: 'padrao' | 'alto' = 'padrao',
 ) {
   await page.emulateMedia({ reducedMotion: 'reduce' })
@@ -158,10 +158,10 @@ async function conferirAlvoEFoco(page: Page, alvo: Locator, nome: string) {
   expect(contorno.largura, `${nome}: largura do contorno`).toBeGreaterThanOrEqual(2)
 }
 
-/** O Replay vive na Caixa-preta, aberta pelo link da Mesa de Trabalho. */
-async function abrirCaixaPreta(page: Page) {
+/** O Replay vive na Revisão, aberta pelo link da Mesa de Trabalho. */
+async function abrirRevisao(page: Page) {
   await page.getByRole('link', { name: /Juiz 360º e Replay/i }).click()
-  await expect(page).toHaveURL(/\/caixa-preta\//)
+  await expect(page).toHaveURL(/\/revisao\//)
 }
 
 for (const tema of TEMAS) {
@@ -177,29 +177,29 @@ for (const tema of TEMAS) {
     })
 
     test('plano de carreira com o modo de demonstração ativo mostra o selo e o indicador', async ({ page }, testInfo) => {
-      await preparar(page, tema, { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
-      await abrir(page, '/plano-de-voo', 'Plano de Carreira')
+      await preparar(page, tema, { [CHAVE_CARTAO_PERFIL]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
+      await abrir(page, '/plano-de-carreira', 'Plano de Carreira')
       await expect(page.getByRole('switch', { name: NOME_CONTROLE })).toHaveAttribute('aria-checked', 'true')
       await expect(page.getByText('Liberada para demonstração', { exact: true }).first()).toBeVisible()
       await expect(page.getByRole('link', { name: 'Modo de demonstração ativo' })).toBeVisible()
-      await capturar(page, testInfo, tema, 'plano-de-voo-modo-ativo')
+      await capturar(page, testInfo, tema, 'plano-de-carreira-modo-ativo')
     })
 
-    test('mesa de trabalho: ITSM, comunicador, SimuDesk, base de conhecimento, Caixa-preta e Portfólio', async ({ page }, testInfo) => {
-      await preparar(page, tema, { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
-      await page.goto('/cabine/triagem-engenharia-social?nova=1')
+    test('mesa de trabalho: ITSM, comunicador, SimuDesk, base de conhecimento, Revisão e Portfólio', async ({ page }, testInfo) => {
+      await preparar(page, tema, { [CHAVE_CARTAO_PERFIL]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
+      await page.goto('/mesa-de-trabalho/triagem-engenharia-social?nova=1')
       await expect(page.getByRole('heading', { name: /CH-0001/i })).toBeVisible()
-      await capturar(page, testInfo, tema, 'cabine-itsm')
+      await capturar(page, testInfo, tema, 'mesa-de-trabalho-itsm')
       await page.getByRole('button', { name: /Comunicador IA/i }).click()
       await expect(page.getByRole('region', { name: 'Comunicador Corporativo' })).toBeVisible()
-      await capturar(page, testInfo, tema, 'cabine-chat')
+      await capturar(page, testInfo, tema, 'mesa-de-trabalho-chat')
       await page.getByRole('button', { name: /SimuDesk Remoto/i }).click()
       await expect(page.getByPlaceholder(T.simudesk.placeholderId)).toBeVisible()
-      await capturar(page, testInfo, tema, 'cabine-simudesk')
+      await capturar(page, testInfo, tema, 'mesa-de-trabalho-simudesk')
       await page.getByRole('button', { name: /Intranet \/ KB/i }).click()
       await expect(page.getByRole('region', { name: 'Intranet e Base de Conhecimento' })).toBeVisible()
-      await capturar(page, testInfo, tema, 'cabine-kb')
-      // Conclui o turno para que a Caixa-preta traga critérios atendidos e o selo do Currículo Vivo.
+      await capturar(page, testInfo, tema, 'mesa-de-trabalho-kb')
+      // Conclui o turno para que a Revisão traga critérios atendidos e o selo do Currículo Vivo.
       await page.getByRole('button', { name: /ITSM \/ Chamados/i }).click()
       await page.getByRole('button', { name: T.itsm.assumirChamado }).click()
       await page.getByRole('button', { name: T.itsm.consultarPolitica }).click()
@@ -211,13 +211,13 @@ for (const tema of TEMAS) {
       await page.getByRole('button', { name: T.itsm.recusarReset }).click()
       await page.getByLabel(T.itsm.notaResolucao).fill('Solicitação recusada conforme política de segurança KB-001.')
       await page.getByRole('button', { name: T.itsm.resolverChamado }).click()
-      await abrirCaixaPreta(page)
+      await abrirRevisao(page)
       await expect(page.getByText(T.replay.concluida, { exact: true })).toBeVisible()
-      await capturar(page, testInfo, tema, 'caixa-preta')
+      await capturar(page, testInfo, tema, 'revisao')
       await page.getByRole('navigation', { name: 'Navegação principal' }).getByRole('link', { name: 'Portfólio' }).click()
       await expect(page.getByRole('heading', { level: 1, name: 'Portfólio' })).toBeVisible()
       await page.getByRole('button', { name: 'Atualizar resumo' }).click()
-      await capturar(page, testInfo, tema, 'breve-com-voo')
+      await capturar(page, testInfo, tema, 'portfolio-com-missao')
     })
 
     test('painel de aparência aberto', async ({ page }, testInfo) => {
@@ -233,17 +233,17 @@ for (const tema of TEMAS) {
         !PROJETOS_COM_ALTO_CONTRASTE.includes(testInfo.project.name) || !TEMAS_COM_ALTO_CONTRASTE.includes(tema),
         'Alto contraste só em mobile-375 e desktop-1440, nos temas operacao e corporativo',
       )
-      await preparar(page, tema, { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO }, 'alto')
+      await preparar(page, tema, { [CHAVE_CARTAO_PERFIL]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO }, 'alto')
       await abrir(page, '/', 'Início')
       await capturar(page, testInfo, tema, 'inicio', 'alto')
-      await abrir(page, '/plano-de-voo', 'Plano de Carreira')
-      await capturar(page, testInfo, tema, 'plano-de-voo', 'alto')
-      await page.goto('/cabine/triagem-engenharia-social?nova=1')
+      await abrir(page, '/plano-de-carreira', 'Plano de Carreira')
+      await capturar(page, testInfo, tema, 'plano-de-carreira', 'alto')
+      await page.goto('/mesa-de-trabalho/triagem-engenharia-social?nova=1')
       await expect(page.getByRole('heading', { name: /CH-0001/i })).toBeVisible()
-      await capturar(page, testInfo, tema, 'cabine-itsm', 'alto')
+      await capturar(page, testInfo, tema, 'mesa-de-trabalho-itsm', 'alto')
       await page.getByRole('button', { name: /SimuDesk Remoto/i }).click()
       await expect(page.getByPlaceholder(T.simudesk.placeholderId)).toBeVisible()
-      await capturar(page, testInfo, tema, 'cabine-simudesk', 'alto')
+      await capturar(page, testInfo, tema, 'mesa-de-trabalho-simudesk', 'alto')
     })
   })
 }
@@ -253,10 +253,10 @@ test.describe('Regras de layout e acessibilidade', () => {
 
   test('menu: itens sem interseção e com 44 px ou mais', async ({ page }) => {
     await preparar(page, 'operacao')
-    await abrir(page, '/plano-de-voo', 'Plano de Carreira')
+    await abrir(page, '/plano-de-carreira', 'Plano de Carreira')
     const itens = page.locator('nav[aria-label="Navegação principal"] .nav-item:visible')
     // Sem missão ativo a Mesa de Trabalho não aparece. Abaixo de 768 px ficam os principais e o Mais; a partir dele, todos.
-    const semCabine = ITENS_MENU.filter((item) => item.pagina !== 'cabine')
+    const semCabine = ITENS_MENU.filter((item) => item.pagina !== 'mesa-de-trabalho')
     const celular = (page.viewportSize()?.width ?? 0) < LARGURA_MINIMA_DESKTOP
     const esperados = celular ? semCabine.filter((item) => item.grupo === 'principal').length + 1 : semCabine.length
     await expect(itens).toHaveCount(esperados)
@@ -288,12 +288,12 @@ test.describe('Regras de layout e acessibilidade', () => {
   test('menu Mais em 375 px: todos os itens ao alcance e Escape devolve o foco', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'mobile-375', 'Só no celular de 375 px')
     await preparar(page, 'operacao')
-    await abrir(page, '/plano-de-voo', 'Plano de Carreira')
+    await abrir(page, '/plano-de-carreira', 'Plano de Carreira')
     const menu = page.getByRole('navigation', { name: 'Navegação principal' })
     const botaoMais = menu.getByRole('button', { name: 'Mais' })
     await expect(botaoMais).toHaveAttribute('aria-expanded', 'false')
     // Sem missão ativo a Mesa de Trabalho não aparece: os demais itens do catálogo ficam na barra ou no Mais.
-    const itens = ITENS_MENU.filter((item) => item.pagina !== 'cabine')
+    const itens = ITENS_MENU.filter((item) => item.pagina !== 'mesa-de-trabalho')
     for (const item of itens.filter((i) => i.grupo === 'principal')) {
       await expect(menu.getByRole('link', { name: item.rotulo })).toBeVisible()
     }
@@ -313,7 +313,7 @@ test.describe('Regras de layout e acessibilidade', () => {
 
   test('interruptor do modo e atalho Experimentar: 44 px e contorno de foco visível', async ({ page }) => {
     await preparar(page, 'corporativo')
-    await abrir(page, '/plano-de-voo', 'Plano de Carreira')
+    await abrir(page, '/plano-de-carreira', 'Plano de Carreira')
     await conferirAlvoEFoco(page, page.getByRole('switch', { name: NOME_CONTROLE }), 'interruptor do modo')
     await abrir(page, '/', 'Início')
     await conferirAlvoEFoco(page, page.getByRole('button', { name: 'Atender meu primeiro chamado' }), 'atalho Experimentar')
@@ -326,7 +326,7 @@ test.describe('Regras de layout e acessibilidade', () => {
     const novaPagina = async (tema: Tema) => {
       const contexto = await browser.newContext({ viewport: { width: 640, height: 450 } })
       const nova = await contexto.newPage()
-      await preparar(nova, tema, { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
+      await preparar(nova, tema, { [CHAVE_CARTAO_PERFIL]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
       return nova
     }
     for (const tema of TEMAS) {
@@ -364,7 +364,7 @@ test.describe('Regras de layout e acessibilidade', () => {
       await page.context().close()
     }
     const page = await novaPagina('corporativo')
-    await abrir(page, '/plano-de-voo', 'Plano de Carreira')
+    await abrir(page, '/plano-de-carreira', 'Plano de Carreira')
     const controle = page.getByRole('switch', { name: NOME_CONTROLE })
     await controle.scrollIntoViewIfNeeded()
     await expect(controle).toBeVisible()
@@ -374,12 +374,12 @@ test.describe('Regras de layout e acessibilidade', () => {
     await menu.getByRole('button', { name: 'Mais' }).click()
     await expect(menu.getByRole('link', { name: 'Mentor' })).toBeVisible()
     await page.keyboard.press('Escape')
-    await capturar(page, testInfo, 'corporativo', 'zoom-200-plano-de-voo')
+    await capturar(page, testInfo, 'corporativo', 'zoom-200-plano-de-carreira')
     await page.context().close()
   })
 
   test('espaçamento entre controles irmãos por gap, sem margem', async ({ page }) => {
-    await preparar(page, 'operacao', { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
+    await preparar(page, 'operacao', { [CHAVE_CARTAO_PERFIL]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
     const defeitos: string[] = []
     for (const pagina of PAGINAS) {
       await abrir(page, pagina.caminho, pagina.h1)
@@ -453,7 +453,7 @@ test.describe('Regras de layout e acessibilidade', () => {
     }
   })
   test('movimento reduzido: nenhuma animação infinita nas páginas da jornada', async ({ page }) => {
-    await preparar(page, 'operacao', { [CHAVE_CARTAO_EMBARQUE]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
+    await preparar(page, 'operacao', { [CHAVE_CARTAO_PERFIL]: CARTAO, [CHAVE_MODO_DEMONSTRACAO]: MODO_ATIVO })
     for (const pagina of PAGINAS) {
       await abrir(page, pagina.caminho, pagina.h1)
       const infinitas = await page.evaluate(() =>

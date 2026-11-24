@@ -1,16 +1,16 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { App } from '../App'
-import { CHAVE_CARTAO_EMBARQUE, serializarCartao } from '../jornada/armazenamento/cartaoEmbarque'
+import { CHAVE_CARTAO_PERFIL, serializarCartao } from '../jornada/armazenamento/cartaoPerfil'
 import { reiniciarLocalAtual } from '../jornada/navegacao/navegador'
 import { CARTAO_DE_TESTE } from './armazenamentoFalso'
 
 /**
- * Abre o App no endereço dado. Por padrão semeia o Cartão_de_Embarque no armazenamento do navegador,
- * porque `/plano-de-voo` e `/cabine/:missao` exigem o cartão e sem ele terminam no Diagnóstico.
+ * Abre o App no endereço dado. Por padrão semeia o Cartão_de_Perfil no armazenamento do navegador,
+ * porque `/plano-de-carreira` e `/mesa-de-trabalho/:missao` exigem o cartão e sem ele terminam no Diagnóstico.
  */
 export function abrirAplicacao(endereco = '/', opcoes: { comCartao?: boolean } = {}) {
   const { comCartao = true } = opcoes
-  if (comCartao) window.localStorage.setItem(CHAVE_CARTAO_EMBARQUE, serializarCartao(CARTAO_DE_TESTE))
+  if (comCartao) window.localStorage.setItem(CHAVE_CARTAO_PERFIL, serializarCartao(CARTAO_DE_TESTE))
   window.history.replaceState(null, '', endereco)
   reiniciarLocalAtual()
   return render(<App />)

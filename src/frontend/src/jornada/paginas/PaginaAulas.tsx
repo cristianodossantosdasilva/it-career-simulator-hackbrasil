@@ -30,7 +30,7 @@ export function PaginaAulas({ rota }: { rota: RotaAulas }) {
 
   function avisoDaPratica(cenarioId: IdMissao): string | null {
     const destino = destinoDaPratica(cenarioId)
-    return destino.tipo === 'plano-de-voo' ? destino.aviso : null
+    return destino.tipo === 'plano-de-carreira' ? destino.aviso : null
   }
 
   return (

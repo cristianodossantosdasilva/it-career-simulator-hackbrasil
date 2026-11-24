@@ -1,6 +1,6 @@
-import type { CartaoEmbarque } from '../jornada/armazenamento/cartaoEmbarque'
-import type { RegistroDeVoo } from '../jornada/armazenamento/registrosVoo'
-import { type IdMissao, escalaDaMissao } from '../jornada/catalogos/catalogoRotas'
+import type { CartaoPerfil } from '../jornada/armazenamento/cartaoPerfil'
+import type { RegistroDeMissao } from '../jornada/armazenamento/registrosMissao'
+import { type IdMissao, etapaDaMissao } from '../jornada/catalogos/catalogoRotas'
 
 /** Storage em memória para testes, com contagem das gravações. */
 export interface ArmazenamentoFalso extends Storage {
@@ -41,7 +41,7 @@ export function criarArmazenamentoFalso(
   }
 }
 
-export const CARTAO_DE_TESTE: CartaoEmbarque = {
+export const CARTAO_DE_TESTE: CartaoPerfil = {
   versao: 1,
   versaoRoteiro: 'checkin-v1',
   rotaIndicadaId: 'suporte-ti',
@@ -53,8 +53,8 @@ export const CARTAO_DE_TESTE: CartaoEmbarque = {
 }
 
 /** Registro válido da missão, com etapa e Vertente do catálogo atual. */
-export function registroDeTeste(missao: IdMissao, sessaoId: string): RegistroDeVoo {
-  const local = escalaDaMissao(missao)
+export function registroDeTeste(missao: IdMissao, sessaoId: string): RegistroDeMissao {
+  const local = etapaDaMissao(missao)
   if (!local) throw new Error(`missão fora do catálogo: ${missao}`)
   return {
     versao: 1,
@@ -62,7 +62,7 @@ export function registroDeTeste(missao: IdMissao, sessaoId: string): RegistroDeV
     missao,
     versaoCenario: '1.0.0',
     rotaId: 'suporte-ti',
-    escalaId: local.escala.id,
+    escalaId: local.etapa.id,
     vertenteId: local.vertente?.id ?? null,
     concluidoEm: '2026-11-20T12:30:00.000Z',
     resultado: {

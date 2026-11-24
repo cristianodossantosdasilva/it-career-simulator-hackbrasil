@@ -32,28 +32,28 @@ afterEach(() => {
 
 describe('BarraSuperior por links', () => {
   it('marca o item da página com aria-current e mostra o nome da página na barra de contexto', () => {
-    renderizar('plano-de-voo')
+    renderizar('plano-de-carreira')
     const nav = navegacao()
     const plano = within(nav).getByRole('link', { name: 'Plano de Carreira' })
-    expect(plano).toHaveAttribute('href', '/plano-de-voo')
+    expect(plano).toHaveAttribute('href', '/plano-de-carreira')
     expect(plano).toHaveAttribute('aria-current', 'page')
     expect(plano).toHaveClass('active')
     expect(within(nav).getByRole('link', { name: 'Início' })).not.toHaveAttribute('aria-current')
     expect(document.querySelector('.barra-contexto-local')).toHaveTextContent('Plano de Carreira')
   })
 
-  it('mostra a Mesa de Trabalho só com missão ativo', () => {
+  it('mostra a Mesa de Trabalho só com missão ativa', () => {
     renderizar('inicio')
     expect(within(navegacao()).queryByRole('link', { name: 'Mesa de Trabalho' })).not.toBeInTheDocument()
     cleanup()
-    renderizar('cabine', 'incidente-massivo')
-    const cabine = within(navegacao()).getByRole('link', { name: 'Mesa de Trabalho' })
-    expect(cabine).toHaveAttribute('href', '/cabine/incidente-massivo')
-    expect(cabine).toHaveAttribute('aria-current', 'page')
+    renderizar('mesa-de-trabalho', 'incidente-massivo')
+    const mesa = within(navegacao()).getByRole('link', { name: 'Mesa de Trabalho' })
+    expect(mesa).toHaveAttribute('href', '/mesa-de-trabalho/incidente-massivo')
+    expect(mesa).toHaveAttribute('aria-current', 'page')
   })
 
   it('páginas de fluxo não marcam item', () => {
-    renderizar('check-in')
+    renderizar('diagnostico')
     expect(within(navegacao()).queryAllByRole('link').some((l) => l.hasAttribute('aria-current'))).toBe(false)
   })
 
@@ -87,7 +87,7 @@ describe('BarraSuperior por links', () => {
     act(() => {
       fireEvent.click(within(lista).getByRole('link', { name: 'Catálogo' }))
     })
-    expect(window.location.pathname).toBe('/hangar')
+    expect(window.location.pathname).toBe('/catalogo')
     expect(mais).toHaveAttribute('aria-expanded', 'false')
   })
 
@@ -99,7 +99,7 @@ describe('BarraSuperior por links', () => {
     const lista = document.getElementById('nav-mais') as HTMLElement
     expect(within(lista).getByRole('link', { name: 'Caderno' })).toHaveAttribute('aria-current', 'page')
     cleanup()
-    renderizar('breve')
+    renderizar('portfolio')
     expect(within(navegacao()).getByRole('button', { name: 'Mais' })).not.toHaveClass('active')
   })
 })

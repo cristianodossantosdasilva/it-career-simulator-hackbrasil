@@ -1,5 +1,5 @@
 import { Icone } from '../../ui/Icone'
-import { escalaDaMissao } from '../catalogos/catalogoRotas'
+import { etapaDaMissao } from '../catalogos/catalogoRotas'
 import { LinkInterno } from '../navegacao/LinkInterno'
 import { enderecoDe } from '../navegacao/rotas'
 import { type VisaoMissao, textoCausas } from '../progressoRota'
@@ -22,14 +22,14 @@ function EstadoDaMissao({ estado }: { estado: VisaoMissao['estado'] }) {
       return <SeloStatus status="disponivel" />
     case 'bloqueada':
       return (
-        <span className="escala-estado">
+        <span className="etapa-estado">
           <Icone nome="bloqueada" tamanho={16} />
           <span>Bloqueada</span>
         </span>
       )
     case 'concluida':
       return (
-        <span className="escala-estado">
+        <span className="etapa-estado">
           <Icone nome="confirmar" tamanho={16} />
           <span>Concluída</span>
         </span>
@@ -38,15 +38,15 @@ function EstadoDaMissao({ estado }: { estado: VisaoMissao['estado'] }) {
 }
 
 /**
- * Missão do Plano de Carreira. Nome, etapa, Vertente e estado em texto. O Embarcar é um link para a Mesa de Trabalho
- * sem Causa nem semente, e só existe quando `podeEmbarcar`. Missão em preparação nunca tem Embarcar.
+ * Missão do Plano de Carreira. Nome, etapa, Vertente e estado em texto. O Iniciar é um link para a Mesa de Trabalho
+ * sem Causa nem semente, e só existe quando `podeIniciar`. Missão em preparação nunca tem Iniciar.
  */
 export function CartaoMissao({ visao, nivelTitulo }: PropsCartaoMissao) {
-  const local = escalaDaMissao(visao.missao)
+  const local = etapaDaMissao(visao.missao)
   if (!local) return null
   const { titulo, descricao } = textosDaMissao(visao.missao)
   const Titulo = nivelTitulo === 3 ? 'h3' : 'h4'
-  const href = enderecoDe({ pagina: 'cabine', missao: visao.missao, semente: null, causa: null, nova: false })
+  const href = enderecoDe({ pagina: 'mesa-de-trabalho', missao: visao.missao, semente: null, causa: null, nova: false })
   const causas = textoCausas(visao.causas)
   const emPreparacao = visao.estado === 'em-preparacao'
   return (
@@ -54,7 +54,7 @@ export function CartaoMissao({ visao, nivelTitulo }: PropsCartaoMissao) {
       <Titulo className="cartao-missao-titulo">{titulo}</Titulo>
       <p className="cartao-missao-meta">
         <EstadoDaMissao estado={visao.estado} />
-        <span>Escala: {local.escala.nome}</span>
+        <span>Etapa: {local.etapa.nome}</span>
         {local.vertente && <span>Vertente: {local.vertente.nome}</span>}
       </p>
       {descricao && <p className="cartao-missao-texto">{descricao}</p>}
@@ -62,18 +62,18 @@ export function CartaoMissao({ visao, nivelTitulo }: PropsCartaoMissao) {
       {causas && <p className="cartao-missao-texto">{causas}</p>}
       {!emPreparacao && (
         <div className="cartao-missao-acoes">
-          {visao.podeEmbarcar ? (
+          {visao.podeIniciar ? (
             <LinkInterno href={href} className="btn btn-primary btn-sm">
-              <Icone nome="embarcar" tamanho={16} />
+              <Icone nome="iniciar" tamanho={16} />
               <span>
-                Embarcar<span className="sr-only"> em {titulo}</span>
+                Iniciar<span className="sr-only"> em {titulo}</span>
               </span>
             </LinkInterno>
           ) : (
             <button type="button" className="btn btn-secondary btn-sm" disabled>
               <Icone nome="bloqueada" tamanho={16} />
               <span>
-                Embarcar<span className="sr-only"> em {titulo}, bloqueada</span>
+                Iniciar<span className="sr-only"> em {titulo}, bloqueada</span>
               </span>
             </button>
           )}

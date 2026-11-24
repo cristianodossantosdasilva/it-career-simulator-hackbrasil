@@ -1,15 +1,15 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { analisarCartao, serializarCartao } from '../armazenamento/cartaoEmbarque'
+import { analisarCartao, serializarCartao } from '../armazenamento/cartaoPerfil'
 import { CATALOGO_ROTAS, rotaPorId } from './catalogoRotas'
-import { ROTEIRO_CHECKIN, TEXTOS_HOME, TEXTO_PONTO_DE_PARTIDA, VERSAO_ROTEIRO } from './catalogoVocacional'
-import { type RespostasCheckIn, indicarRota, montarCartaoDoCheckIn, rotaDeEmbarque } from './regrasIndicacao'
+import { ROTEIRO_DIAGNOSTICO, TEXTOS_HOME, TEXTO_PONTO_DE_PARTIDA, VERSAO_ROTEIRO } from './catalogoVocacional'
+import { type RespostasDiagnostico, indicarRota, montarCartaoDoDiagnostico, rotaDePerfil } from './regrasIndicacao'
 
-const [interesses, situacoes, ritmos] = ROTEIRO_CHECKIN.perguntas.map((pergunta) =>
+const [interesses, situacoes, ritmos] = ROTEIRO_DIAGNOSTICO.perguntas.map((pergunta) =>
   pergunta.opcoes.map((opcao) => opcao.id),
 )
 
 /** As 32 combinações do roteiro: 4 vezes 4 vezes 2. */
-const COMBINACOES: RespostasCheckIn[] = interesses.flatMap((interesse) =>
+const COMBINACOES: RespostasDiagnostico[] = interesses.flatMap((interesse) =>
   situacoes.flatMap((situacao) => ritmos.map((ritmo) => ({ interesse, situacao, ritmo }))),
 )
 
@@ -21,8 +21,8 @@ afterEach(() => {
 
 describe('Roteiro e catálogo vocacional', () => {
   it('tem 3 perguntas e 32 combinações', () => {
-    expect(ROTEIRO_CHECKIN.versao).toBe(VERSAO_ROTEIRO)
-    expect(ROTEIRO_CHECKIN.perguntas.map((pergunta) => pergunta.id)).toEqual(['interesse', 'situacao', 'ritmo'])
+    expect(ROTEIRO_DIAGNOSTICO.versao).toBe(VERSAO_ROTEIRO)
+    expect(ROTEIRO_DIAGNOSTICO.perguntas.map((pergunta) => pergunta.id)).toEqual(['interesse', 'situacao', 'ritmo'])
     expect(COMBINACOES).toHaveLength(32)
   })
 
@@ -33,7 +33,7 @@ describe('Roteiro e catálogo vocacional', () => {
   })
 
   it('só pesa rotas que existem no catálogo e traz os limites do guia', () => {
-    for (const pergunta of ROTEIRO_CHECKIN.perguntas) {
+    for (const pergunta of ROTEIRO_DIAGNOSTICO.perguntas) {
       for (const opcao of pergunta.opcoes) {
         for (const rotaId of Object.keys(opcao.pesos)) expect(IDS_DAS_ROTAS).toContain(rotaId)
       }
@@ -43,7 +43,7 @@ describe('Roteiro e catálogo vocacional', () => {
   })
 })
 
-describe('Feature: jornada-de-voo, Property 4: Indicação total e determinística', () => {
+describe('Feature: jornada-de-missao, Property 4: Indicação total e determinística', () => {
   it('devolve uma rota do catálogo, justificativa não vazia e o mesmo resultado em chamadas repetidas', () => {
     for (const respostas of COMBINACOES) {
       const primeira = indicarRota(respostas)
@@ -95,27 +95,27 @@ describe('Feature: jornada-de-voo, Property 4: Indicação total e determinísti
   })
 })
 
-describe('Feature: jornada-de-voo, Property 5: Cartão emitido sempre embarca em rota disponível', () => {
-  it('em todas as combinações, o cartão tem rota disponível, rota indicada e origem checkin', () => {
+describe('Feature: jornada-de-missao, Property 5: Cartão emitido sempre inicia em rota disponível', () => {
+  it('em todas as combinações, o cartão tem rota disponível, rota indicada e origem diagnostico', () => {
     for (const respostas of COMBINACOES) {
-      const cartao = montarCartaoDoCheckIn(respostas, '2026-11-20T12:00:00.000Z')
+      const cartao = montarCartaoDoDiagnostico(respostas, '2026-11-20T12:00:00.000Z')
       const indicada = indicarRota(respostas).rotaId
       expect(cartao.rotaIndicadaId, JSON.stringify(respostas)).toBe(indicada)
       expect(rotaPorId(cartao.rotaId)?.status, JSON.stringify(respostas)).toBe('disponivel')
       expect(cartao.origem).toBe('checkin')
       expect(cartao.versaoRoteiro).toBe(VERSAO_ROTEIRO)
       expect(cartao.respostas).toEqual(respostas)
-      expect(cartao.primeiraEscalaId).toBe(rotaPorId(cartao.rotaId)?.escalas[0]?.id)
+      expect(cartao.primeiraEscalaId).toBe(rotaPorId(cartao.rotaId)?.etapas[0]?.id)
       // O que é emitido precisa ser lido de volta pelo armazenamento.
       expect(analisarCartao(serializarCartao(cartao))).toEqual(cartao)
     }
   })
 
-  it('rota indicada disponível embarca nela; indisponível embarca em suporte-ti', () => {
+  it('rota indicada disponível inicia nela; indisponível inicia em suporte-ti', () => {
     for (const rota of CATALOGO_ROTAS) {
-      expect(rotaDeEmbarque(rota.id)).toBe(rota.status === 'disponivel' ? rota.id : 'suporte-ti')
+      expect(rotaDePerfil(rota.id)).toBe(rota.status === 'disponivel' ? rota.id : 'suporte-ti')
     }
-    const cartao = montarCartaoDoCheckIn(
+    const cartao = montarCartaoDoDiagnostico(
       { interesse: 'construir-programas', situacao: 'automatizar-verificacao', ritmo: 'praticar' },
       '2026-11-20T12:00:00.000Z',
     )

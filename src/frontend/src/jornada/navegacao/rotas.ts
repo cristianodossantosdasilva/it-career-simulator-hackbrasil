@@ -1,46 +1,46 @@
 import { type NivelId, LEVELS, aulaPorId } from '../../educacao/catalogoEducacional'
-import { type IdMissao, escalaDaMissao } from '../catalogos/catalogoRotas'
+import { type IdMissao, etapaDaMissao } from '../catalogos/catalogoRotas'
 
 export type IdPagina =
   | 'inicio'
-  | 'check-in'
-  | 'plano-de-voo'
-  | 'cabine'
-  | 'caixa-preta'
-  | 'breve'
-  | 'hangar'
+  | 'diagnostico'
+  | 'plano-de-carreira'
+  | 'mesa-de-trabalho'
+  | 'revisao'
+  | 'portfolio'
+  | 'catalogo'
   | 'aulas'
   | 'treino'
   | 'caderno'
-  | 'comandante'
+  | 'mentor'
   | 'nao-encontrada'
 
 export type RotaResolvida =
   | { pagina: 'inicio' }
-  | { pagina: 'check-in'; motivo: 'sem-cartao' | null; rapido: boolean }
-  | { pagina: 'plano-de-voo' }
-  | { pagina: 'cabine'; missao: IdMissao; semente: number | null; causa: string | null; nova: boolean }
-  | { pagina: 'caixa-preta'; sessao: string }
-  | { pagina: 'breve' }
-  | { pagina: 'hangar' }
+  | { pagina: 'diagnostico'; motivo: 'sem-cartao' | null; rapido: boolean }
+  | { pagina: 'plano-de-carreira' }
+  | { pagina: 'mesa-de-trabalho'; missao: IdMissao; semente: number | null; causa: string | null; nova: boolean }
+  | { pagina: 'revisao'; sessao: string }
+  | { pagina: 'portfolio' }
+  | { pagina: 'catalogo' }
   | { pagina: 'aulas'; nivel: NivelId | null; modo: 'lesson' | 'cards'; aula: string | null }
   | { pagina: 'treino' }
   | { pagina: 'caderno' }
-  | { pagina: 'comandante' }
+  | { pagina: 'mentor' }
   | { pagina: 'nao-encontrada'; caminho: string; missaoDesconhecida: string | null }
 
 export const NOME_PAGINA: Record<IdPagina, string> = {
   inicio: 'Início',
-  'check-in': 'Diagnóstico',
-  'plano-de-voo': 'Plano de Carreira',
-  cabine: 'Mesa de Trabalho',
-  'caixa-preta': 'Caixa-preta',
-  breve: 'Portfólio',
-  hangar: 'Catálogo',
+  'diagnostico': 'Diagnóstico',
+  'plano-de-carreira': 'Plano de Carreira',
+  'mesa-de-trabalho': 'Mesa de Trabalho',
+  'revisao': 'Revisão',
+  'portfolio': 'Portfólio',
+  'catalogo': 'Catálogo',
   aulas: 'Aulas',
   treino: 'Treino de explicação',
   caderno: 'Caderno de estudos',
-  comandante: 'Mentor',
+  'mentor': 'Mentor',
   'nao-encontrada': 'Página não encontrada',
 }
 
@@ -48,15 +48,15 @@ export const PADRAO_SESSAO = /^[A-Za-z0-9-]{1,64}$/
 
 const PAGINAS_FIXAS: Record<string, RotaResolvida> = {
   '/': { pagina: 'inicio' },
-  '/plano-de-voo': { pagina: 'plano-de-voo' },
-  '/breve': { pagina: 'breve' },
-  '/hangar': { pagina: 'hangar' },
+  '/plano-de-carreira': { pagina: 'plano-de-carreira' },
+  '/portfolio': { pagina: 'portfolio' },
+  '/catalogo': { pagina: 'catalogo' },
   '/aulas/treino': { pagina: 'treino' },
   '/caderno': { pagina: 'caderno' },
-  '/comandante': { pagina: 'comandante' },
+  '/mentor': { pagina: 'mentor' },
 }
 
-/** Remove uma barra final, exceto na raiz. `/breve/` vira `/breve`. */
+/** Remove uma barra final, exceto na raiz. `/portfolio/` vira `/portfolio`. */
 export function caminhoCanonico(caminho: string): string {
   return caminho.length > 1 && caminho.endsWith('/') ? caminho.slice(0, -1) : caminho
 }
@@ -78,9 +78,9 @@ export function resolverEndereco(caminho: string, busca: string): RotaResolvida 
   const fixa = Object.hasOwn(PAGINAS_FIXAS, canonico) ? PAGINAS_FIXAS[canonico] : undefined
   if (fixa) return fixa
 
-  if (canonico === '/check-in') {
+  if (canonico === '/diagnostico') {
     return {
-      pagina: 'check-in',
+      pagina: 'diagnostico',
       motivo: parametros.get('motivo') === 'sem-cartao' ? 'sem-cartao' : null,
       rapido: parametros.get('modo') === 'rapido',
     }
@@ -96,15 +96,15 @@ export function resolverEndereco(caminho: string, busca: string): RotaResolvida 
     }
   }
 
-  const cabine = /^\/cabine\/([^/]+)$/.exec(canonico)
-  if (cabine) {
-    const identificador = cabine[1]
-    const local = escalaDaMissao(identificador)
+  const mesa = /^\/mesa-de-trabalho\/([^/]+)$/.exec(canonico)
+  if (mesa) {
+    const identificador = mesa[1]
+    const local = etapaDaMissao(identificador)
     if (!local) return { pagina: 'nao-encontrada', caminho, missaoDesconhecida: identificador }
     const causa = parametros.get('causa')
     const causaDisponivel = local.missao.causas.some((c) => c.codigo === causa && c.status === 'disponivel')
     return {
-      pagina: 'cabine',
+      pagina: 'mesa-de-trabalho',
       missao: local.missao.id,
       semente: lerSemente(parametros.get('semente')),
       causa: causaDisponivel ? causa : null,
@@ -112,9 +112,9 @@ export function resolverEndereco(caminho: string, busca: string): RotaResolvida 
     }
   }
 
-  const caixaPreta = /^\/caixa-preta\/([^/]+)$/.exec(canonico)
-  if (caixaPreta && PADRAO_SESSAO.test(caixaPreta[1])) {
-    return { pagina: 'caixa-preta', sessao: caixaPreta[1] }
+  const revisao = /^\/revisao\/([^/]+)$/.exec(canonico)
+  if (revisao && PADRAO_SESSAO.test(revisao[1])) {
+    return { pagina: 'revisao', sessao: revisao[1] }
   }
 
   return { pagina: 'nao-encontrada', caminho, missaoDesconhecida: null }
@@ -132,25 +132,25 @@ export function enderecoDe(rota: RotaResolvida): string {
   switch (rota.pagina) {
     case 'inicio':
       return '/'
-    case 'check-in':
-      return comBusca('/check-in', [
+    case 'diagnostico':
+      return comBusca('/diagnostico', [
         ['motivo', rota.motivo],
         ['modo', rota.rapido ? 'rapido' : null],
       ])
-    case 'plano-de-voo':
-      return '/plano-de-voo'
-    case 'cabine':
-      return comBusca(`/cabine/${rota.missao}`, [
+    case 'plano-de-carreira':
+      return '/plano-de-carreira'
+    case 'mesa-de-trabalho':
+      return comBusca(`/mesa-de-trabalho/${rota.missao}`, [
         ['semente', rota.semente === null ? null : String(rota.semente)],
         ['causa', rota.causa],
         ['nova', rota.nova ? '1' : null],
       ])
-    case 'caixa-preta':
-      return `/caixa-preta/${encodeURIComponent(rota.sessao)}`
-    case 'breve':
-      return '/breve'
-    case 'hangar':
-      return '/hangar'
+    case 'revisao':
+      return `/revisao/${encodeURIComponent(rota.sessao)}`
+    case 'portfolio':
+      return '/portfolio'
+    case 'catalogo':
+      return '/catalogo'
     case 'aulas':
       return comBusca('/aulas', [
         ['nivel', rota.nivel],
@@ -161,8 +161,8 @@ export function enderecoDe(rota: RotaResolvida): string {
       return '/aulas/treino'
     case 'caderno':
       return '/caderno'
-    case 'comandante':
-      return '/comandante'
+    case 'mentor':
+      return '/mentor'
     case 'nao-encontrada':
       return rota.caminho
   }

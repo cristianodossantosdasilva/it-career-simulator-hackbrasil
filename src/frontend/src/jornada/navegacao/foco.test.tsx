@@ -2,7 +2,7 @@ import '@testing-library/jest-dom/vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CARTAO_DE_TESTE, criarArmazenamentoFalso } from '../../testes/armazenamentoFalso'
-import { CHAVE_CARTAO_EMBARQUE, serializarCartao } from '../armazenamento/cartaoEmbarque'
+import { CHAVE_CARTAO_PERFIL, serializarCartao } from '../armazenamento/cartaoPerfil'
 import { ProvedorArmazenamentoJornada } from '../ProvedorArmazenamentoJornada'
 import { useAnuncioJornada } from './anuncioJornada'
 import { LinkInterno } from './LinkInterno'
@@ -21,7 +21,7 @@ function BotaoAnunciarENavegar() {
       type="button"
       onClick={() => {
         anunciar('Cartão de Perfil emitido.')
-        navegar('/plano-de-voo')
+        navegar('/plano-de-carreira')
       }}
     >
       Emitir cartão
@@ -30,12 +30,12 @@ function BotaoAnunciarENavegar() {
 }
 
 function PaginaDeTeste({ rota }: { rota: RotaResolvida }) {
-  if (rota.pagina === 'hangar') return <PaginaComErro />
+  if (rota.pagina === 'catalogo') return <PaginaComErro />
   return (
     <>
       <h1>{NOME_PAGINA[rota.pagina]}</h1>
-      <LinkInterno href="/breve">Ir para o Portfólio</LinkInterno>
-      <LinkInterno href="/hangar">Ir para o Catálogo</LinkInterno>
+      <LinkInterno href="/portfolio">Ir para o Portfólio</LinkInterno>
+      <LinkInterno href="/catalogo">Ir para o Catálogo</LinkInterno>
       <LinkInterno href="/caderno">Ir para o Caderno</LinkInterno>
       <BotaoAnunciarENavegar />
     </>
@@ -44,7 +44,7 @@ function PaginaDeTeste({ rota }: { rota: RotaResolvida }) {
 
 function renderizar() {
   // Cartão semeado: o Plano de Carreira, destino do anúncio, passa pelo portão de cartão.
-  const armazenamento = criarArmazenamentoFalso({ [CHAVE_CARTAO_EMBARQUE]: serializarCartao(CARTAO_DE_TESTE) })
+  const armazenamento = criarArmazenamentoFalso({ [CHAVE_CARTAO_PERFIL]: serializarCartao(CARTAO_DE_TESTE) })
   return render(
     <ProvedorArmazenamentoJornada armazenamento={armazenamento}>
       <Roteador renderizarPagina={(rota) => <PaginaDeTeste rota={rota} />} />
@@ -81,10 +81,10 @@ describe('Roteador, foco e região viva', () => {
   })
 
   it('reescreve a barra final sem contar como navegação', () => {
-    window.history.replaceState(null, '', '/breve/')
+    window.history.replaceState(null, '', '/portfolio/')
     reiniciarLocalAtual()
     renderizar()
-    expect(window.location.pathname).toBe('/breve')
+    expect(window.location.pathname).toBe('/portfolio')
     expect(screen.getByRole('heading', { level: 1, name: 'Portfólio' })).not.toHaveFocus()
   })
 

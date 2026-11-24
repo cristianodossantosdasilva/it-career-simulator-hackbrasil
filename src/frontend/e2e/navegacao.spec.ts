@@ -1,5 +1,5 @@
 import { type Locator, type Page, expect, test } from '@playwright/test'
-import { CHAVE_CARTAO_EMBARQUE, serializarCartao } from '../src/jornada/armazenamento/cartaoEmbarque'
+import { CHAVE_CARTAO_PERFIL, serializarCartao } from '../src/jornada/armazenamento/cartaoPerfil'
 import { CARTAO_DE_TESTE } from '../src/testes/armazenamentoFalso'
 
 const CHAVE_VOOS_ATIVOS = 'itfs_voos_ativos'
@@ -7,7 +7,7 @@ const MISSAO_LIBERADA_SEM_REGISTROS = 'reset-senha-desbloqueio'
 
 /** Semeia o Cartão_de_Embarque antes de cada carga da página, sem sobrescrever o que a aplicação gravou. */
 async function semearCartao(page: Page) {
-  const entrada = { chave: CHAVE_CARTAO_EMBARQUE, texto: serializarCartao(CARTAO_DE_TESTE) }
+  const entrada = { chave: CHAVE_CARTAO_PERFIL, texto: serializarCartao(CARTAO_DE_TESTE) }
   await page.addInitScript(({ chave, texto }) => {
     if (!window.localStorage.getItem(chave)) window.localStorage.setItem(chave, texto)
   }, entrada)
@@ -64,25 +64,25 @@ async function ativarPorTeclado(page: Page, alvo: Locator) {
 }
 
 const ITENS_DO_MENU = [
-  { nome: 'Plano de Carreira', caminho: '/plano-de-voo' },
-  { nome: 'Portfólio', caminho: '/breve' },
-  { nome: 'Catálogo', caminho: '/hangar' },
+  { nome: 'Plano de Carreira', caminho: '/plano-de-carreira' },
+  { nome: 'Portfólio', caminho: '/portfolio' },
+  { nome: 'Catálogo', caminho: '/catalogo' },
   { nome: 'Aulas', caminho: '/aulas' },
   { nome: 'Caderno', caminho: '/caderno' },
-  { nome: 'Mentor', caminho: '/comandante' },
+  { nome: 'Mentor', caminho: '/mentor' },
   { nome: 'Início', caminho: '/' },
 ] as const
 
 const ENDERECOS = [
   { caminho: '/', h1: 'Início' },
-  { caminho: '/check-in', h1: 'Diagnóstico' },
-  { caminho: '/plano-de-voo', h1: 'Plano de Carreira' },
-  { caminho: '/breve', h1: 'Portfólio' },
-  { caminho: '/hangar', h1: 'Catálogo' },
+  { caminho: '/diagnostico', h1: 'Diagnóstico' },
+  { caminho: '/plano-de-carreira', h1: 'Plano de Carreira' },
+  { caminho: '/portfolio', h1: 'Portfólio' },
+  { caminho: '/catalogo', h1: 'Catálogo' },
   { caminho: '/aulas', h1: 'Aulas' },
   { caminho: '/aulas/treino', h1: 'Treino de explicação' },
   { caminho: '/caderno', h1: 'Caderno de estudos' },
-  { caminho: '/comandante', h1: 'Mentor' },
+  { caminho: '/mentor', h1: 'Mentor' },
 ] as const
 
 test.describe('Navegação por endereços', () => {
@@ -109,13 +109,13 @@ test.describe('Navegação por endereços', () => {
     await menu(page).getByRole('link', { name: 'Caderno' }).click()
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Caderno de estudos')
     await page.goBack()
-    await expect(page).toHaveURL(/\/breve$/)
+    await expect(page).toHaveURL(/\/portfolio$/)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Portfólio')
     await page.goBack()
-    await expect(page).toHaveURL(/\/plano-de-voo$/)
+    await expect(page).toHaveURL(/\/plano-de-carreira$/)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Plano de Carreira')
     await page.goForward()
-    await expect(page).toHaveURL(/\/breve$/)
+    await expect(page).toHaveURL(/\/portfolio$/)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Portfólio')
   })
 
@@ -152,7 +152,7 @@ test.describe('Navegação por endereços', () => {
   })
 
   test('as três Vertentes da N3 Sênior são grupos nomeados, na ordem do catálogo', async ({ page }) => {
-    await page.goto('/plano-de-voo')
+    await page.goto('/plano-de-carreira')
     const nomes = ['N3-A Redes e Nuvem', 'N3-B Data Center e Backup', 'N3-C Segurança e Dados']
     const posicoes: number[] = []
     for (const nome of nomes) {
@@ -164,18 +164,18 @@ test.describe('Navegação por endereços', () => {
     expect([...posicoes].sort((a, b) => a - b)).toEqual(posicoes)
   })
 
-  test('/nao-existe e /mesa de trabalho/inexistente mostram a página 404', async ({ page }) => {
+  test('/nao-existe e /mesa-de-trabalho/inexistente mostram a página 404', async ({ page }) => {
     const criacoes = contarCriacoesDeSessao(page)
-    for (const caminho of ['/nao-existe', '/cabine/inexistente']) {
+    for (const caminho of ['/nao-existe', '/mesa-de-trabalho/inexistente']) {
       await page.goto(caminho)
       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Página não encontrada')
     }
     expect(criacoes()).toBe(0)
   })
 
-  test('/cabine/pasta-rede-inacessivel sem o registro da Help Desk N1 mostra o aviso da escala e não cria sessão', async ({ page }) => {
+  test('/mesa-de-trabalho/pasta-rede-inacessivel sem o registro da Help Desk N1 mostra o aviso da etapa e não cria sessão', async ({ page }) => {
     const criacoes = contarCriacoesDeSessao(page)
-    await page.goto('/cabine/pasta-rede-inacessivel')
+    await page.goto('/mesa-de-trabalho/pasta-rede-inacessivel')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Mesa de Trabalho')
     await expect(page.getByText(/A etapa Service Desk N1 Jr ainda não está liberada/)).toBeVisible()
     expect(criacoes()).toBe(0)
@@ -183,11 +183,11 @@ test.describe('Navegação por endereços', () => {
 })
 
 test.describe('Portão do cartão de perfil', () => {
-  test('sem cartão, /plano-de-voo termina em /check-in sem acrescentar uma entrada de histórico', async ({ page }) => {
+  test('sem cartão, /plano-de-carreira termina em /diagnostico sem acrescentar uma entrada de histórico', async ({ page }) => {
     await page.goto('/')
     const antes = await tamanhoDoHistorico(page)
-    await page.goto('/plano-de-voo')
-    await expect(page).toHaveURL(/\/check-in\?motivo=sem-cartao$/)
+    await page.goto('/plano-de-carreira')
+    await expect(page).toHaveURL(/\/diagnostico\?motivo=sem-cartao$/)
     expect(await tamanhoDoHistorico(page)).toBe(antes + 1)
     await expect(page.getByRole('status').filter({ hasText: /cartão/i }).first()).toBeVisible()
     await page.goBack()
@@ -199,7 +199,7 @@ test.describe('Portão do cartão de perfil', () => {
     await page.goto('/')
     const antes = await tamanhoDoHistorico(page)
     await menu(page).getByRole('link', { name: 'Plano de Carreira' }).click()
-    await expect(page).toHaveURL(/\/check-in\?motivo=sem-cartao$/)
+    await expect(page).toHaveURL(/\/diagnostico\?motivo=sem-cartao$/)
     expect(await tamanhoDoHistorico(page)).toBe(antes + 1)
     await page.goBack()
     await expect(page).toHaveURL(/\/$/)
@@ -209,7 +209,7 @@ test.describe('Portão do cartão de perfil', () => {
 test.describe('Fluxo completo com o servidor local', () => {
   test('do Diagnóstico à Mesa de Trabalho só com o teclado, sem criar sessão ao recarregar nem ao ir a Aulas', async ({ page }) => {
     const criacoes = contarCriacoesDeSessao(page)
-    await page.goto('/check-in')
+    await page.goto('/diagnostico')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Diagnóstico')
 
     await escolherPorTeclado(page, 'Ajudar pessoas com tecnologia')
@@ -220,17 +220,17 @@ test.describe('Fluxo completo com o servidor local', () => {
     await ativarPorTeclado(page, page.getByRole('button', { name: 'Ver indicação' }))
     await ativarPorTeclado(page, page.getByRole('button', { name: /Confirmar e gerar o cartão de perfil/ }))
     await ativarPorTeclado(page, page.getByRole('link', { name: /Ir para o Plano de Carreira/ }))
-    await expect(page).toHaveURL(/\/plano-de-voo$/)
+    await expect(page).toHaveURL(/\/plano-de-carreira$/)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Plano de Carreira')
     expect(criacoes()).toBe(0)
 
     const resposta = page.waitForResponse(
       (r) => r.request().method() === 'POST' && new URL(r.url()).pathname === '/api/sessoes',
     )
-    await ativarPorTeclado(page, page.getByRole('button', { name: 'Iniciar primeiro missão' }))
+    await ativarPorTeclado(page, page.getByRole('button', { name: 'Iniciar primeira missão' }))
     const criada = await resposta
     expect(criada.status(), await criada.text()).toBeLessThan(300)
-    await expect(page).toHaveURL(new RegExp(`/cabine/${MISSAO_LIBERADA_SEM_REGISTROS}$`))
+    await expect(page).toHaveURL(new RegExp(`/mesa-de-trabalho/${MISSAO_LIBERADA_SEM_REGISTROS}$`))
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Mesa de Trabalho')
     await expect(page.getByRole('heading', { name: /CH-\d+/ }).first()).toBeVisible()
     expect(criacoes()).toBe(1)
@@ -249,7 +249,7 @@ test.describe('Fluxo completo com o servidor local', () => {
     await expect(page.getByRole('heading', { name: /CH-\d+/ }).first()).toBeVisible()
     expect(criacoes()).toBe(1)
 
-    // Caixa-preta e Portfólio abrem depois de uma missão liberada sem registros anteriores.
+    // Revisão e Portfólio abrem depois de uma missão liberada sem registros anteriores.
     const sessaoId = await page.evaluate(
       ([chave, missao]) => {
         const voos = JSON.parse(window.localStorage.getItem(chave) ?? '{}') as { porMissao?: Record<string, string> }
@@ -258,8 +258,8 @@ test.describe('Fluxo completo com o servidor local', () => {
       [CHAVE_VOOS_ATIVOS, MISSAO_LIBERADA_SEM_REGISTROS] as const,
     )
     expect(sessaoId).toMatch(/^[A-Za-z0-9-]{1,64}$/)
-    await page.goto(`/caixa-preta/${sessaoId}`)
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Caixa-preta')
+    await page.goto(`/revisao/${sessaoId}`)
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Revisão')
     await menu(page).getByRole('link', { name: 'Portfólio' }).click()
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Portfólio')
     expect(criacoes()).toBe(1)

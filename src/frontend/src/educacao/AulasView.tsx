@@ -208,7 +208,7 @@ export function AulasView({
             aria-describedby={avisoDoNivel ? 'aviso-pratica-nivel' : undefined}
             onClick={() => onIniciarLaboratorio(L.cenarioId)}
           >
-            <Icone nome={avisoDoNivel ? 'plano-de-voo' : 'praticar'} tamanho={16} />
+            <Icone nome={avisoDoNivel ? 'plano-de-carreira' : 'praticar'} tamanho={16} />
             {avisoDoNivel ? 'Ver o Plano de Carreira' : 'Praticar no laboratório'}
           </button>
           {avisoDoNivel && (
@@ -466,7 +466,7 @@ export function AulasView({
                                 aria-describedby={avisoDaAula ? 'aviso-pratica-aula' : undefined}
                                 onClick={() => onIniciarLaboratorio(cenarioDaAula)}
                               >
-                                <Icone nome={avisoDaAula ? 'plano-de-voo' : 'praticar'} tamanho={16} />
+                                <Icone nome={avisoDaAula ? 'plano-de-carreira' : 'praticar'} tamanho={16} />
                                 {avisoDaAula ? 'Ver o Plano de Carreira' : 'Praticar agora'}
                               </button>
                               {avisoDaAula && (
