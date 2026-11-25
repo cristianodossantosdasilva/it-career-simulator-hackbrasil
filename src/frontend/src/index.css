@@ -783,6 +783,10 @@ a.nav-item { display: inline-flex; align-items: center; justify-content: center;
   .shell-rail-marca,
   .nav-principal-lista { flex-direction: row; align-items: stretch; height: 100%; gap: 0; }
   .nav-principal-lista > li { flex: 1 1 0; min-width: 0; display: flex; }
+  /* Cada seção pesa o número de itens visíveis no celular e a lista interna ocupa a célula inteira:
+     todos os itens da barra ficam com a mesma largura (>= 44 px) e o rótulo não é cortado. */
+  .nav-secao > .nav-principal-lista { width: 100%; }
+  .nav-secao:has(li:not(.so-desktop) + li:not(.so-desktop)) { flex-grow: 2; }
   .nav-item {
     width: 100%;
     height: var(--bottom-bar-height);
