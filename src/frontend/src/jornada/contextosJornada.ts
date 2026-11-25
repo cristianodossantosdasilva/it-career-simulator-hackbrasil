@@ -17,6 +17,8 @@ export interface PassosTriagem {
 export interface OpcoesAberturaMissao {
   semente?: number
   causa?: string
+  /** 'guiado' libera Pistas (Praticar); 'prova' é o Lab sem apoio. Padrão: guiado. */
+  modo?: 'guiado' | 'prova'
   /** Verdadeiro sempre cria uma sessão nova. */
   nova: boolean
 }

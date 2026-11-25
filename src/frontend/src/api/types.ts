@@ -3,6 +3,7 @@ export interface CriarSessaoRequest {
   versaoManifesto?: string
   causaForcada?: string
   semente?: number
+  modo?: 'guiado' | 'prova'
 }
 
 export interface CriarSessaoResponse {
@@ -75,6 +76,8 @@ export interface DialogoDto {
 }
 
 export interface SessaoProjecao {
+  /** Ausente em sessões antigas: tratar como 'prova'. */
+  modo?: 'guiado' | 'prova'
   carreira: { cargoAtual: string; xpTotal: number; missoesConcluidas: string[] }
   chamados: ChamadoDto[]
   problemas: { id: string; titulo: string; causaRaiz: string | null; resolvido: boolean; chamadosVinculados: string[] }[]

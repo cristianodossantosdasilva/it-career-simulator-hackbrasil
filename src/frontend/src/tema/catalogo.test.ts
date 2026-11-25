@@ -29,7 +29,7 @@ describe('catálogo de temas', () => {
   it('tem a ordem, os esquemas e os padrões esperados', () => {
     expect(CATALOGO_TEMAS.map((tema) => tema.id)).toEqual(['operacao', 'corporativo', 'editorial', 'acolhedor'])
     expect(CATALOGO_TEMAS.map((tema) => tema.esquema)).toEqual(['escuro', 'claro', 'escuro', 'claro'])
-    expect(TEMA_PADRAO_PRODUTO).toBe('operacao')
+    expect(TEMA_PADRAO_PRODUTO).toBe('corporativo')
     expect(TEMA_DO_TERMINAL).toBe('operacao')
   })
 

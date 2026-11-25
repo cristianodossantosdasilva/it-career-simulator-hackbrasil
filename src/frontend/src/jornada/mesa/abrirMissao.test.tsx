@@ -132,14 +132,14 @@ afterEach(() => {
 })
 
 describe('abrirMissao', () => {
-  it('em StrictMode faz um único POST /api/sessoes com corpo só com o identificador da Missão', async () => {
+  it('em StrictMode faz um único POST /api/sessoes com corpo só com o identificador da Missão e o modo guiado', async () => {
     const chamadas = simularApi({ missao: 'pasta-rede-inacessivel' })
     const armazenamento = criarArmazenamentoFalso()
     const resultados = montar('pasta-rede-inacessivel', armazenamento)
     await waitFor(() => expect(resultados.length).toBeGreaterThan(0))
     const posts = chamadas.filter((c) => c.metodo === 'POST' && c.url.endsWith('/api/sessoes'))
     expect(posts).toHaveLength(1)
-    expect(JSON.parse(posts[0].corpo ?? '')).toEqual({ cenarioId: 'pasta-rede-inacessivel' })
+    expect(JSON.parse(posts[0].corpo ?? '')).toEqual({ cenarioId: 'pasta-rede-inacessivel', modo: 'guiado' })
     expect(resultados.every((r) => r.tipo === 'pronto' && !r.retomada)).toBe(true)
     expect(lerMissoesAtivas(armazenamento).porMissao['pasta-rede-inacessivel']).toBe('sessao-nova')
     expect(JSON.parse(window.localStorage.getItem('itfs_jornada_sessoes') ?? '[]')).toEqual(['sessao-nova'])

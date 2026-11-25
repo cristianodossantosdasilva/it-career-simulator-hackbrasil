@@ -25,11 +25,11 @@ describe('aplicação no documento, exemplos', () => {
     expect(raiz.getAttribute('data-contraste')).toBe('alto')
   })
 
-  it('identificador inválido vira operacao', () => {
+  it('identificador inválido vira corporativo', () => {
     const raiz = novaRaiz()
-    expect(aplicarAparencia(raiz, 'sepia', 'padrao')).toBe('operacao')
-    expect(raiz.dataset.theme).toBe('operacao')
-    expect(raiz.classList.contains('dark')).toBe(true)
+    expect(aplicarAparencia(raiz, 'sepia', 'padrao')).toBe('corporativo')
+    expect(raiz.dataset.theme).toBe('corporativo')
+    expect(raiz.classList.contains('dark')).toBe(false)
   })
 
   it('lê o estado deixado no html', () => {
@@ -59,7 +59,7 @@ describe('aplicação no documento, propriedade', () => {
         const ultimo = sequencia[sequencia.length - 1]
         if (ultimo === undefined) return
         const valido = CATALOGO_TEMAS.find((tema) => tema.id === ultimo.tema)
-        const esperado = valido === undefined ? 'operacao' : valido.id
+        const esperado = valido === undefined ? 'corporativo' : valido.id
         expect(raiz.dataset.theme).toBe(esperado)
         const classes = raiz.className.split(/\s+/).filter((classe) => classe === 'dark')
         expect(classes).toHaveLength(obterTema(esperado).esquema === 'escuro' ? 1 : 0)

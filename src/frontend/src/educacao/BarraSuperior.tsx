@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useId, useRef, useState } from 'react'
-import { ITENS_MENU, type ItemMenu, hrefDoItem, itemAtivoDoMenu } from '../jornada/catalogos/catalogoNavegacao'
+import { ITENS_MENU, type ItemMenu, SECOES_MENU, hrefDoItem, itemAtivoDoMenu } from '../jornada/catalogos/catalogoNavegacao'
 import type { IdMissao } from '../jornada/catalogos/catalogoRotas'
 import { IndicadorModoDemonstracao } from '../jornada/demonstracao/IndicadorModoDemonstracao'
 import { LinkInterno } from '../jornada/navegacao/LinkInterno'
@@ -75,7 +75,6 @@ export function BarraSuperior({
     const href = hrefDoItem(item, { missaoAtiva })
     return href ? [{ item, href, ativo: item.id === ativo }] : []
   })
-  const principais = visiveis.filter((v) => v.item.grupo === 'principal')
   const demais = visiveis.filter((v) => v.item.grupo === 'mais')
   const maisAtivo = demais.some((v) => v.ativo)
 
@@ -110,20 +109,26 @@ export function BarraSuperior({
       <div className="shell-rail">
         <div className="shell-rail-marca" aria-hidden="true">
           <Icone nome="marca" />
+          <span className="shell-rail-marca-texto so-desktop">IT Career Simulator</span>
         </div>
         <nav className="nav-principal" aria-label="Navegação principal">
           <ul className="nav-principal-lista">
-            {principais.map((v) => (
-              <li key={v.item.id}>
-                <LinkDoMenu {...v} />
-              </li>
-            ))}
-            <li className="nav-separador so-desktop" aria-hidden="true" />
-            {demais.map((v) => (
-              <li key={v.item.id} className="so-desktop">
-                <LinkDoMenu {...v} />
-              </li>
-            ))}
+            {SECOES_MENU.map((secao) => {
+              const itensSecao = visiveis.filter((v) => v.item.secao === secao)
+              if (itensSecao.length === 0) return null
+              return (
+                <li key={secao} className="nav-secao">
+                  <p className="nav-grupo-rotulo so-desktop">{secao}</p>
+                  <ul className="nav-principal-lista">
+                    {itensSecao.map((v) => (
+                      <li key={v.item.id} className={v.item.grupo === 'mais' ? 'so-desktop' : undefined}>
+                        <LinkDoMenu {...v} />
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              )
+            })}
             <li className="so-mobile nav-mais-celula">
               <button
                 ref={botaoMaisRef}

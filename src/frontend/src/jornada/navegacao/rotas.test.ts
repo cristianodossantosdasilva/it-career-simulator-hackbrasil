@@ -184,7 +184,7 @@ describe('tituloDocumento', () => {
   // Feature: jornada-de-missao, Property 3: Título do documento
   it('compõe o nome da página com o nome do produto, sem E comercial', () => {
     const paginas = Object.keys(NOME_PAGINA) as IdPagina[]
-    expect(paginas).toHaveLength(12)
+    expect(paginas).toHaveLength(21)
     paraTodo(
       'Property 3',
       (g) => g.escolher(paginas),

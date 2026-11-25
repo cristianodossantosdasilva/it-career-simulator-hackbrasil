@@ -440,6 +440,7 @@
           "Simulador.Dominio": "[1.0.0, )",
           "Simulador.Infra": "[1.0.0, )",
           "Simulador.Itsm": "[1.0.0, )",
+          "Simulador.Teorico": "[1.0.0, )",
           "Swashbuckle.AspNetCore.SwaggerUI": "[11.0.1, )"
         }
       },
@@ -475,6 +476,9 @@
         }
       },
       "simulador.itsm": {
+        "type": "Project"
+      },
+      "simulador.teorico": {
         "type": "Project"
       }
     }

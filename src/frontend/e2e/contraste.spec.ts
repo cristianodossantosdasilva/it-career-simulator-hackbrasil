@@ -83,6 +83,13 @@ async function abrir(page: Page, tema: IdTema, contraste: Contraste, caminho: st
   await conferirAparencia(page, tema, contraste)
 }
 /** O Replay vive na Revisão, aberta pelo link da Mesa de Trabalho. */
+/** Abaixo de 768 px o Portfólio fica no menu Mais: abre-o só quando o link não está na barra. */
+async function irParaPortfolio(page: Page) {
+  const menu = page.getByRole('navigation', { name: 'Navegação principal' })
+  const link = menu.getByRole('link', { name: 'Portfólio' })
+  if (!(await link.isVisible())) await menu.getByRole('button', { name: 'Mais' }).click()
+  await link.click()
+}
 async function abrirRevisao(page: Page) {
   await page.getByRole('link', { name: /Juiz 360º e Replay/i }).click()
   await expect(page).toHaveURL(/\/revisao\//)
@@ -240,7 +247,7 @@ for (const tema of TEMAS) {
           await coletor.medir('Mesa de Trabalho: KB', 'turno concluído', kb)
           await coletor.medir('Revisão', 'turno concluído', () => abrirRevisao(page))
           await coletor.medir('Portfólio', 'turno concluído', async () => {
-            await page.getByRole('navigation', { name: 'Navegação principal' }).getByRole('link', { name: 'Portfólio' }).click()
+            await irParaPortfolio(page)
             await expect(page.getByRole('heading', { level: 1, name: 'Portfólio' })).toBeVisible()
             await page.getByRole('button', { name: 'Atualizar resumo' }).click()
           })

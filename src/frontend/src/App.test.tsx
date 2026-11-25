@@ -30,20 +30,29 @@ describe('IT Career Simulator UI', () => {
     const navs = screen.getAllByRole('navigation', { name: /Navegação principal/i })
     expect(navs).toHaveLength(1)
     const destinos = within(navs[0]).getAllByRole('link').map((link) => link.textContent?.trim())
-    expect(destinos).toEqual(['Início', 'Plano de Carreira', 'Portfólio', 'Catálogo', 'Aulas', 'Caderno', 'Mentor'])
+    expect(destinos).toEqual([
+      'Início',
+      'Carreira',
+      'Aprender',
+      'Praticar',
+      'Biblioteca',
+      'Reforço diário',
+      'Simulados',
+      'Provas',
+      'Painel',
+      'Histórico',
+      'Portfólio',
+      'Mentor',
+    ])
     expect(within(navs[0]).getByRole('link', { name: 'Início' })).toHaveAttribute('aria-current', 'page')
     expect(navs[0].textContent).not.toMatch(/\p{Extended_Pictographic}/u)
-    expect(document.documentElement.dataset.theme).toBe('operacao')
-    expect(document.documentElement.classList.contains('dark')).toBe(true)
+    expect(document.documentElement.dataset.theme).toBe('corporativo')
+    expect(document.documentElement.classList.contains('dark')).toBe(false)
     expect(screen.queryByRole('group', { name: 'Tema da interface' })).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Aparência' }))
     const grupoTema = screen.getByRole('group', { name: 'Tema' })
     const corporativo = within(grupoTema).getByRole('radio', { name: /Corporativo/ })
-    fireEvent.click(corporativo)
     expect(corporativo).toBeChecked()
-    expect(document.documentElement.dataset.theme).toBe('corporativo')
-    expect(document.documentElement.classList.contains('dark')).toBe(false)
-    expect(window.localStorage.getItem('itfs_tema')).toBe('corporativo')
     fireEvent.click(within(grupoTema).getByRole('radio', { name: /Operação/ }))
     expect(document.documentElement.dataset.theme).toBe('operacao')
     expect(document.documentElement.classList.contains('dark')).toBe(true)
@@ -64,7 +73,7 @@ describe('IT Career Simulator UI', () => {
       armazem.definirContraste(true)
     })
     const antes = document.documentElement.outerHTML.slice(0, document.documentElement.outerHTML.indexOf('>') + 1)
-    irPeloMenu('Plano de Carreira')
+    irPeloMenu('Carreira')
     irPeloMenu('Início')
     const depois = document.documentElement.outerHTML.slice(0, document.documentElement.outerHTML.indexOf('>') + 1)
     expect(depois).toBe(antes)
@@ -209,18 +218,19 @@ describe('IT Career Simulator UI', () => {
     ).toBeInTheDocument()
   })
 
-  it('navega pelos destinos Aulas, Caderno e Treino sem violacoes axe-core', async () => {
+  it('navega pelos destinos Biblioteca, Aulas, Caderno e Treino sem violacoes axe-core', async () => {
     const { container } = abrirAplicacao('/')
-    irPeloMenu('Aulas')
-    expect(within(menuPrincipal()).getByRole('link', { name: 'Aulas' })).toHaveAttribute('aria-current', 'page')
+    irPeloMenu('Biblioteca')
+    fireEvent.click(screen.getByRole('link', { name: 'Abrir Aulas' }))
     expect(screen.getByRole('heading', { level: 1, name: 'Aulas' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /O que faz o Suporte de TI/i })).toBeInTheDocument()
     expect((await axe.run(container)).violations).toEqual([])
-    irPeloMenu('Caderno')
+    irPeloMenu('Biblioteca')
+    fireEvent.click(screen.getByRole('link', { name: 'Abrir Caderno' }))
     expect(screen.getByRole('heading', { name: /Caderno de estudos/i })).toBeInTheDocument()
     expect((await axe.run(container)).violations).toEqual([])
-    irPeloMenu('Aulas')
-    fireEvent.click(screen.getByRole('link', { name: 'Treino de explicação' }))
+    irPeloMenu('Biblioteca')
+    fireEvent.click(screen.getByRole('link', { name: 'Abrir Treino' }))
     expect(window.location.pathname).toBe('/aulas/treino')
     expect(screen.getByRole('heading', { level: 1, name: 'Treino de explicação' })).toBeInTheDocument()
     expect((await axe.run(container)).violations).toEqual([])

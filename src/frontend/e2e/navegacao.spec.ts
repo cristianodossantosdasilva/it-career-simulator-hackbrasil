@@ -64,11 +64,16 @@ async function ativarPorTeclado(page: Page, alvo: Locator) {
 }
 
 const ITENS_DO_MENU = [
-  { nome: 'Plano de Carreira', caminho: '/plano-de-carreira' },
+  { nome: 'Carreira', caminho: '/carreira' },
+  { nome: 'Aprender', caminho: '/aprender' },
+  { nome: 'Praticar', caminho: '/praticar' },
+  { nome: 'Biblioteca', caminho: '/biblioteca' },
+  { nome: 'Reforço diário', caminho: '/reforco' },
+  { nome: 'Simulados', caminho: '/simulados' },
+  { nome: 'Provas', caminho: '/provas' },
+  { nome: 'Painel', caminho: '/painel' },
+  { nome: 'Histórico', caminho: '/historico' },
   { nome: 'Portfólio', caminho: '/portfolio' },
-  { nome: 'Catálogo', caminho: '/catalogo' },
-  { nome: 'Aulas', caminho: '/aulas' },
-  { nome: 'Caderno', caminho: '/caderno' },
   { nome: 'Mentor', caminho: '/mentor' },
   { nome: 'Início', caminho: '/' },
 ] as const
@@ -104,16 +109,16 @@ test.describe('Navegação por endereços', () => {
 
   test('voltar e avançar do navegador percorrem as páginas visitadas', async ({ page }) => {
     await page.goto('/')
-    await menu(page).getByRole('link', { name: 'Plano de Carreira' }).click()
+    await menu(page).getByRole('link', { name: 'Carreira' }).click()
     await menu(page).getByRole('link', { name: 'Portfólio' }).click()
-    await menu(page).getByRole('link', { name: 'Caderno' }).click()
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Caderno de estudos')
+    await menu(page).getByRole('link', { name: 'Histórico' }).click()
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Histórico')
     await page.goBack()
     await expect(page).toHaveURL(/\/portfolio$/)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Portfólio')
     await page.goBack()
-    await expect(page).toHaveURL(/\/plano-de-carreira$/)
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Plano de Carreira')
+    await expect(page).toHaveURL(/\/carreira$/)
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Carreira')
     await page.goForward()
     await expect(page).toHaveURL(/\/portfolio$/)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Portfólio')
@@ -132,7 +137,7 @@ test.describe('Navegação por endereços', () => {
 
   test('depois de navegar, o foco vai ao h1, que tem o nome da página no início do título e contorno visível', async ({ page }) => {
     await page.goto('/')
-    for (const nome of ['Plano de Carreira', 'Portfólio', 'Aulas', 'Mentor']) {
+    for (const nome of ['Carreira', 'Portfólio', 'Aprender', 'Mentor']) {
       await menu(page).getByRole('link', { name: nome }).click()
       const titulo = page.locator('#conteudo-pagina h1')
       await expect(titulo).toBeFocused()
@@ -194,16 +199,6 @@ test.describe('Portão do cartão de perfil', () => {
     await expect(page).toHaveURL(/\/$/)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Início')
   })
-
-  test('sem cartão, o item Plano de Carreira do menu também termina no Diagnóstico', async ({ page }) => {
-    await page.goto('/')
-    const antes = await tamanhoDoHistorico(page)
-    await menu(page).getByRole('link', { name: 'Plano de Carreira' }).click()
-    await expect(page).toHaveURL(/\/diagnostico\?motivo=sem-cartao$/)
-    expect(await tamanhoDoHistorico(page)).toBe(antes + 1)
-    await page.goBack()
-    await expect(page).toHaveURL(/\/$/)
-  })
 })
 
 test.describe('Fluxo completo com o servidor local', () => {
@@ -242,9 +237,9 @@ test.describe('Fluxo completo com o servidor local', () => {
     expect(criacoes()).toBe(1)
 
     // Ir a Aulas e voltar pelo menu também não cria sessão.
-    await menu(page).getByRole('link', { name: 'Aulas' }).click()
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Aulas')
-    await menu(page).getByRole('link', { name: 'Mesa de Trabalho' }).click()
+    await menu(page).getByRole('link', { name: 'Aprender' }).click()
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Aprender')
+    await page.goBack()
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Mesa de Trabalho')
     await expect(page.getByRole('heading', { name: /CH-\d+/ }).first()).toBeVisible()
     expect(criacoes()).toBe(1)

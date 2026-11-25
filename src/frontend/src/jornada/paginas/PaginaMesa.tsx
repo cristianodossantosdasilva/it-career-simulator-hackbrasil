@@ -34,7 +34,7 @@ function enderecoDaMesa(missao: IdMissao, extra: { nova: boolean; semente: numbe
 export function PaginaMesa({ rota, portao }: { rota: RotaMesa; portao: DecisaoPortao }) {
   const { sessao, ocupado, abrirMissao } = useMissao()
   // O endereço pode perder `nova`, `semente` e `causa` depois da abertura. Os valores da chegada valem.
-  const [chegada] = useState(() => ({ semente: rota.semente, causa: rota.causa, nova: rota.nova }))
+  const [chegada] = useState(() => ({ semente: rota.semente, causa: rota.causa, nova: rota.nova, modo: rota.modo }))
   const [estado, setEstado] = useState<EstadoAbertura>({ tipo: 'abrindo' })
   const [tentativa, setTentativa] = useState(0)
   const [acordando, setAcordando] = useState(false)
@@ -44,8 +44,8 @@ export function PaginaMesa({ rota, portao }: { rota: RotaMesa; portao: DecisaoPo
   useEffect(() => {
     if (!portaoAberto) return
     let ativo = true
-    const { semente, causa, nova } = chegada
-    void abrirMissao(missao, { semente: semente ?? undefined, causa: causa ?? undefined, nova }).then((resultado) => {
+    const { semente, causa, nova, modo } = chegada
+    void abrirMissao(missao, { semente: semente ?? undefined, causa: causa ?? undefined, nova, modo }).then((resultado) => {
       if (!ativo) return
       if (resultado.tipo === 'pronto') {
         // Recarregar a Mesa de Trabalho depois de criar a sessão retoma a mesma sessão, sem criar outra.

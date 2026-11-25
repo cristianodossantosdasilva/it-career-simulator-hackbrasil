@@ -12,11 +12,11 @@ function resolver(configuracao: ConfiguracaoNormalizada | null, preferencia: str
 }
 
 describe('resolvedor de tema, exemplos do catálogo real', () => {
-  it('sem configuração: esquema escuro vira operacao, claro vira corporativo, o resto operacao', () => {
+  it('sem configuração: esquema escuro vira operacao, claro vira corporativo, o resto corporativo', () => {
     expect(resolver(null, null, 'dark')).toBe('operacao')
     expect(resolver(null, null, 'light')).toBe('corporativo')
-    expect(resolver(null, null, 'no-preference')).toBe('operacao')
-    expect(resolver(null, null, null)).toBe('operacao')
+    expect(resolver(null, null, 'no-preference')).toBe('corporativo')
+    expect(resolver(null, null, null)).toBe('corporativo')
   })
 
   it('preferência válida vence o esquema do navegador', () => {
@@ -96,7 +96,7 @@ describe('preferência e cadeia de reserva, propriedade', () => {
         const alvo = esquema === 'dark' ? 'escuro' : esquema === 'light' ? 'claro' : null
         const porEsquema = alvo === null ? undefined : naOrdem.find((tema) => tema.esquema === alvo)
         if (porEsquema !== undefined) esperado = porEsquema.id
-        else if (permitidos.includes('operacao')) esperado = 'operacao'
+        else if (permitidos.includes('corporativo')) esperado = 'corporativo'
         else esperado = naOrdem[0].id
       }
       expect(resolver(destravada, preferencia, esquema)).toBe(esperado)

@@ -199,6 +199,7 @@ function ProvedorAcademiaEMissao({ children }: { children: ReactNode }) {
       const pedido: CriarSessaoRequest = { cenarioId: missao }
       if (opcoes.semente !== undefined) pedido.semente = opcoes.semente
       if (opcoes.causa !== undefined) pedido.causaForcada = opcoes.causa
+      pedido.modo = opcoes.modo ?? 'guiado'
       const criada = await apiClient.criarSessao(pedido)
       const proj = await apiClient.obterSessao(criada.sessaoId)
       const ids = salvarSessaoId(criada.sessaoId)

@@ -21,6 +21,33 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
     }
 
     [Fact]
+    public async Task LaboratorioCenarios_ListaOsSeteCenariosComDominioENivel()
+    {
+        var resp = await _client.GetAsync("/api/laboratorio/cenarios");
+        Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
+        var itens = await resp.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(7, itens.GetArrayLength());
+        foreach (var item in itens.EnumerateArray())
+        {
+            Assert.InRange(item.GetProperty("nivel").GetInt32(), 1, 3);
+            Assert.False(string.IsNullOrWhiteSpace(item.GetProperty("dominio").GetString()));
+        }
+    }
+
+    [Fact]
+    public async Task SessaoEmModoProva_NaoDaPistas_EModoInvalidoRetorna400()
+    {
+        var criar = await _client.PostAsJsonAsync("/api/sessoes", new { cenarioId = "pasta-rede-inacessivel", versaoManifesto = "v1.1", causaForcada = "C1", semente = 7L });
+        var corpo = await criar.Content.ReadFromJsonAsync<JsonElement>();
+        var id = corpo.GetProperty("sessaoId").GetString()!;
+        var pista = await _client.PostAsJsonAsync($"/api/sessoes/{id}/acoes", new { tipo = "dialogo.pedir_pista", seqEsperado = corpo.GetProperty("ultimoSeq").GetInt32() });
+        Assert.Equal(HttpStatusCode.BadRequest, pista.StatusCode);
+
+        var invalido = await _client.PostAsJsonAsync("/api/sessoes", new { cenarioId = "pasta-rede-inacessivel", versaoManifesto = "v1.1", modo = "xyz" });
+        Assert.Equal(HttpStatusCode.BadRequest, invalido.StatusCode);
+    }
+
+    [Fact]
     public async Task HealthLive_Retorna200()
     {
         var resp = await _client.GetAsync("/health/live");
@@ -206,7 +233,8 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
             cenarioId = "pasta-rede-inacessivel",
             versaoManifesto = "v1.1",
             causaForcada = "C1",
-            semente = 42L
+            semente = 42L,
+            modo = "guiado"
         });
         var created = await createResp.Content.ReadFromJsonAsync<JsonElement>();
         var sessaoId = created.GetProperty("sessaoId").GetString()!;

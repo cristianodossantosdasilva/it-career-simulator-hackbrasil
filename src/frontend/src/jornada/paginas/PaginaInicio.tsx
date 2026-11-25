@@ -1,14 +1,14 @@
 import { Icone } from '../../ui/Icone'
-import { BotaoExperimentar } from '../demonstracao/BotaoExperimentar'
-import { DemonstracaoDiagnostico } from '../componentes/DemonstracaoDiagnostico'
 import { etapaDaMissao } from '../catalogos/catalogoRotas'
 import { JORNADA, TEXTOS_HOME } from '../catalogos/catalogoVocacional'
+import { DemonstracaoDiagnostico } from '../componentes/DemonstracaoDiagnostico'
 import { useArmazenamentoJornada } from '../contextoArmazenamentoJornada'
+import { BotaoExperimentar } from '../demonstracao/BotaoExperimentar'
 import { PainelMentor } from '../mentor/PainelMentor'
 import { LinkInterno } from '../navegacao/LinkInterno'
 import { NOME_PAGINA, enderecoDe } from '../navegacao/rotas'
 
-/** Página Início: acesso rápido para continuar missão, atalhos da jornada, demonstração e limites. */
+/** Página Início: boas-vindas no layout CertSim, continuar missão, atalhos e demonstração. */
 export function PaginaInicio() {
   const { cartao, registros, missoesAtivas } = useArmazenamentoJornada()
   const ultimaLocal = missoesAtivas.ultimaMissao ? etapaDaMissao(missoesAtivas.ultimaMissao) : null
@@ -54,12 +54,10 @@ export function PaginaInicio() {
             Continuar missão
           </h2>
           {ultimaLocal ? (
-            <div className="cartao-missao">
-              <p className="eyebrow">Missão em andamento</p>
-              <h3 className="cartao-missao-titulo">{ultimaLocal.missao.titulo}</h3>
-              <p className="muted">
-                Etapa: {ultimaLocal.etapa.nome} · Sessão salva neste navegador
-              </p>
+            <div className="certsim-cartao">
+              <p className="eyebrow">Atendimento em andamento</p>
+              <h3 className="h3">{ultimaLocal.missao.titulo}</h3>
+              <p className="muted">Etapa: {ultimaLocal.etapa.nome} · Sessão salva neste navegador</p>
               <div className="acoes-linha">
                 <LinkInterno
                   href={enderecoDe({
@@ -74,23 +72,23 @@ export function PaginaInicio() {
                   <Icone nome="iniciar" tamanho={20} />
                   <span>Continuar missão</span>
                 </LinkInterno>
-                <LinkInterno href="/plano-de-carreira" className="btn btn-secondary">
-                  <Icone nome="plano-de-carreira" tamanho={20} />
-                  <span>Escolher outro chamado</span>
+                <LinkInterno href="/carreira" className="btn btn-secondary">
+                  <Icone nome="carreira" tamanho={20} />
+                  <span>Ver Carreira</span>
                 </LinkInterno>
               </div>
             </div>
           ) : (
-            <div className="cartao-missao">
+            <div className="certsim-cartao">
               <p className="pagina-jornada-texto">
                 {registros.length > 0
-                  ? `Você já registrou ${registros.length} ${registros.length === 1 ? 'missão concluída' : 'missões concluídas'}.`
-                  : 'Seu cartão de perfil está pronto. Configure o modo Treino ou Missão no Plano de Carreira.'}
+                  ? `Você já concluiu ${registros.length} ${registros.length === 1 ? 'missão prática' : 'missões práticas'}.`
+                  : 'Seu cartão de perfil está pronto. Escolha entre Teórico, Prático ou Lab.'}
               </p>
               <div className="acoes-linha">
-                <LinkInterno href="/plano-de-carreira" className="btn btn-primary">
-                  <Icone nome="iniciar" tamanho={20} />
-                  <span>Configurar próxima missão</span>
+                <LinkInterno href="/simulados" className="btn btn-primary">
+                  <Icone nome="simulados" tamanho={20} />
+                  <span>Abrir Simulados</span>
                 </LinkInterno>
               </div>
             </div>
@@ -100,35 +98,56 @@ export function PaginaInicio() {
 
       <section className="secao-jornada" aria-labelledby="inicio-atalhos-titulo">
         <h2 id="inicio-atalhos-titulo" className="h2">
-          Atalhos rápidos
+          Três níveis e acesso rápido
         </h2>
-        <div className="grade-atalhos-inicio">
-          {cartao ? (
-            <LinkInterno href="/plano-de-carreira" className="btn btn-secondary">
-              <Icone nome="plano-de-carreira" tamanho={20} />
-              <span>Configurar missão (Treino ou Missão)</span>
-            </LinkInterno>
-          ) : (
-            <LinkInterno href="/diagnostico" className="btn btn-secondary">
-              <Icone nome="diagnostico" tamanho={20} />
-              <span>Iniciar Diagnóstico</span>
-            </LinkInterno>
-          )}
-          <LinkInterno href="/aulas" className="btn btn-secondary">
-            <Icone nome="aulas" tamanho={20} />
-            <span>Aulas e fundamentos</span>
+        <div className="certsim-grade-3">
+          <article className="certsim-cartao">
+            <h3 className="h3">Nível Teórico</h3>
+            <p className="muted">Questões objetivas por tópico com feedback imediato ou prova cronometrada.</p>
+            <div className="acoes-linha">
+              <LinkInterno href="/aprender" className="btn btn-secondary">
+                <Icone nome="aprender" tamanho={20} />
+                <span>Aprender</span>
+              </LinkInterno>
+            </div>
+          </article>
+          <article className="certsim-cartao">
+            <h3 className="h3">Nível Prático</h3>
+            <p className="muted">Chamados guiados na Mesa de Trabalho com pistas progressivas.</p>
+            <div className="acoes-linha">
+              <LinkInterno href="/praticar" className="btn btn-secondary">
+                <Icone nome="praticar" tamanho={20} />
+                <span>Praticar</span>
+              </LinkInterno>
+            </div>
+          </article>
+          <article className="certsim-cartao">
+            <h3 className="h3">Nível Lab</h3>
+            <p className="muted">Simulados e provas práticas avaliadas pelo Juiz 360º sem apoio.</p>
+            <div className="acoes-linha">
+              <LinkInterno href="/simulados" className="btn btn-primary">
+                <Icone nome="simulados" tamanho={20} />
+                <span>Simulados e Provas</span>
+              </LinkInterno>
+            </div>
+          </article>
+        </div>
+        <div className="certsim-filtros">
+          <LinkInterno href="/provas" className="btn btn-secondary">
+            <Icone nome="provas" tamanho={20} />
+            <span>Provas</span>
           </LinkInterno>
-          <LinkInterno href="/portfolio" className="btn btn-secondary">
-            <Icone nome="credencial" tamanho={20} />
-            <span>Portfólio e histórico</span>
+          <LinkInterno href="/reforco" className="btn btn-secondary">
+            <Icone nome="reforco" tamanho={20} />
+            <span>Reforço diário</span>
           </LinkInterno>
-          <LinkInterno href="/caderno" className="btn btn-secondary">
-            <Icone nome="caderno" tamanho={20} />
-            <span>Caderno de estudos</span>
+          <LinkInterno href="/painel" className="btn btn-secondary">
+            <Icone nome="painel" tamanho={20} />
+            <span>Painel</span>
           </LinkInterno>
-          <LinkInterno href="/mentor" className="btn btn-secondary">
-            <Icone nome="mentor" tamanho={20} />
-            <span>Mentor</span>
+          <LinkInterno href="/historico" className="btn btn-secondary">
+            <Icone nome="historico" tamanho={20} />
+            <span>Histórico</span>
           </LinkInterno>
         </div>
       </section>

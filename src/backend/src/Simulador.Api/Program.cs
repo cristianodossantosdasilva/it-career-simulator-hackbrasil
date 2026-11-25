@@ -193,9 +193,13 @@ app.MapPost("/api/sessoes", async (
     if (!permitirParamsTeste && (!string.IsNullOrWhiteSpace(body?.CausaForcada) || body?.Semente.HasValue == true))
         return ErroProblema(400, "parametros_teste_desabilitados", "Parametros de teste (causaForcada e semente) desabilitados neste ambiente.");
 
+    var modo = string.IsNullOrWhiteSpace(body?.Modo) ? "prova" : body.Modo.Trim().ToLowerInvariant();
+    if (modo is not ("guiado" or "prova"))
+        return ErroProblema(400, "validacao", "modo deve ser 'guiado' ou 'prova'.");
+
     var semente = body?.Semente ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     var cenario = catalogo.Obter(cenarioId, versao, body?.CausaForcada, semente);
-    var inicio = Motor.Iniciar(cenario, semente);
+    var inicio = Motor.Iniciar(cenario, semente, modo);
 
     var sessaoId = Guid.NewGuid();
     var agora = DateTimeOffset.UtcNow;
@@ -212,6 +216,18 @@ app.MapPost("/api/sessoes", async (
     });
 });
 
+app.MapGet("/api/laboratorio/cenarios", () => Results.Ok(
+    CatalogoLaboratorio.Todos.Select(c => new
+    {
+        cenarioId = c.CenarioId,
+        versaoManifesto = c.VersaoManifesto,
+        dominio = c.Dominio,
+        nivel = c.Nivel,
+        titulo = c.Titulo,
+        duracaoEstimadaMin = c.DuracaoEstimadaMin,
+        causas = c.Causas
+    })));
+
 app.MapGet("/api/sessoes/{id:guid}", async (
     Guid id,
     ICatalogoCenarios catalogo,
@@ -223,7 +239,7 @@ app.MapGet("/api/sessoes/{id:guid}", async (
     if (meta.ExpiraEm < DateTimeOffset.UtcNow) return ErroProblema(410, "sessao_expirada", "Sessao expirada.");
 
     var estado = Projecao.Reconstruir(eventos, catalogo);
-    return Results.Ok(ProjetarSessaoPublica(estado));
+    return Results.Ok(ProjetarSessaoPublica(estado, ModoDe(eventos)));
 });
 
 app.MapPost("/api/sessoes/{id:guid}/acoes", async (
@@ -248,6 +264,10 @@ app.MapPost("/api/sessoes/{id:guid}/acoes", async (
     if (eventos[^1].Seq != body.SeqEsperado)
         return ErroProblema(409, "conflito_seq", "Sequencia desatualizada.", new { ultimoSeq = eventos[^1].Seq });
 
+    // Lab em modo prova nao tem apoio: so sessoes guiadas (Praticar) recebem Pistas.
+    if (body.Tipo.Trim() == "dialogo.pedir_pista" && eventos[0].Dados.GetValueOrDefault("modo")?.ToString() != "guiado")
+        return ErroProblema(400, "pistas_indisponiveis", "Pistas so existem no modo guiado.");
+
     var cenario = catalogo.Obter(meta.CenarioId, meta.VersaoManifesto, meta.Causa, meta.Semente);
     var estadoAtual = Projecao.Reconstruir(eventos, catalogo);
     var acao = new Acao(body.Tipo.Trim(), body.Dados);
@@ -260,7 +280,7 @@ app.MapPost("/api/sessoes/{id:guid}/acoes", async (
     return Results.Ok(new
     {
         eventos = resultado.Eventos,
-        projecao = ProjetarSessaoPublica(resultado.NovoEstado)
+        projecao = ProjetarSessaoPublica(resultado.NovoEstado, ModoDe(eventos))
     });
 });
 
@@ -297,7 +317,7 @@ app.MapPost("/api/sessoes/{id:guid}/chat", async (
     return Results.Ok(new
     {
         eventos = resultado.Eventos,
-        projecao = ProjetarSessaoPublica(resultado.NovoEstado)
+        projecao = ProjetarSessaoPublica(resultado.NovoEstado, ModoDe(eventos))
     });
 });
 
@@ -371,6 +391,33 @@ app.MapGet("/api/sessoes/{id:guid}/replay", async (
     });
 });
 
+// === teorico ===
+var servicoTeorico = new Simulador.Teorico.ServicoTeorico(Simulador.Teorico.BancoQuestoes.Padrao);
+
+static IResult ExecutarTeorico<T>(Func<T> acao)
+{
+    try
+    {
+        return Results.Ok(acao());
+    }
+    catch (Simulador.Teorico.ErroTeorico e)
+    {
+        return ErroProblema(e.Status, e.Tipo, e.Message);
+    }
+}
+
+app.MapGet("/api/teorico/topicos", () => Results.Ok(servicoTeorico.Topicos()));
+app.MapPost("/api/teorico/provas", (Simulador.Teorico.CriarProvaRequest? body) =>
+    ExecutarTeorico(() => servicoTeorico.GerarProva(body)));
+app.MapPost("/api/teorico/provas/corrigir", (Simulador.Teorico.CorrigirRequest? body) =>
+    ExecutarTeorico(() => servicoTeorico.Corrigir(body)));
+app.MapPost("/api/teorico/questoes/{id}/verificar", (string id, Simulador.Teorico.VerificarRequest? body) =>
+    ExecutarTeorico(() => servicoTeorico.Verificar(id, body)));
+app.MapPost("/api/teorico/questoes/{id}/explicar", (string id, Simulador.Teorico.ExplicarRequest? body) =>
+    ExecutarTeorico(() => servicoTeorico.Explicar(id, body)));
+app.MapGet("/api/teorico/questoes/{id}/perguntas", (string id) =>
+    ExecutarTeorico(() => servicoTeorico.Perguntas(id)));
+// === /teorico ===
 app.MapPost("/api/carreira/resumo", async (
     CarreiraResumoDto? body,
     ICatalogoCenarios catalogo,
@@ -494,8 +541,12 @@ app.MapPost("/api/carreira/resumo", async (
 
 app.Run();
 
-static object ProjetarSessaoPublica(EstadoSessao estado) => new
+static string ModoDe(IReadOnlyList<EnvelopeEvento> eventos) =>
+    eventos[0].Dados.GetValueOrDefault("modo")?.ToString() == "guiado" ? "guiado" : "prova";
+
+static object ProjetarSessaoPublica(EstadoSessao estado, string modo) => new
 {
+    modo,
     carreira = estado.Carreira,
     chamados = estado.Itsm.Chamados,
     problemas = estado.Itsm.Problemas,
@@ -513,7 +564,7 @@ static object ProjetarSessaoPublica(EstadoSessao estado) => new
     ultimoSeq = estado.Meta.UltimoSeq
 };
 
-public sealed record CriarSessaoDto(string? CenarioId, string? VersaoManifesto, string? CausaForcada, long? Semente);
+public sealed record CriarSessaoDto(string? CenarioId, string? VersaoManifesto, string? CausaForcada, long? Semente, string? Modo = null);
 public sealed record ExecutarAcaoDto(string Tipo, IReadOnlyDictionary<string, JsonElement>? Dados, int SeqEsperado);
 public sealed record ChatDto(string Persona, string Mensagem, int SeqEsperado);
 public sealed record CarreiraResumoDto(IReadOnlyList<Guid>? SessaoIds, string? Apelido);

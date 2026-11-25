@@ -61,7 +61,7 @@ describe('Página Mesa de Trabalho', () => {
     await screen.findByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })
     const posts = criacoes(chamadas)
     expect(posts).toHaveLength(1)
-    expect(JSON.parse(posts[0].corpo ?? '')).toEqual({ cenarioId: 'pasta-rede-inacessivel' })
+    expect(JSON.parse(posts[0].corpo ?? '')).toEqual({ cenarioId: 'pasta-rede-inacessivel', modo: 'guiado' })
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     expect(screen.getByRole('link', { name: /Juiz 360º e Replay/ })).toHaveAttribute('href', '/revisao/sessao-nova')
   })
@@ -89,6 +89,7 @@ describe('Página Mesa de Trabalho', () => {
     await screen.findByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })
     expect(JSON.parse(criacoes(chamadas)[0]?.corpo ?? '')).toEqual({
       cenarioId: 'pasta-rede-inacessivel',
+      modo: 'guiado',
       semente: 42,
       causaForcada: 'C1',
     })
@@ -99,7 +100,7 @@ describe('Página Mesa de Trabalho', () => {
     const chamadas = simularApi({ missao: 'reset-senha-desbloqueio' })
     montar('reset-senha-desbloqueio', '', { [CHAVE_REGISTROS_MISSAO]: serializarRegistros([]) })
     await screen.findByRole('navigation', { name: 'Aplicativos da Mesa de Trabalho' })
-    expect(JSON.parse(criacoes(chamadas)[0]?.corpo ?? '')).toEqual({ cenarioId: 'reset-senha-desbloqueio' })
+    expect(JSON.parse(criacoes(chamadas)[0]?.corpo ?? '')).toEqual({ cenarioId: 'reset-senha-desbloqueio', modo: 'guiado' })
   })
   it('Service Desk N1 Jr sem registro da Help Desk N1 mostra o aviso e não chama o servidor', () => {
     const chamadas = simularApi({ missao: 'pasta-rede-inacessivel' })

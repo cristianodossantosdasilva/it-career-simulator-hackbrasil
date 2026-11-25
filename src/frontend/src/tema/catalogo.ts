@@ -19,7 +19,7 @@ export const CATALOGO_TEMAS = [
 
 export type IdTema = (typeof CATALOGO_TEMAS)[number]['id']
 
-export const TEMA_PADRAO_PRODUTO: IdTema = 'operacao'
+export const TEMA_PADRAO_PRODUTO: IdTema = 'corporativo'
 export const TEMA_DO_TERMINAL: IdTema = 'operacao'
 
 /** Comparacao exata com os identificadores do catalogo, sem normalizar maiusculas nem espacos. */

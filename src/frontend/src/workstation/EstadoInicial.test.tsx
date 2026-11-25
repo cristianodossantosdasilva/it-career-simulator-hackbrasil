@@ -25,8 +25,7 @@ function espiarInicioDeSessao() {
 describe('Estado inicial do Plano de Carreira', () => {
   it('abre sem escolha livre de missao, sem Iniciar e sem abrir sessao', () => {
     const criarSessao = espiarInicioDeSessao()
-    abrirAplicacao('/')
-    irPeloMenu('Plano de Carreira')
+    abrirAplicacao('/plano-de-carreira')
     expect(screen.queryAllByRole('radio')).toHaveLength(0)
     expect(screen.queryByRole('button', { name: /Iniciar no Simulador/i })).not.toBeInTheDocument()
     expect(criarSessao).not.toHaveBeenCalled()
@@ -38,7 +37,7 @@ describe('Estado inicial do Plano de Carreira', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Iniciar primeira missão' }))
     expect(window.location.pathname).toBe('/mesa-de-trabalho/reset-senha-desbloqueio')
     await waitFor(() => expect(criarSessao).toHaveBeenCalledTimes(1))
-    expect(criarSessao).toHaveBeenCalledWith({ cenarioId: 'reset-senha-desbloqueio' })
+    expect(criarSessao).toHaveBeenCalledWith({ cenarioId: 'reset-senha-desbloqueio', modo: 'guiado' })
   })
 
   it('Demo rapida inicia a missao de demonstracao com semente 42 e a Causa do catalogo', async () => {
@@ -60,16 +59,14 @@ describe('Focus inicial da Academia', () => {
   it('estado limpo usa help-desk-n1 e Aulas abre em Help Desk N1', () => {
     expect(criarEstadoInicialAcademia().focus).toBe('help-desk-n1')
     expect(carregarEstadoAcademia().focus).toBe('help-desk-n1')
-    abrirAplicacao('/')
-    irPeloMenu('Aulas')
+    abrirAplicacao('/aulas')
     expect(screen.getByRole('heading', { level: 2, name: 'Help Desk N1' })).toBeInTheDocument()
   })
 
   it('quem ja tem service-desk-n1-jr salvo permanece nele', () => {
     window.localStorage.setItem(CHAVE_ARMAZENAMENTO_ACADEMIA, JSON.stringify({ focus: 'service-desk-n1-jr' }))
     expect(carregarEstadoAcademia().focus).toBe('service-desk-n1-jr')
-    abrirAplicacao('/')
-    irPeloMenu('Aulas')
+    abrirAplicacao('/aulas')
     expect(screen.getByRole('heading', { level: 2, name: 'Service Desk N1 Jr' })).toBeInTheDocument()
   })
 })

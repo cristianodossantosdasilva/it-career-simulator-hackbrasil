@@ -32,24 +32,14 @@ afterEach(() => {
 
 describe('BarraSuperior por links', () => {
   it('marca o item da página com aria-current e mostra o nome da página na barra de contexto', () => {
-    renderizar('plano-de-carreira')
+    renderizar('carreira')
     const nav = navegacao()
-    const plano = within(nav).getByRole('link', { name: 'Plano de Carreira' })
-    expect(plano).toHaveAttribute('href', '/plano-de-carreira')
-    expect(plano).toHaveAttribute('aria-current', 'page')
-    expect(plano).toHaveClass('active')
+    const carreira = within(nav).getByRole('link', { name: 'Carreira' })
+    expect(carreira).toHaveAttribute('href', '/carreira')
+    expect(carreira).toHaveAttribute('aria-current', 'page')
+    expect(carreira).toHaveClass('active')
     expect(within(nav).getByRole('link', { name: 'Início' })).not.toHaveAttribute('aria-current')
-    expect(document.querySelector('.barra-contexto-local')).toHaveTextContent('Plano de Carreira')
-  })
-
-  it('mostra a Mesa de Trabalho só com missão ativa', () => {
-    renderizar('inicio')
-    expect(within(navegacao()).queryByRole('link', { name: 'Mesa de Trabalho' })).not.toBeInTheDocument()
-    cleanup()
-    renderizar('mesa-de-trabalho', 'incidente-massivo')
-    const mesa = within(navegacao()).getByRole('link', { name: 'Mesa de Trabalho' })
-    expect(mesa).toHaveAttribute('href', '/mesa-de-trabalho/incidente-massivo')
-    expect(mesa).toHaveAttribute('aria-current', 'page')
+    expect(document.querySelector('.barra-contexto-local')).toHaveTextContent('Carreira')
   })
 
   it('páginas de fluxo não marcam item', () => {
@@ -69,7 +59,16 @@ describe('BarraSuperior por links', () => {
     expect(mais).toHaveAttribute('aria-expanded', 'true')
     expect(lista).toBeVisible()
     const links = within(lista as HTMLElement).getAllByRole('link')
-    expect(links.map((l) => l.textContent)).toEqual(['Catálogo', 'Aulas', 'Caderno', 'Mentor'])
+    expect(links.map((l) => l.textContent)).toEqual([
+      'Aprender',
+      'Praticar',
+      'Biblioteca',
+      'Reforço diário',
+      'Provas',
+      'Histórico',
+      'Portfólio',
+      'Mentor',
+    ])
     expect(links[0]).toHaveFocus()
     expect(within(lista as HTMLElement).queryByRole('group', { name: 'Tema da interface' })).not.toBeInTheDocument()
     expect(within(document.querySelector('.barra-contexto') as HTMLElement).getByRole('button', { name: 'Aparência' })).toBeInTheDocument()
@@ -85,21 +84,21 @@ describe('BarraSuperior por links', () => {
     fireEvent.click(mais)
     const lista = document.getElementById('nav-mais') as HTMLElement
     act(() => {
-      fireEvent.click(within(lista).getByRole('link', { name: 'Catálogo' }))
+      fireEvent.click(within(lista).getByRole('link', { name: 'Biblioteca' }))
     })
-    expect(window.location.pathname).toBe('/catalogo')
+    expect(window.location.pathname).toBe('/biblioteca')
     expect(mais).toHaveAttribute('aria-expanded', 'false')
   })
 
   it('marca o botão Mais quando a página está no grupo mais', () => {
-    renderizar('caderno')
+    renderizar('historico')
     const mais = within(navegacao()).getByRole('button', { name: 'Mais' })
     expect(mais).toHaveClass('active')
     fireEvent.click(mais)
     const lista = document.getElementById('nav-mais') as HTMLElement
-    expect(within(lista).getByRole('link', { name: 'Caderno' })).toHaveAttribute('aria-current', 'page')
+    expect(within(lista).getByRole('link', { name: 'Histórico' })).toHaveAttribute('aria-current', 'page')
     cleanup()
-    renderizar('portfolio')
+    renderizar('simulados')
     expect(within(navegacao()).getByRole('button', { name: 'Mais' })).not.toHaveClass('active')
   })
 })
