@@ -45,6 +45,7 @@ export function TelaProvaTeorica({ config, titulo, retomar = false, aoSair, aoNo
           aoRefazer={p.refazer}
           aoNovo={aoNovo ?? aoSair}
           aoSair={aoSair}
+          api={api}
         />
       </main>
     )

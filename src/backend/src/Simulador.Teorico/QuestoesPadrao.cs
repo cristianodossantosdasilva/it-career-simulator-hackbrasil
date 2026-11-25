@@ -1,7 +1,7 @@
 namespace Simulador.Teorico;
 
-/// <summary>Conteúdo do banco padrão: 10 questões por domínio, níveis 1 a 3.</summary>
-internal static class QuestoesPadrao
+/// <summary>Conteúdo do banco padrão: 20 questões por domínio (ids 01 a 10 aqui, 11 a 20 em QuestoesAdicionais), níveis 1 a 3.</summary>
+internal static partial class QuestoesPadrao
 {
     private const string UrlNist = "https://pages.nist.gov/800-63-3/sp800-63b.html";
     private const string UrlCisaPhishing = "https://www.cisa.gov/secure-our-world/recognize-and-report-phishing";
@@ -36,7 +36,9 @@ internal static class QuestoesPadrao
             new Explicacao(explicacao, incorretas.Select((x, i) => new ExplicacaoIncorreta(x, porque[i])).ToList(), referencia));
     }
 
-    public static IReadOnlyList<Questao> Criar() =>
+    public static IReadOnlyList<Questao> Criar() => [.. Basicas(), .. Adicionais()];
+
+    private static IReadOnlyList<Questao> Basicas() =>
     [
         // ===== Acesso e contas =====
         Q("ac-01", "acesso", "Senhas e MFA", 1,

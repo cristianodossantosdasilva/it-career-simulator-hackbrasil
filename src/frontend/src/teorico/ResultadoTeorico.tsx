@@ -1,6 +1,7 @@
-import type { ProvaTeorica } from '../api/teorico'
+import { type ApiTeorico, type ProvaTeorica, apiTeorico } from '../api/teorico'
 import { ExplicacaoEstruturada } from './CartaoQuestao'
 import { formatarTempo } from './estadoProva'
+import { PerguntasProntas } from './PerguntasProntas'
 import type { ResultadoFinal } from './useProvaTeorica'
 
 interface Props {
@@ -11,12 +12,13 @@ interface Props {
   aoRefazer: () => void
   aoNovo: () => void
   aoSair: () => void
+  api?: ApiTeorico
 }
 
 const LIMITE_FORTE = 70
 
 /** Resultado da prova: nota, tempo, desempenho por domínio, fortes e fracos e revisão questão a questão. */
-export function ResultadoTeorico({ prova, resultado, respostas, titulo, aoRefazer, aoNovo, aoSair }: Props) {
+export function ResultadoTeorico({ prova, resultado, respostas, titulo, aoRefazer, aoNovo, aoSair, api = apiTeorico }: Props) {
   const { correcao, duracaoSeg, encerradaPorTempo } = resultado
   const medio = correcao.total > 0 ? Math.round(duracaoSeg / correcao.total) : 0
   const dominios = correcao.porDominio.map((d) => ({ ...d, pct: d.total > 0 ? Math.round((100 * d.corretas) / d.total) : 0 }))
@@ -105,6 +107,7 @@ export function ResultadoTeorico({ prova, resultado, respostas, titulo, aoRefaze
                     ))}
                   </ul>
                   <ExplicacaoEstruturada questao={q} verificacao={r} />
+                  <PerguntasProntas questaoId={q.id} api={api} />
                 </details>
               </li>
             )

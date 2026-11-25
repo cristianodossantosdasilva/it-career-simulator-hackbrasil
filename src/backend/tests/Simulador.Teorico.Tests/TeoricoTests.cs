@@ -11,11 +11,11 @@ public class BancoTests
     private static readonly BancoQuestoes Banco = BancoQuestoes.Padrao;
 
     [Fact]
-    public void TemPeloMenos60QuestoesEDezPorDominio()
+    public void TemPeloMenos120QuestoesEVinteExatasPorDominio()
     {
-        Assert.True(Banco.Todas.Count >= 60);
+        Assert.True(Banco.Todas.Count >= 120);
         foreach (var d in Banco.Dominios)
-            Assert.Equal(10, Banco.Todas.Count(q => q.Dominio == d.Id));
+            Assert.Equal(20, Banco.Todas.Count(q => q.Dominio == d.Id));
     }
 
     [Fact]
@@ -48,6 +48,88 @@ public class BancoTests
         var c = Banco.Catalogo();
         Assert.Equal(6, c.Dominios.Count);
         Assert.Equal(c.Total, c.Dominios.Sum(d => d.Topicos.Sum(t => t.Questoes)));
+    }
+
+    [Fact]
+    public void EnunciadosSaoUnicosESemECComercial()
+    {
+        Assert.Equal(Banco.Todas.Count, Banco.Todas.Select(q => q.Enunciado).Distinct().Count());
+        Assert.All(Banco.Todas, q =>
+        {
+            Assert.DoesNotContain('&', q.Enunciado);
+            Assert.All(q.Alternativas, a => Assert.DoesNotContain('&', a.Texto));
+        });
+    }
+
+
+}
+
+public class FaqTests
+{
+    private static readonly BancoQuestoes Banco = BancoQuestoes.Padrao;
+    private static readonly ServicoTeorico Servico = new(Banco);
+
+    [Fact]
+    public void CadaQuestaoTemTresOuQuatroPerguntasProntasComRespostas()
+    {
+        foreach (var q in Banco.Todas)
+        {
+            var r = Servico.Perguntas(q.Id);
+            Assert.Equal("faq", r.Origem);
+            Assert.Equal(q.Id, r.QuestaoId);
+            Assert.InRange(r.Perguntas.Count, 3, 4);
+            Assert.Equal(r.Perguntas.Count, r.Perguntas.Select(p => p.Id).Distinct().Count());
+            Assert.Equal(r.Perguntas.Count, r.Perguntas.Select(p => p.Pergunta).Distinct().Count());
+            Assert.All(r.Perguntas, p =>
+            {
+                Assert.False(string.IsNullOrWhiteSpace(p.Pergunta), q.Id);
+                Assert.True(p.Resposta.Trim().Length >= 30, $"{q.Id}/{p.Id}: resposta curta demais");
+                Assert.DoesNotContain('&', p.Pergunta + p.Resposta);
+            });
+        }
+    }
+
+    [Fact]
+    public void PrimeiraPerguntaDerivaDaExplicacaoEstruturada()
+    {
+        foreach (var q in Banco.Todas)
+        {
+            var primeira = Servico.Perguntas(q.Id).Perguntas[0];
+            Assert.Equal("p1", primeira.Id);
+            Assert.Equal("Por que as outras alternativas estão erradas?", primeira.Pergunta);
+            foreach (var inc in q.Explicacao.Incorretas)
+                Assert.Contains(inc.Texto, primeira.Resposta);
+        }
+    }
+
+    [Fact]
+    public void CadaQuestaoTemDuasOuTresPerguntasEscritasAMao()
+    {
+        Assert.All(Banco.Todas, q => Assert.InRange(Banco.PerguntasManuais(q.Id).Count, 2, 3));
+        Assert.Empty(Banco.PerguntasManuais("zz-99"));
+    }
+
+    [Fact]
+    public void QuestaoInexistenteViraNaoEncontrada()
+    {
+        var e = Assert.Throws<ErroTeorico>(() => Servico.Perguntas("zz-99"));
+        Assert.Equal(404, e.Status);
+        Assert.Equal("questao_nao_encontrada", e.Tipo);
+    }
+
+    [Fact]
+    public void BancoSemFaqAindaDevolveAPerguntaDerivada()
+    {
+        var servico = new ServicoTeorico(new BancoQuestoes(Banco.Todas));
+        var r = servico.Perguntas("ac-01");
+        Assert.Single(r.Perguntas);
+        Assert.Equal("faq", r.Origem);
+    }
+
+    [Fact]
+    public void ExplicarContinuaComOrigemFallback()
+    {
+        Assert.Equal("fallback", Servico.Explicar("ac-01", new ExplicarRequest("por-que-erradas")).Origem);
     }
 }
 
@@ -90,7 +172,7 @@ public class ServicoTests
     public void QuantidadeMaiorQueODisponivelEhLimitada()
     {
         var p = Servico.GerarProva(new CriarProvaRequest("padrao", "completo", null, null, 100, 1));
-        Assert.Equal(BancoQuestoes.Padrao.Todas.Count, p.Questoes.Count);
+        Assert.Equal(Math.Min(ServicoTeorico.QuantidadeMaxima, BancoQuestoes.Padrao.Todas.Count), p.Questoes.Count);
     }
 
     [Theory]
@@ -171,7 +253,7 @@ public class ServicoTests
     public void ExatamenteSetentaPorCentoAprova()
     {
         var ids = BancoQuestoes.Padrao.Todas.Where(q => q.Dominio == "redes").Select(q => q.Id).ToArray();
-        var respostas = ids.Select((id, i) => new RespostaQuestao(id, i < 7 ? BancoQuestoes.Padrao.Obter(id)!.Corretas.ToArray() : [])).ToArray();
+        var respostas = ids.Select((id, i) => new RespostaQuestao(id, i < 14 ? BancoQuestoes.Padrao.Obter(id)!.Corretas.ToArray() : [])).ToArray();
         var r = Servico.Corrigir(new CorrigirRequest(1, "padrao", "personalizado", respostas));
         Assert.Equal(70, r.Percentual);
         Assert.True(r.Aprovado);
@@ -218,7 +300,7 @@ public class TeoricoApiTests : IClassFixture<WebApplicationFactory<Program>>
     {
         var json = await _client.GetFromJsonAsync<JsonElement>("/api/teorico/topicos");
         Assert.Equal(6, json.GetProperty("dominios").GetArrayLength());
-        Assert.True(json.GetProperty("total").GetInt32() >= 60);
+        Assert.True(json.GetProperty("total").GetInt32() >= 120);
     }
 
     [Fact]
@@ -252,6 +334,22 @@ public class TeoricoApiTests : IClassFixture<WebApplicationFactory<Program>>
         var e = await _client.PostAsJsonAsync("/api/teorico/questoes/ac-01/explicar", new { estilo = "simples" });
         var ej = await e.Content.ReadFromJsonAsync<JsonElement>();
         Assert.Equal("fallback", ej.GetProperty("origem").GetString());
+    }
+
+[Fact]
+    public async Task PerguntasProntasDaQuestaoViamGet()
+    {
+        var resp = await _client.GetAsync("/api/teorico/questoes/ac-01/perguntas");
+        Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
+        var j = await resp.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("faq", j.GetProperty("origem").GetString());
+        Assert.Equal("ac-01", j.GetProperty("questaoId").GetString());
+        var perguntas = j.GetProperty("perguntas");
+        Assert.InRange(perguntas.GetArrayLength(), 3, 4);
+        Assert.False(string.IsNullOrWhiteSpace(perguntas[0].GetProperty("resposta").GetString()));
+
+        var nao = await _client.GetAsync("/api/teorico/questoes/xx-00/perguntas");
+        Assert.Equal(HttpStatusCode.NotFound, nao.StatusCode);
     }
 
     [Fact]

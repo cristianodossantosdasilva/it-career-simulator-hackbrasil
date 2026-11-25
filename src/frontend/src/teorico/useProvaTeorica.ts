@@ -7,11 +7,13 @@ import {
   apiTeorico,
 } from '../api/teorico'
 import { registrarHistorico } from '../jornada/simulados/historico'
+import { type NovoErroQuestao, registrarQuestoesErradas } from '../jornada/simulados/revisaoEspacada'
 import {
   type Andamento,
   type ConfigProva,
   type InstantaneoProva,
   alternarSelecao,
+  erroParaReforco,
   gravarAndamento,
   lerAndamento,
   limparAndamento,
@@ -33,6 +35,15 @@ export interface ResultadoFinal {
   encerradaPorTempo: boolean
 }
 
+/** Grava as questões erradas no Reforço diário. Uma falha de gravação nunca pode quebrar a prova. */
+function registrarNoReforco(erros: readonly NovoErroQuestao[]) {
+  if (erros.length === 0) return
+  try {
+    registrarQuestoesErradas(erros, new Date())
+  } catch {
+    // armazenamento indisponível ou cheio: a prova segue normalmente
+  }
+}
 /** Estado e ações de uma prova teórica: carregar, responder, verificar (Prática), cronometrar e finalizar. */
 export function useProvaTeorica({ config, retomar = false, api = apiTeorico }: OpcoesProva) {
   const [fase, setFase] = useState<FaseProva>('carregando')
@@ -108,6 +119,14 @@ export function useProvaTeorica({ config, retomar = false, api = apiTeorico }: O
           porDominio: correcao.porDominio,
           origem: configAtiva.origem,
         })
+        registrarNoReforco(
+          correcao.questoes
+            .filter((r) => !r.correta)
+            .flatMap((r) => {
+              const q = prova.questoes.find((x) => x.id === r.id)
+              return q ? [erroParaReforco(q, r.gabarito, r.explicacao.correta)] : []
+            }),
+        )
         limparAndamento()
         setResultado({ correcao, duracaoSeg: decorridoSeg, encerradaPorTempo: porTempo })
         setFase('resultado')
@@ -175,13 +194,15 @@ export function useProvaTeorica({ config, retomar = false, api = apiTeorico }: O
       try {
         const v = await api.verificar(questaoId, dadas)
         setVerificacoes((atual) => ({ ...atual, [questaoId]: v }))
+        const alvo = prova?.questoes.find((q) => q.id === questaoId)
+        if (!v.correta && alvo) registrarNoReforco([erroParaReforco(alvo, v.gabarito, v.explicacao.correta)])
       } catch (e) {
         setErro(e instanceof Error ? e.message : 'Não foi possível verificar a resposta.')
       } finally {
         setOcupado(false)
       }
     },
-    [api, respostas, verificacoes],
+    [api, prova, respostas, verificacoes],
   )
 
   const alternarMarca = useCallback((questaoId: string) => {

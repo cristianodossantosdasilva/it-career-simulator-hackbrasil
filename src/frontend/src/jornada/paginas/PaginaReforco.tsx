@@ -6,12 +6,25 @@ import { PainelMentor } from '../mentor/PainelMentor'
 import { LinkInterno } from '../navegacao/LinkInterno'
 import { NOME_PAGINA, enderecoDe } from '../navegacao/rotas'
 import { lerHistorico } from '../simulados/historico'
+import {
+  LIMITE_FILA_HOJE,
+  filaParaHoje,
+  gravarRevisaoEspacada,
+  lerRevisaoEspacada,
+  responderCartao,
+  sequenciaAtiva,
+} from '../simulados/revisaoEspacada'
 
-/** Página Reforço diário: revisão espaçada dos domínios abaixo de 70% e critérios pendentes de Lab. */
+/** Página Reforço diário: revisão espaçada (1/3/7/14 dias), domínios abaixo de 70% e critérios pendentes de Lab. */
 export function PaginaReforco() {
   const { registros } = useArmazenamentoJornada()
   const entradas = useMemo(() => lerHistorico(), [])
   const [revisados, setRevisados] = useState<string[]>([])
+  const [estadoRevisao, setEstadoRevisao] = useState(() => lerRevisaoEspacada())
+
+  const agora = new Date()
+  const filaHoje = filaParaHoje(estadoRevisao, agora, LIMITE_FILA_HOJE)
+  const sequenciaDias = sequenciaAtiva(estadoRevisao, agora)
 
   const dominiosParaReforcar = useMemo(() => {
     const mapa = new Map<string, { total: number; corretas: number }>()
@@ -48,16 +61,91 @@ export function PaginaReforco() {
     setRevisados((atuais) => (atuais.includes(chave) ? atuais : [...atuais, chave]))
   }
 
-  const semPendencias = dominiosParaReforcar.length === 0 && criteriosPendentes.length === 0
+  function registrarRespostaEspacada(questaoId: string, acertou: boolean) {
+    setEstadoRevisao((atual) => {
+      const proximo = responderCartao(atual, questaoId, acertou, new Date())
+      gravarRevisaoEspacada(proximo)
+      return proximo
+    })
+  }
+
+  const semPendencias =
+    dominiosParaReforcar.length === 0 && criteriosPendentes.length === 0 && estadoRevisao.cartoes.length === 0
 
   return (
     <div className="page pagina-jornada">
       <header>
         <h1 className="h1">{NOME_PAGINA.reforco}</h1>
         <p className="pagina-jornada-texto">
-          Revisão direcionada dos domínios teóricos abaixo de 70% e dos critérios de Lab ainda não atendidos.
+          Revisão espaçada (caixas de 1, 3, 7 e 14 dias), domínios teóricos abaixo de 70% e critérios de Lab pendentes.
         </p>
       </header>
+
+      <section className="secao-jornada" aria-labelledby="reforco-espacada-titulo">
+        <div className="certsim-cartao-topo">
+          <h2 id="reforco-espacada-titulo" className="h2">
+            Revisão espaçada — fila para hoje ({filaHoje.length}/{LIMITE_FILA_HOJE})
+          </h2>
+          <span className="selo-status" aria-label={`Sequência de ${sequenciaDias} ${sequenciaDias === 1 ? 'dia' : 'dias'}`}>
+            Sequência: {sequenciaDias} {sequenciaDias === 1 ? 'dia' : 'dias'}
+          </span>
+        </div>
+
+        {filaHoje.length === 0 ? (
+          <div className="certsim-cartao">
+            <p className="pagina-jornada-texto">
+              {estadoRevisao.cartoes.length === 0
+                ? 'Nenhuma questão errada na fila de revisão espaçada ainda. Ao errar questões teóricas ou de simulado, elas aparecem aqui.'
+                : 'Você concluiu todas as revisões programadas para hoje. Volte amanhã para manter sua sequência.'}
+            </p>
+          </div>
+        ) : (
+          <ul className="lista-simples">
+            {filaHoje.map((cartao) => (
+              <li key={cartao.questaoId} className="certsim-cartao">
+                <div className="certsim-cartao-topo">
+                  <span className="eyebrow">
+                    {cartao.dominio} · {cartao.origem === 'simulado' ? 'Simulado' : 'Teórico'}
+                  </span>
+                  <span className="selo-status">
+                    Caixa {cartao.caixa} {cartao.caixa === 1 ? 'dia' : 'dias'}
+                  </span>
+                </div>
+                <p className="pagina-jornada-texto">{cartao.enunciado}</p>
+                {(cartao.respostaCorreta || cartao.explicacao) && (
+                  <details className="certsim-detalhes">
+                    <summary className="certsim-detalhes-resumo">Ver resposta e explicação</summary>
+                    <div className="certsim-detalhes-corpo">
+                      {cartao.respostaCorreta && (
+                        <p>
+                          <strong>Resposta esperada:</strong> {cartao.respostaCorreta}
+                        </p>
+                      )}
+                      {cartao.explicacao && <p className="muted">{cartao.explicacao}</p>}
+                    </div>
+                  </details>
+                )}
+                <div className="acoes-linha">
+                  <button
+                    type="button"
+                    className="btn btn-primary certsim-botao-alvo"
+                    onClick={() => registrarRespostaEspacada(cartao.questaoId, true)}
+                  >
+                    <span>Acertei</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary certsim-botao-alvo"
+                    onClick={() => registrarRespostaEspacada(cartao.questaoId, false)}
+                  >
+                    <span>Errei</span>
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       {semPendencias ? (
         <div className="certsim-cartao">

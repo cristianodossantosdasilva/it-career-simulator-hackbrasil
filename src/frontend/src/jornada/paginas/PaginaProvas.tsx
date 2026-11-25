@@ -10,6 +10,7 @@ import { navegar } from '../navegacao/navegador'
 import { NOME_PAGINA, enderecoDe } from '../navegacao/rotas'
 import { calcularProgressoRota } from '../progressoRota'
 import { REGRAS_SIMULADO } from '../simulados/configSimulado'
+import { registrarInicioProvaLab } from '../simulados/portfolioLab'
 
 const CONFIG_PROVA_TEORICA: ConfigProva = {
   formato: 'padrao',
@@ -31,6 +32,7 @@ export function PaginaProvas() {
       .flatMap((e) => e.grupos.flatMap((g) => g.missoes))
       .find((m) => m.podeIniciar)
     const missao = disponivel?.missao ?? 'reset-senha-desbloqueio'
+    registrarInicioProvaLab(missao, new Date())
     navegar(enderecoDe({ pagina: 'mesa-de-trabalho', missao, semente: null, causa: null, nova: true, modo: 'prova' }))
   }
 

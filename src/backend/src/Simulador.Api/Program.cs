@@ -415,6 +415,8 @@ app.MapPost("/api/teorico/questoes/{id}/verificar", (string id, Simulador.Teoric
     ExecutarTeorico(() => servicoTeorico.Verificar(id, body)));
 app.MapPost("/api/teorico/questoes/{id}/explicar", (string id, Simulador.Teorico.ExplicarRequest? body) =>
     ExecutarTeorico(() => servicoTeorico.Explicar(id, body)));
+app.MapGet("/api/teorico/questoes/{id}/perguntas", (string id) =>
+    ExecutarTeorico(() => servicoTeorico.Perguntas(id)));
 // === /teorico ===
 app.MapPost("/api/carreira/resumo", async (
     CarreiraResumoDto? body,

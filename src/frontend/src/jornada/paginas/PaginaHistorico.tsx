@@ -6,8 +6,10 @@ import { PainelMentor } from '../mentor/PainelMentor'
 import { LinkInterno } from '../navegacao/LinkInterno'
 import { NOME_PAGINA, enderecoDe } from '../navegacao/rotas'
 import { lerHistorico } from '../simulados/historico'
+import { calcularNotaCriterios, sincronizarProvasLabDeRegistros } from '../simulados/portfolioLab'
 
 type FiltroHistorico = 'todos' | 'teorico' | 'lab' | 'aprovados'
+type FiltroModoLab = 'todos' | 'guiado' | 'prova'
 
 function formatarDuracao(segundos: number): string {
   const min = Math.floor(segundos / 60)
@@ -19,7 +21,43 @@ function formatarDuracao(segundos: number): string {
 export function PaginaHistorico() {
   const { registros } = useArmazenamentoJornada()
   const [filtro, setFiltro] = useState<FiltroHistorico>('todos')
+  const [filtroModoLab, setFiltroModoLab] = useState<FiltroModoLab>('todos')
   const entradas = useMemo(() => lerHistorico(), [])
+  const entradasProvaLab = useMemo(() => sincronizarProvasLabDeRegistros(registros), [registros])
+
+  const sessoesLabConcluidas = useMemo(() => {
+    const porSessaoProva = new Map(entradasProvaLab.map((item) => [item.sessaoId, item]))
+    const lista = registros.map((reg) => {
+      const prova = porSessaoProva.get(reg.sessaoId)
+      return {
+        sessaoId: reg.sessaoId,
+        cenario: textosDaMissao(reg.missao).titulo,
+        data: reg.concluidoEm,
+        modo: prova ? ('prova' as const) : ('guiado' as const),
+        nota: prova ? prova.nota : calcularNotaCriterios(reg.resultado.criterios),
+        xpTotal: reg.resultado.xpTotal,
+      }
+    })
+    const idsExistentes = new Set(lista.map((item) => item.sessaoId))
+    for (const prova of entradasProvaLab) {
+      if (!idsExistentes.has(prova.sessaoId)) {
+        lista.push({
+          sessaoId: prova.sessaoId,
+          cenario: prova.cenarioTitulo,
+          data: prova.data,
+          modo: 'prova' as const,
+          nota: prova.nota,
+          xpTotal: 0,
+        })
+      }
+    }
+    return lista.sort((a, b) => b.data.localeCompare(a.data))
+  }, [registros, entradasProvaLab])
+
+  const sessoesLabFiltradas = useMemo(() => {
+    if (filtroModoLab === 'todos') return sessoesLabConcluidas
+    return sessoesLabConcluidas.filter((item) => item.modo === filtroModoLab)
+  }, [sessoesLabConcluidas, filtroModoLab])
 
   const filtradas = useMemo(() => {
     switch (filtro) {
@@ -119,31 +157,65 @@ export function PaginaHistorico() {
         )}
       </section>
 
-      {registros.length > 0 && (
-        <section className="secao-jornada" aria-labelledby="historico-labs-titulo">
+      <section className="secao-jornada" aria-labelledby="historico-labs-titulo">
+        <div className="certsim-cartao-topo">
           <h2 id="historico-labs-titulo" className="h2">
-            Atendimentos na Mesa de Trabalho ({registros.length})
+            Sessões de Lab concluídas ({sessoesLabFiltradas.length})
           </h2>
+          <div className="certsim-filtros" role="group" aria-label="Filtrar sessões de Lab por modo">
+            {(
+              [
+                ['todos', 'Todos os modos'],
+                ['guiado', 'Guiado'],
+                ['prova', 'Prova'],
+              ] as const
+            ).map(([id, rotulo]) => (
+              <button
+                key={id}
+                type="button"
+                className="certsim-chip-botao"
+                aria-pressed={filtroModoLab === id}
+                onClick={() => setFiltroModoLab(id)}
+              >
+                {rotulo}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {sessoesLabFiltradas.length === 0 ? (
+          <div className="certsim-cartao">
+            <p className="pagina-jornada-texto">Nenhuma sessão de Lab concluída para este filtro ainda.</p>
+          </div>
+        ) : (
           <ul className="lista-simples">
-            {registros.map((reg) => (
-              <li key={reg.sessaoId} className="certsim-item-lista">
+            {sessoesLabFiltradas.map((sessao) => (
+              <li key={sessao.sessaoId} className="certsim-item-lista">
                 <div>
-                  <strong>{textosDaMissao(reg.missao).titulo}</strong>
+                  <strong>{sessao.cenario}</strong>
                   <p className="muted">
-                    {new Date(reg.concluidoEm).toLocaleString('pt-BR')} · {reg.resultado.xpTotal} XP
+                    {new Date(sessao.data).toLocaleString('pt-BR')} · Modo{' '}
+                    {sessao.modo === 'prova' ? 'Prova' : 'Guiado'}
+                    {sessao.xpTotal > 0 ? ` · ${sessao.xpTotal} XP` : ''}
                   </p>
                 </div>
-                <LinkInterno
-                  href={enderecoDe({ pagina: 'revisao', sessao: reg.sessaoId })}
-                  className="btn btn-secondary btn-sm"
-                >
-                  <span>Abrir Revisão</span>
-                </LinkInterno>
+                <div className="acoes-linha">
+                  <span className="selo-status">{sessao.modo === 'prova' ? 'Prova' : 'Guiado'}</span>
+                  <span className="dado-mono" aria-label={`Nota ${sessao.nota}%`}>
+                    {sessao.nota}%
+                  </span>
+                  <LinkInterno
+                    href={enderecoDe({ pagina: 'revisao', sessao: sessao.sessaoId })}
+                    className="btn btn-secondary btn-sm"
+                  >
+                    <span>Abrir Revisão</span>
+                  </LinkInterno>
+                </div>
               </li>
             ))}
           </ul>
-        </section>
-      )}
+        )}
+      </section>
 
       <PainelMentor papel="mentor" pagina="historico" />
     </div>

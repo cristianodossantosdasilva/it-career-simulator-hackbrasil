@@ -121,6 +121,20 @@ public sealed class ServicoTeorico(BancoQuestoes banco)
         return new ExplicacaoTexto(TextoEstatico(questao, estilo), "fallback");
     }
 
+    /// <summary>FAQ estático da questão: perguntas prontas com respostas prontas, sem IA. Origem sempre "faq".</summary>
+    public PerguntasDaQuestao Perguntas(string questaoId)
+    {
+        var questao = Obter(questaoId);
+        var lista = new List<PerguntaPronta>
+        {
+            new("p1", "Por que as outras alternativas estão erradas?", TextoPorQueErradas(questao)),
+        };
+        var n = 2;
+        foreach (var (pergunta, resposta) in banco.PerguntasManuais(questao.Id))
+            lista.Add(new PerguntaPronta($"p{n++}", pergunta, resposta));
+        return new PerguntasDaQuestao(questao.Id, "faq", lista);
+    }
+
     // ---- internos ----
 
     private Questao Obter(string id) =>
@@ -191,11 +205,18 @@ public sealed class ServicoTeorico(BancoQuestoes banco)
             case "exemplo":
                 return $"Exemplo no atendimento: {q.Enunciado} A conduta esperada é: {correta}. {q.Explicacao.Correta}";
             default:
-                var linhas = q.Explicacao.Incorretas
-                    .Select(i => $"- {q.Alternativas.First(a => a.Id == i.AlternativaId).Texto}: {i.Texto}");
-                return "Por que as outras alternativas estão erradas:\n" + string.Join('\n', linhas);
+                return "Por que as outras alternativas estão erradas:\n" + LinhasDasIncorretas(q);
         }
     }
+
+    private static string TextoPorQueErradas(Questao q) =>
+        q.Explicacao.Incorretas.Count == 0
+            ? "Todas as alternativas estão corretas nesta questão."
+            : LinhasDasIncorretas(q);
+
+    private static string LinhasDasIncorretas(Questao q) =>
+        string.Join('\n', q.Explicacao.Incorretas
+            .Select(i => $"- {q.Alternativas.First(a => a.Id == i.AlternativaId).Texto}: {i.Texto}"));
 
     /// <summary>Gerador pseudoaleatório estável (xorshift), independente da versão do .NET.</summary>
     private sealed class Sorteio(long semente)

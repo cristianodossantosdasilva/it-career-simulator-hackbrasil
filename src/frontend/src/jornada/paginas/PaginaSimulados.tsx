@@ -10,6 +10,7 @@ import { NOME_PAGINA, enderecoDe } from '../navegacao/rotas'
 import { calcularProgressoRota } from '../progressoRota'
 import { ConfigurarSimulado } from '../simulados/ConfigurarSimulado'
 import { type ConfiguracaoSimuladoEscolhida, paraConfigProva } from '../simulados/configSimulado'
+import { registrarInicioProvaLab } from '../simulados/portfolioLab'
 
 /** Página Simulados: configuração Teórico vs Lab (Padrão e Prática) e execução do Simulado Teórico. */
 export function PaginaSimulados() {
@@ -27,6 +28,7 @@ export function PaginaSimulados() {
       .flatMap((e) => e.grupos.flatMap((g) => g.missoes))
       .find((m) => m.podeIniciar)
     const missao = disponivel?.missao ?? 'reset-senha-desbloqueio'
+    if (escolha.formato === 'padrao') registrarInicioProvaLab(missao, new Date())
     navegar(enderecoDe({ pagina: 'mesa-de-trabalho', missao, semente: null, causa: null, nova: true, ...(escolha.formato === 'padrao' ? { modo: 'prova' as const } : {}) }))
   }
 

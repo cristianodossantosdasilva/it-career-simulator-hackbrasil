@@ -65,6 +65,11 @@ public sealed record ExplicarRequest(string? Estilo);
 
 public sealed record ExplicacaoTexto(string Texto, string Origem);
 
+/// <summary>Pergunta pronta do FAQ com a resposta pronta. Texto estático, sem IA.</summary>
+public sealed record PerguntaPronta(string Id, string Pergunta, string Resposta);
+
+public sealed record PerguntasDaQuestao(string QuestaoId, string Origem, IReadOnlyList<PerguntaPronta> Perguntas);
+
 /// <summary>Erro de validação ou de recurso ausente, traduzido para ErroProblema na API.</summary>
 public sealed class ErroTeorico(int status, string tipo, string mensagem) : Exception(mensagem)
 {

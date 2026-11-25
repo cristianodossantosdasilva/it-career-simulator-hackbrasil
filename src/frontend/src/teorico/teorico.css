@@ -111,3 +111,11 @@
   .teorico-tela { padding: var(--space-3); }
   .teorico-duas-colunas { grid-template-columns: minmax(0, 1fr); }
 }
+
+.teorico-faq { display: flex; flex-direction: column; gap: var(--space-2); }
+.teorico-faq-titulo { margin: 0; font-size: var(--font-size-base); }
+.teorico-faq-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.teorico-chip { min-height: var(--touch-target); min-width: var(--touch-target); padding: 0 var(--space-4); border-radius: 999px; border: 1px solid var(--border-control); background: var(--bg-surface); color: var(--text-primary); font-weight: var(--font-weight-semibold); font-size: var(--font-size-base); cursor: pointer; text-align: left; }
+.teorico-chip[aria-expanded='true'] { background: var(--accent-surface); color: var(--accent-text); border-color: var(--accent-text); }
+.teorico-faq-resposta { padding: var(--space-3); border-radius: var(--radius-md); background: var(--bg-surface); border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: var(--space-2); align-items: flex-start; }
+.teorico-faq-resposta[hidden] { display: none; }

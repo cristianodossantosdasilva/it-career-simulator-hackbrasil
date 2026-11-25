@@ -1,13 +1,7 @@
-import { useState } from 'react'
-import { type ApiTeorico, type EstiloExplicacao, type QuestaoPublica, type TextoExplicado, type VerificacaoQuestao } from '../api/teorico'
+import type { ApiTeorico, QuestaoPublica, VerificacaoQuestao } from '../api/teorico'
+import { PerguntasProntas } from './PerguntasProntas'
 
 const LETRAS = ['A', 'B', 'C', 'D', 'E', 'F']
-
-const ESTILOS: readonly { id: EstiloExplicacao; rotulo: string }[] = [
-  { id: 'simples', rotulo: 'Explicar de forma simples' },
-  { id: 'exemplo', rotulo: 'Exemplos do mundo real' },
-  { id: 'por-que-erradas', rotulo: 'Por que as outras estão erradas' },
-]
 
 interface Props {
   questao: QuestaoPublica
@@ -109,23 +103,6 @@ export function CartaoQuestao({
 }
 
 function Feedback({ questao, verificacao, api }: { questao: QuestaoPublica; verificacao: VerificacaoQuestao; api: ApiTeorico }) {
-  const [textos, setTextos] = useState<Partial<Record<EstiloExplicacao, TextoExplicado>>>({})
-  const [carregando, setCarregando] = useState<EstiloExplicacao | null>(null)
-  const [falha, setFalha] = useState<string | null>(null)
-
-  async function pedir(estilo: EstiloExplicacao) {
-    setCarregando(estilo)
-    setFalha(null)
-    try {
-      const t = await api.explicar(questao.id, estilo)
-      setTextos((atual) => ({ ...atual, [estilo]: t }))
-    } catch (e) {
-      setFalha(e instanceof Error ? e.message : 'Não foi possível gerar a explicação.')
-    } finally {
-      setCarregando(null)
-    }
-  }
-
   return (
     <section
       className="teorico-feedback"
@@ -135,35 +112,10 @@ function Feedback({ questao, verificacao, api }: { questao: QuestaoPublica; veri
     >
       <h3 className="teorico-feedback-titulo">{verificacao.correta ? 'Correto!' : 'Incorreto'}</h3>
       <ExplicacaoEstruturada questao={questao} verificacao={verificacao} />
-      <div className="teorico-ia" role="group" aria-label="Explicações extras">
-        {ESTILOS.map((e) => (
-          <button
-            key={e.id}
-            type="button"
-            className="teorico-botao teorico-botao-secundario"
-            disabled={carregando !== null}
-            onClick={() => void pedir(e.id)}
-          >
-            {carregando === e.id ? 'Gerando...' : e.rotulo}
-          </button>
-        ))}
-      </div>
-      {falha && <p role="alert" className="teorico-erro">{falha}</p>}
-      {ESTILOS.map((e) => {
-        const t = textos[e.id]
-        return t ? (
-          <div key={e.id} className="teorico-texto-extra">
-            <p className="teorico-texto-extra-rotulo">
-              {e.rotulo} <span className="teorico-etiqueta teorico-etiqueta-suave">{t.origem === 'ia' ? 'Gerado por IA' : 'Texto padrão'}</span>
-            </p>
-            <p className="teorico-quebra">{t.texto}</p>
-          </div>
-        ) : null
-      })}
+      <PerguntasProntas questaoId={questao.id} api={api} />
     </section>
   )
 }
-
 export function ExplicacaoEstruturada({ questao, verificacao }: { questao: QuestaoPublica; verificacao: Pick<VerificacaoQuestao, 'explicacao'> }) {
   const textoDe = (id: string) => questao.alternativas.find((a) => a.id === id)?.texto ?? id
   const { explicacao } = verificacao

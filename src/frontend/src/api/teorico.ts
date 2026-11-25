@@ -76,6 +76,19 @@ export interface TextoExplicado {
   origem: 'ia' | 'fallback'
 }
 
+export interface PerguntaPronta {
+  id: string
+  pergunta: string
+  resposta: string
+}
+
+/** FAQ estático da questão: perguntas prontas com respostas prontas (origem sempre 'faq'). */
+export interface PerguntasQuestao {
+  questaoId: string
+  origem: 'faq'
+  perguntas: PerguntaPronta[]
+}
+
 export interface TopicoCatalogo {
   dominio: string
   topico: string
@@ -141,6 +154,8 @@ export const apiTeorico = {
     post<VerificacaoQuestao>(`/api/teorico/questoes/${encodeURIComponent(questaoId)}/verificar`, { respostas }),
   corrigir: (pedido: { semente: number; formato: FormatoProva; escopo: EscopoProva; respostas: RespostaDaQuestao[] }) =>
     post<CorrecaoProva>('/api/teorico/provas/corrigir', pedido),
+  perguntas: (questaoId: string) =>
+    chamar<PerguntasQuestao>(`/api/teorico/questoes/${encodeURIComponent(questaoId)}/perguntas`),
   explicar: (questaoId: string, estilo: EstiloExplicacao) =>
     post<TextoExplicado>(`/api/teorico/questoes/${encodeURIComponent(questaoId)}/explicar`, { estilo }),
 }

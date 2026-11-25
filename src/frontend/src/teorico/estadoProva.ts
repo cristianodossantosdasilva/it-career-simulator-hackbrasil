@@ -1,3 +1,4 @@
+import type { NovoErroQuestao } from '../jornada/simulados/revisaoEspacada'
 import type { EscopoProva, FormatoProva, PedidoProva, QuestaoPublica, VerificacaoQuestao } from '../api/teorico'
 
 export const CHAVE_ANDAMENTO_TEORICO = 'itfs_teorico_andamento'
@@ -145,5 +146,27 @@ export function limparAndamento(
     armazenamento?.removeItem(CHAVE_ANDAMENTO_TEORICO)
   } catch {
     // sem armazenamento, nada a limpar
+  }
+}
+
+const NOMES_DOMINIO: Readonly<Record<string, string>> = {
+  acesso: 'Acesso e contas',
+  redes: 'Redes',
+  hardware: 'Hardware',
+  sistemas: 'Sistemas e ERP',
+  seguranca: 'Segurança',
+  backup: 'Backup e continuidade',
+}
+
+/** Converte uma questão errada no formato do Reforço diário (revisão espaçada). */
+export function erroParaReforco(questao: QuestaoPublica, gabarito: readonly string[], explicacao: string): NovoErroQuestao {
+  return {
+    questaoId: questao.id,
+    dominio: NOMES_DOMINIO[questao.dominio] ?? questao.dominio,
+    topico: questao.topico,
+    enunciado: questao.enunciado,
+    respostaCorreta: questao.alternativas.filter((a) => gabarito.includes(a.id)).map((a) => a.texto).join('; '),
+    explicacao,
+    origem: 'teorico',
   }
 }

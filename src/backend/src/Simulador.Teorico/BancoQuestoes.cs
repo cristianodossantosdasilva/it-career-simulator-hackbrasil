@@ -6,7 +6,7 @@ namespace Simulador.Teorico;
 /// </summary>
 public sealed class BancoQuestoes
 {
-    public static BancoQuestoes Padrao { get; } = new(QuestoesPadrao.Criar());
+    public static BancoQuestoes Padrao { get; } = new(QuestoesPadrao.Criar(), PerguntasPadrao.Criar());
 
     public IReadOnlyList<Questao> Todas { get; }
     public IReadOnlyList<Dominio> Dominios { get; } =
@@ -21,13 +21,22 @@ public sealed class BancoQuestoes
 
     private readonly Dictionary<string, Questao> _porId;
 
-    public BancoQuestoes(IReadOnlyList<Questao> questoes)
+    private readonly IReadOnlyDictionary<string, IReadOnlyList<(string Pergunta, string Resposta)>> _faq;
+
+    public BancoQuestoes(
+        IReadOnlyList<Questao> questoes,
+        IReadOnlyDictionary<string, IReadOnlyList<(string Pergunta, string Resposta)>>? faq = null)
     {
         Todas = questoes;
+        _faq = faq ?? new Dictionary<string, IReadOnlyList<(string Pergunta, string Resposta)>>();
         _porId = questoes.ToDictionary(q => q.Id, StringComparer.Ordinal);
     }
 
     public Questao? Obter(string id) => _porId.GetValueOrDefault(id);
+
+    /// <summary>Perguntas escritas à mão para a questão (sem a pergunta derivada da explicação).</summary>
+    public IReadOnlyList<(string Pergunta, string Resposta)> PerguntasManuais(string id) =>
+        _faq.GetValueOrDefault(id) ?? [];
 
     public CatalogoTopicos Catalogo()
     {
